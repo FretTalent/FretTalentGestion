@@ -48,11 +48,11 @@ export default function Home() {
           })
         );
 
-        // Projeter les coordonnées sur la carte de France (en x/y de 0 à 100)
-        const minLon = -5.2;
-        const maxLon = 8.5;
-        const minLat = 42.2;
-        const maxLat = 51.1;
+        // Projeter les coordonnées sur la carte de France réelle (en x/y de 0 à 100)
+        const minLon = -5.5;
+        const maxLon = 10.0;
+        const minLat = 41.0;
+        const maxLat = 51.2;
 
         const mappedCandidates = data
           .map((c) => {
@@ -257,15 +257,11 @@ export default function Home() {
                 
                 {/* Carte de France SVG en arrière-plan */}
                 <div className="relative w-full max-w-[340px] h-[340px] flex-shrink-0">
-                  <svg viewBox="0 0 500 500" className="w-full h-full text-slate-200 drop-shadow-sm select-none" fill="currentColor">
-                    <path 
-                      d="M250,15 L285,18 L330,42 L385,45 L415,75 L425,115 L445,135 L435,175 L465,205 L445,245 L415,265 L425,295 L405,345 L395,395 L345,435 L325,425 L295,445 L245,475 L215,485 L185,475 L145,465 L105,435 L85,415 L65,375 L45,355 L25,335 L15,295 L35,255 L25,205 L45,165 L25,135 L40,115 L75,105 L100,70 L145,70 L175,45 Z" 
-                      fill="#f1f5f9" 
-                      stroke="#cbd5e1" 
-                      strokeWidth="2.5" 
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <img 
+                    src="https://upload.wikimedia.org/wikipedia/commons/f/fb/France_blank_map_2016.svg" 
+                    alt="Carte de France" 
+                    className="w-full h-full object-contain opacity-70 select-none pointer-events-none filter grayscale contrast-125"
+                  />
 
                   {/* Points des candidats positionnés en absolu */}
                   {!loadingMap && candidates.map((candidate) => (

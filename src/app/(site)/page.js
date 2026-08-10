@@ -96,9 +96,34 @@ export default function Home() {
                       <span className="bg-slate-100 px-2.5 py-1 rounded-md font-medium text-center">Dispo: Immédiate</span>
                     </div>
 
-                    <button className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-xl text-xs shadow-md transition-all">
-                      Débloquer le contact (2€)
-                    </button>
+                    <div className="relative group/btn w-full">
+                      {/* Bloc d'information interactif (Tooltip) */}
+                      <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-64 bg-slate-950/95 backdrop-blur-md border border-slate-800 p-4 rounded-2xl shadow-2xl space-y-2.5 opacity-0 scale-95 translate-y-2 pointer-events-none group-hover/btn:opacity-100 group-hover/btn:scale-100 group-hover/btn:translate-y-0 transition-all duration-300 ease-out z-20">
+                        <div className="text-[10px] font-bold text-orange-500 uppercase tracking-wider border-b border-slate-800 pb-1.5">
+                          Ce que vous débloquez :
+                        </div>
+                        <ul className="space-y-2 text-[11px] text-slate-200">
+                          <li className="flex items-center gap-2">
+                            <span className="text-orange-500 text-xs">📈</span>
+                            <span className="font-semibold">Facturation mensuelle</span>
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <span className="text-orange-500 text-xs">⚡</span>
+                            <span>Info contact instantané (tél, email)</span>
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <span className="text-orange-500 text-xs">📂</span>
+                            <span>Tous les documents candidat visibles</span>
+                          </li>
+                        </ul>
+                        {/* Flèche du tooltip */}
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-t-slate-950/95 w-0 h-0"></div>
+                      </div>
+
+                      <button className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-md transition-all">
+                        Débloquer le contact (2€)
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

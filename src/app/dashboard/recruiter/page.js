@@ -151,7 +151,7 @@ export default function RecruiterDashboard() {
     }
   };
 
-  // Débloquer un chauffeur
+  // Débloquer un chauffeur via l'API sécurisée
   const handleUnlockCandidate = async (candidateId) => {
     if (!company.has_payment_method) {
       setShowBillingModal(true);
@@ -160,20 +160,22 @@ export default function RecruiterDashboard() {
 
     setUnlocking(true);
     try {
-      const { error } = await supabase
-        .from("unlocks")
-        .insert([{
-          company_id: company.id,
-          candidate_id: candidateId,
-          amount_charged: 200 // 2.00 €
-        }]);
+      const res = await fetch("/api/unlock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ candidateId })
+      });
 
-      if (error) throw error;
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Erreur de déblocage");
+      }
 
       // Mettre à jour la liste locale des déblocages
       setMyUnlocks([...myUnlocks, candidateId]);
       
-      // Mettre à jour les données du candidat sélectionné
+      // Recharger les données pour récupérer le nom, l'email et le téléphone désormais accessibles
+      // en faisant un select car les coordonnées sont maintenant visibles via les policies RLS.
       const { data: updatedCand } = await supabase
         .from("candidates")
         .select("*")
@@ -183,7 +185,7 @@ export default function RecruiterDashboard() {
       setSelectedCandidate(updatedCand);
       setMessage({ type: "success", text: "Coordonnées débloquées avec succès !" });
     } catch (err) {
-      setMessage({ type: "error", text: "Erreur de déblocage." });
+      setMessage({ type: "error", text: err.message || "Erreur de déblocage." });
     } finally {
       setUnlocking(false);
     }

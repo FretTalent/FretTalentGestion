@@ -3,9 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Truck, Save, RefreshCw, Eye, EyeOff, UserCheck, ShieldAlert } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import { Save, RefreshCw, Eye, EyeOff, UserCheck, ShieldAlert } from "lucide-react";
 
 export default function CandidateDashboard() {
   const router = useRouter();
@@ -151,31 +149,20 @@ export default function CandidateDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="flex items-center justify-center h-64">
         <RefreshCw className="h-8 w-8 text-orange-500 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <Header />
-      <main className="flex-grow max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 w-full space-y-8">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-          <div className="space-y-1">
-            <h1 className="text-2xl font-black text-slate-900">Espace Candidat</h1>
-            <p className="text-sm text-slate-500">Gérez votre visibilité et vos informations de recrutement.</p>
-          </div>
-          <button
-            onClick={async () => {
-              await supabase.auth.signOut();
-              router.push("/login");
-            }}
-            className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
-          >
-            Se déconnecter
-          </button>
+    <div className="max-w-7xl mx-auto space-y-8">
+      <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-black text-slate-900">Espace Candidat</h1>
+          <p className="text-sm text-slate-500">Gérez votre visibilité et vos informations de recrutement.</p>
         </div>
+      </div>
 
         {/* Message Status */}
         {message && (
@@ -407,8 +394,6 @@ export default function CandidateDashboard() {
             </div>
           </div>
         </div>
-      </main>
-      <Footer />
     </div>
   );
 }

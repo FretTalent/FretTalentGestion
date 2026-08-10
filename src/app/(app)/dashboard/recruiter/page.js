@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { 
-  Truck, 
   Search, 
   MapPin, 
   Unlock, 
@@ -15,8 +14,6 @@ import {
   Filter, 
   UserCheck 
 } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 export default function RecruiterDashboard() {
   const router = useRouter();
@@ -267,47 +264,35 @@ export default function RecruiterDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="flex items-center justify-center h-64">
         <RefreshCw className="h-8 w-8 text-orange-500 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <Header />
-      <main className="flex-grow max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 w-full space-y-8">
-        
-        {/* Banner/Header */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-          <div>
-            <h1 className="text-2xl font-black text-slate-900">Espace Entreprise — {company?.name}</h1>
-            <p className="text-sm text-slate-500">Recherchez et débloquez des chauffeurs ou gérez vos offres d'emploi.</p>
-          </div>
-          <div className="flex items-center gap-3">
-            {!company?.has_payment_method ? (
-              <button
-                onClick={() => setShowBillingModal(true)}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-orange-100 hover:bg-orange-200 text-orange-600 border border-orange-200 transition-colors flex items-center gap-2"
-              >
-                <CreditCard className="h-4 w-4" /> Enregistrer ma carte
-              </button>
-            ) : (
-              <span className="px-4 py-2 rounded-xl text-xs font-bold bg-green-50 text-green-700 border border-green-200 flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4" /> Carte enregistrée (Stripe)
-              </span>
-            )}
-            <button
-              onClick={async () => {
-                await supabase.auth.signOut();
-                router.push("/login");
-              }}
-              className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
-            >
-              Se déconnecter
-            </button>
-          </div>
+    <div className="max-w-7xl mx-auto space-y-8">
+      {/* Banner/Header */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+        <div>
+          <h1 className="text-2xl font-black text-slate-900">Espace Entreprise — {company?.name}</h1>
+          <p className="text-sm text-slate-500">Recherchez et débloquez des chauffeurs ou gérez vos offres d'emploi.</p>
         </div>
+        <div className="flex items-center gap-3">
+          {!company?.has_payment_method ? (
+            <button
+              onClick={() => setShowBillingModal(true)}
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-orange-100 hover:bg-orange-200 text-orange-600 border border-orange-200 transition-colors flex items-center gap-2"
+            >
+              <CreditCard className="h-4 w-4" /> Enregistrer ma carte
+            </button>
+          ) : (
+            <span className="px-4 py-2 rounded-xl text-xs font-bold bg-green-50 text-green-700 border border-green-200 flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4" /> Carte enregistrée (Stripe)
+            </span>
+          )}
+        </div>
+      </div>
 
         {/* Onglets interactifs */}
         <div className="flex border-b border-slate-200 gap-6">
@@ -649,7 +634,6 @@ export default function RecruiterDashboard() {
             </div>
           </div>
         )}
-      </main>
 
       {/* Modal d'enregistrement Stripe simulé */}
       {showBillingModal && (
@@ -712,8 +696,6 @@ export default function RecruiterDashboard() {
           </div>
         </div>
       )}
-
-      <Footer />
     </div>
   );
 }

@@ -3,9 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Truck, Users, Key, BarChart3, RefreshCw, AlertCircle } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import { Truck, Users, Key, BarChart3, RefreshCw } from "lucide-react";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -138,33 +136,21 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="flex items-center justify-center h-64">
         <RefreshCw className="h-8 w-8 text-orange-500 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <Header />
-      <main className="flex-grow max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 w-full space-y-8">
-        
-        {/* Banner */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-          <div>
-            <h1 className="text-2xl font-black text-slate-900 font-sans tracking-tight">Console d'Administration</h1>
-            <p className="text-sm text-slate-500">Supervisez l'activité globale de FretTalent en temps réel.</p>
-          </div>
-          <button
-            onClick={async () => {
-              await supabase.auth.signOut();
-              router.push("/login");
-            }}
-            className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
-          >
-            Se déconnecter
-          </button>
+    <div className="max-w-7xl mx-auto space-y-8">
+      {/* Banner */}
+      <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+        <div>
+          <h1 className="text-2xl font-black text-slate-900 font-sans tracking-tight">Console d'Administration</h1>
+          <p className="text-sm text-slate-500">Supervisez l'activité globale de FretTalent en temps réel.</p>
         </div>
+      </div>
 
         {/* KPIs Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -310,7 +296,7 @@ export default function AdminDashboard() {
                       <button
                         onClick={() => handleModerateJob(job.id, "rejected")}
                         disabled={actionLoading}
-                        className="w-1/2 md:w-auto inline-flex items-center justify-center p-2.5 rounded-xl text-xs font-bold text-white bg-red-650 hover:bg-red-700 transition-colors gap-1"
+                        className="w-1/2 md:w-auto inline-flex items-center justify-center p-2.5 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 transition-colors gap-1"
                       >
                         Rejeter
                       </button>
@@ -321,8 +307,6 @@ export default function AdminDashboard() {
             )}
           </div>
         )}
-      </main>
-      <Footer />
     </div>
   );
 }

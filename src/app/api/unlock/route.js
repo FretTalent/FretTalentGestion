@@ -33,14 +33,21 @@ export async function POST(req) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    // 2. Valider que l'utilisateur est bien un recruteur
-    const { data: profile } = await supabase
+    // 2. Valider que l'utilisateur est bien un recruteur. 
+    // On utilise un client privilégié (avec le service role) pour contourner la RLS sur la table profiles lors de l'authentification API.
+    const { createClient: createDirectClient } = require('@supabase/supabase-js');
+    const supabaseAdmin = createDirectClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    );
+
+    const { data: profile, error: profileErr } = await supabaseAdmin
       .from("profiles")
       .select("role")
       .eq("id", activeUser.id)
       .single();
 
-    if (profile?.role !== "recruiter") {
+    if (profileErr || profile?.role !== "recruiter") {
       return NextResponse.json({ error: "Accès interdit" }, { status: 403 });
     }
 
@@ -51,7 +58,7 @@ export async function POST(req) {
     }
 
     // 4. Charger l'entreprise de l'utilisateur
-    const { data: company } = await supabase
+    const { data: company } = await supabaseAdmin
       .from("companies")
       .select("*")
       .eq("id", activeUser.id)
@@ -67,7 +74,7 @@ export async function POST(req) {
     }
 
     // 5. Créer l'enregistrement de déblocage (2,00 €)
-    const { error: insertError } = await supabase
+    const { error: insertError } = await supabaseAdmin
       .from("unlocks")
       .insert([{
         company_id: company.id,

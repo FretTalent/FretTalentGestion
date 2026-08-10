@@ -4,11 +4,32 @@ import { createClient } from "@/lib/supabase-server";
 
 export async function POST(req) {
   try {
+    // 1. Initialiser le client de base de données
     const supabase = await createClient();
 
-    // 1. Récupérer la session utilisateur connectée
+    // 2. Extraire et valider l'utilisateur
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+
+    // Fallback: Si getUser échoue ou n'est pas autorisé par les cookies de sous-requête fetch, 
+    // on peut tenter de lire l'access token directement depuis les cookies du header de la requête entrante.
+    let activeUser = user;
+    if (authError || !activeUser) {
+      // Tenter de lire l'access token depuis le cookie de session sb-access-token
+      const authHeader = req.headers.get("Authorization");
+      let token = null;
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        token = authHeader.split(" ")[1];
+      }
+      
+      if (token) {
+        const { data: jwtData } = await supabase.auth.getUser(token);
+        if (jwtData?.user) {
+          activeUser = jwtData.user;
+        }
+      }
+    }
+
+    if (!activeUser) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
@@ -16,7 +37,7 @@ export async function POST(req) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
-      .eq("id", user.id)
+      .eq("id", activeUser.id)
       .single();
 
     if (profile?.role !== "recruiter") {
@@ -33,7 +54,7 @@ export async function POST(req) {
     const { data: company } = await supabase
       .from("companies")
       .select("*")
-      .eq("id", user.id)
+      .eq("id", activeUser.id)
       .single();
 
     if (!company) {

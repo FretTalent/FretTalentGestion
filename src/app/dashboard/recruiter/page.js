@@ -160,9 +160,19 @@ export default function RecruiterDashboard() {
 
     setUnlocking(true);
     try {
+      // Récupérer le token d'accès Supabase actif
+      const { data: { session } } = await supabase.auth.getSession();
+      const headers = { 
+        "Content-Type": "application/json" 
+      };
+
+      if (session?.access_token) {
+        headers["Authorization"] = `Bearer ${session.access_token}`;
+      }
+
       const res = await fetch("/api/unlock", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ candidateId })
       });
 

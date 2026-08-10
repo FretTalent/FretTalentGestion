@@ -17,6 +17,41 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-orange-500 selection:text-white">
 
+      {/* Bannière Défilante "Ils nous font confiance" */}
+      <section className="bg-slate-50 border-b border-slate-100 py-6 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-3">
+          <p className="text-center text-xs font-bold text-slate-400 uppercase tracking-widest">
+            Ils nous font déjà confiance
+          </p>
+        </div>
+        <div className="relative w-full flex items-center">
+          {/* Gradients pour effet fondu sur les côtés */}
+          <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none"></div>
+          
+          <div className="flex overflow-hidden">
+            {/* Premier set d'images pour le défilement infini */}
+            <div className="animate-marquee flex items-center gap-16 pr-16">
+              <img src="https://get-picto.com/wp-content/uploads/2023/07/amazon-logo-png.webp" alt="Amazon" className="h-8 md:h-10 object-contain grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all duration-300" />
+              <img src="https://koerber-supplychain.com/fileadmin/_processed_/a/b/csm_reference_db-schenker_logo_814c09a032.png" alt="DB Schenker" className="h-8 md:h-10 object-contain grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all duration-300" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/XPO_Logistics_logo.svg/1280px-XPO_Logistics_logo.svg.png" alt="XPO Logistics" className="h-6 md:h-8 object-contain grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all duration-300" />
+              <img src="https://images.seeklogo.com/logo-png/18/2/translux-logo-png_seeklogo-187301.png" alt="Translux" className="h-8 md:h-10 object-contain grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all duration-300" />
+              <img src="https://www.liblogo.com/img-logo/ge60143be2-geodis-logo-3pl-geodis-saves-25-on-packaging-supplies-by-vendor-consolidation.png" alt="Geodis" className="h-8 md:h-10 object-contain grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all duration-300" />
+              <img src="https://i.pinimg.com/originals/27/87/7b/27877bcbab95edc899c251e48af48fc3.png" alt="Logistics Carrier" className="h-8 md:h-10 object-contain grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all duration-300" />
+            </div>
+            {/* Deuxième set identique pour boucler à l'infini sans coupure */}
+            <div className="animate-marquee flex items-center gap-16 pr-16" aria-hidden="true">
+              <img src="https://get-picto.com/wp-content/uploads/2023/07/amazon-logo-png.webp" alt="Amazon" className="h-8 md:h-10 object-contain grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all duration-300" />
+              <img src="https://koerber-supplychain.com/fileadmin/_processed_/a/b/csm_reference_db-schenker_logo_814c09a032.png" alt="DB Schenker" className="h-8 md:h-10 object-contain grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all duration-300" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/XPO_Logistics_logo.svg/1280px-XPO_Logistics_logo.svg.png" alt="XPO Logistics" className="h-6 md:h-8 object-contain grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all duration-300" />
+              <img src="https://images.seeklogo.com/logo-png/18/2/translux-logo-png_seeklogo-187301.png" alt="Translux" className="h-8 md:h-10 object-contain grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all duration-300" />
+              <img src="https://www.liblogo.com/img-logo/ge60143be2-geodis-logo-3pl-geodis-saves-25-on-packaging-supplies-by-vendor-consolidation.png" alt="Geodis" className="h-8 md:h-10 object-contain grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all duration-300" />
+              <img src="https://i.pinimg.com/originals/27/87/7b/27877bcbab95edc899c251e48af48fc3.png" alt="Logistics Carrier" className="h-8 md:h-10 object-contain grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all duration-300" />
+            </div>
+          </div>
+        </div>
+      </section>
+
       <main className="flex-grow flex items-center">
         {/* HERO SECTION UNIQUE */}
         <section className="w-full relative overflow-hidden py-16 md:py-24">

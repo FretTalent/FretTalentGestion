@@ -1,7 +1,5 @@
 import Link from "next/link";
 import { CheckCircle2, Search } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 export const metadata = {
   title: "Recruteur - Trouver un Chauffeur | FretTalent",
@@ -11,7 +9,6 @@ export const metadata = {
 export default function PourLesEntreprises() {
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans">
-      <Header />
       <main className="flex-grow py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -64,7 +61,6 @@ export default function PourLesEntreprises() {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

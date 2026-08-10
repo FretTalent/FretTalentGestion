@@ -6,9 +6,6 @@ import {
   MapPin, 
   ArrowRight 
 } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import CookieBanner from "@/components/CookieBanner";
 
 export default function Home() {
   const stats = [
@@ -19,7 +16,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-orange-500 selection:text-white">
-      <Header />
 
       <main className="flex-grow flex items-center">
         {/* HERO SECTION UNIQUE */}
@@ -159,9 +155,6 @@ export default function Home() {
           </div>
         </section>
       </main>
-
-      <Footer />
-      <CookieBanner />
     </div>
   );
 }

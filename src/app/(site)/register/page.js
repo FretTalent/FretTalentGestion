@@ -5,8 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Truck, AlertCircle, ShieldAlert } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 function RegisterContent() {
   const router = useRouter();
@@ -298,13 +296,11 @@ function RegisterContent() {
 export default function Register() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <Header />
       <main className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <Suspense fallback={<div className="text-center p-8">Chargement de la page...</div>}>
           <RegisterContent />
         </Suspense>
       </main>
-      <Footer />
     </div>
   );
 }

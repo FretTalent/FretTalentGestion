@@ -4,8 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Truck, MapPin, Calendar, FileText, ChevronRight, RefreshCw, Briefcase } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 export default function PublicJobsList() {
   const [jobs, setJobs] = useState([]);
@@ -44,7 +42,6 @@ export default function PublicJobsList() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <Header />
       <main className="flex-grow max-w-5xl mx-auto px-4 py-16 sm:px-6 lg:px-8 w-full space-y-8">
         
         <div className="text-center max-w-3xl mx-auto space-y-4">
@@ -112,7 +109,6 @@ export default function PublicJobsList() {
           </div>
         )}
       </main>
-      <Footer />
     </div>
   );
 }

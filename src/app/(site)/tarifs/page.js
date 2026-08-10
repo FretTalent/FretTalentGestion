@@ -1,6 +1,4 @@
 import { CheckCircle2 } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 export const metadata = {
   title: "Tarifs Recrutement - Usage & Forfaits | FretTalent",
@@ -10,7 +8,6 @@ export const metadata = {
 export default function Tarifs() {
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans">
-      <Header />
       <main className="flex-grow py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
@@ -80,7 +77,6 @@ export default function Tarifs() {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

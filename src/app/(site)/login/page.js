@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Truck, AlertCircle } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 export default function Login() {
   const router = useRouter();
@@ -55,7 +53,6 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <Header />
       <main className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full bg-white p-8 rounded-3xl border border-slate-200 shadow-xl space-y-6">
           <div className="text-center space-y-2">
@@ -128,7 +125,6 @@ export default function Login() {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

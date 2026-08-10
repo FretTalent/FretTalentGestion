@@ -1,5 +1,3 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 export const metadata = {
   title: "Mentions Légales | FretTalent",
@@ -9,7 +7,6 @@ export const metadata = {
 export default function MentionsLegales() {
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans">
-      <Header />
       <main className="flex-grow max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8 space-y-8">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
           Mentions Légales
@@ -43,7 +40,6 @@ export default function MentionsLegales() {
           </p>
         </section>
       </main>
-      <Footer />
     </div>
   );
 }

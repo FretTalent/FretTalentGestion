@@ -144,13 +144,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
-      {/* Banner */}
-      <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-        <div>
-          <h1 className="text-2xl font-black text-slate-900 font-sans tracking-tight">Console d'Administration</h1>
-          <p className="text-sm text-slate-500">Supervisez l'activité globale de FretTalent en temps réel.</p>
-        </div>
-      </div>
 
         {/* KPIs Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

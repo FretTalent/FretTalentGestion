@@ -272,26 +272,20 @@ export default function RecruiterDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
-      {/* Banner/Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-        <div>
-          <h1 className="text-2xl font-black text-slate-900">Espace Entreprise — {company?.name}</h1>
-          <p className="text-sm text-slate-500">Recherchez et débloquez des chauffeurs ou gérez vos offres d'emploi.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          {!company?.has_payment_method ? (
-            <button
-              onClick={() => setShowBillingModal(true)}
-              className="px-4 py-2 rounded-xl text-xs font-bold bg-orange-100 hover:bg-orange-200 text-orange-600 border border-orange-200 transition-colors flex items-center gap-2"
-            >
-              <CreditCard className="h-4 w-4" /> Enregistrer ma carte
-            </button>
-          ) : (
-            <span className="px-4 py-2 rounded-xl text-xs font-bold bg-green-50 text-green-700 border border-green-200 flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4" /> Carte enregistrée (Stripe)
-            </span>
-          )}
-        </div>
+      {/* Badge paiement */}
+      <div className="flex justify-end">
+        {!company?.has_payment_method ? (
+          <button
+            onClick={() => setShowBillingModal(true)}
+            className="px-4 py-2 rounded-xl text-xs font-bold bg-orange-100 hover:bg-orange-200 text-orange-600 border border-orange-200 transition-colors flex items-center gap-2"
+          >
+            <CreditCard className="h-4 w-4" /> Enregistrer ma carte bancaire
+          </button>
+        ) : (
+          <span className="px-4 py-2 rounded-xl text-xs font-bold bg-green-50 text-green-700 border border-green-200 flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4" /> Carte enregistrée (Stripe)
+          </span>
+        )}
       </div>
 
         {/* Onglets interactifs */}

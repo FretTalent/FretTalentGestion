@@ -37,6 +37,25 @@ body {
 .animate-marquee {
   display: flex;
   width: max-content;
-  animation: marquee 30s linear infinite;
+  animation: marquee 25s linear infinite;
+  gap: 5rem; /* Espace fixe et garanti entre les logos */
+  padding-right: 5rem;
 }
+
+.partner-logo {
+  height: 2.25rem; /* Hauteur standardisée de 36px */
+  width: 8rem;     /* Largeur standardisée de 128px */
+  object-fit: contain;
+  flex-shrink: 0;
+  opacity: 0.75;
+  transition: all 0.3s ease;
+  /* Rend l'image totalement noire puis la colore en orange FretTalent (#f97316) */
+  filter: brightness(0) invert(53%) sepia(93%) saturate(2255%) hue-rotate(352deg) brightness(98%) contrast(97%);
+}
+
+.partner-logo:hover {
+  opacity: 1;
+  filter: none; /* Affiche les couleurs d'origine au survol */
+}
+
 

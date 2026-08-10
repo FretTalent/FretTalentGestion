@@ -1,72 +1,253 @@
 import Link from "next/link";
-import { CheckCircle2 } from "lucide-react";
+import { 
+  CheckCircle2, 
+  UserPlus, 
+  Eye, 
+  FileText, 
+  Shield, 
+  Clock, 
+  ArrowRight,
+  Sparkles
+} from "lucide-react";
 
 export const metadata = {
-  title: "Chauffeur Routier - Inscription Gratuite | FretTalent",
-  description: "Rejoignez FretTalent gratuitement. Soyez visible de manière 100% anonyme pour les entreprises proches de chez vous.",
+  title: "Espace Chauffeurs Routiers - Emploi & Recrutement Direct | FretTalent",
+  description: "Inscrivez-vous gratuitement en tant que chauffeur routier (PL/SPL). Valorisez vos permis C/CE, FIMO, ADR et soyez contacté directement et de manière anonyme par les transporteurs.",
 };
 
 export default function PourLesChauffeurs() {
+  const steps = [
+    {
+      icon: UserPlus,
+      title: "1. Inscription 100% Gratuite",
+      desc: "Créez votre profil en 2 minutes. Renseignez vos permis (C, CE), vos habilitations (FIMO, ADR, etc.) et votre localisation. C'est totalement gratuit pour vous, sans aucun frais caché."
+    },
+    {
+      icon: Eye,
+      title: "2. Profil Anonyme & Sécurisé",
+      desc: "Les transporteurs proches de chez vous consultent vos compétences, votre expérience et votre disponibilité réelle. Votre identité et vos coordonnées restent totalement masquées."
+    },
+    {
+      icon: FileText,
+      title: "3. Contact Direct & Documents",
+      desc: "Lorsqu'une entreprise est intéressée, elle débloque votre contact. Elle reçoit alors instantanément vos coordonnées et vos justificatifs (permis, carte conducteur, FIMO) pour vous proposer le poste."
+    }
+  ];
+
+  const docs = [
+    { label: "Permis C & CE (PL / SPL)", active: true },
+    { label: "FIMO & FCO à jour", active: true },
+    { label: "Carte Conducteur (Chrono)", active: true },
+    { label: "Spécialisation ADR (Matières Dangereuses)", active: true },
+    { label: "CV et attestations professionnelles", active: true }
+  ];
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <main className="flex-grow py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="bg-white border border-slate-205 rounded-3xl p-8 space-y-6 shadow-sm">
-              <div className="space-y-4">
-                <div className="text-center font-bold text-slate-800 text-sm border-b border-slate-100 pb-4">
-                  Garantie d'anonymat FretTalent
-                </div>
-                <div className="space-y-2 text-xs text-slate-650">
-                  <p className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                    Nom & Prénom masqués
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                    Numéro de téléphone masqué
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                    Adresse e-mail masquée
-                  </p>
-                </div>
-              </div>
-            </div>
+    <div className="bg-white text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden py-20 bg-gradient-to-b from-slate-50 to-white border-b border-slate-100">
+        <div className="absolute inset-0 bg-[radial-gradient(#f97316_1px,transparent_1px)] [background-size:24px_24px] opacity-5"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
-            <div className="space-y-6">
-              <h1 className="text-4xl font-extrabold text-slate-950 sm:text-5xl">
-                Votre profil, vos règles
-              </h1>
-              <p className="text-slate-600 text-lg leading-relaxed">
-                L'inscription est 100% gratuite et prend moins de 2 minutes. Vos données personnelles restent strictement anonymes. Seule l'entreprise de votre choix peut accéder à vos informations une fois le déblocage validé.
-              </p>
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm font-medium text-slate-700">100% gratuit, sans aucun abonnement candidat</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm font-medium text-slate-700">Visibilité contrôlable et désactivable en 1 clic</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm font-medium text-slate-700">Données protégées et non revendues (conforme RGPD)</span>
-                </div>
+            {/* Texte Hero */}
+            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 text-xs font-semibold">
+                <Sparkles className="h-4 w-4" /> 100% Gratuit pour tous les Chauffeurs
               </div>
-              <div className="pt-4">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-950 tracking-tight leading-none">
+                Trouvez votre prochain job de chauffeur routier <span className="text-orange-500 relative">sans intermédiaire<span className="absolute bottom-1 left-0 w-full h-2 bg-orange-200/50 -z-10 rounded"></span></span>
+              </h1>
+              <p className="text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                FretTalent vous met directement en relation avec les transporteurs qui recrutent. Créez votre dossier professionnel sécurisé, restez anonyme et laissez les entreprises vous contacter selon vos disponibilités.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                 <Link 
                   href="/register?role=candidate" 
-                  className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-bold text-white bg-slate-900 hover:bg-slate-950 shadow-lg transition-all"
+                  className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-bold text-white bg-orange-500 hover:bg-orange-600 shadow-xl shadow-orange-500/25 transition-all duration-300 hover:-translate-y-0.5"
                 >
-                  Je crée mon profil chauffeur
+                  Créer mon profil gratuitement
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+                <Link 
+                  href="/comment-ca-marche" 
+                  className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-bold text-slate-900 border-2 border-slate-200 hover:border-slate-950 transition-all duration-300"
+                >
+                  Comment ça marche ?
                 </Link>
               </div>
             </div>
+
+            {/* Carte Visuelle interactive / Showcase anonyme */}
+            <div className="lg:col-span-5 flex justify-center">
+              <div className="bg-white border border-slate-200 p-6 rounded-3xl shadow-xl w-full max-w-md relative space-y-4 hover:shadow-2xl transition-shadow duration-300">
+                <div className="absolute -top-3 -right-3 bg-green-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md animate-pulse">
+                  Profil Actif
+                </div>
+                
+                <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+                  <div className="bg-slate-100 p-3 rounded-2xl text-slate-600">
+                    <Shield className="h-6 w-6 text-orange-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-955">Chauffeur Routier Anonyme</h3>
+                    <p className="text-xs text-slate-500">ID : #FT-9842 • 73100 Aix-les-Bains</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-505">Disponibilité :</span>
+                    <span className="bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded-full text-[10px] uppercase">
+                      Immédiate
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-505">Permis & Habilitations :</span>
+                    <span className="font-bold text-slate-800">CE (Super Lourd) • ADR</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-505">Expérience de conduite :</span>
+                    <span className="font-bold text-slate-800">8 ans</span>
+                  </div>
+                </div>
+
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 space-y-2">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Statut du contact pour les transporteurs
+                  </div>
+                  <p className="text-[11px] text-slate-600 leading-normal">
+                    🔒 Coordonnées (téléphone, e-mail) et documents administratifs protégés. Visibles uniquement après validation de l'intérêt.
+                  </p>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
-      </main>
+      </section>
+
+      {/* Le Parcours en 3 étapes */}
+      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
+            Comment ça fonctionne pour vous ?
+          </h2>
+          <p className="text-slate-600 text-base">
+            Reprenez le contrôle de votre carrière et évitez les coups de fil incessants des agences d'intérim. Tout est transparent et sécurisé.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {steps.map((step, idx) => {
+            const Icon = step.icon;
+            return (
+              <div 
+                key={idx}
+                className="bg-white border border-slate-200 p-8 rounded-3xl space-y-4 hover:-translate-y-1.5 transition-all duration-300 shadow-sm hover:shadow-md group"
+              >
+                <div className="bg-orange-50 text-orange-500 p-4 rounded-2xl w-14 h-14 flex items-center justify-center group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300">
+                  <Icon className="h-6 w-6" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-950">
+                  {step.title}
+                </h3>
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  {step.desc}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Dossier Documentaire Chauffeur */}
+      <section className="bg-slate-950 text-white py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          
+          <div className="space-y-6">
+            <span className="text-xs font-bold text-orange-400 uppercase tracking-widest bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20">
+              Dossier Administratif Sécurisé
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+              Simplifiez vos démarches de recrutement
+            </h2>
+            <p className="text-slate-400 text-base leading-relaxed">
+              Une fois votre profil créé, vous déposez vos documents officiels dans votre espace sécurisé. Lorsque vous acceptez d'être contacté par un transporteur, ce dossier complet lui est transmis directement pour accélérer votre embauche.
+            </p>
+            
+            <div className="space-y-3 pt-2">
+              {docs.map((doc, index) => (
+                <div key={index} className="flex items-center gap-3">
+                  <div className="bg-orange-500/20 text-orange-400 p-1 rounded-full">
+                    <CheckCircle2 className="h-4 w-4" />
+                  </div>
+                  <span className="text-sm text-slate-200 font-medium">{doc.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Visuel d'illustration Coffre Fort / Lock */}
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 space-y-6 shadow-2xl relative overflow-hidden">
+            <div className="absolute -right-16 -bottom-16 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <div className="flex items-center gap-3">
+                <Clock className="h-5 w-5 text-orange-500" />
+                <span className="text-sm font-bold text-white">Historique de vos partages</span>
+              </div>
+              <span className="text-xs text-slate-500">Mis à jour</span>
+            </div>
+
+            <div className="space-y-3">
+              <div className="bg-slate-950 p-4 rounded-xl border border-slate-850 flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-bold text-white">Transports Lyon Fret SAS</div>
+                  <div className="text-[10px] text-slate-500">Demande d'accès acceptée le 10/08/2026</div>
+                </div>
+                <span className="text-[10px] font-bold text-green-400 bg-green-500/10 px-2 py-0.5 rounded border border-green-500/20">
+                  Partagé
+                </span>
+              </div>
+
+              <div className="bg-slate-950 p-4 rounded-xl border border-slate-850 flex items-center justify-between opacity-60">
+                <div>
+                  <div className="text-xs font-bold text-white">Logistique Carrier Nord</div>
+                  <div className="text-[10px] text-slate-500">Demande de contact reçue</div>
+                </div>
+                <span className="text-[10px] font-bold text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20">
+                  En attente
+                </span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* CTA Final */}
+      <section className="py-20 bg-white border-t border-slate-100 text-center">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-955 tracking-tight">
+            Prêt à trouver votre prochain contrat de route ?
+          </h2>
+          <p className="text-slate-600 text-lg max-w-2xl mx-auto leading-relaxed">
+            Rejoignez gratuitement la communauté FretTalent. Créez votre profil en 2 minutes et laissez les meilleures entreprises de transport vous proposer des postes adaptés.
+          </p>
+          
+          <div className="pt-2">
+            <Link 
+              href="/register?role=candidate" 
+              className="inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-bold text-white bg-orange-500 hover:bg-orange-600 shadow-xl shadow-orange-500/25 transition-all duration-300 hover:-translate-y-0.5"
+            >
+              Je m'inscris gratuitement
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

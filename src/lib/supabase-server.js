@@ -10,7 +10,10 @@ export async function createClient() {
     {
       cookies: {
         getAll() {
-          return cookieStore.getAll();
+          return cookieStore.getAll().map((cookie) => ({
+            name: cookie.name,
+            value: cookie.value,
+          }));
         },
         setAll(cookiesToSet) {
           try {
@@ -18,7 +21,7 @@ export async function createClient() {
               cookieStore.set(name, value, options)
             );
           } catch {
-            // Le middleware gère le renouvellement des sessions, donc nous pouvons ignorer cette erreur
+            // Ignorer si appelé dans un composant serveur statique
           }
         },
       },

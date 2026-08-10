@@ -9,7 +9,7 @@ export default function Footer() {
           {/* Logo & Intro */}
           <div className="space-y-4">
             <Link href="/" className="flex items-center gap-2">
-              <div className="relative h-20 w-48">
+              <div className="relative h-32 w-64">
                 <img
                   src="/logo.png"
                   alt="FretTalent Logo"

@@ -25,7 +25,7 @@ export default function Header() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="relative h-20 w-48 transition-transform group-hover:scale-105 duration-300">
+            <div className="relative h-32 w-64 transition-transform group-hover:scale-105 duration-300">
               <img
                 src="/logo.png"
                 alt="FretTalent Logo"

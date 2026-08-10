@@ -27,11 +27,11 @@ export default function Home() {
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 text-xs font-semibold">
                   <ShieldCheck className="h-4 w-4" /> Plateforme conforme 100% anonyme
                 </div>
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-950 tracking-tight leading-none">
-                  Recrutez vos chauffeurs routiers <span className="text-orange-500 relative">en 1 clic<span className="absolute bottom-1 left-0 w-full h-2 bg-orange-200/50 -z-10 rounded"></span></span>
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-955 tracking-tight leading-none">
+                  Trouvez vos chauffeurs ou votre prochain job <span className="text-orange-500 relative">en 1 clic<span className="absolute bottom-1 left-0 w-full h-2 bg-orange-200/50 -z-10 rounded"></span></span>
                 </h1>
                 <p className="text-lg sm:text-xl text-slate-600 font-normal leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                  FretTalent connecte les entreprises de transport aux chauffeurs disponibles près de chez elles, sans intermédiaire ni frais caché pour les candidats.
+                  FretTalent connecte directement les entreprises de transport et les chauffeurs routiers disponibles. Simple, rapide et 100% gratuit pour les candidats.
                 </p>
 
                 {/* CTAs */}

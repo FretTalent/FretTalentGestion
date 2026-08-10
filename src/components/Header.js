@@ -40,16 +40,6 @@ export default function Header() {
           {/* Navigation avec détection d'état actif */}
           <nav className="hidden md:flex items-center gap-8">
             <Link 
-              href="/comment-ca-marche" 
-              className={`text-sm transition-colors ${
-                isActive("/comment-ca-marche") 
-                  ? "text-orange-500 font-bold" 
-                  : "text-slate-600 font-medium hover:text-orange-500"
-              }`}
-            >
-              Comment ça marche
-            </Link>
-            <Link 
               href="/entreprises" 
               className={`text-sm transition-colors ${
                 isActive("/entreprises") 
@@ -78,6 +68,16 @@ export default function Header() {
               }`}
             >
               Tarifs
+            </Link>
+            <Link 
+              href="/comment-ca-marche" 
+              className={`text-sm transition-colors ${
+                isActive("/comment-ca-marche") 
+                  ? "text-orange-500 font-bold" 
+                  : "text-slate-600 font-medium hover:text-orange-500"
+              }`}
+            >
+              Comment ça marche
             </Link>
             <Link 
               href="/offres" 

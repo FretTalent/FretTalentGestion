@@ -25,7 +25,7 @@ export default function Header() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="bg-orange-500 text-white p-2 rounded-xl transition-transform group-hover:rotate-6 duration-300">
+            <div className="bg-orange-500 text-white p-2 rounded-xl transition-transform group-hover:rotate-[360deg] duration-700 ease-in-out">
               <Truck className="h-5 w-5" />
             </div>
             <span className="text-2xl font-extrabold text-slate-900 tracking-tight">

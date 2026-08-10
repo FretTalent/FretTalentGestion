@@ -99,6 +99,10 @@ CREATE POLICY "Les entreprises peuvent insérer un déblocage"
     ON public.unlocks FOR INSERT
     WITH CHECK (auth.uid() = company_id);
 
+CREATE POLICY "Les administrateurs peuvent tout voir sur unlocks"
+    ON public.unlocks FOR SELECT
+    USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+
 -- Politiques pour CANDIDATES
 -- 1. Un candidat peut faire toutes les opérations sur son propre profil
 CREATE POLICY "Le candidat contrôle son profil"

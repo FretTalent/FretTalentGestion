@@ -33,22 +33,19 @@ export default function Header() {
             </span>
           </Link>
 
-          {/* Navigation */}
+          {/* Navigation avec des vraies pages au lieu de ancres de défilement */}
           <nav className="hidden md:flex items-center gap-8">
-            <Link href="#comment-ca-marche" className="text-sm font-medium text-slate-600 hover:text-orange-500 transition-colors">
+            <Link href="/comment-ca-marche" className="text-sm font-medium text-slate-600 hover:text-orange-500 transition-colors">
               Comment ça marche
             </Link>
-            <Link href="#pour-les-entreprises" className="text-sm font-medium text-slate-600 hover:text-orange-500 transition-colors">
+            <Link href="/entreprises" className="text-sm font-medium text-slate-600 hover:text-orange-500 transition-colors">
               Pour les entreprises
             </Link>
-            <Link href="#pour-les-chauffeurs" className="text-sm font-medium text-slate-600 hover:text-orange-500 transition-colors">
+            <Link href="/chauffeurs" className="text-sm font-medium text-slate-600 hover:text-orange-500 transition-colors">
               Pour les chauffeurs
             </Link>
-            <Link href="#tarifs" className="text-sm font-medium text-slate-600 hover:text-orange-500 transition-colors">
+            <Link href="/tarifs" className="text-sm font-medium text-slate-600 hover:text-orange-500 transition-colors">
               Tarifs
-            </Link>
-            <Link href="#faq" className="text-sm font-medium text-slate-600 hover:text-orange-500 transition-colors">
-              FAQ
             </Link>
           </nav>
 

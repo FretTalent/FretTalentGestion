@@ -21,6 +21,17 @@ export default function RecruiterDashboard() {
   // Onglet courant : "search" (Chauffeurs) ou "jobs" (Offres d'emploi)
   const [activeTab, setActiveTab] = useState("search");
 
+  // Détecter l'onglet via l'URL
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get("tab");
+      if (tab === "jobs" || tab === "search") {
+        setActiveTab(tab);
+      }
+    }
+  }, [router]);
+
   // Profil et entreprise
   const [profile, setProfile] = useState(null);
   const [company, setCompany] = useState(null);
@@ -288,25 +299,7 @@ export default function RecruiterDashboard() {
         )}
       </div>
 
-        {/* Onglets interactifs */}
-        <div className="flex border-b border-slate-200 gap-6">
-          <button 
-            onClick={() => setActiveTab("search")}
-            className={`pb-4 px-1 text-sm font-bold border-b-2 transition-colors ${
-              activeTab === "search" ? "border-orange-500 text-orange-600" : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            🔍 Rechercher un chauffeur
-          </button>
-          <button 
-            onClick={() => setActiveTab("jobs")}
-            className={`pb-4 px-1 text-sm font-bold border-b-2 transition-colors ${
-              activeTab === "jobs" ? "border-orange-500 text-orange-600" : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            💼 Déposer & gérer des offres
-          </button>
-        </div>
+
 
         {/* Message Banner */}
         {message && (

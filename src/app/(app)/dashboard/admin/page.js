@@ -11,6 +11,17 @@ export default function AdminDashboard() {
   // Onglet courant : "users" ou "jobs"
   const [activeTab, setActiveTab] = useState("users");
 
+  // Détecter l'onglet via l'URL
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get("tab");
+      if (tab === "jobs" || tab === "users") {
+        setActiveTab(tab);
+      }
+    }
+  }, [router]);
+
   // KPIs
   const [stats, setStats] = useState({
     candidatesCount: 0,
@@ -177,25 +188,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Onglets interactifs */}
-        <div className="flex border-b border-slate-200 gap-6">
-          <button 
-            onClick={() => setActiveTab("users")}
-            className={`pb-4 px-1 text-sm font-bold border-b-2 transition-colors ${
-              activeTab === "users" ? "border-orange-500 text-orange-600" : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            👥 Comptes Utilisateurs
-          </button>
-          <button 
-            onClick={() => setActiveTab("jobs")}
-            className={`pb-4 px-1 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${
-              activeTab === "jobs" ? "border-orange-500 text-orange-600" : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            💼 Modération Annonces ({pendingJobs.length})
-          </button>
-        </div>
+
 
         {activeTab === "users" ? (
           /* Table de modération utilisateurs */

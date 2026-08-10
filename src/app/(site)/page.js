@@ -258,9 +258,9 @@ export default function Home() {
                 {/* Carte de France SVG en arrière-plan */}
                 <div className="relative w-full max-w-[340px] h-[340px] flex-shrink-0">
                   <img 
-                    src="https://upload.wikimedia.org/wikipedia/commons/f/fb/France_blank_map_2016.svg" 
+                    src="/france-map.svg" 
                     alt="Carte de France" 
-                    className="w-full h-full object-contain opacity-70 select-none pointer-events-none filter grayscale contrast-125"
+                    className="w-full h-full object-contain opacity-60 select-none pointer-events-none filter grayscale contrast-125"
                   />
 
                   {/* Points des candidats positionnés en absolu */}

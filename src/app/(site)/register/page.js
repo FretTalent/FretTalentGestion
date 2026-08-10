@@ -28,6 +28,11 @@ function RegisterContent() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // États pour la validation de SIRET
+  const [siretLoading, setSiretLoading] = useState(false);
+  const [siretValid, setSiretValid] = useState(null); // null, true, false
+  const [siretCompanyInfo, setSiretCompanyInfo] = useState("");
+
   useEffect(() => {
     const roleParam = searchParams.get("role");
     if (roleParam === "candidate" || roleParam === "recruiter") {
@@ -35,12 +40,58 @@ function RegisterContent() {
     }
   }, [searchParams]);
 
+  // Hook de validation SIRET en direct
+  useEffect(() => {
+    const validateSiret = async () => {
+      const cleanSiret = siret.replace(/\s+/g, ""); // Nettoyer les espaces
+      if (cleanSiret.length !== 14) {
+        setSiretValid(null);
+        setSiretCompanyInfo("");
+        return;
+      }
+
+      setSiretLoading(true);
+      setSiretValid(null);
+      
+      try {
+        const res = await fetch(`https://recherche-entreprises.api.gouv.fr/search?q=${cleanSiret}`);
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        
+        if (data.results && data.results.length > 0) {
+          const info = data.results[0];
+          setSiretValid(true);
+          setSiretCompanyInfo(info.nom_complet);
+          // Préremplir le nom de l'entreprise s'il est vide
+          if (!companyName) {
+            setCompanyName(info.nom_complet);
+          }
+        } else {
+          setSiretValid(false);
+          setSiretCompanyInfo("Aucune entreprise trouvée pour ce SIRET.");
+        }
+      } catch (err) {
+        setSiretValid(false);
+        setSiretCompanyInfo("Impossible de valider le SIRET pour le moment.");
+      } finally {
+        setSiretLoading(false);
+      }
+    };
+
+    validateSiret();
+  }, [siret]);
+
   const handleRegister = async (e) => {
     e.preventDefault();
     setError(null);
 
     if (!rgpdConsent) {
       setError("Vous devez accepter la politique de confidentialité RGPD pour continuer.");
+      return;
+    }
+
+    if (role === "recruiter" && siretValid !== true) {
+      setError("Veuillez saisir un numéro SIRET valide avant de finaliser votre inscription.");
       return;
     }
 
@@ -248,10 +299,32 @@ function RegisterContent() {
                 required
                 maxLength={14}
                 value={siret}
-                onChange={(e) => setSiret(e.target.value)}
+                onChange={(e) => setSiret(e.target.value.replace(/\D/g, ""))}
                 placeholder="14 chiffres"
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 transition-all ${
+                  siretValid === true 
+                    ? "border-green-500 focus:ring-green-500/20 focus:border-green-500" 
+                    : siretValid === false 
+                    ? "border-red-500 focus:ring-red-500/20 focus:border-red-500" 
+                    : "border-slate-200 focus:ring-orange-500/20 focus:border-orange-500"
+                }`}
               />
+              {/* États de chargement et de validation */}
+              {siretLoading && (
+                <p className="text-[10px] text-slate-500 font-semibold animate-pulse pt-1">
+                  🔍 Vérification du SIRET en direct...
+                </p>
+              )}
+              {siretValid === true && (
+                <p className="text-[10px] text-green-600 font-bold pt-1">
+                  ✅ Entreprise identifiée : <span className="underline">{siretCompanyInfo}</span>
+                </p>
+              )}
+              {siretValid === false && (
+                <p className="text-[10px] text-red-600 font-bold pt-1">
+                  ❌ Aucun établissement actif trouvé : {siretCompanyInfo}
+                </p>
+              )}
             </div>
           </div>
         )}
@@ -276,10 +349,14 @@ function RegisterContent() {
 
         <button
           type="submit"
-          disabled={loading}
-          className="w-full py-3 rounded-xl text-sm font-bold text-white bg-orange-500 hover:bg-orange-600 disabled:bg-slate-300 transition-colors shadow-lg shadow-orange-500/20"
+          disabled={loading || (role === "recruiter" && siretValid !== true) || (role === "recruiter" && siretLoading)}
+          className="w-full py-3 rounded-xl text-sm font-bold text-white bg-orange-500 hover:bg-orange-600 disabled:bg-slate-200 disabled:text-slate-450 disabled:cursor-not-allowed transition-colors shadow-lg shadow-orange-500/20"
         >
-          {loading ? "Création du compte..." : "Créer mon compte"}
+          {loading 
+            ? "Création du compte..." 
+            : role === "recruiter" && siretLoading 
+            ? "Vérification de l'entreprise..." 
+            : "Créer mon compte"}
         </button>
       </form>
 

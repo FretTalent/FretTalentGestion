@@ -248,6 +248,34 @@ export default function CandidateDashboard() {
                 </div>
               </div>
 
+              {/* Disponibilité */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700 uppercase">Disponibilité</label>
+                  <select
+                    value={availability}
+                    onChange={(e) => setAvailability(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 bg-white"
+                  >
+                    <option value="immediate">Immédiate</option>
+                    <option value="notice">Avec préavis</option>
+                    <option value="specific_date">À une date précise</option>
+                  </select>
+                </div>
+                {availability === "specific_date" && (
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700 uppercase">Date de disponibilité</label>
+                    <input
+                      type="date"
+                      value={availabilityDate}
+                      onChange={(e) => setAvailabilityDate(e.target.value)}
+                      min={new Date().toISOString().split("T")[0]}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                    />
+                  </div>
+                )}
+              </div>
+
               {/* Permis de conduire */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-700 uppercase block">Permis détenus</label>

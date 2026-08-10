@@ -9,12 +9,13 @@ export default function Footer() {
           {/* Logo & Intro */}
           <div className="space-y-4">
             <Link href="/" className="flex items-center gap-2">
-              <div className="bg-orange-500 text-white p-2 rounded-lg">
-                <Truck className="h-5 w-5" />
+              <div className="relative h-12 w-28">
+                <img
+                  src="/logo.png"
+                  alt="FretTalent Logo"
+                  className="object-contain w-full h-full"
+                />
               </div>
-              <span className="text-xl font-bold text-white tracking-tight">
-                Fret<span className="text-orange-500">Talent</span>
-              </span>
             </Link>
             <p className="text-sm text-slate-400 leading-relaxed">
               Le premier réseau de recrutement en direct pour les chauffeurs routiers et entreprises de transport en France.

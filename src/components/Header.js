@@ -25,12 +25,13 @@ export default function Header() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="bg-orange-500 text-white p-2 rounded-lg transition-transform group-hover:rotate-12 duration-300">
-              <Truck className="h-6 w-6" />
+            <div className="relative h-12 w-28 transition-transform group-hover:scale-105 duration-300">
+              <img
+                src="/logo.png"
+                alt="FretTalent Logo"
+                className="object-contain w-full h-full"
+              />
             </div>
-            <span className="text-2xl font-extrabold text-slate-900 tracking-tight">
-              Fret<span className="text-orange-500">Talent</span>
-            </span>
           </Link>
 
           {/* Navigation avec des vraies pages au lieu de ancres de défilement */}

@@ -36,7 +36,7 @@ export default function MentionsLegales() {
         <section className="space-y-4">
           <h2 className="text-xl font-bold text-slate-900">3. Contact</h2>
           <p className="text-sm text-slate-600 leading-relaxed">
-            Pour toute question ou réclamation concernant l'utilisation du site, vous pouvez nous écrire à l'adresse e-mail dédiée : <strong>contact@frettalent.fr</strong>.
+            Pour toute question ou réclamation concernant l'utilisation du site, vous pouvez nous écrire à l'adresse e-mail dédiée : <strong>support@frettalent.fr</strong>.
           </p>
         </section>
       </main>

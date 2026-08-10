@@ -15,7 +15,7 @@ export default function Confidentialite() {
         <section className="space-y-4">
           <h2 className="text-xl font-bold text-slate-900">1. Responsable du traitement</h2>
           <p className="text-sm text-slate-600 leading-relaxed">
-            Le responsable du traitement des données est la société FretTalent SAS, 10 Rue des Transports, 75001 Paris (délégué à la protection des données : contact@frettalent.fr).
+            Le responsable du traitement des données est la société FretTalent SAS, 10 Rue des Transports, 75001 Paris (délégué à la protection des données : support@frettalent.fr).
           </p>
         </section>
 
@@ -39,7 +39,7 @@ export default function Confidentialite() {
         <section className="space-y-4">
           <h2 className="text-xl font-bold text-slate-900">4. Vos Droits</h2>
           <p className="text-sm text-slate-600 leading-relaxed">
-            Vous disposez d'un droit d'accès, de rectification, de portabilité et d'effacement complet de vos données (droit à l'oubli). Vous pouvez exercer ces droits à tout moment en nous envoyant un e-mail à contact@frettalent.fr ou directement depuis les paramètres de votre compte candidat.
+            Vous disposez d'un droit d'accès, de rectification, de portabilité et d'effacement complet de vos données (droit à l'oubli). Vous pouvez exercer ces droits à tout moment en nous envoyant un e-mail à support@frettalent.fr ou directement depuis les paramètres de votre compte candidat.
           </p>
         </section>
       </main>

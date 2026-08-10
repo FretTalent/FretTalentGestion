@@ -8,7 +8,10 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Logo & Intro */}
           <div className="space-y-4">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2.5">
+              <div className="bg-orange-500 text-white p-2 rounded-xl">
+                <Truck className="h-5 w-5" />
+              </div>
               <span className="text-xl font-bold text-white tracking-tight">
                 Fret<span className="text-orange-500">Talent</span>
               </span>

@@ -24,7 +24,10 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="bg-orange-500 text-white p-2 rounded-xl transition-transform group-hover:rotate-6 duration-300">
+              <Truck className="h-5 w-5" />
+            </div>
             <span className="text-2xl font-extrabold text-slate-900 tracking-tight">
               Fret<span className="text-orange-500">Talent</span>
             </span>

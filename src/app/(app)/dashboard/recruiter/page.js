@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { 
   Search, 
@@ -17,20 +17,20 @@ import {
 
 export default function RecruiterDashboard() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Onglet courant : "search" (Chauffeurs) ou "jobs" (Offres d'emploi)
   const [activeTab, setActiveTab] = useState("search");
 
-  // Détecter l'onglet via l'URL
+  // Détecter l'onglet via l'URL de manière réactive
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const tab = params.get("tab");
-      if (tab === "jobs" || tab === "search") {
-        setActiveTab(tab);
-      }
+    const tab = searchParams.get("tab");
+    if (tab === "jobs" || tab === "search") {
+      setActiveTab(tab);
+    } else {
+      setActiveTab("search"); // fallback default
     }
-  }, [router]);
+  }, [searchParams]);
 
   // Profil et entreprise
   const [profile, setProfile] = useState(null);

@@ -1,26 +1,26 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Truck, Users, Key, BarChart3, RefreshCw } from "lucide-react";
 
 export default function AdminDashboard() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Onglet courant : "users" ou "jobs"
   const [activeTab, setActiveTab] = useState("users");
 
-  // Détecter l'onglet via l'URL
+  // Détecter l'onglet via l'URL de manière réactive
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const tab = params.get("tab");
-      if (tab === "jobs" || tab === "users") {
-        setActiveTab(tab);
-      }
+    const tab = searchParams.get("tab");
+    if (tab === "jobs" || tab === "users") {
+      setActiveTab(tab);
+    } else {
+      setActiveTab("users"); // fallback default
     }
-  }, [router]);
+  }, [searchParams]);
 
   // KPIs
   const [stats, setStats] = useState({

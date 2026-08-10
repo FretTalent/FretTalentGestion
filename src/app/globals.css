@@ -43,8 +43,8 @@ body {
 }
 
 .partner-logo {
-  height: 2.25rem; /* Hauteur standardisée de 36px */
-  width: 8rem;     /* Largeur standardisée de 128px */
+  height: 3.25rem; /* Hauteur agrandie de 52px */
+  width: 11rem;    /* Largeur agrandie de 176px */
   object-fit: contain;
   flex-shrink: 0;
   opacity: 0.75;
@@ -57,5 +57,6 @@ body {
   opacity: 1;
   filter: none; /* Affiche les couleurs d'origine au survol */
 }
+
 
 

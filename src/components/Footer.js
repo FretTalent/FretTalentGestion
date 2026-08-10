@@ -41,8 +41,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="#pour-les-chauffeurs" className="hover:text-white transition-colors">
-                  Chauffeurs
+                <Link href="/offres" className="hover:text-white transition-colors text-orange-400 font-bold">
+                  Offres d'emploi
                 </Link>
               </li>
             </ul>

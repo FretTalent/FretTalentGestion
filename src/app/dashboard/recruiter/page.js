@@ -21,6 +21,9 @@ import Footer from "@/components/Footer";
 export default function RecruiterDashboard() {
   const router = useRouter();
 
+  // Onglet courant : "search" (Chauffeurs) ou "jobs" (Offres d'emploi)
+  const [activeTab, setActiveTab] = useState("search");
+
   // Profil et entreprise
   const [profile, setProfile] = useState(null);
   const [company, setCompany] = useState(null);
@@ -35,6 +38,15 @@ export default function RecruiterDashboard() {
 
   // Historique des déblocages effectués
   const [myUnlocks, setMyUnlocks] = useState([]);
+
+  // Offres d'emploi
+  const [myJobs, setMyJobs] = useState([]);
+  const [newJobTitle, setNewJobTitle] = useState("");
+  const [newJobContract, setNewJobContract] = useState("CDI");
+  const [newJobLocation, setNewJobLocation] = useState("");
+  const [newJobSalary, setNewJobSalary] = useState("");
+  const [newJobDesc, setNewJobDesc] = useState("");
+  const [jobPosting, setJobPosting] = useState(false);
 
   // États UI
   const [loading, setLoading] = useState(true);
@@ -99,6 +111,17 @@ export default function RecruiterDashboard() {
 
       if (unlocksData) {
         setMyUnlocks(unlocksData.map(u => u.candidate_id));
+      }
+
+      // Charger mes offres d'emploi
+      const { data: jobsData } = await supabase
+        .from("jobs")
+        .select("*")
+        .eq("company_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (jobsData) {
+        setMyJobs(jobsData);
       }
     } catch (err) {
       console.error(err);
@@ -201,6 +224,47 @@ export default function RecruiterDashboard() {
     }
   };
 
+  // Publier une offre d'emploi
+  const handleCreateJob = async (e) => {
+    e.preventDefault();
+    if (!newJobTitle || !newJobLocation || !newJobDesc) {
+      setMessage({ type: "error", text: "Veuillez remplir tous les champs obligatoires." });
+      return;
+    }
+
+    setJobPosting(true);
+    try {
+      const { data, error } = await supabase
+        .from("jobs")
+        .insert([{
+          company_id: company.id,
+          title: newJobTitle,
+          contract_type: newJobContract,
+          location: newJobLocation,
+          salary: newJobSalary || null,
+          description: newJobDesc,
+          status: "pending"
+        }])
+        .select();
+
+      if (error) throw error;
+
+      if (data) {
+        setMyJobs([data[0], ...myJobs]);
+      }
+
+      setNewJobTitle("");
+      setNewJobLocation("");
+      setNewJobSalary("");
+      setNewJobDesc("");
+      setMessage({ type: "success", text: "Votre annonce a été soumise à validation et sera en ligne d'ici quelques minutes !" });
+    } catch (err) {
+      setMessage({ type: "error", text: "Erreur lors du dépôt de l'annonce." });
+    } finally {
+      setJobPosting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -218,13 +282,13 @@ export default function RecruiterDashboard() {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
           <div>
             <h1 className="text-2xl font-black text-slate-900">Espace Entreprise — {company?.name}</h1>
-            <p className="text-sm text-slate-500">Recherchez et débloquez les profils des chauffeurs routiers.</p>
+            <p className="text-sm text-slate-500">Recherchez et débloquez des chauffeurs ou gérez vos offres d'emploi.</p>
           </div>
           <div className="flex items-center gap-3">
             {!company?.has_payment_method ? (
               <button
                 onClick={() => setShowBillingModal(true)}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-orange-100 hover:bg-orange-255 text-orange-600 border border-orange-200 transition-colors flex items-center gap-2"
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-orange-100 hover:bg-orange-200 text-orange-600 border border-orange-200 transition-colors flex items-center gap-2"
               >
                 <CreditCard className="h-4 w-4" /> Enregistrer ma carte
               </button>
@@ -245,16 +309,39 @@ export default function RecruiterDashboard() {
           </div>
         </div>
 
+        {/* Onglets interactifs */}
+        <div className="flex border-b border-slate-200 gap-6">
+          <button 
+            onClick={() => setActiveTab("search")}
+            className={`pb-4 px-1 text-sm font-bold border-b-2 transition-colors ${
+              activeTab === "search" ? "border-orange-500 text-orange-600" : "border-transparent text-slate-500 hover:text-slate-700"
+            }`}
+          >
+            🔍 Rechercher un chauffeur
+          </button>
+          <button 
+            onClick={() => setActiveTab("jobs")}
+            className={`pb-4 px-1 text-sm font-bold border-b-2 transition-colors ${
+              activeTab === "jobs" ? "border-orange-500 text-orange-600" : "border-transparent text-slate-500 hover:text-slate-700"
+            }`}
+          >
+            💼 Déposer & gérer des offres
+          </button>
+        </div>
+
         {/* Message Banner */}
         {message && (
           <div className={`p-4 rounded-xl border ${
-            message.type === "success" ? "bg-green-50 border-green-200 text-green-800" : "bg-red-50 border-red-200 text-red-800"
+            message.type === "success" 
+              ? "bg-green-50 border-green-200 text-green-800" 
+              : "bg-red-50 border-red-200 text-red-800"
           }`}>
             <p className="text-sm font-semibold text-center">{message.text}</p>
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {activeTab === "search" ? (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Moteur de recherche et filtres */}
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
@@ -437,6 +524,131 @@ export default function RecruiterDashboard() {
             </div>
           </div>
         </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Formulaire de dépôt d'offre */}
+            <div className="lg:col-span-1">
+              <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  💼 Déposer une offre d'emploi
+                </h2>
+                
+                <form onSubmit={handleCreateJob} className="space-y-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700 uppercase">Intitulé du poste *</label>
+                    <input 
+                      type="text"
+                      placeholder="ex: Chauffeur SPL de nuit (F/H)"
+                      value={newJobTitle}
+                      onChange={(e) => setNewJobTitle(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700 uppercase">Contrat *</label>
+                      <select
+                        value={newJobContract}
+                        onChange={(e) => setNewJobContract(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 bg-white"
+                      >
+                        <option value="CDI">CDI</option>
+                        <option value="CDD">CDD</option>
+                        <option value="Intérim">Intérim</option>
+                        <option value="Indépendant">Indépendant</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700 uppercase">Localisation *</label>
+                      <input 
+                        type="text"
+                        placeholder="ex: Lyon (69)"
+                        value={newJobLocation}
+                        onChange={(e) => setNewJobLocation(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700 uppercase">Salaire mensuel (Optionnel)</label>
+                    <input 
+                      type="text"
+                      placeholder="ex: 2800 € brut"
+                      value={newJobSalary}
+                      onChange={(e) => setNewJobSalary(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700 uppercase">Description du poste *</label>
+                    <textarea 
+                      placeholder="Décrivez les horaires, le matériel, le type de trajets et les compétences recherchées..."
+                      rows={5}
+                      value={newJobDesc}
+                      onChange={(e) => setNewJobDesc(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 resize-none"
+                      required
+                    ></textarea>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={jobPosting}
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-2"
+                  >
+                    {jobPosting ? "Envoi..." : "Soumettre à la modération"}
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            {/* Historique des offres déposées */}
+            <div className="lg:col-span-2 space-y-6">
+              <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  💼 Historique de mes offres
+                </h2>
+
+                {myJobs.length === 0 ? (
+                  <p className="text-slate-400 text-sm py-8 text-center">Vous n'avez pas encore déposé d'offres d'emploi.</p>
+                ) : (
+                  <div className="divide-y divide-slate-100">
+                    {myJobs.map((job) => (
+                      <div key={job.id} className="py-4 first:pt-0 last:pb-0 flex justify-between items-center">
+                        <div className="space-y-1">
+                          <h4 className="font-bold text-slate-900 text-base">{job.title}</h4>
+                          <div className="flex gap-3 text-xs text-slate-500">
+                            <span>📍 {job.location}</span>
+                            <span>📄 {job.contract_type}</span>
+                            {job.salary && <span>💶 {job.salary}</span>}
+                          </div>
+                        </div>
+
+                        <div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            job.status === "approved" 
+                              ? "bg-green-50 text-green-700 border border-green-200"
+                              : job.status === "rejected"
+                                ? "bg-red-50 text-red-700 border border-red-200"
+                                : "bg-orange-50 text-orange-700 border border-orange-200"
+                          }`}>
+                            {job.status === "approved" ? "Publiée" : job.status === "rejected" ? "Refusée" : "En attente"}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Modal d'enregistrement Stripe simulé */}

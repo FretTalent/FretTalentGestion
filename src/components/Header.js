@@ -47,6 +47,9 @@ export default function Header() {
             <Link href="/tarifs" className="text-sm font-medium text-slate-600 hover:text-orange-500 transition-colors">
               Tarifs
             </Link>
+            <Link href="/offres" className="text-sm font-medium text-slate-605 bg-orange-50 text-orange-600 px-3 py-1 rounded-full hover:bg-orange-100 transition-colors">
+              Offres d'emploi
+            </Link>
           </nav>
 
           {/* CTA Buttons */}

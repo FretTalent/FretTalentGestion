@@ -19,10 +19,6 @@ export default function AdminJobs() {
     job: null,
   });
 
-  useEffect(() => {
-    fetchJobs();
-  }, []);
-
   const fetchJobs = async () => {
     setLoading(true);
     try {
@@ -51,6 +47,10 @@ export default function AdminJobs() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchJobs();
+  }, []);
 
   const handleModerateJob = async (jobId, newStatus) => {
     setActionLoading(true);

@@ -673,7 +673,7 @@ export default function RecruiterDashboard() {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-700 uppercase">
                       Permis (Optionnel)
@@ -705,9 +705,12 @@ export default function RecruiterDashboard() {
                       <option value="Carte Chrono">Carte Chrono</option>
                     </select>
                   </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-700 uppercase">
-                      Expérience
+                      Expérience (Optionnel)
                     </label>
                     <select
                       value={newJobExp}
@@ -720,19 +723,18 @@ export default function RecruiterDashboard() {
                       <option value="+3 ans">+3 ans</option>
                     </select>
                   </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 uppercase">
-                    Salaire mensuel (Optionnel)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="ex: 2800 € brut"
-                    value={newJobSalary}
-                    onChange={e => setNewJobSalary(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                  />
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700 uppercase">
+                      Salaire mensuel (Optionnel)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="ex: 2800 € brut"
+                      value={newJobSalary}
+                      onChange={e => setNewJobSalary(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-1">

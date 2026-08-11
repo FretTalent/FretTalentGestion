@@ -77,16 +77,17 @@ export default function AdminCandidates() {
   const fetchCandidates = async () => {
     setLoading(true);
     try {
-      // Récupérer les candidats avec une requête simple
+      // Récupérer tous les candidats sans restriction
       const { data, error } = await supabase
         .from('candidates')
-        .select('id, full_name, email, phone, validated, is_active');
+        .select('*');
 
       if (error) {
         console.error('Erreur lors de la récupération des candidats:', error);
         setCandidates([]);
       } else {
         console.log('Candidats récupérés:', data);
+        console.log('Nombre total de candidats:', data?.length || 0);
         setCandidates(data || []);
       }
     } catch (err) {
@@ -152,33 +153,27 @@ export default function AdminCandidates() {
     }
   }, [candidates, loading]);
 
-  // Vérification initiale des données
+  // Vérification directe des données candidates
   useEffect(() => {
-    const checkInitialData = async () => {
-      const initialData = await verifyCandidates();
-      if (initialData.length > 0) {
-        console.log('Données initiales vérifiées:', initialData.length, 'candidats');
-      } else {
-        console.warn('Aucun candidat trouvé dans la vérification initiale');
+    const verifyDirectData = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('candidates')
+          .select('*');
+
+        if (error) {
+          console.error('Erreur lors de la vérification directe:', error);
+        } else {
+          console.log('Vérification directe:', data?.length || 0, 'candidats');
+          if (data && data.length > 0) {
+            console.log('Exemple de candidat:', data[0]);
+          }
+        }
+      } catch (err) {
+        console.error('Erreur inattendue:', err);
       }
     };
-    checkInitialData();
-  }, []);
-
-  // Vérification des données candidates dans le contexte
-  useEffect(() => {
-    const verifyContext = async () => {
-      const { data, error } = await supabase
-        .from('candidates')
-        .select('*');
-
-      if (error) {
-        console.error('Erreur lors de la vérification des données:', error);
-      } else {
-        console.log('Vérification dans le contexte:', data?.length || 0, 'candidats');
-      }
-    };
-    verifyContext();
+    verifyDirectData();
   }, []);
 
   return (

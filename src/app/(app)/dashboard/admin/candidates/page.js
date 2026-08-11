@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { RefreshCw, CheckCircle, XCircle, Search } from 'lucide-react';
+import { RefreshCw, CheckCircle, XCircle, Search, Eye } from 'lucide-react';
 
 export default function AdminCandidates() {
   const router = useRouter();
@@ -38,18 +38,9 @@ export default function AdminCandidates() {
       }
 
       const { data, error } = await supabase
-        .from('candidates')
-        .select(`
-          id,
-          validated,
-          validated_at,
-          profile:profiles!inner (
-            full_name,
-            email,
-            phone
-          )
-        `)
-        .order('created_at', { ascending: false });
+              .from('candidates')
+              .select('id, full_name, email, phone, validated, validated_at')
+              .order('created_at', { ascending: false });
 
       if (error) throw error;
       setCandidates(data || []);
@@ -84,9 +75,9 @@ export default function AdminCandidates() {
   };
 
   const filteredCandidates = candidates.filter(c =>
-    c.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.profile?.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      c.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
   if (loading) {
     return (
@@ -121,14 +112,15 @@ export default function AdminCandidates() {
               <th className="text-left py-3 px-4 font-semibold text-slate-700">Téléphone</th>
               <th className="text-center py-3 px-4 font-semibold text-slate-700">Statut</th>
               <th className="text-center py-3 px-4 font-semibold text-slate-700">Actions</th>
+                          <th className="text-center py-3 px-4 font-semibold text-slate-700">Profil</th>
             </tr>
           </thead>
           <tbody>
             {filteredCandidates.map((candidate) => (
               <tr key={candidate.id} className="border-b border-slate-100">
-                <td className="py-3 px-4">{candidate.profile?.full_name || '—'}</td>
-                <td className="py-3 px-4">{candidate.profile?.email || '—'}</td>
-                <td className="py-3 px-4">{candidate.profile?.phone || '—'}</td>
+                <td className="py-3 px-4">{candidate.full_name || '—'}</td>
+                                <td className="py-3 px-4">{candidate.email || '—'}</td>
+                                <td className="py-3 px-4">{candidate.phone || '—'}</td>
                 <td className="py-3 px-4 text-center">
                   {candidate.validated ? (
                     <span className="inline-flex items-center gap-1 text-green-600">
@@ -141,17 +133,26 @@ export default function AdminCandidates() {
                   )}
                 </td>
                 <td className="py-3 px-4 text-center">
-                  {candidate.validated ? (
-                    <span className="text-slate-400">Déjà validé</span>
-                  ) : (
-                    <button
-                      onClick={() => handleValidate(candidate.id)}
-                      className="px-3 py-1 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                    >
-                      Valider
-                    </button>
-                  )}
-                </td>
+                                  {candidate.validated ? (
+                                    <span className="text-slate-400">Déjà validé</span>
+                                  ) : (
+                                    <button
+                                      onClick={() => handleValidate(candidate.id)}
+                                      className="px-3 py-1 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                                    >
+                                      Valider
+                                    </button>
+                                  )}
+                                </td>
+                                <td className="py-3 px-4 text-center">
+                                  <button
+                                    onClick={() => router.push(`/dashboard/admin/candidates/${candidate.id}`)}
+                                    className="p-1 text-slate-600 hover:text-orange-500 transition-colors"
+                                    title="Voir le profil"
+                                  >
+                                    <Eye className="h-5 w-5" />
+                                  </button>
+                                </td>
               </tr>
             ))}
           </tbody>

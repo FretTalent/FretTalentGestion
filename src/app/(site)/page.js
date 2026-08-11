@@ -356,7 +356,7 @@ export default function Home() {
                     )}
                     {candidates.filter(c => c.fullVerified).length > 0 && (
                       <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-50 to-emerald-50 border border-emerald-300 px-4 py-2 rounded-full shadow-sm text-xs font-semibold">
-                        <span className="text-emerald-600">⭐</span>
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />
                         <span className="text-emerald-700">{candidates.filter(c => c.fullVerified).length} profil{candidates.filter(c => c.fullVerified).length > 1 ? 's' : ''} 100% vérifié{candidates.filter(c => c.fullVerified).length > 1 ? 's' : ''}</span>
                       </div>
                     )}
@@ -411,7 +411,7 @@ export default function Home() {
                         >
                           {candidate.fullVerified && (
                             <span className="absolute inset-0 flex items-center justify-center text-white text-[6px] font-black">
-                              ★
+                              
                             </span>
                           )}
                           {!candidate.fullVerified && candidate.validated && (
@@ -426,7 +426,7 @@ export default function Home() {
                           {candidate.fullVerified ? (
                             <>
                               <div className="font-bold text-emerald-400 flex items-center gap-1 mb-0.5">
-                                <span>⭐</span> 100% Vérifié
+                                <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span> 100% Vérifié
                               </div>
                               <div className="text-slate-300 text-[9px] space-y-0.5">
                                 <div>✓ Documents à jour</div>
@@ -467,7 +467,7 @@ export default function Home() {
                   {/* Ce que signifie 100% vérifié */}
                   <div className="bg-white rounded-2xl border border-emerald-200 p-4 space-y-3 shadow-sm">
                     <div className="flex items-center gap-2">
-                      <span className="text-lg">⭐</span>
+                      <span className="w-3 h-3 rounded-full bg-emerald-500 inline-block shadow-sm"></span>
                       <h3 className="text-sm font-extrabold text-slate-950">Profil 100% Vérifié</h3>
                     </div>
                     <p className="text-[11px] text-slate-500 leading-relaxed">
@@ -495,11 +495,11 @@ export default function Home() {
                       <div className="flex items-center gap-3">
                         <div className="relative flex-shrink-0">
                           <span className="block h-4 w-4 rounded-full bg-emerald-500 border-2 border-white shadow-md flex items-center justify-center">
-                            <span className="text-white text-[6px] font-black">★</span>
+                            
                           </span>
                         </div>
                         <span className="text-xs font-semibold text-slate-700">
-                          <span className="text-emerald-600 font-bold">⭐ Vert étoile</span> = Profil 100% vérifié
+                          <span className="text-emerald-600 font-bold">Vert émeraude</span> = Profil 100% vérifié
                         </span>
                       </div>
                       <div className="flex items-center gap-3">

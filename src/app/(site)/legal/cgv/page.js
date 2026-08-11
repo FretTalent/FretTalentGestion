@@ -16,8 +16,8 @@ export default function CGV() {
           <h2 className="text-xl font-bold text-slate-900">1. Tarification et modèle économique</h2>
           <p className="text-sm text-slate-600 leading-relaxed">
             La mise en relation s'effectue selon deux modèles possibles :
-            <br />- **Paiement à l'usage** : Chaque déblocage de contact de chauffeur (accès au nom, téléphone et e-mail) est facturé à l'unité au tarif de 2,00 € HT.
-            <br />- **Abonnement mensuel** : Forfait illimité facturé mensuellement selon la tarification en vigueur (149,00 € HT/mois).
+            <br />- **Paiement à l'usage** : Chaque déblocage de contact de chauffeur (accès au nom, téléphone et e-mail) est facturé à l'unité au tarif de 2,00 €.
+            <br />- **Abonnement mensuel** : Forfait illimité facturé mensuellement selon la tarification en vigueur (49,99 €/mois).
           </p>
         </section>
 

@@ -27,7 +27,7 @@ export default function PaymentConfirmation({
         <Text style={cardTitle}>Détails de la transaction :</Text>
         <Hr style={hrSmall} />
         <Text style={cardRow}><strong>Offre :</strong> {planName}</Text>
-        <Text style={cardRow}><strong>Montant payé :</strong> {amount} € HT</Text>
+        <Text style={cardRow}><strong>Montant payé :</strong> {amount} €</Text>
         <Text style={cardRow}><strong>Date :</strong> {date}</Text>
       </Section>
       

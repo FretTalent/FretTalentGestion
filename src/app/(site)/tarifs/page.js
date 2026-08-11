@@ -62,7 +62,7 @@ export default function Tarifs() {
 
               <div className="flex items-baseline gap-1.5 border-b border-slate-100 pb-6">
                 <span className="text-5xl font-black text-slate-950">2 €</span>
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">HT / contact</span>
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">/ contact</span>
               </div>
 
               <ul className="space-y-4 text-xs text-slate-650">
@@ -110,7 +110,7 @@ export default function Tarifs() {
 
               <div className="flex items-baseline gap-1.5 border-b border-orange-100 pb-6">
                 <span className="text-5xl font-black text-slate-955">49,99 €</span>
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">HT / mois</span>
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">/ mois</span>
               </div>
 
               <ul className="space-y-4 text-xs text-slate-650">
@@ -232,7 +232,7 @@ export default function Tarifs() {
                 Les jobboards traditionnels appliquent un modèle généraliste facturé soit à la durée d'affichage de l'annonce, soit au coût par clic (CPC) sans garantie de retour. Pour un poste de chauffeur routier, la concurrence sur les plateformes comme Indeed ou Leboncoin fait grimper les budgets d'acquisition (jusqu'à 1 500 € par mois pour une seule entreprise) pour des candidatures souvent non qualifiées (absence de permis, FIMO expirée).
               </p>
               <p className="text-xs text-slate-600 leading-relaxed">
-                FretTalent neutralise complètement ce risque financier : notre spécialisation transport permet de filtrer uniquement les candidats possédant les permis requis. De plus, notre abonnement unique à <strong>49,99€ HT</strong> offre une maîtrise parfaite de votre budget sans aucune facturation au clic ni engagement à long terme.
+                FretTalent neutralise complètement ce risque financier : notre spécialisation transport permet de filtrer uniquement les candidats possédant les permis requis. De plus, notre abonnement unique à <strong>49,99 €</strong> offre une maîtrise parfaite de votre budget sans aucune facturation au clic ni engagement à long terme.
               </p>
             </div>
 
@@ -241,16 +241,16 @@ export default function Tarifs() {
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-slate-500">Coût moyen mensuel Jobboard classique :</span>
-                  <span className="font-bold text-red-655">~ 650 € HT</span>
+                  <span className="font-bold text-red-655">~ 650 €</span>
                 </div>
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-slate-500">Coût mensuel FretTalent Forfait :</span>
-                  <span className="font-bold text-green-600">49,99 € HT</span>
+                  <span className="font-bold text-green-600">49,99 €</span>
                 </div>
                 <hr className="border-slate-100" />
                 <div className="flex justify-between items-center text-sm font-bold">
                   <span className="text-slate-900">Économie mensuelle moyenne :</span>
-                  <span className="text-green-600 bg-green-50 px-3 py-1 rounded-lg">~ 600 € HT / mois</span>
+                  <span className="text-green-600 bg-green-50 px-3 py-1 rounded-lg">~ 600 € / mois</span>
                 </div>
               </div>
             </div>
@@ -289,6 +289,9 @@ export default function Tarifs() {
         </Link>
       </section>
 
+      <div className="text-center pb-8 text-xs text-slate-500 max-w-4xl mx-auto px-4">
+        * Les tarifs affichés sont des prix nets. TVA non applicable, art. 293 B du CGI.
+      </div>
     </div>
   );
 }

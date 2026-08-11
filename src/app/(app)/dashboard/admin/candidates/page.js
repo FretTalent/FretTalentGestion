@@ -5,67 +5,33 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { RefreshCw, CheckCircle, XCircle, Search, Eye } from 'lucide-react';
 
-// Vérification directe des données candidates
-const verifyCandidates = async () => {
-  try {
-    const { data, error } = await supabase
-      .from('candidates')
-      .select('*');
-
-    if (error) {
-      console.error('Erreur lors de la vérification des candidats:', error);
-      return [];
-    }
-    console.log('Vérification directe des candidats:', data);
-    return data || [];
-  } catch (err) {
-    console.error('Erreur inattendue:', err);
-    return [];
-  }
-};
-
 
 export default function AdminCandidates() {
   const router = useRouter();
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   // Vérification des permissions
   useEffect(() => {
     const checkPermissions = async () => {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) {
-        console.error('Utilisateur non authentifié');
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user) {
         router.push('/login');
         return;
       }
-      
+
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)
         .single();
-      
-      if (profileError) {
-        console.error('Erreur lors de la récupération du profil:', profileError);
+
+      if (profileError || profile?.role !== 'admin') {
         router.push('/');
-        return;
       }
-      
-      if (profile?.role !== 'admin') {
-        console.warn('Utilisateur non admin:', profile?.role);
-        router.push('/');
-        return;
-      }
-      
-      console.log('Permissions vérifiées: Utilisateur admin');
     };
     checkPermissions();
-  }, []);
-
-  useEffect(() => {
-    fetchCandidates();
   }, []);
 
   const fetchCandidates = async () => {
@@ -74,14 +40,13 @@ export default function AdminCandidates() {
       // Récupérer tous les candidats avec une requête simple
       const { data, error } = await supabase
         .from('candidates')
-        .select('id, full_name, email, phone, validated, is_active');
+        .select('*');
 
       if (error) {
         console.error('Erreur lors de la récupération des candidats:', error);
         setCandidates([]);
       } else {
         console.log('Candidats récupérés:', data);
-        console.log('Nombre total de candidats:', data?.length || 0);
         setCandidates(data || []);
       }
     } catch (err) {
@@ -135,42 +100,7 @@ export default function AdminCandidates() {
   }
 
   // Vérification des données récupérées
-  useEffect(() => {
-    console.log('Candidates state:', candidates);
-  }, [candidates]);
 
-  // Vérification des erreurs potentielles
-  useEffect(() => {
-    if (candidates.length === 0 && !loading) {
-      console.warn('Aucun candidat trouvé, vérifiez la base de données');
-      alert('Aucun candidat trouvé. Vérifiez les logs de la console pour plus d’informations.');
-    }
-  }, [candidates, loading]);
-
-  // Vérification directe des données candidates
-  useEffect(() => {
-    const verifyDirectData = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('candidates')
-          .select('*');
-
-        if (error) {
-          console.error('Erreur lors de la vérification directe:', error);
-        } else {
-          console.log('Vérification directe:', data?.length || 0, 'candidats');
-          if (data && data.length > 0) {
-            console.log('Exemple de candidat:', data[0]);
-          } else {
-            console.warn('Aucun candidat trouvé dans la vérification directe');
-          }
-        }
-      } catch (err) {
-        console.error('Erreur inattendue:', err);
-      }
-    };
-    verifyDirectData();
-  }, []);
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">

@@ -70,13 +70,14 @@ export default function AdminDashboard() {
         : 0;
 
       setStats({
-        candidatesCount: candCount || 0,
+        candidatesCount: candCount,
         companiesCount: compCount || 0,
         unlocksCount: uCount,
         totalRevenue: totalRev,
       });
 
       console.log('KPIs:', { candidatesCount: candCount, companiesCount: compCount });
+      console.log('Exemple de candidat:', candidates?.[0]);
     } catch (err) {
       console.error(err);
     } finally {

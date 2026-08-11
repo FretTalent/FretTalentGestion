@@ -19,16 +19,17 @@ export default function AdminCandidates() {
   const fetchCandidates = async () => {
     setLoading(true);
     try {
-      // Récupérer tous les candidats avec une requête simple
+      // Récupérer tous les candidats avec une requête complète
       const { data, error } = await supabase
         .from('candidates')
-        .select('id, full_name, email, phone, validated, is_active');
+        .select('*');
 
       if (error) {
         console.error('Erreur lors de la récupération des candidats:', error);
         setCandidates([]);
       } else {
-        console.log('Candidats récupérés:', data);
+        console.log('Nombre total de candidats:', data?.length || 0);
+        console.log('Exemple de candidat:', data?.[0]);
         setCandidates(data || []);
       }
     } catch (err) {

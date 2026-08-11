@@ -44,13 +44,17 @@ export default function AdminDashboard() {
 
       // Charger les métriques KPIs
       // Vérification directe du nombre de candidats
-      const { count: candCount, error: candError } = await supabase
+      // Vérification directe des candidats
+      const { data: candidates, error: candError } = await supabase
         .from('candidates')
-        .select('*', { count: 'exact', head: true });
+        .select('*');
+
+      const candCount = candidates ? candidates.length : 0;
 
       if (candError) {
-        console.error('Erreur lors du comptage des candidats:', candError);
-        candCount = 0;
+        console.error('Erreur lors de la récupération des candidats:', candError);
+      } else {
+        console.log('Candidats trouvés dans le dashboard:', candCount);
       }
       const { count: compCount } = await supabase
         .from('companies')

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabase';
 import { REQUIRED_DOCUMENT_TYPES } from '@/lib/validation/candidateValidation';
 
 // Helper to get the admin session (or any privileged role)

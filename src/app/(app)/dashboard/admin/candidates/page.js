@@ -71,10 +71,10 @@ export default function AdminCandidates() {
   const fetchCandidates = async () => {
     setLoading(true);
     try {
-      // Récupérer tous les candidats sans restriction
+      // Récupérer tous les candidats avec une requête simple
       const { data, error } = await supabase
         .from('candidates')
-        .select('*');
+        .select('id, full_name, email, phone, validated, is_active');
 
       if (error) {
         console.error('Erreur lors de la récupération des candidats:', error);
@@ -161,6 +161,8 @@ export default function AdminCandidates() {
           console.log('Vérification directe:', data?.length || 0, 'candidats');
           if (data && data.length > 0) {
             console.log('Exemple de candidat:', data[0]);
+          } else {
+            console.warn('Aucun candidat trouvé dans la vérification directe');
           }
         }
       } catch (err) {

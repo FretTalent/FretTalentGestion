@@ -209,6 +209,7 @@ export default function AdminCandidates() {
               </div>
             </div>
           )}
+        )}
       </div>
     </div>
   );

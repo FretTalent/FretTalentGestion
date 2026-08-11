@@ -141,7 +141,11 @@ function RegisterContent() {
               is_active: true,
             },
           ]);
-        if (candidateError) throw candidateError;
+        if (candidateError) {
+          console.error('Erreur lors de l insertion du candidat:', candidateError);
+          throw candidateError;
+        }
+        console.log('Candidat enregistré avec succès:', { id: user.id, full_name: fullName });
         router.push('/dashboard/candidate');
       } else if (role === 'recruiter') {
         const { error: companyError } = await supabase

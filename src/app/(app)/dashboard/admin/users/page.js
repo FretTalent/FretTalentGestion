@@ -36,7 +36,7 @@ export default function AdminUsers() {
           id, 
           role, 
           created_at,
-          candidates(first_name, last_name),
+          candidates(full_name),
           companies(name)
         `)
         .order("created_at", { ascending: false });
@@ -97,7 +97,7 @@ export default function AdminUsers() {
               {usersList.map((usr) => {
                 let displayName = "Admin / Inconnu";
                 if (usr.role === "candidate" && usr.candidates) {
-                  displayName = `${usr.candidates.first_name || ""} ${usr.candidates.last_name || ""}`.trim();
+                  displayName = usr.candidates.full_name || "Candidat sans nom";
                 } else if (usr.role === "recruiter" && usr.companies) {
                   displayName = usr.companies.name;
                 }

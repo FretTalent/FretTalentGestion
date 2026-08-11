@@ -79,9 +79,14 @@ export default function AdminCandidates() {
   };
 
   const filteredCandidates = candidates.filter(c =>
-      c.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.email?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    c.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Debug: Afficher les candidats dans la console
+  useEffect(() => {
+    console.log('Candidates data:', candidates);
+  }, [candidates]);
 
   if (loading) {
     return (

@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   ChevronRight,
+  Mail,
 } from "lucide-react";
 
 const navCandidate = [
@@ -29,6 +30,7 @@ const navAdmin = [
   { href: "/dashboard/admin", icon: BarChart3, label: "Tableau de bord" },
   { href: "/dashboard/admin/jobs", icon: Briefcase, label: "Modération annonces" },
   { href: "/dashboard/admin/users", icon: Users, label: "Utilisateurs" },
+  { href: "/dashboard/admin/mail", icon: Mail, label: "Gestion mails" },
 ];
 
 export default function AppLayout({ children }) {

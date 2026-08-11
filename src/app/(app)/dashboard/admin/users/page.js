@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Search, Trash2 } from "lucide-react";
 
 export default function AdminUsers() {
   const router = useRouter();
   const [usersList, setUsersList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchUsers();
@@ -29,7 +30,6 @@ export default function AdminUsers() {
 
       if (profile?.role !== "admin") return router.push("/");
 
-      // Récupérer les profils avec les informations liées (candidat ou entreprise)
       const { data: profiles } = await supabase
         .from("profiles")
         .select(`
@@ -67,6 +67,38 @@ export default function AdminUsers() {
     }
   };
 
+  const handleDeleteUser = async (userId, name) => {
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer définitivement le compte de "${name}" ? Cette action est irréversible.`)) {
+      return;
+    }
+    
+    setActionLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const res = await fetch("/api/admin/users", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify({ userId })
+      });
+      
+      const data = await res.json();
+      if (res.ok) {
+        setUsersList(usersList.filter((u) => u.id !== userId));
+      } else {
+        alert(data.error || "Erreur lors de la suppression");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erreur de connexion au serveur");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -75,70 +107,124 @@ export default function AdminUsers() {
     );
   }
 
+  // Filtrage
+  const filteredUsers = usersList.filter((usr) => {
+    const term = searchTerm.toLowerCase();
+    let name = "";
+    if (usr.role === "candidate" && usr.candidates) name = usr.candidates.full_name || "";
+    if (usr.role === "recruiter" && usr.companies) name = usr.companies.name || "";
+    if (usr.role === "admin") name = "admin";
+    
+    return name.toLowerCase().includes(term) || usr.id.includes(term) || usr.role.includes(term);
+  });
+
+  // Groupement
+  const groupedUsers = {
+    recruiter: filteredUsers.filter((u) => u.role === "recruiter"),
+    candidate: filteredUsers.filter((u) => u.role === "candidate"),
+    admin: filteredUsers.filter((u) => u.role === "admin"),
+  };
+
+  const renderTable = (users, title) => {
+    if (users.length === 0) return null;
+    
+    return (
+      <div className="mb-8">
+        <h3 className="text-md font-bold text-slate-800 mb-4 px-2">{title} ({users.length})</h3>
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                  <th className="p-4">Utilisateur</th>
+                  <th className="p-4">Date d'inscription</th>
+                  <th className="p-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-sm">
+                {users.map((usr) => {
+                  let displayName = "Admin / Inconnu";
+                  if (usr.role === "candidate" && usr.candidates) {
+                    displayName = usr.candidates.full_name || "Candidat sans nom";
+                  } else if (usr.role === "recruiter" && usr.companies) {
+                    displayName = usr.companies.name;
+                  }
+
+                  return (
+                    <tr key={usr.id} className="hover:bg-slate-50/50">
+                      <td className="p-4">
+                        <div className="font-bold text-slate-800 text-sm">{displayName}</div>
+                        <div className="font-mono text-[10px] text-slate-400 mt-0.5">{usr.id}</div>
+                      </td>
+                      <td className="p-4 text-xs text-slate-500">
+                        {new Date(usr.created_at).toLocaleDateString("fr-FR")}
+                      </td>
+                      <td className="p-4 text-right space-x-2">
+                        {usr.role !== "admin" && (
+                          <>
+                            <button
+                              disabled={actionLoading}
+                              onClick={() => handleToggleRole(usr.id, usr.role)}
+                              className="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                            >
+                              Basculer
+                            </button>
+                            <button
+                              disabled={actionLoading}
+                              onClick={() => handleDeleteUser(usr.id, displayName)}
+                              className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors inline-flex items-center justify-center"
+                              title="Supprimer le compte"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-8">
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-slate-100">
-          <h2 className="text-lg font-bold text-slate-900">Utilisateurs inscrits</h2>
-          <p className="text-xs text-slate-500 mt-1">Gérez les comptes inscrits sur la plateforme.</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900">Utilisateurs inscrits</h2>
+          <p className="text-sm text-slate-500 mt-1">Gérez les comptes et les accès à la plateforme.</p>
         </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
-                <th className="p-4">Utilisateur</th>
-                <th className="p-4">Rôle</th>
-                <th className="p-4">Date d'inscription</th>
-                <th className="p-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-sm">
-              {usersList.map((usr) => {
-                let displayName = "Admin / Inconnu";
-                if (usr.role === "candidate" && usr.candidates) {
-                  displayName = usr.candidates.full_name || "Candidat sans nom";
-                } else if (usr.role === "recruiter" && usr.companies) {
-                  displayName = usr.companies.name;
-                }
-
-                return (
-                  <tr key={usr.id} className="hover:bg-slate-50/50">
-                    <td className="p-4">
-                      <div className="font-bold text-slate-800 text-sm">{displayName || "Non renseigné"}</div>
-                      <div className="font-mono text-[10px] text-slate-400 mt-0.5">{usr.id}</div>
-                    </td>
-                    <td className="p-4">
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
-                        usr.role === "admin" 
-                          ? "bg-purple-100 text-purple-700" 
-                          : usr.role === "recruiter" 
-                          ? "bg-blue-100 text-blue-700" 
-                          : "bg-orange-100 text-orange-700"
-                      }`}>
-                        {usr.role}
-                      </span>
-                    </td>
-                    <td className="p-4 text-xs text-slate-500">
-                      {new Date(usr.created_at).toLocaleDateString("fr-FR")}
-                    </td>
-                    <td className="p-4 text-right">
-                      {usr.role !== "admin" && (
-                        <button
-                          disabled={actionLoading}
-                          onClick={() => handleToggleRole(usr.id, usr.role)}
-                          className="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700"
-                        >
-                          Changer le rôle
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        
+        <div className="relative max-w-sm w-full">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-4 w-4 text-slate-400" />
+          </div>
+          <input
+            type="text"
+            className="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-xl leading-5 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 sm:text-sm transition-all"
+            placeholder="Rechercher un nom, ID, rôle..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
+      </div>
+
+      <div>
+        {filteredUsers.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-3xl border border-slate-200 shadow-sm">
+            <p className="text-slate-500">Aucun utilisateur trouvé.</p>
+          </div>
+        ) : (
+          <>
+            {renderTable(groupedUsers.recruiter, "🏢 Entreprises")}
+            {renderTable(groupedUsers.candidate, "🚛 Candidats")}
+            {renderTable(groupedUsers.admin, "🛡️ Administrateurs")}
+          </>
+        )}
       </div>
     </div>
   );

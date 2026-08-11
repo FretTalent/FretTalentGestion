@@ -29,9 +29,16 @@ export default function AdminUsers() {
 
       if (profile?.role !== "admin") return router.push("/");
 
+      // Récupérer les profils avec les informations liées (candidat ou entreprise)
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("id, role, created_at")
+        .select(`
+          id, 
+          role, 
+          created_at,
+          candidates(first_name, last_name),
+          companies(name)
+        `)
         .order("created_at", { ascending: false });
 
       if (profiles) setUsersList(profiles);
@@ -73,50 +80,62 @@ export default function AdminUsers() {
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-slate-100">
           <h2 className="text-lg font-bold text-slate-900">Utilisateurs inscrits</h2>
-          <p className="text-xs text-slate-500 mt-1">Liste brute des comptes et rôle associé dans la base de données.</p>
+          <p className="text-xs text-slate-500 mt-1">Gérez les comptes inscrits sur la plateforme.</p>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
-                <th className="p-4">UUID Utilisateur</th>
+                <th className="p-4">Utilisateur</th>
                 <th className="p-4">Rôle</th>
                 <th className="p-4">Date d'inscription</th>
                 <th className="p-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
-              {usersList.map((usr) => (
-                <tr key={usr.id} className="hover:bg-slate-50/50">
-                  <td className="p-4 font-mono text-xs text-slate-600">{usr.id}</td>
-                  <td className="p-4">
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
-                      usr.role === "admin" 
-                        ? "bg-purple-100 text-purple-700" 
-                        : usr.role === "recruiter" 
-                        ? "bg-blue-100 text-blue-700" 
-                        : "bg-orange-100 text-orange-700"
-                    }`}>
-                      {usr.role}
-                    </span>
-                  </td>
-                  <td className="p-4 text-xs text-slate-500">
-                    {new Date(usr.created_at).toLocaleDateString("fr-FR")}
-                  </td>
-                  <td className="p-4 text-right">
-                    {usr.role !== "admin" && (
-                      <button
-                        disabled={actionLoading}
-                        onClick={() => handleToggleRole(usr.id, usr.role)}
-                        className="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700"
-                      >
-                        Changer le rôle
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
+              {usersList.map((usr) => {
+                let displayName = "Admin / Inconnu";
+                if (usr.role === "candidate" && usr.candidates) {
+                  displayName = `${usr.candidates.first_name || ""} ${usr.candidates.last_name || ""}`.trim();
+                } else if (usr.role === "recruiter" && usr.companies) {
+                  displayName = usr.companies.name;
+                }
+
+                return (
+                  <tr key={usr.id} className="hover:bg-slate-50/50">
+                    <td className="p-4">
+                      <div className="font-bold text-slate-800 text-sm">{displayName || "Non renseigné"}</div>
+                      <div className="font-mono text-[10px] text-slate-400 mt-0.5">{usr.id}</div>
+                    </td>
+                    <td className="p-4">
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
+                        usr.role === "admin" 
+                          ? "bg-purple-100 text-purple-700" 
+                          : usr.role === "recruiter" 
+                          ? "bg-blue-100 text-blue-700" 
+                          : "bg-orange-100 text-orange-700"
+                      }`}>
+                        {usr.role}
+                      </span>
+                    </td>
+                    <td className="p-4 text-xs text-slate-500">
+                      {new Date(usr.created_at).toLocaleDateString("fr-FR")}
+                    </td>
+                    <td className="p-4 text-right">
+                      {usr.role !== "admin" && (
+                        <button
+                          disabled={actionLoading}
+                          onClick={() => handleToggleRole(usr.id, usr.role)}
+                          className="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700"
+                        >
+                          Changer le rôle
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

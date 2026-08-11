@@ -10,7 +10,7 @@ async function check() {
   const res = await client.query(`
     SELECT tablename, policyname, roles, cmd, qual, with_check 
     FROM pg_policies 
-    WHERE tablename IN ('profiles', 'candidates', 'companies');
+    WHERE tablename = 'jobs';
   `);
   
   console.log(res.rows);

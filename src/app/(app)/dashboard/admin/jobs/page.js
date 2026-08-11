@@ -3,13 +3,15 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Trash2, Edit2, X, Check, Eye, EyeOff, AlertCircle } from "lucide-react";
 
 export default function AdminJobs() {
   const router = useRouter();
-  const [pendingJobs, setPendingJobs] = useState([]);
+  const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("pending"); // pending, approved, rejected
+  const [editingJob, setEditingJob] = useState(null);
 
   useEffect(() => {
     fetchJobs();
@@ -29,13 +31,12 @@ export default function AdminJobs() {
 
       if (profile?.role !== "admin") return router.push("/");
 
-      const { data: jobs } = await supabase
+      const { data: fetchedJobs } = await supabase
         .from("jobs")
         .select("*, companies(name)")
-        .eq("status", "pending")
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: false });
 
-      if (jobs) setPendingJobs(jobs);
+      if (fetchedJobs) setJobs(fetchedJobs);
     } catch (err) {
       console.error(err);
     } finally {
@@ -52,9 +53,56 @@ export default function AdminJobs() {
         .eq("id", jobId);
 
       if (error) throw error;
-      setPendingJobs(pendingJobs.filter((j) => j.id !== jobId));
+      setJobs(jobs.map((j) => (j.id === jobId ? { ...j, status: newStatus } : j)));
     } catch (err) {
       console.error(err);
+      alert("Erreur lors de la mise à jour");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeleteJob = async (jobId, jobTitle) => {
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer définitivement l'annonce "${jobTitle}" ?`)) return;
+    
+    setActionLoading(true);
+    try {
+      const { error } = await supabase
+        .from("jobs")
+        .delete()
+        .eq("id", jobId);
+
+      if (error) throw error;
+      setJobs(jobs.filter((j) => j.id !== jobId));
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de la suppression de l'annonce");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
+    setActionLoading(true);
+    try {
+      const { error } = await supabase
+        .from("jobs")
+        .update({
+          title: editingJob.title,
+          location: editingJob.location,
+          salary: editingJob.salary,
+          description: editingJob.description,
+          contract_type: editingJob.contract_type
+        })
+        .eq("id", editingJob.id);
+
+      if (error) throw error;
+      setJobs(jobs.map((j) => (j.id === editingJob.id ? { ...j, ...editingJob } : j)));
+      setEditingJob(null);
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de la modification de l'annonce");
     } finally {
       setActionLoading(false);
     }
@@ -68,50 +116,182 @@ export default function AdminJobs() {
     );
   }
 
+  const filteredJobs = jobs.filter(j => j.status === activeTab);
+
   return (
     <div className="max-w-7xl mx-auto space-y-8">
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-slate-100">
-          <h2 className="text-lg font-bold text-slate-900">Offres en attente de modération</h2>
-          <p className="text-xs text-slate-500 mt-1">Validez ou rejetez les annonces saisies par les entreprises.</p>
-        </div>
+      <div>
+        <h2 className="text-xl font-bold text-slate-900">Modération des Annonces</h2>
+        <p className="text-sm text-slate-500 mt-1">Gérez les offres d'emploi, validez les nouvelles annonces et supprimez celles obsolètes.</p>
+      </div>
 
-        {pendingJobs.length === 0 ? (
-          <p className="text-slate-400 text-sm p-12 text-center">Aucune offre d'emploi n'est en attente de modération.</p>
+      <div className="flex border-b border-slate-200">
+        <button
+          onClick={() => setActiveTab("pending")}
+          className={`pb-4 px-6 text-sm font-bold transition-colors border-b-2 ${
+            activeTab === "pending" ? "border-orange-500 text-orange-600" : "border-transparent text-slate-500 hover:text-slate-800"
+          }`}
+        >
+          En attente ({jobs.filter(j => j.status === "pending").length})
+        </button>
+        <button
+          onClick={() => setActiveTab("approved")}
+          className={`pb-4 px-6 text-sm font-bold transition-colors border-b-2 ${
+            activeTab === "approved" ? "border-green-500 text-green-600" : "border-transparent text-slate-500 hover:text-slate-800"
+          }`}
+        >
+          En ligne ({jobs.filter(j => j.status === "approved").length})
+        </button>
+        <button
+          onClick={() => setActiveTab("rejected")}
+          className={`pb-4 px-6 text-sm font-bold transition-colors border-b-2 ${
+            activeTab === "rejected" ? "border-red-500 text-red-600" : "border-transparent text-slate-500 hover:text-slate-800"
+          }`}
+        >
+          Rejetées ({jobs.filter(j => j.status === "rejected").length})
+        </button>
+      </div>
+
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        {filteredJobs.length === 0 ? (
+          <p className="text-slate-400 text-sm p-12 text-center">Aucune offre trouvée dans cette catégorie.</p>
         ) : (
           <div className="divide-y divide-slate-100">
-            {pendingJobs.map((job) => (
-              <div key={job.id} className="p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="space-y-2">
-                  <div className="space-y-1">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-orange-50 text-orange-700">
-                      {job.contract_type}
-                    </span>
-                    <h3 className="text-lg font-bold text-slate-900">{job.title}</h3>
-                    <p className="text-xs font-semibold text-slate-500">Entreprise : {job.companies?.name || "Inconnue"}</p>
-                  </div>
-                  <div className="text-xs text-slate-500">
-                    📍 Localisation : {job.location} {job.salary && ` | 💶 Salaire : ${job.salary}`}
-                  </div>
-                  <p className="text-sm text-slate-600 bg-slate-50 p-3 rounded-2xl border border-slate-100 max-w-4xl">{job.description}</p>
-                </div>
+            {filteredJobs.map((job) => (
+              <div key={job.id} className="p-6">
+                {editingJob?.id === job.id ? (
+                  <form onSubmit={handleSaveEdit} className="space-y-4">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-sm font-bold text-slate-800">Modifier l'annonce</h3>
+                      <button type="button" onClick={() => setEditingJob(null)} className="text-slate-400 hover:text-slate-600">
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Titre de l'annonce</label>
+                        <input type="text" required value={editingJob.title} onChange={e => setEditingJob({...editingJob, title: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg text-sm" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Contrat</label>
+                        <input type="text" required value={editingJob.contract_type} onChange={e => setEditingJob({...editingJob, contract_type: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg text-sm" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Localisation</label>
+                        <input type="text" required value={editingJob.location} onChange={e => setEditingJob({...editingJob, location: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg text-sm" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Salaire (Optionnel)</label>
+                        <input type="text" value={editingJob.salary || ""} onChange={e => setEditingJob({...editingJob, salary: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg text-sm" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Description</label>
+                      <textarea required value={editingJob.description} onChange={e => setEditingJob({...editingJob, description: e.target.value})} rows={4} className="w-full p-2 border border-slate-200 rounded-lg text-sm"></textarea>
+                    </div>
+                    <div className="flex gap-2 justify-end">
+                      <button type="button" onClick={() => setEditingJob(null)} className="px-4 py-2 text-sm font-bold text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200">
+                        Annuler
+                      </button>
+                      <button type="submit" disabled={actionLoading} className="px-4 py-2 text-sm font-bold text-white bg-orange-600 rounded-xl hover:bg-orange-700 flex items-center gap-2">
+                        <Check className="w-4 h-4" /> Sauvegarder
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div className="space-y-2 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">
+                          {job.contract_type}
+                        </span>
+                        {job.status === "approved" && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700">
+                            <Check className="w-3 h-3 mr-1" /> En ligne
+                          </span>
+                        )}
+                        {job.status === "rejected" && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">
+                            <EyeOff className="w-3 h-3 mr-1" /> Hors ligne
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="text-lg font-bold text-slate-900">{job.title}</h3>
+                      <p className="text-xs font-semibold text-slate-500">🏢 Entreprise : {job.companies?.name || "Inconnue"}</p>
+                      <div className="text-xs text-slate-500">
+                        📍 Localisation : {job.location} {job.salary && ` | 💶 Salaire : ${job.salary}`}
+                      </div>
+                      <p className="text-sm text-slate-600 bg-slate-50 p-3 rounded-2xl border border-slate-100 max-w-4xl line-clamp-3">
+                        {job.description}
+                      </p>
+                    </div>
 
-                <div className="flex gap-2 w-full md:w-auto">
-                  <button
-                    onClick={() => handleModerateJob(job.id, "approved")}
-                    disabled={actionLoading}
-                    className="w-1/2 md:w-auto inline-flex items-center justify-center p-2.5 rounded-xl text-xs font-bold text-white bg-green-600 hover:bg-green-700 transition-colors gap-1"
-                  >
-                    Approuver
-                  </button>
-                  <button
-                    onClick={() => handleModerateJob(job.id, "rejected")}
-                    disabled={actionLoading}
-                    className="w-1/2 md:w-auto inline-flex items-center justify-center p-2.5 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 transition-colors gap-1"
-                  >
-                    Rejeter
-                  </button>
-                </div>
+                    <div className="flex flex-wrap gap-2 w-full md:w-auto shrink-0 justify-end">
+                      {job.status === "pending" && (
+                        <>
+                          <button
+                            onClick={() => handleModerateJob(job.id, "approved")}
+                            disabled={actionLoading}
+                            className="inline-flex items-center justify-center px-3 py-2 rounded-xl text-xs font-bold text-white bg-green-600 hover:bg-green-700 transition-colors gap-1"
+                          >
+                            Approuver
+                          </button>
+                          <button
+                            onClick={() => handleModerateJob(job.id, "rejected")}
+                            disabled={actionLoading}
+                            className="inline-flex items-center justify-center px-3 py-2 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 transition-colors gap-1"
+                          >
+                            Rejeter
+                          </button>
+                        </>
+                      )}
+                      
+                      {job.status === "approved" && (
+                        <>
+                          <button
+                            onClick={() => handleModerateJob(job.id, "rejected")}
+                            disabled={actionLoading}
+                            className="inline-flex items-center justify-center px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors gap-1"
+                            title="Mettre hors ligne"
+                          >
+                            <EyeOff className="w-4 h-4" /> Masquer
+                          </button>
+                        </>
+                      )}
+
+                      {job.status === "rejected" && (
+                        <>
+                          <button
+                            onClick={() => handleModerateJob(job.id, "approved")}
+                            disabled={actionLoading}
+                            className="inline-flex items-center justify-center px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors gap-1"
+                            title="Remettre en ligne"
+                          >
+                            <Eye className="w-4 h-4" /> Publier
+                          </button>
+                        </>
+                      )}
+
+                      <button
+                        onClick={() => setEditingJob(job)}
+                        disabled={actionLoading}
+                        className="inline-flex items-center justify-center px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors gap-1"
+                        title="Modifier l'annonce"
+                      >
+                        <Edit2 className="w-4 h-4" /> Éditer
+                      </button>
+
+                      <button
+                        onClick={() => handleDeleteJob(job.id, job.title)}
+                        disabled={actionLoading}
+                        className="inline-flex items-center justify-center px-3 py-2 rounded-xl text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 transition-colors gap-1"
+                        title="Supprimer l'annonce"
+                      >
+                        <Trash2 className="w-4 h-4" /> Supprimer
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>

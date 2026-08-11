@@ -14,7 +14,7 @@ export default function Home() {
       try {
         const { data, error } = await supabase
           .from('candidates')
-          .select('id, city, postal_code, validated')
+          .select('id, city, postal_code, validated, availability, documents, is_active')
           .not('postal_code', 'is', null)
           .neq('postal_code', '');
 
@@ -62,10 +62,24 @@ export default function Home() {
             const x = ((coords.lon - minLon) / (maxLon - minLon)) * 100;
             const y = 100 - ((coords.lat - minLat) / (maxLat - minLat)) * 100;
 
+            // Critères pour "100% Vérifié" :
+            // 1. Profil validé par l'admin
+            // 2. Documents obligatoires tous présents
+            // 3. Coordonnées géographiques valides (déjà filtrées)
+            // 4. Candidat disponible (availability défini et is_active)
+            const REQUIRED_DOCS = ['cv', 'permis', 'chrono', 'fimo'];
+            const docs = c.documents || {};
+            const allDocsPresent = REQUIRED_DOCS.every(k => !!docs[k]);
+            const isAvailable = c.is_active && c.availability && c.availability !== '';
+            const fullVerified = c.validated && allDocsPresent && isAvailable;
+
             return {
               id: c.id,
               city: c.city,
               validated: c.validated,
+              fullVerified,
+              allDocsPresent,
+              isAvailable,
               x,
               y,
             };
@@ -318,20 +332,42 @@ export default function Home() {
                 <span className="text-xs font-bold text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-100">
                   Réseau temps réel
                 </span>
-                <h2 className="text-3xl font-extrabold text-slate-955 tracking-tight">
+                <h2 className="text-3xl font-extrabold text-slate-950 tracking-tight">
                   Candidats actuellement disponibles
                 </h2>
                 <p className="text-slate-600 text-sm max-w-xl mx-auto">
-                  Découvrez la répartition géographique en direct de nos
-                  chauffeurs inscrits. Chaque point représente un profil de
-                  conducteur disponible à proximité.
+                  Découvrez la répartition géographique en direct de nos chauffeurs inscrits.
+                  Un candidat <strong>100% vérifié</strong> a ses documents à jour, ses coordonnées renseignées
+                  et est disponible immédiatement.
                 </p>
+
+                {/* Compteurs dynamiques */}
+                {!loadingMap && candidates.length > 0 && (
+                  <div className="flex flex-wrap justify-center gap-4 pt-2">
+                    <div className="inline-flex items-center gap-2 bg-white border border-slate-200 px-4 py-2 rounded-full shadow-sm text-xs font-semibold">
+                      <span className="w-2.5 h-2.5 rounded-full bg-orange-500 inline-block" />
+                      <span className="text-slate-700">{candidates.length} chauffeur{candidates.length > 1 ? 's' : ''} inscrit{candidates.length > 1 ? 's' : ''}</span>
+                    </div>
+                    {candidates.filter(c => c.validated).length > 0 && (
+                      <div className="inline-flex items-center gap-2 bg-white border border-green-200 px-4 py-2 rounded-full shadow-sm text-xs font-semibold">
+                        <span className="w-2.5 h-2.5 rounded-full bg-green-500 inline-block" />
+                        <span className="text-green-700">{candidates.filter(c => c.validated).length} validé{candidates.filter(c => c.validated).length > 1 ? 's' : ''} par FretTalent</span>
+                      </div>
+                    )}
+                    {candidates.filter(c => c.fullVerified).length > 0 && (
+                      <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-50 to-emerald-50 border border-emerald-300 px-4 py-2 rounded-full shadow-sm text-xs font-semibold">
+                        <span className="text-emerald-600">⭐</span>
+                        <span className="text-emerald-700">{candidates.filter(c => c.fullVerified).length} profil{candidates.filter(c => c.fullVerified).length > 1 ? 's' : ''} 100% vérifié{candidates.filter(c => c.fullVerified).length > 1 ? 's' : ''}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="bg-slate-50 border border-slate-200 rounded-3xl p-8 shadow-sm flex flex-col md:flex-row items-center justify-center gap-12 relative overflow-hidden">
                 <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-orange-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
-                {/* Carte de France SVG en arrière-plan */}
+                {/* Carte de France SVG */}
                 <div className="relative w-full max-w-[340px] h-[340px] flex-shrink-0">
                   <img
                     src="/france-map.svg"
@@ -339,33 +375,71 @@ export default function Home() {
                     className="w-full h-full object-contain opacity-60 select-none pointer-events-none filter grayscale contrast-125"
                   />
 
-                  {/* Points des candidats positionnés en absolu */}
+                  {/* Points des candidats */}
                   {!loadingMap &&
                     candidates.map(candidate => (
-                    <div
+                      <div
                         key={candidate.id}
                         className="absolute group"
                         style={{
                           left: `${candidate.x}%`,
                           top: `${candidate.y}%`,
                           transform: 'translate(-50%, -50%)',
+                          zIndex: candidate.fullVerified ? 30 : candidate.validated ? 20 : 10,
                         }}
                       >
-                        {/* Onde de choc pulsante */}
-                        <span className={`absolute inline-flex h-4 w-4 rounded-full opacity-75 animate-ping -left-1 -top-1 ${candidate.validated ? 'bg-green-400' : 'bg-orange-400'}`}></span>
-                        {/* Point central fixe avec badge vérifié */}
-                        <span className={`relative flex h-3 w-3 rounded-full border-2 border-white shadow-md cursor-pointer ${candidate.validated ? 'bg-green-500' : 'bg-orange-500'}`}>
-                          {candidate.validated && (
-                            <span className="absolute -top-2.5 -right-2.5 bg-green-500 text-white text-[7px] font-black rounded-full w-3.5 h-3.5 flex items-center justify-center border border-white shadow-sm">✓</span>
+                        {/* Onde pulsante — couleur selon niveau */}
+                        <span
+                          className={`absolute inline-flex rounded-full opacity-75 animate-ping -left-1 -top-1 ${
+                            candidate.fullVerified
+                              ? 'h-5 w-5 bg-emerald-400'
+                              : candidate.validated
+                              ? 'h-4 w-4 bg-green-400'
+                              : 'h-4 w-4 bg-orange-400'
+                          }`}
+                        ></span>
+
+                        {/* Point central */}
+                        <span
+                          className={`relative flex rounded-full border-2 border-white shadow-md cursor-pointer ${
+                            candidate.fullVerified
+                              ? 'h-4 w-4 bg-emerald-500 ring-2 ring-emerald-300 ring-offset-1'
+                              : candidate.validated
+                              ? 'h-3 w-3 bg-green-500'
+                              : 'h-3 w-3 bg-orange-500'
+                          }`}
+                        >
+                          {candidate.fullVerified && (
+                            <span className="absolute inset-0 flex items-center justify-center text-white text-[6px] font-black">
+                              ★
+                            </span>
+                          )}
+                          {!candidate.fullVerified && candidate.validated && (
+                            <span className="absolute -top-2.5 -right-2.5 bg-green-500 text-white text-[7px] font-black rounded-full w-3.5 h-3.5 flex items-center justify-center border border-white shadow-sm">
+                              ✓
+                            </span>
                           )}
                         </span>
 
                         {/* Tooltip au survol */}
-                        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-205 pointer-events-none bg-slate-900 text-white text-[10px] py-1.5 px-3 rounded-lg shadow-xl whitespace-nowrap z-30">
-                          <span className={`font-bold ${candidate.validated ? 'text-green-400' : 'text-orange-400'}`}>
-                            {candidate.validated ? 'Candidat Vérifié ✓' : 'Chauffeur disponible'}
-                          </span>{' '}
-                          • {candidate.city}
+                        <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-200 pointer-events-none bg-slate-900 text-white text-[10px] py-2 px-3 rounded-xl shadow-xl whitespace-nowrap z-50 min-w-[140px]">
+                          {candidate.fullVerified ? (
+                            <>
+                              <div className="font-bold text-emerald-400 flex items-center gap-1 mb-0.5">
+                                <span>⭐</span> 100% Vérifié
+                              </div>
+                              <div className="text-slate-300 text-[9px] space-y-0.5">
+                                <div>✓ Documents à jour</div>
+                                <div>✓ Localisation validée</div>
+                                <div>✓ Disponible</div>
+                              </div>
+                            </>
+                          ) : candidate.validated ? (
+                            <span className="font-bold text-green-400">Candidat Vérifié ✓</span>
+                          ) : (
+                            <span className="font-bold text-orange-400">Profil en vérification</span>
+                          )}
+                          <div className="text-slate-400 mt-1">📍 {candidate.city}</div>
                           <div className="absolute top-full left-1/2 -translate-x-1/2 border-[4px] border-transparent border-t-slate-900 w-0 h-0"></div>
                         </div>
                       </div>
@@ -375,53 +449,78 @@ export default function Home() {
                     <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-2xl">
                       <div className="text-center space-y-2">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
-                        <p className="text-xs text-slate-500 font-medium">
-                          Chargement de la carte en direct...
-                        </p>
+                        <p className="text-xs text-slate-500 font-medium">Chargement de la carte...</p>
                       </div>
                     </div>
                   )}
 
                   {!loadingMap && candidates.length === 0 && (
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/90 border border-slate-105 py-1.5 px-4 rounded-xl shadow-sm text-[10px] font-bold text-slate-500">
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/90 border border-slate-200 py-1.5 px-4 rounded-xl shadow-sm text-[10px] font-bold text-slate-500">
                       En attente de nouvelles inscriptions
                     </div>
                   )}
                 </div>
 
-                {/* Explication & Statistiques de la carte */}
+                {/* Explication & Légende */}
                 <div className="space-y-6 max-w-sm">
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-bold text-slate-950">
-                      Mise à jour en temps réel
-                    </h3>
-                    <p className="text-xs text-slate-600 leading-relaxed">
-                      Dès qu'un nouveau chauffeur s'enregistre et valide son
-                      adresse, son profil apparaît instantanément sur cette
-                      carte.
+
+                  {/* Ce que signifie 100% vérifié */}
+                  <div className="bg-white rounded-2xl border border-emerald-200 p-4 space-y-3 shadow-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">⭐</span>
+                      <h3 className="text-sm font-extrabold text-slate-950">Profil 100% Vérifié</h3>
+                    </div>
+                    <p className="text-[11px] text-slate-500 leading-relaxed">
+                      Un chauffeur obtient le badge <strong className="text-emerald-600">100% Vérifié</strong> lorsque les 4 critères suivants sont remplis :
                     </p>
+                    <ul className="space-y-2">
+                      {[
+                        { icon: '✅', label: 'Profil validé par l\'équipe FretTalent' },
+                        { icon: '📄', label: 'Documents obligatoires déposés et à jour (CV, permis, chrono, FIMO)' },
+                        { icon: '📍', label: 'Coordonnées géographiques renseignées' },
+                        { icon: '🟢', label: 'Statut de disponibilité renseigné et actif' },
+                      ].map((item, i) => (
+                        <li key={i} className="flex items-start gap-2 text-[11px] text-slate-700">
+                          <span className="flex-shrink-0">{item.icon}</span>
+                          <span>{item.label}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="h-2 w-2 rounded-full bg-orange-500 animate-pulse"></div>
-                      <span className="text-xs font-semibold text-slate-700">
-                        Flux d'inscriptions vérifiées
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                      <span className="text-xs font-semibold text-slate-700">
-                        <span className="text-green-600 font-bold">✓ Vert</span> = Candidat vérifié par FretTalent
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="h-2 w-2 rounded-full bg-orange-500"></div>
-                      <span className="text-xs font-semibold text-slate-700">
-                        <span className="text-orange-500 font-bold">● Orange</span> = Profil en cours de vérification
-                      </span>
+
+                  {/* Légende */}
+                  <div className="space-y-2.5">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Légende de la carte</p>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3">
+                        <div className="relative flex-shrink-0">
+                          <span className="block h-4 w-4 rounded-full bg-emerald-500 border-2 border-white shadow-md flex items-center justify-center">
+                            <span className="text-white text-[6px] font-black">★</span>
+                          </span>
+                        </div>
+                        <span className="text-xs font-semibold text-slate-700">
+                          <span className="text-emerald-600 font-bold">⭐ Vert étoile</span> = Profil 100% vérifié
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="relative flex-shrink-0">
+                          <span className="block h-3 w-3 rounded-full bg-green-500 border-2 border-white shadow-md"></span>
+                          <span className="absolute -top-1.5 -right-1.5 bg-green-500 text-white text-[6px] rounded-full w-3 h-3 flex items-center justify-center border border-white text-[7px]">✓</span>
+                        </div>
+                        <span className="text-xs font-semibold text-slate-700">
+                          <span className="text-green-600 font-bold">✓ Vert</span> = Validé par FretTalent
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="block h-3 w-3 rounded-full bg-orange-500 flex-shrink-0 animate-pulse"></span>
+                        <span className="text-xs font-semibold text-slate-700">
+                          <span className="text-orange-500 font-bold">● Orange</span> = En cours de vérification
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <div className="pt-2">
+
+                  <div className="pt-2 border-t border-slate-100">
                     <Link
                       href="/offres"
                       className="inline-flex items-center text-xs font-bold text-orange-500 hover:text-orange-600"
@@ -438,3 +537,4 @@ export default function Home() {
     </div>
   );
 }
+

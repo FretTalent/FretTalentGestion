@@ -147,47 +147,6 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-950 mb-4">Actions rapides</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <button
-                      onClick={() => router.push('/dashboard/admin/candidates')}
-                      className="flex items-center justify-center gap-2 p-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
-                    >
-                      <FileText className="h-5 w-5 text-orange-500" />
-                      <span className="font-medium">Gérer les candidats</span>
-                    </button>
-                    <button
-                      onClick={() => router.push('/dashboard/admin/companies')}
-                      className="flex items-center justify-center gap-2 p-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
-                    >
-                      <Users className="h-5 w-5 text-orange-500" />
-                      <span className="font-medium">Gérer les entreprises</span>
-                    </button>
-                    <button
-                      onClick={() => router.push('/dashboard/admin/users')}
-                      className="flex items-center justify-center gap-2 p-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
-                    >
-                      <Users className="h-5 w-5 text-orange-500" />
-                      <span className="font-medium">Gérer les utilisateurs</span>
-                    </button>
-                    <button
-                      onClick={() => router.push('/dashboard/admin/jobs')}
-                      className="flex items-center justify-center gap-2 p-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
-                    >
-                      <BarChart3 className="h-5 w-5 text-orange-500" />
-                      <span className="font-medium">Gérer les offres</span>
-                    </button>
-                    <button
-                      onClick={() => router.push('/dashboard/admin/mail')}
-                      className="flex items-center justify-center gap-2 p-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
-                    >
-                      <Key className="h-5 w-5 text-orange-500" />
-                      <span className="font-medium">Gérer les mails</span>
-                    </button>
-        </div>
-      </div>
     </div>
   );
 }

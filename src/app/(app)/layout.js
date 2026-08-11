@@ -12,6 +12,7 @@ import {
   LogOut,
   BarChart3,
   Users,
+  Building2,
   Shield,
   Menu,
   ChevronRight,
@@ -38,7 +39,8 @@ const navAdmin = [
     icon: Briefcase,
     label: 'Modération annonces',
   },
-  { href: '/dashboard/admin/users', icon: Users, label: 'Utilisateurs' },
+  { href: '/dashboard/admin/candidates', icon: Users, label: 'Candidats' },
+  { href: '/dashboard/admin/companies', icon: Building2, label: 'Entreprises' },
   { href: '/dashboard/admin/mail', icon: Mail, label: 'Gestion mails' },
 ];
 

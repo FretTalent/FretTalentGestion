@@ -14,7 +14,7 @@ export default function Home() {
       try {
         const { data, error } = await supabase
           .from('candidates')
-          .select('id, city, postal_code')
+          .select('id, city, postal_code, validated')
           .eq('is_active', true);
 
         if (error) throw error;
@@ -63,6 +63,7 @@ export default function Home() {
             return {
               id: c.id,
               city: c.city,
+              validated: c.validated,
               x,
               y,
             };
@@ -339,7 +340,7 @@ export default function Home() {
                   {/* Points des candidats positionnés en absolu */}
                   {!loadingMap &&
                     candidates.map(candidate => (
-                      <div
+                    <div
                         key={candidate.id}
                         className="absolute group"
                         style={{
@@ -349,14 +350,18 @@ export default function Home() {
                         }}
                       >
                         {/* Onde de choc pulsante */}
-                        <span className="absolute inline-flex h-4 w-4 rounded-full bg-orange-400 opacity-75 animate-ping -left-1 -top-1"></span>
-                        {/* Point central fixe */}
-                        <span className="relative block h-2.5 w-2.5 rounded-full bg-orange-500 border border-white shadow-md cursor-pointer"></span>
+                        <span className={`absolute inline-flex h-4 w-4 rounded-full opacity-75 animate-ping -left-1 -top-1 ${candidate.validated ? 'bg-green-400' : 'bg-orange-400'}`}></span>
+                        {/* Point central fixe avec badge vérifié */}
+                        <span className={`relative flex h-3 w-3 rounded-full border-2 border-white shadow-md cursor-pointer ${candidate.validated ? 'bg-green-500' : 'bg-orange-500'}`}>
+                          {candidate.validated && (
+                            <span className="absolute -top-2.5 -right-2.5 bg-green-500 text-white text-[7px] font-black rounded-full w-3.5 h-3.5 flex items-center justify-center border border-white shadow-sm">✓</span>
+                          )}
+                        </span>
 
                         {/* Tooltip au survol */}
                         <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-205 pointer-events-none bg-slate-900 text-white text-[10px] py-1.5 px-3 rounded-lg shadow-xl whitespace-nowrap z-30">
-                          <span className="font-bold text-orange-400">
-                            Chauffeur disponible
+                          <span className={`font-bold ${candidate.validated ? 'text-green-400' : 'text-orange-400'}`}>
+                            {candidate.validated ? 'Candidat Vérifié ✓' : 'Chauffeur disponible'}
                           </span>{' '}
                           • {candidate.city}
                           <div className="absolute top-full left-1/2 -translate-x-1/2 border-[4px] border-transparent border-t-slate-900 w-0 h-0"></div>
@@ -404,7 +409,13 @@ export default function Home() {
                     <div className="flex items-center gap-3">
                       <div className="h-2 w-2 rounded-full bg-green-500"></div>
                       <span className="text-xs font-semibold text-slate-700">
-                        100% profils conformes
+                        <span className="text-green-600 font-bold">✓ Vert</span> = Candidat vérifié par FretTalent
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="h-2 w-2 rounded-full bg-orange-500"></div>
+                      <span className="text-xs font-semibold text-slate-700">
+                        <span className="text-orange-500 font-bold">● Orange</span> = Profil en cours de vérification
                       </span>
                     </div>
                   </div>

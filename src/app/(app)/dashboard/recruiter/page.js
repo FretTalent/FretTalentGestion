@@ -15,6 +15,7 @@ import {
   FileText,
   Download
 } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function RecruiterDashboard() {
   const router = useRouter();
@@ -231,7 +232,7 @@ export default function RecruiterDashboard() {
       window.open(data.signedUrl, '_blank');
     } catch (err) {
       console.error(err);
-      alert("Erreur: Impossible d'accéder à ce document (Vérifiez vos droits).");
+      toast.error("Erreur: Impossible d'accéder à ce document (Vérifiez vos droits).");
     }
   };
 

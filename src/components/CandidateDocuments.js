@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { UploadCloud, FileText, CheckCircle2, XCircle, Trash2, Loader2, File } from "lucide-react";
+import toast from "react-hot-toast";
+import ConfirmModal from "@/components/ConfirmModal";
 
 const DOCUMENT_TYPES = [
   { key: "cv", label: "CV", required: true },
@@ -15,8 +17,9 @@ const DOCUMENT_TYPES = [
 ];
 
 export default function CandidateDocuments({ candidateId, documents = {}, onUpdate }) {
-  const [uploading, setUploading] = useState(null); // stocke la clé du document en cours d'upload
+  const [uploading, setUploading] = useState(null);
   const [error, setError] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, docType: null });
 
   const handleUpload = async (e, docType) => {
     const file = e.target.files[0];
@@ -71,8 +74,15 @@ export default function CandidateDocuments({ candidateId, documents = {}, onUpda
     }
   };
 
-  const handleDelete = async (docType) => {
-    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer votre ${docType.label} ?`)) return;
+  const requestDelete = (docType) => {
+    setConfirmModal({ isOpen: true, docType });
+  };
+
+  const executeDelete = async () => {
+    const docType = confirmModal.docType;
+    setConfirmModal({ isOpen: false, docType: null });
+    
+    if (!docType) return;
 
     setUploading(docType.key);
     setError(null);
@@ -96,9 +106,10 @@ export default function CandidateDocuments({ candidateId, documents = {}, onUpda
       if (dbError) throw dbError;
 
       onUpdate(newDocuments);
+      toast.success(`${docType.label} supprimé avec succès`);
     } catch (err) {
       console.error(err);
-      setError(`Erreur lors de la suppression de ${docType.label}`);
+      toast.error(`Erreur lors de la suppression de ${docType.label}`);
     } finally {
       setUploading(null);
     }
@@ -117,7 +128,7 @@ export default function CandidateDocuments({ candidateId, documents = {}, onUpda
       window.open(data.signedUrl, '_blank');
     } catch (err) {
       console.error(err);
-      alert("Impossible d'ouvrir le document.");
+      toast.error("Impossible d'ouvrir le document.");
     }
   };
 
@@ -181,7 +192,7 @@ export default function CandidateDocuments({ candidateId, documents = {}, onUpda
                       Voir le fichier
                     </button>
                     <button 
-                      onClick={() => handleDelete(docType)}
+                      onClick={() => requestDelete(docType)}
                       type="button"
                       className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                       title="Supprimer"
@@ -211,6 +222,16 @@ export default function CandidateDocuments({ candidateId, documents = {}, onUpda
           );
         })}
       </div>
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title="Supprimer ce document ?"
+        message={`Êtes-vous sûr de vouloir supprimer définitivement votre ${confirmModal.docType?.label} ?`}
+        onConfirm={executeDelete}
+        onCancel={() => setConfirmModal({ isOpen: false, docType: null })}
+        variant="danger"
+        confirmText="Oui, supprimer"
+      />
     </div>
   );
 }

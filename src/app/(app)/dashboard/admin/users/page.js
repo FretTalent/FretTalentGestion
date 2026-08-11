@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { RefreshCw, Search, Trash2, FileText, Download, X } from "lucide-react";
+import toast from "react-hot-toast";
+import ConfirmModal from "@/components/ConfirmModal";
 
 export default function AdminUsers() {
   const router = useRouter();
@@ -12,6 +14,7 @@ export default function AdminUsers() {
   const [actionLoading, setActionLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDocsUser, setSelectedDocsUser] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, user: null });
 
   useEffect(() => {
     fetchUsers();
@@ -68,10 +71,13 @@ export default function AdminUsers() {
     }
   };
 
-  const handleDeleteUser = async (userId, name) => {
-    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer définitivement le compte de "${name}" ? Cette action est irréversible.`)) {
-      return;
-    }
+  const requestDelete = (user, displayName) => {
+    setConfirmModal({ isOpen: true, user: { id: user.id, name: displayName } });
+  };
+
+  const executeDelete = async () => {
+    const { id: userId, name } = confirmModal.user;
+    setConfirmModal({ isOpen: false, user: null });
     
     setActionLoading(true);
     try {
@@ -89,12 +95,13 @@ export default function AdminUsers() {
       const data = await res.json();
       if (res.ok) {
         setUsersList(usersList.filter((u) => u.id !== userId));
+        toast.success(`Le compte de ${name} a été supprimé`);
       } else {
-        alert(data.error || "Erreur lors de la suppression");
+        toast.error(data.error || "Erreur lors de la suppression");
       }
     } catch (err) {
       console.error(err);
-      alert("Erreur de connexion au serveur");
+      toast.error("Erreur de connexion au serveur");
     } finally {
       setActionLoading(false);
     }
@@ -110,7 +117,7 @@ export default function AdminUsers() {
       window.open(data.signedUrl, '_blank');
     } catch (err) {
       console.error(err);
-      alert("Erreur lors de la récupération du document.");
+      toast.error("Erreur lors de la récupération du document.");
     }
   };
 
@@ -195,7 +202,7 @@ export default function AdminUsers() {
                             </button>
                             <button
                               disabled={actionLoading}
-                              onClick={() => handleDeleteUser(usr.id, displayName)}
+                              onClick={() => requestDelete(usr, displayName)}
                               className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors inline-flex items-center justify-center"
                               title="Supprimer le compte"
                             >
@@ -297,6 +304,16 @@ export default function AdminUsers() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title="Supprimer cet utilisateur ?"
+        message={`Êtes-vous sûr de vouloir supprimer définitivement le compte de "${confirmModal.user?.name}" ? Cette action est irréversible.`}
+        onConfirm={executeDelete}
+        onCancel={() => setConfirmModal({ isOpen: false, user: null })}
+        variant="danger"
+        confirmText="Oui, supprimer"
+      />
     </div>
   );
 }

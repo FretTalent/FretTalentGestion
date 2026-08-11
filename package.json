@@ -20,6 +20,7 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-email": "^6.9.2",
+    "react-hot-toast": "^2.6.0",
     "resend": "^6.18.1",
     "sharp": "^0.35.3",
     "stripe": "^22.4.0"

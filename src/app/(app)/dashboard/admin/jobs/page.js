@@ -3,15 +3,18 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { RefreshCw, Trash2, Edit2, X, Check, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { RefreshCw, Trash2, Edit2, X, Check, Eye, EyeOff } from "lucide-react";
+import toast from "react-hot-toast";
+import ConfirmModal from "@/components/ConfirmModal";
 
 export default function AdminJobs() {
   const router = useRouter();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("pending"); // pending, approved, rejected
+  const [activeTab, setActiveTab] = useState("pending");
   const [editingJob, setEditingJob] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, job: null });
 
   useEffect(() => {
     fetchJobs();
@@ -54,29 +57,37 @@ export default function AdminJobs() {
 
       if (error) throw error;
       setJobs(jobs.map((j) => (j.id === jobId ? { ...j, status: newStatus } : j)));
+      toast.success("Annonce mise à jour avec succès");
     } catch (err) {
       console.error(err);
-      alert("Erreur lors de la mise à jour");
+      toast.error("Erreur lors de la mise à jour");
     } finally {
       setActionLoading(false);
     }
   };
 
-  const handleDeleteJob = async (jobId, jobTitle) => {
-    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer définitivement l'annonce "${jobTitle}" ?`)) return;
+  const requestDelete = (job) => {
+    setConfirmModal({ isOpen: true, job });
+  };
+
+  const executeDelete = async () => {
+    const job = confirmModal.job;
+    setConfirmModal({ isOpen: false, job: null });
+    if (!job) return;
     
     setActionLoading(true);
     try {
       const { error } = await supabase
         .from("jobs")
         .delete()
-        .eq("id", jobId);
+        .eq("id", job.id);
 
       if (error) throw error;
-      setJobs(jobs.filter((j) => j.id !== jobId));
+      setJobs(jobs.filter((j) => j.id !== job.id));
+      toast.success(`Annonce "${job.title}" supprimée`);
     } catch (err) {
       console.error(err);
-      alert("Erreur lors de la suppression de l'annonce");
+      toast.error("Erreur lors de la suppression de l'annonce");
     } finally {
       setActionLoading(false);
     }
@@ -100,9 +111,10 @@ export default function AdminJobs() {
       if (error) throw error;
       setJobs(jobs.map((j) => (j.id === editingJob.id ? { ...j, ...editingJob } : j)));
       setEditingJob(null);
+      toast.success("Annonce modifiée avec succès");
     } catch (err) {
       console.error(err);
-      alert("Erreur lors de la modification de l'annonce");
+      toast.error("Erreur lors de la modification de l'annonce");
     } finally {
       setActionLoading(false);
     }
@@ -247,29 +259,25 @@ export default function AdminJobs() {
                       )}
                       
                       {job.status === "approved" && (
-                        <>
-                          <button
-                            onClick={() => handleModerateJob(job.id, "rejected")}
-                            disabled={actionLoading}
-                            className="inline-flex items-center justify-center px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors gap-1"
-                            title="Mettre hors ligne"
-                          >
-                            <EyeOff className="w-4 h-4" /> Masquer
-                          </button>
-                        </>
+                        <button
+                          onClick={() => handleModerateJob(job.id, "rejected")}
+                          disabled={actionLoading}
+                          className="inline-flex items-center justify-center px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors gap-1"
+                          title="Mettre hors ligne"
+                        >
+                          <EyeOff className="w-4 h-4" /> Masquer
+                        </button>
                       )}
 
                       {job.status === "rejected" && (
-                        <>
-                          <button
-                            onClick={() => handleModerateJob(job.id, "approved")}
-                            disabled={actionLoading}
-                            className="inline-flex items-center justify-center px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors gap-1"
-                            title="Remettre en ligne"
-                          >
-                            <Eye className="w-4 h-4" /> Publier
-                          </button>
-                        </>
+                        <button
+                          onClick={() => handleModerateJob(job.id, "approved")}
+                          disabled={actionLoading}
+                          className="inline-flex items-center justify-center px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors gap-1"
+                          title="Remettre en ligne"
+                        >
+                          <Eye className="w-4 h-4" /> Publier
+                        </button>
                       )}
 
                       <button
@@ -282,7 +290,7 @@ export default function AdminJobs() {
                       </button>
 
                       <button
-                        onClick={() => handleDeleteJob(job.id, job.title)}
+                        onClick={() => requestDelete(job)}
                         disabled={actionLoading}
                         className="inline-flex items-center justify-center px-3 py-2 rounded-xl text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 transition-colors gap-1"
                         title="Supprimer l'annonce"
@@ -297,6 +305,16 @@ export default function AdminJobs() {
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title="Supprimer cette annonce ?"
+        message={`Êtes-vous sûr de vouloir supprimer définitivement l'annonce "${confirmModal.job?.title}" ?`}
+        onConfirm={executeDelete}
+        onCancel={() => setConfirmModal({ isOpen: false, job: null })}
+        variant="danger"
+        confirmText="Oui, supprimer"
+      />
     </div>
   );
 }

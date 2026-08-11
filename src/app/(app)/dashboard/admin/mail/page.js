@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Send, AlertCircle, CheckCircle2, RefreshCw } from "lucide-react";
+import toast from "react-hot-toast";
+import ConfirmModal from "@/components/ConfirmModal";
 
 export default function AdminMail() {
   const router = useRouter();
@@ -67,6 +69,10 @@ export default function AdminMail() {
   const [ctaText, setCtaText] = useState("");
   const [ctaLink, setCtaLink] = useState("");
   
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false });
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState(null);
+  
   const handleTemplateChange = (e) => {
     const key = e.target.value;
     setSelectedTemplateKey(key);
@@ -80,14 +86,22 @@ export default function AdminMail() {
       setCtaLink(tpl.ctaLink);
     }
   };
-  
-  const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState(null); // { type: 'success' | 'error', message: string }
 
-  const handleSend = async (e) => {
+  const requestSend = (e) => {
     e.preventDefault();
-    if (!window.confirm("Êtes-vous sûr de vouloir envoyer cet e-mail ?")) return;
-    
+    if (!subject || !title || !message) {
+      toast.error("Veuillez remplir au minimum le sujet, le titre et le message.");
+      return;
+    }
+    if (target === "specific" && !specificEmails) {
+      toast.error("Veuillez indiquer au moins une adresse e-mail.");
+      return;
+    }
+    setConfirmModal({ isOpen: true });
+  };
+
+  const executeSendMail = async () => {
+    setConfirmModal({ isOpen: false });
     setLoading(true);
     setStatus(null);
     
@@ -116,16 +130,20 @@ export default function AdminMail() {
       
       const data = await res.json();
       
-      if (res.ok) {
-        setStatus({ type: "success", message: data.message || "E-mail envoyé avec succès" });
-        // Optionnel : réinitialiser le formulaire
-        // setMessage("");
-      } else {
-        setStatus({ type: "error", message: data.error || "Erreur lors de l'envoi" });
+      if (!res.ok) {
+        throw new Error(data.error || "Erreur lors de l'envoi");
+      }
+
+      toast.success(`E-mail envoyé avec succès ! (${data.count} destinataires)`);
+      setStatus({ type: "success", message: `E-mail envoyé avec succès ! (${data.count} destinataires)` });
+      
+      if (target === "specific") {
+        setSpecificEmails("");
       }
     } catch (err) {
       console.error(err);
-      setStatus({ type: "error", message: "Erreur de connexion au serveur" });
+      toast.error(err.message || "Erreur lors de l'envoi de l'e-mail");
+      setStatus({ type: "error", message: err.message || "Erreur lors de l'envoi de l'e-mail" });
     } finally {
       setLoading(false);
     }
@@ -139,9 +157,8 @@ export default function AdminMail() {
       </div>
 
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-        <form onSubmit={handleSend} className="p-6 md:p-8 space-y-8">
+        <form onSubmit={requestSend} className="p-6 md:p-8 space-y-8">
           
-          {/* Section: Destinataires */}
           <div className="space-y-4">
             <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2">1. Destinataires</h3>
             
@@ -177,7 +194,6 @@ export default function AdminMail() {
             )}
           </div>
 
-          {/* Section: Modèle et Contenu */}
           <div className="space-y-4">
             <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2">2. Modèle et Contenu</h3>
             
@@ -271,9 +287,7 @@ export default function AdminMail() {
             </div>
           </div>
 
-          {/* Status and Action */}
           <div className="pt-4 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4">
-            
             <div className="flex-1">
               {status && (
                 <div className={`flex items-center gap-2 p-3 rounded-xl text-sm font-bold ${status.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
@@ -292,9 +306,18 @@ export default function AdminMail() {
               {loading ? "Envoi en cours..." : "Envoyer la campagne"}
             </button>
           </div>
-          
         </form>
       </div>
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title="Confirmation d'envoi"
+        message={`Êtes-vous sûr de vouloir envoyer cet e-mail (${target === 'all_candidates' ? 'à tous les candidats' : target === 'all_companies' ? 'à toutes les entreprises' : 'aux adresses spécifiées'}) ?`}
+        onConfirm={executeSendMail}
+        onCancel={() => setConfirmModal({ isOpen: false })}
+        variant="warning"
+        confirmText="Oui, envoyer"
+      />
     </div>
   );
 }

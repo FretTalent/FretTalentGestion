@@ -51,7 +51,7 @@ export default function AdminCandidates() {
   const fetchCandidates = async () => {
     setLoading(true);
     try {
-      // Récupérer les candidats avec une requête directe
+      // Récupérer les candidats avec une requête complète
       const { data, error } = await supabase
         .from('candidates')
         .select('*');
@@ -61,6 +61,7 @@ export default function AdminCandidates() {
         setCandidates([]);
       } else {
         console.log('Candidats récupérés:', data);
+        console.log('Nombre total de candidats:', data?.length || 0);
         setCandidates(data || []);
       }
     } catch (err) {
@@ -131,10 +132,28 @@ export default function AdminCandidates() {
     const checkInitialData = async () => {
       const initialData = await verifyCandidates();
       if (initialData.length > 0) {
-        console.log('Données initiales vérifiées:', initialData);
+        console.log('Données initiales vérifiées:', initialData.length, 'candidats');
+      } else {
+        console.warn('Aucun candidat trouvé dans la vérification initiale');
       }
     };
     checkInitialData();
+  }, []);
+
+  // Vérification des données candidates dans le contexte
+  useEffect(() => {
+    const verifyContext = async () => {
+      const { data, error } = await supabase
+        .from('candidates')
+        .select('*');
+
+      if (error) {
+        console.error('Erreur lors de la vérification des données:', error);
+      } else {
+        console.log('Vérification dans le contexte:', data?.length || 0, 'candidats');
+      }
+    };
+    verifyContext();
   }, []);
 
   return (

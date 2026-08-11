@@ -14,6 +14,9 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "FretTalent - Recrutez vos chauffeurs routiers en 1 clic",
   description: "Plateforme de mise en relation directe et recrutement anonyme pour chauffeurs routiers et entreprises de transport en France.",
+  verification: {
+    google: "HaOFAtVy2hTWaEMQwIe99GOYa82kYu0inM7cgWsnIp4",
+  },
   icons: {
     icon: "/favicon.png",
     shortcut: "/favicon.png",

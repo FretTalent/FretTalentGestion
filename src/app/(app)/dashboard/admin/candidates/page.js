@@ -4,9 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { RefreshCw, CheckCircle, XCircle, Search, Eye } from 'lucide-react';
-import CandidateChecker from './CandidateChecker';
-import DatabaseChecker from './DatabaseChecker';
-import TableChecker from './TableChecker';
+
 
 export default function AdminCandidates() {
   const router = useRouter();
@@ -21,36 +19,21 @@ export default function AdminCandidates() {
   const fetchCandidates = async () => {
     setLoading(true);
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/login');
-        return;
-      }
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single();
-
-      if (profile?.role !== 'admin') {
-        router.push('/');
-        return;
-      }
-
+      // Vérification directe des données candidates
       const { data, error } = await supabase
-              .from('candidates')
-              .select('*')
-              .eq('is_active', true)
-              .order('created_at', { ascending: false });
+        .from('candidates')
+        .select('*');
 
-            if (error) throw error;
-            console.log('Candidates data:', data);
-            setCandidates(data || []);
+      if (error) {
+        console.error('Erreur lors de la récupération des candidats:', error.message);
+        setCandidates([]);
+      } else {
+        console.log('Candidats récupérés:', data);
+        setCandidates(data || []);
+      }
     } catch (err) {
-      console.error(err);
+      console.error('Erreur inattendue:', err);
+      setCandidates([]);
     } finally {
       setLoading(false);
     }
@@ -85,9 +68,7 @@ export default function AdminCandidates() {
   );
 
   // Debug: Afficher les candidats dans la console
-  useEffect(() => {
-    console.log('Candidates data:', candidates);
-  }, [candidates]);
+
 
   if (loading) {
     return (
@@ -99,9 +80,6 @@ export default function AdminCandidates() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <CandidateChecker />
-      <DatabaseChecker />
-      <TableChecker />
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-slate-950">Candidats</h1>
         <div className="relative">
@@ -116,8 +94,17 @@ export default function AdminCandidates() {
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-        <table className="w-full">
+      {loading ? (
+        <div className="text-center py-8">
+          <p>Chargement des candidats...</p>
+        </div>
+      ) : (
+        candidates.length > 0 ? (
+          <div>
+            <h2 className="text-xl font-bold mb-4">Liste des candidats trouvés ({candidates.length})</h2>
+            <p className="text-sm text-slate-500 mb-4">Affichage des {candidates.length} candidats actifs</p>
+            <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+              <table className="w-full">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200">
               <th className="text-left py-3 px-4 font-semibold text-slate-700">Nom</th>
@@ -129,11 +116,11 @@ export default function AdminCandidates() {
             </tr>
           </thead>
           <tbody>
-            {filteredCandidates.map((candidate) => (
+            {candidates.map((candidate) => (
               <tr key={candidate.id} className="border-b border-slate-100">
                 <td className="py-3 px-4">{candidate.full_name || '—'}</td>
-                                <td className="py-3 px-4">{candidate.email || '—'}</td>
-                                <td className="py-3 px-4">{candidate.phone || '—'}</td>
+                <td className="py-3 px-4">{candidate.email || '—'}</td>
+                <td className="py-3 px-4">{candidate.phone || '—'}</td>
                 <td className="py-3 px-4 text-center">
                   {candidate.validated ? (
                     <span className="inline-flex items-center gap-1 text-green-600">
@@ -146,30 +133,31 @@ export default function AdminCandidates() {
                   )}
                 </td>
                 <td className="py-3 px-4 text-center">
-                                  {candidate.validated ? (
-                                    <span className="text-slate-400">Déjà validé</span>
-                                  ) : (
-                                    <button
-                                      onClick={() => handleValidate(candidate.id)}
-                                      className="px-3 py-1 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                                    >
-                                      Valider
-                                    </button>
-                                  )}
-                                </td>
-                                <td className="py-3 px-4 text-center">
-                                  <button
-                                    onClick={() => router.push(`/dashboard/admin/candidates/${candidate.id}`)}
-                                    className="p-1 text-slate-600 hover:text-orange-500 transition-colors"
-                                    title="Voir le profil"
-                                  >
-                                    <Eye className="h-5 w-5" />
-                                  </button>
-                                </td>
+                  <button
+                    onClick={() => handleValidate(candidate.id)}
+                    className="px-3 py-1 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                  >
+                    {candidate.validated ? 'Déjà validé' : 'Valider'}
+                  </button>
+                </td>
+                <td className="py-3 px-4 text-center">
+                  <button
+                    onClick={() => router.push(`/dashboard/admin/candidates/${candidate.id}`)}
+                    className="p-1 text-slate-600 hover:text-orange-500 transition-colors"
+                    title="Voir le profil"
+                  >
+                    <Eye className="h-5 w-5" />
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
-        </table>
+        )) : (
+            <div className="text-center py-8">
+              <p>Aucun candidat trouvé.</p>
+              <p className="text-sm text-slate-500">Vérifiez que des candidats sont bien enregistrés dans la base de données.</p>
+            </div>
+          )}
       </div>
     </div>
   );

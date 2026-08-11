@@ -43,9 +43,15 @@ export default function AdminDashboard() {
       }
 
       // Charger les métriques KPIs
-      const { count: candCount } = await supabase
+      // Vérification directe du nombre de candidats
+      const { count: candCount, error: candError } = await supabase
         .from('candidates')
         .select('*', { count: 'exact', head: true });
+
+      if (candError) {
+        console.error('Erreur lors du comptage des candidats:', candError);
+        candCount = 0;
+      }
       const { count: compCount } = await supabase
         .from('companies')
         .select('*', { count: 'exact', head: true });
@@ -64,6 +70,8 @@ export default function AdminDashboard() {
         unlocksCount: uCount,
         totalRevenue: totalRev,
       });
+
+      console.log('KPIs:', { candidatesCount: candCount, companiesCount: compCount });
     } catch (err) {
       console.error(err);
     } finally {

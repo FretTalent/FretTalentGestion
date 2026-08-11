@@ -124,7 +124,7 @@ export default function AdminCandidates() {
           <p>Chargement des candidats...</p>
           <div className="mt-4 flex justify-center">
             <button
-              onClick={() => alert('Vérifiez les logs de la console pour plus d'informations')}
+              onClick={() => alert("Vérifiez les logs de la console pour plus d'informations")}
               className="text-orange-500 hover:underline"
             >
               Voir les logs de debug
@@ -216,7 +216,7 @@ export default function AdminCandidates() {
                   Accéder au tableau de bord Supabase
                 </button>
                 <button
-                  onClick={() => alert('Vérifiez les logs de la console pour plus d'informations')}
+                  onClick={() => alert("Vérifiez les logs de la console pour plus d'informations")}
                   className="text-orange-500 hover:underline"
                 >
                   Voir les logs de debug

@@ -1,20 +1,23 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
-import { RefreshCw, Trash2, Edit2, X, Check, Eye, EyeOff } from "lucide-react";
-import toast from "react-hot-toast";
-import ConfirmModal from "@/components/ConfirmModal";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
+import { RefreshCw, Trash2, Edit2, X, Check, Eye, EyeOff } from 'lucide-react';
+import toast from 'react-hot-toast';
+import ConfirmModal from '@/components/ConfirmModal';
 
 export default function AdminJobs() {
   const router = useRouter();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("pending");
+  const [activeTab, setActiveTab] = useState('pending');
   const [editingJob, setEditingJob] = useState(null);
-  const [confirmModal, setConfirmModal] = useState({ isOpen: false, job: null });
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    job: null,
+  });
 
   useEffect(() => {
     fetchJobs();
@@ -23,21 +26,23 @@ export default function AdminJobs() {
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return router.push("/login");
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return router.push('/login');
 
       const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
         .single();
 
-      if (profile?.role !== "admin") return router.push("/");
+      if (profile?.role !== 'admin') return router.push('/');
 
       const { data: fetchedJobs } = await supabase
-        .from("jobs")
-        .select("*, companies(name)")
-        .order("created_at", { ascending: false });
+        .from('jobs')
+        .select('*, companies(name)')
+        .order('created_at', { ascending: false });
 
       if (fetchedJobs) setJobs(fetchedJobs);
     } catch (err) {
@@ -51,22 +56,24 @@ export default function AdminJobs() {
     setActionLoading(true);
     try {
       const { error } = await supabase
-        .from("jobs")
+        .from('jobs')
         .update({ status: newStatus })
-        .eq("id", jobId);
+        .eq('id', jobId);
 
       if (error) throw error;
-      setJobs(jobs.map((j) => (j.id === jobId ? { ...j, status: newStatus } : j)));
-      toast.success("Annonce mise à jour avec succès");
+      setJobs(
+        jobs.map(j => (j.id === jobId ? { ...j, status: newStatus } : j)),
+      );
+      toast.success('Annonce mise à jour avec succès');
     } catch (err) {
       console.error(err);
-      toast.error("Erreur lors de la mise à jour");
+      toast.error('Erreur lors de la mise à jour');
     } finally {
       setActionLoading(false);
     }
   };
 
-  const requestDelete = (job) => {
+  const requestDelete = job => {
     setConfirmModal({ isOpen: true, job });
   };
 
@@ -74,16 +81,13 @@ export default function AdminJobs() {
     const job = confirmModal.job;
     setConfirmModal({ isOpen: false, job: null });
     if (!job) return;
-    
+
     setActionLoading(true);
     try {
-      const { error } = await supabase
-        .from("jobs")
-        .delete()
-        .eq("id", job.id);
+      const { error } = await supabase.from('jobs').delete().eq('id', job.id);
 
       if (error) throw error;
-      setJobs(jobs.filter((j) => j.id !== job.id));
+      setJobs(jobs.filter(j => j.id !== job.id));
       toast.success(`Annonce "${job.title}" supprimée`);
     } catch (err) {
       console.error(err);
@@ -93,25 +97,27 @@ export default function AdminJobs() {
     }
   };
 
-  const handleSaveEdit = async (e) => {
+  const handleSaveEdit = async e => {
     e.preventDefault();
     setActionLoading(true);
     try {
       const { error } = await supabase
-        .from("jobs")
+        .from('jobs')
         .update({
           title: editingJob.title,
           location: editingJob.location,
           salary: editingJob.salary,
           description: editingJob.description,
-          contract_type: editingJob.contract_type
+          contract_type: editingJob.contract_type,
         })
-        .eq("id", editingJob.id);
+        .eq('id', editingJob.id);
 
       if (error) throw error;
-      setJobs(jobs.map((j) => (j.id === editingJob.id ? { ...j, ...editingJob } : j)));
+      setJobs(
+        jobs.map(j => (j.id === editingJob.id ? { ...j, ...editingJob } : j)),
+      );
       setEditingJob(null);
-      toast.success("Annonce modifiée avec succès");
+      toast.success('Annonce modifiée avec succès');
     } catch (err) {
       console.error(err);
       toast.error("Erreur lors de la modification de l'annonce");
@@ -133,79 +139,170 @@ export default function AdminJobs() {
   return (
     <div className="max-w-7xl mx-auto space-y-8">
       <div>
-        <h2 className="text-xl font-bold text-slate-900">Modération des Annonces</h2>
-        <p className="text-sm text-slate-500 mt-1">Gérez les offres d'emploi, validez les nouvelles annonces et supprimez celles obsolètes.</p>
+        <h2 className="text-xl font-bold text-slate-900">
+          Modération des Annonces
+        </h2>
+        <p className="text-sm text-slate-500 mt-1">
+          Gérez les offres d'emploi, validez les nouvelles annonces et supprimez
+          celles obsolètes.
+        </p>
       </div>
 
       <div className="flex border-b border-slate-200">
         <button
-          onClick={() => setActiveTab("pending")}
+          onClick={() => setActiveTab('pending')}
           className={`pb-4 px-6 text-sm font-bold transition-colors border-b-2 ${
-            activeTab === "pending" ? "border-orange-500 text-orange-600" : "border-transparent text-slate-500 hover:text-slate-800"
+            activeTab === 'pending'
+              ? 'border-orange-500 text-orange-600'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
-          En attente ({jobs.filter(j => j.status === "pending").length})
+          En attente ({jobs.filter(j => j.status === 'pending').length})
         </button>
         <button
-          onClick={() => setActiveTab("approved")}
+          onClick={() => setActiveTab('approved')}
           className={`pb-4 px-6 text-sm font-bold transition-colors border-b-2 ${
-            activeTab === "approved" ? "border-green-500 text-green-600" : "border-transparent text-slate-500 hover:text-slate-800"
+            activeTab === 'approved'
+              ? 'border-green-500 text-green-600'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
-          En ligne ({jobs.filter(j => j.status === "approved").length})
+          En ligne ({jobs.filter(j => j.status === 'approved').length})
         </button>
         <button
-          onClick={() => setActiveTab("rejected")}
+          onClick={() => setActiveTab('rejected')}
           className={`pb-4 px-6 text-sm font-bold transition-colors border-b-2 ${
-            activeTab === "rejected" ? "border-red-500 text-red-600" : "border-transparent text-slate-500 hover:text-slate-800"
+            activeTab === 'rejected'
+              ? 'border-red-500 text-red-600'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
-          Rejetées ({jobs.filter(j => j.status === "rejected").length})
+          Rejetées ({jobs.filter(j => j.status === 'rejected').length})
         </button>
       </div>
 
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
         {filteredJobs.length === 0 ? (
-          <p className="text-slate-400 text-sm p-12 text-center">Aucune offre trouvée dans cette catégorie.</p>
+          <p className="text-slate-400 text-sm p-12 text-center">
+            Aucune offre trouvée dans cette catégorie.
+          </p>
         ) : (
           <div className="divide-y divide-slate-100">
-            {filteredJobs.map((job) => (
+            {filteredJobs.map(job => (
               <div key={job.id} className="p-6">
                 {editingJob?.id === job.id ? (
                   <form onSubmit={handleSaveEdit} className="space-y-4">
                     <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-sm font-bold text-slate-800">Modifier l'annonce</h3>
-                      <button type="button" onClick={() => setEditingJob(null)} className="text-slate-400 hover:text-slate-600">
+                      <h3 className="text-sm font-bold text-slate-800">
+                        Modifier l'annonce
+                      </h3>
+                      <button
+                        type="button"
+                        onClick={() => setEditingJob(null)}
+                        className="text-slate-400 hover:text-slate-600"
+                      >
                         <X className="w-5 h-5" />
                       </button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">Titre de l'annonce</label>
-                        <input type="text" required value={editingJob.title} onChange={e => setEditingJob({...editingJob, title: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg text-sm" />
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Titre de l'annonce
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={editingJob.title}
+                          onChange={e =>
+                            setEditingJob({
+                              ...editingJob,
+                              title: e.target.value,
+                            })
+                          }
+                          className="w-full p-2 border border-slate-200 rounded-lg text-sm"
+                        />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">Contrat</label>
-                        <input type="text" required value={editingJob.contract_type} onChange={e => setEditingJob({...editingJob, contract_type: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg text-sm" />
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Contrat
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={editingJob.contract_type}
+                          onChange={e =>
+                            setEditingJob({
+                              ...editingJob,
+                              contract_type: e.target.value,
+                            })
+                          }
+                          className="w-full p-2 border border-slate-200 rounded-lg text-sm"
+                        />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">Localisation</label>
-                        <input type="text" required value={editingJob.location} onChange={e => setEditingJob({...editingJob, location: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg text-sm" />
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Localisation
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={editingJob.location}
+                          onChange={e =>
+                            setEditingJob({
+                              ...editingJob,
+                              location: e.target.value,
+                            })
+                          }
+                          className="w-full p-2 border border-slate-200 rounded-lg text-sm"
+                        />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">Salaire (Optionnel)</label>
-                        <input type="text" value={editingJob.salary || ""} onChange={e => setEditingJob({...editingJob, salary: e.target.value})} className="w-full p-2 border border-slate-200 rounded-lg text-sm" />
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Salaire (Optionnel)
+                        </label>
+                        <input
+                          type="text"
+                          value={editingJob.salary || ''}
+                          onChange={e =>
+                            setEditingJob({
+                              ...editingJob,
+                              salary: e.target.value,
+                            })
+                          }
+                          className="w-full p-2 border border-slate-200 rounded-lg text-sm"
+                        />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">Description</label>
-                      <textarea required value={editingJob.description} onChange={e => setEditingJob({...editingJob, description: e.target.value})} rows={4} className="w-full p-2 border border-slate-200 rounded-lg text-sm"></textarea>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Description
+                      </label>
+                      <textarea
+                        required
+                        value={editingJob.description}
+                        onChange={e =>
+                          setEditingJob({
+                            ...editingJob,
+                            description: e.target.value,
+                          })
+                        }
+                        rows={4}
+                        className="w-full p-2 border border-slate-200 rounded-lg text-sm"
+                      ></textarea>
                     </div>
                     <div className="flex gap-2 justify-end">
-                      <button type="button" onClick={() => setEditingJob(null)} className="px-4 py-2 text-sm font-bold text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200">
+                      <button
+                        type="button"
+                        onClick={() => setEditingJob(null)}
+                        className="px-4 py-2 text-sm font-bold text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200"
+                      >
                         Annuler
                       </button>
-                      <button type="submit" disabled={actionLoading} className="px-4 py-2 text-sm font-bold text-white bg-orange-600 rounded-xl hover:bg-orange-700 flex items-center gap-2">
+                      <button
+                        type="submit"
+                        disabled={actionLoading}
+                        className="px-4 py-2 text-sm font-bold text-white bg-orange-600 rounded-xl hover:bg-orange-700 flex items-center gap-2"
+                      >
                         <Check className="w-4 h-4" /> Sauvegarder
                       </button>
                     </div>
@@ -217,21 +314,26 @@ export default function AdminJobs() {
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">
                           {job.contract_type}
                         </span>
-                        {job.status === "approved" && (
+                        {job.status === 'approved' && (
                           <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700">
                             <Check className="w-3 h-3 mr-1" /> En ligne
                           </span>
                         )}
-                        {job.status === "rejected" && (
+                        {job.status === 'rejected' && (
                           <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">
                             <EyeOff className="w-3 h-3 mr-1" /> Hors ligne
                           </span>
                         )}
                       </div>
-                      <h3 className="text-lg font-bold text-slate-900">{job.title}</h3>
-                      <p className="text-xs font-semibold text-slate-500">🏢 Entreprise : {job.companies?.name || "Inconnue"}</p>
+                      <h3 className="text-lg font-bold text-slate-900">
+                        {job.title}
+                      </h3>
+                      <p className="text-xs font-semibold text-slate-500">
+                        🏢 Entreprise : {job.companies?.name || 'Inconnue'}
+                      </p>
                       <div className="text-xs text-slate-500">
-                        📍 Localisation : {job.location} {job.salary && ` | 💶 Salaire : ${job.salary}`}
+                        📍 Localisation : {job.location}{' '}
+                        {job.salary && ` | 💶 Salaire : ${job.salary}`}
                       </div>
                       <p className="text-sm text-slate-600 bg-slate-50 p-3 rounded-2xl border border-slate-100 max-w-4xl line-clamp-3">
                         {job.description}
@@ -239,17 +341,21 @@ export default function AdminJobs() {
                     </div>
 
                     <div className="flex flex-wrap gap-2 w-full md:w-auto shrink-0 justify-end">
-                      {job.status === "pending" && (
+                      {job.status === 'pending' && (
                         <>
                           <button
-                            onClick={() => handleModerateJob(job.id, "approved")}
+                            onClick={() =>
+                              handleModerateJob(job.id, 'approved')
+                            }
                             disabled={actionLoading}
                             className="inline-flex items-center justify-center px-3 py-2 rounded-xl text-xs font-bold text-white bg-green-600 hover:bg-green-700 transition-colors gap-1"
                           >
                             Approuver
                           </button>
                           <button
-                            onClick={() => handleModerateJob(job.id, "rejected")}
+                            onClick={() =>
+                              handleModerateJob(job.id, 'rejected')
+                            }
                             disabled={actionLoading}
                             className="inline-flex items-center justify-center px-3 py-2 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 transition-colors gap-1"
                           >
@@ -257,10 +363,10 @@ export default function AdminJobs() {
                           </button>
                         </>
                       )}
-                      
-                      {job.status === "approved" && (
+
+                      {job.status === 'approved' && (
                         <button
-                          onClick={() => handleModerateJob(job.id, "rejected")}
+                          onClick={() => handleModerateJob(job.id, 'rejected')}
                           disabled={actionLoading}
                           className="inline-flex items-center justify-center px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors gap-1"
                           title="Mettre hors ligne"
@@ -269,9 +375,9 @@ export default function AdminJobs() {
                         </button>
                       )}
 
-                      {job.status === "rejected" && (
+                      {job.status === 'rejected' && (
                         <button
-                          onClick={() => handleModerateJob(job.id, "approved")}
+                          onClick={() => handleModerateJob(job.id, 'approved')}
                           disabled={actionLoading}
                           className="inline-flex items-center justify-center px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors gap-1"
                           title="Remettre en ligne"

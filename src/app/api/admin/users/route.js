@@ -1,13 +1,16 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import { cookies } from "next/headers";
+import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import { cookies } from 'next/headers';
 
 export async function DELETE(req) {
   try {
     const { userId } = await req.json();
 
     if (!userId) {
-      return NextResponse.json({ error: "L'ID de l'utilisateur est requis" }, { status: 400 });
+      return NextResponse.json(
+        { error: "L'ID de l'utilisateur est requis" },
+        { status: 400 },
+      );
     }
 
     // Initialize Supabase client for verifying the admin status (uses requester's auth)
@@ -20,42 +23,52 @@ export async function DELETE(req) {
     const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     // Verify admin role via service client since we don't have createRouteHandlerClient set up here
-    const authHeader = req.headers.get("authorization");
+    const authHeader = req.headers.get('authorization');
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey);
 
     if (!authHeader) {
-       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
+    const token = authHeader.replace('Bearer ', '');
+    const {
+      data: { user },
+      error: userError,
+    } = await supabaseAdmin.auth.getUser(token);
 
     if (userError || !user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
     // Verify if requester is admin
     const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
       .single();
 
-    if (profile?.role !== "admin") {
-      return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
+    if (profile?.role !== 'admin') {
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
     // Delete user from auth.users (cascades to profiles, candidates, companies)
-    const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId);
+    const { error: deleteError } =
+      await supabaseAdmin.auth.admin.deleteUser(userId);
 
     if (deleteError) {
-      console.error("Error deleting user:", deleteError);
-      return NextResponse.json({ error: "Erreur lors de la suppression du compte" }, { status: 500 });
+      console.error('Error deleting user:', deleteError);
+      return NextResponse.json(
+        { error: 'Erreur lors de la suppression du compte' },
+        { status: 500 },
+      );
     }
 
-    return NextResponse.json({ success: true, message: "Utilisateur supprimé" });
+    return NextResponse.json({
+      success: true,
+      message: 'Utilisateur supprimé',
+    });
   } catch (err) {
-    console.error("Erreur serveur API delete user:", err);
-    return NextResponse.json({ error: "Erreur interne" }, { status: 500 });
+    console.error('Erreur serveur API delete user:', err);
+    return NextResponse.json({ error: 'Erreur interne' }, { status: 500 });
   }
 }

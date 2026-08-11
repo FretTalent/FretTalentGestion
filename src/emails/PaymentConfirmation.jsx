@@ -2,17 +2,18 @@ import { Button, Section, Text, Hr } from '@react-email/components';
 import * as React from 'react';
 import BaseLayout from './BaseLayout';
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.frettalent.com';
+const baseUrl =
+  process.env.NEXT_PUBLIC_BASE_URL || 'https://www.frettalent.com';
 
-export default function PaymentConfirmation({ 
-  companyName, 
-  amount, 
-  planName, 
+export default function PaymentConfirmation({
+  companyName,
+  amount,
+  planName,
   receiptUrl,
-  date 
+  date,
 }) {
   return (
-    <BaseLayout 
+    <BaseLayout
       previewText="Confirmation de votre paiement sur FretTalent"
       heading="Paiement Confirmé 🎉"
     >
@@ -20,19 +21,27 @@ export default function PaymentConfirmation({
         Bonjour <strong>{companyName}</strong>,
       </Text>
       <Text style={text}>
-        Nous vous confirmons la bonne réception de votre paiement pour les services FretTalent. Merci de votre confiance !
+        Nous vous confirmons la bonne réception de votre paiement pour les
+        services FretTalent. Merci de votre confiance !
       </Text>
-      
+
       <Section style={card}>
         <Text style={cardTitle}>Détails de la transaction :</Text>
         <Hr style={hrSmall} />
-        <Text style={cardRow}><strong>Offre :</strong> {planName}</Text>
-        <Text style={cardRow}><strong>Montant payé :</strong> {amount} €</Text>
-        <Text style={cardRow}><strong>Date :</strong> {date}</Text>
+        <Text style={cardRow}>
+          <strong>Offre :</strong> {planName}
+        </Text>
+        <Text style={cardRow}>
+          <strong>Montant payé :</strong> {amount} €
+        </Text>
+        <Text style={cardRow}>
+          <strong>Date :</strong> {date}
+        </Text>
       </Section>
-      
+
       <Text style={text}>
-        Vos nouveaux avantages sont désormais actifs sur votre compte. Vous pouvez commencer à recruter dès maintenant.
+        Vos nouveaux avantages sont désormais actifs sur votre compte. Vous
+        pouvez commencer à recruter dès maintenant.
       </Text>
 
       <Section style={btnContainer}>

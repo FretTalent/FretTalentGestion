@@ -1,25 +1,40 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { UploadCloud, FileText, CheckCircle2, XCircle, Trash2, Loader2, File } from "lucide-react";
-import toast from "react-hot-toast";
-import ConfirmModal from "@/components/ConfirmModal";
+import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import {
+  UploadCloud,
+  FileText,
+  CheckCircle2,
+  XCircle,
+  Trash2,
+  Loader2,
+  File,
+} from 'lucide-react';
+import toast from 'react-hot-toast';
+import ConfirmModal from '@/components/ConfirmModal';
 
 const DOCUMENT_TYPES = [
-  { key: "cv", label: "CV", required: true },
-  { key: "permis", label: "Permis de conduire", required: true },
-  { key: "chrono", label: "Carte Chronotachygraphe", required: true },
-  { key: "fimo", label: "FIMO / FCO", required: true },
-  { key: "adr", label: "Carte ADR", required: false },
-  { key: "formation", label: "Attestation de formation", required: false },
-  { key: "autre", label: "Autre document utile", required: false },
+  { key: 'cv', label: 'CV', required: true },
+  { key: 'permis', label: 'Permis de conduire', required: true },
+  { key: 'chrono', label: 'Carte Chronotachygraphe', required: true },
+  { key: 'fimo', label: 'FIMO / FCO', required: true },
+  { key: 'adr', label: 'Carte ADR', required: false },
+  { key: 'formation', label: 'Attestation de formation', required: false },
+  { key: 'autre', label: 'Autre document utile', required: false },
 ];
 
-export default function CandidateDocuments({ candidateId, documents = {}, onUpdate }) {
+export default function CandidateDocuments({
+  candidateId,
+  documents = {},
+  onUpdate,
+}) {
   const [uploading, setUploading] = useState(null);
   const [error, setError] = useState(null);
-  const [confirmModal, setConfirmModal] = useState({ isOpen: false, docType: null });
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    docType: null,
+  });
 
   const handleUpload = async (e, docType) => {
     const file = e.target.files[0];
@@ -53,8 +68,8 @@ export default function CandidateDocuments({ candidateId, documents = {}, onUpda
         [docType.key]: {
           path: filePath,
           name: file.name,
-          uploaded_at: new Date().toISOString()
-        }
+          uploaded_at: new Date().toISOString(),
+        },
       };
 
       // Mettre à jour la table candidates
@@ -74,14 +89,14 @@ export default function CandidateDocuments({ candidateId, documents = {}, onUpda
     }
   };
 
-  const requestDelete = (docType) => {
+  const requestDelete = docType => {
     setConfirmModal({ isOpen: true, docType });
   };
 
   const executeDelete = async () => {
     const docType = confirmModal.docType;
     setConfirmModal({ isOpen: false, docType: null });
-    
+
     if (!docType) return;
 
     setUploading(docType.key);
@@ -123,7 +138,7 @@ export default function CandidateDocuments({ candidateId, documents = {}, onUpda
         .createSignedUrl(path, 60); // valide 60 secondes
 
       if (error) throw error;
-      
+
       // Ouvrir le document dans un nouvel onglet
       window.open(data.signedUrl, '_blank');
     } catch (err) {
@@ -136,12 +151,17 @@ export default function CandidateDocuments({ candidateId, documents = {}, onUpda
     <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
         <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-          <FileText className="h-5 w-5 text-orange-500" /> Documents justificatifs
+          <FileText className="h-5 w-5 text-orange-500" /> Documents
+          justificatifs
         </h2>
       </div>
 
       <p className="text-sm text-slate-500">
-        Ces documents sont <strong className="text-orange-500">obligatoires</strong> pour la validation de votre profil par nos équipes. Une fois validés, ils ne seront accessibles qu'aux entreprises qui auront explicitement débloqué votre profil. Format PDF ou Image, max 10 Mo.
+        Ces documents sont{' '}
+        <strong className="text-orange-500">obligatoires</strong> pour la
+        validation de votre profil par nos équipes. Une fois validés, ils ne
+        seront accessibles qu'aux entreprises qui auront explicitement débloqué
+        votre profil. Format PDF ou Image, max 10 Mo.
       </p>
 
       {error && (
@@ -152,27 +172,44 @@ export default function CandidateDocuments({ candidateId, documents = {}, onUpda
       )}
 
       <div className="space-y-4">
-        {DOCUMENT_TYPES.map((docType) => {
+        {DOCUMENT_TYPES.map(docType => {
           const isUploaded = !!documents?.[docType.key];
           const docData = documents?.[docType.key];
           const isProcessing = uploading === docType.key;
 
           return (
-            <div key={docType.key} className={`p-4 rounded-2xl border flex flex-col md:flex-row items-center justify-between gap-4 transition-colors ${isUploaded ? "border-green-200 bg-green-50/30" : "border-slate-200 bg-slate-50"}`}>
+            <div
+              key={docType.key}
+              className={`p-4 rounded-2xl border flex flex-col md:flex-row items-center justify-between gap-4 transition-colors ${isUploaded ? 'border-green-200 bg-green-50/30' : 'border-slate-200 bg-slate-50'}`}
+            >
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-xl ${isUploaded ? "bg-green-100 text-green-600" : "bg-slate-200 text-slate-500"}`}>
-                  {isUploaded ? <CheckCircle2 className="h-5 w-5" /> : <File className="h-5 w-5" />}
+                <div
+                  className={`p-2 rounded-xl ${isUploaded ? 'bg-green-100 text-green-600' : 'bg-slate-200 text-slate-500'}`}
+                >
+                  {isUploaded ? (
+                    <CheckCircle2 className="h-5 w-5" />
+                  ) : (
+                    <File className="h-5 w-5" />
+                  )}
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-900 text-sm">
                     {docType.label}
-                    {docType.required && <span className="text-orange-500 ml-1">*</span>}
+                    {docType.required && (
+                      <span className="text-orange-500 ml-1">*</span>
+                    )}
                   </h3>
                   <p className="text-xs text-slate-500">
-                    {isUploaded 
-                      ? <span className="text-green-600 font-medium">Document transmis ({new Date(docData.uploaded_at).toLocaleDateString()})</span> 
-                      : (docType.required ? "Document obligatoire requis" : "Document optionnel")
-                    }
+                    {isUploaded ? (
+                      <span className="text-green-600 font-medium">
+                        Document transmis (
+                        {new Date(docData.uploaded_at).toLocaleDateString()})
+                      </span>
+                    ) : docType.required ? (
+                      'Document obligatoire requis'
+                    ) : (
+                      'Document optionnel'
+                    )}
                   </p>
                 </div>
               </div>
@@ -184,14 +221,14 @@ export default function CandidateDocuments({ candidateId, documents = {}, onUpda
                   </div>
                 ) : isUploaded ? (
                   <>
-                    <button 
+                    <button
                       onClick={() => handleDownload(docData.path, docData.name)}
                       type="button"
                       className="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 hover:text-orange-500 hover:border-orange-500 rounded-lg text-xs font-bold transition-colors"
                     >
                       Voir le fichier
                     </button>
-                    <button 
+                    <button
                       onClick={() => requestDelete(docType)}
                       type="button"
                       className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
@@ -207,7 +244,7 @@ export default function CandidateDocuments({ candidateId, documents = {}, onUpda
                       id={`file-${docType.key}`}
                       className="hidden"
                       accept=".pdf,image/jpeg,image/png"
-                      onChange={(e) => handleUpload(e, docType)}
+                      onChange={e => handleUpload(e, docType)}
                     />
                     <label
                       htmlFor={`file-${docType.key}`}

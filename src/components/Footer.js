@@ -1,5 +1,5 @@
-import Link from "next/link";
-import { Truck } from "lucide-react";
+import Link from 'next/link';
+import { Truck } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -17,31 +17,46 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-sm text-slate-400 leading-relaxed">
-              Le premier réseau de recrutement en direct pour les chauffeurs routiers et entreprises de transport en France.
+              Le premier réseau de recrutement en direct pour les chauffeurs
+              routiers et entreprises de transport en France.
             </p>
           </div>
 
           {/* Product links */}
           <div>
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Produit</h4>
+            <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+              Produit
+            </h4>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link href="#comment-ca-marche" className="hover:text-white transition-colors">
+                <Link
+                  href="#comment-ca-marche"
+                  className="hover:text-white transition-colors"
+                >
                   Comment ça marche
                 </Link>
               </li>
               <li>
-                <Link href="#tarifs" className="hover:text-white transition-colors">
+                <Link
+                  href="#tarifs"
+                  className="hover:text-white transition-colors"
+                >
                   Tarifs
                 </Link>
               </li>
               <li>
-                <Link href="#pour-les-entreprises" className="hover:text-white transition-colors">
+                <Link
+                  href="#pour-les-entreprises"
+                  className="hover:text-white transition-colors"
+                >
                   Entreprises
                 </Link>
               </li>
               <li>
-                <Link href="/offres" className="hover:text-white transition-colors text-orange-400 font-bold">
+                <Link
+                  href="/offres"
+                  className="hover:text-white transition-colors text-orange-400 font-bold"
+                >
                   Offres d'emploi
                 </Link>
               </li>
@@ -50,45 +65,69 @@ export default function Footer() {
 
           {/* Resources */}
           <div>
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Ressources</h4>
+            <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+              Ressources
+            </h4>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link href="#faq" className="hover:text-white transition-colors">
+                <Link
+                  href="#faq"
+                  className="hover:text-white transition-colors"
+                >
                   FAQ
                 </Link>
               </li>
               <li>
-                <span className="text-slate-500">Blog & Conseils (Bientôt)</span>
+                <span className="text-slate-500">
+                  Blog & Conseils (Bientôt)
+                </span>
               </li>
             </ul>
           </div>
 
           {/* Legal */}
           <div>
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Légal</h4>
+            <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+              Légal
+            </h4>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link href="/legal/mentions-legales" className="hover:text-white transition-colors">
+                <Link
+                  href="/legal/mentions-legales"
+                  className="hover:text-white transition-colors"
+                >
                   Mentions légales
                 </Link>
               </li>
               <li>
-                <Link href="/legal/cgu" className="hover:text-white transition-colors">
+                <Link
+                  href="/legal/cgu"
+                  className="hover:text-white transition-colors"
+                >
                   CGU
                 </Link>
               </li>
               <li>
-                <Link href="/legal/cgv" className="hover:text-white transition-colors">
+                <Link
+                  href="/legal/cgv"
+                  className="hover:text-white transition-colors"
+                >
                   CGV (Entreprises)
                 </Link>
               </li>
               <li>
-                <Link href="/legal/confidentialite" className="hover:text-white transition-colors">
+                <Link
+                  href="/legal/confidentialite"
+                  className="hover:text-white transition-colors"
+                >
                   Politique de confidentialité
                 </Link>
               </li>
               <li>
-                <Link href="/legal/cookies" className="hover:text-white transition-colors">
+                <Link
+                  href="/legal/cookies"
+                  className="hover:text-white transition-colors"
+                >
                   Politique de cookies
                 </Link>
               </li>
@@ -102,7 +141,8 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} FretTalent. Tous droits réservés.
           </p>
           <p className="bg-slate-800 text-orange-400 px-3 py-1.5 rounded-full font-medium text-center">
-            100% gratuit pour les chauffeurs — conforme au Code du travail (art. L5321-3)
+            100% gratuit pour les chauffeurs — conforme au Code du travail (art.
+            L5321-3)
           </p>
         </div>
       </div>

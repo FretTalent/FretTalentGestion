@@ -1,61 +1,61 @@
-import Link from "next/link";
-import { 
-  Search, 
-  UserCheck, 
-  Unlock, 
-  ShieldCheck, 
-  FileText, 
-  Sparkles, 
-  ArrowRight, 
-  UserPlus, 
-  CheckCircle2 
-} from "lucide-react";
+import Link from 'next/link';
+import {
+  Search,
+  UserCheck,
+  Unlock,
+  ShieldCheck,
+  FileText,
+  Sparkles,
+  ArrowRight,
+  UserPlus,
+  CheckCircle2,
+} from 'lucide-react';
 
 export const metadata = {
-  title: "Comment ça marche ? Plateforme de Recrutement Transport | FretTalent",
-  description: "Découvrez le fonctionnement de FretTalent. Mise en relation directe entre transporteurs et chauffeurs routiers. Simple, rapide et 100% sécurisé.",
+  title: 'Comment ça marche ? Plateforme de Recrutement Transport | FretTalent',
+  description:
+    'Découvrez le fonctionnement de FretTalent. Mise en relation directe entre transporteurs et chauffeurs routiers. Simple, rapide et 100% sécurisé.',
 };
 
 export default function CommentCaMarche() {
   const stepsRecruiter = [
     {
       icon: Search,
-      title: "1. Filtrez & Ciblez",
-      desc: "Recherchez par zone géographique, rayon de mobilité (km), permis (C, CE), habilitations (FIMO, ADR) et type de contrat recherché."
+      title: '1. Filtrez & Ciblez',
+      desc: 'Recherchez par zone géographique, rayon de mobilité (km), permis (C, CE), habilitations (FIMO, ADR) et type de contrat recherché.',
     },
     {
       icon: ShieldCheck,
-      title: "2. Visualisez le profil",
-      desc: "Consultez les compétences, l'expérience détaillée et la validité des documents administratifs (permis, FIMO) sur une fiche de compétences anonyme."
+      title: '2. Visualisez le profil',
+      desc: "Consultez les compétences, l'expérience détaillée et la validité des documents administratifs (permis, FIMO) sur une fiche de compétences anonyme.",
     },
     {
       icon: Unlock,
-      title: "3. Débloquez & Recrutez",
-      desc: "Débloquez le contact pour 2 € (ou en illimité via le forfait) pour obtenir le nom, e-mail, téléphone et télécharger directement les justificatifs officiels."
-    }
+      title: '3. Débloquez & Recrutez',
+      desc: 'Débloquez le contact pour 2 € (ou en illimité via le forfait) pour obtenir le nom, e-mail, téléphone et télécharger directement les justificatifs officiels.',
+    },
   ];
 
   const stepsCandidate = [
     {
       icon: UserPlus,
-      title: "1. Inscrivez-vous gratuitement",
-      desc: "Créez votre profil professionnel en 2 minutes en indiquant vos permis, formations de conduite et votre secteur géographique."
+      title: '1. Inscrivez-vous gratuitement',
+      desc: 'Créez votre profil professionnel en 2 minutes en indiquant vos permis, formations de conduite et votre secteur géographique.',
     },
     {
       icon: ShieldCheck,
-      title: "2. Restez anonyme",
-      desc: "Vos coordonnées (nom, téléphone, e-mail) et vos documents restent totalement masqués pour vous prémunir du spam ou des appels indésirables."
+      title: '2. Restez anonyme',
+      desc: 'Vos coordonnées (nom, téléphone, e-mail) et vos documents restent totalement masqués pour vous prémunir du spam ou des appels indésirables.',
     },
     {
       icon: UserCheck,
-      title: "3. Soyez contacté en direct",
-      desc: "Les transporteurs intéressés débloquent votre profil. Vous êtes notifié et mis en relation directe avec l'entreprise pour passer votre entretien."
-    }
+      title: '3. Soyez contacté en direct',
+      desc: "Les transporteurs intéressés débloquent votre profil. Vous êtes notifié et mis en relation directe avec l'entreprise pour passer votre entretien.",
+    },
   ];
 
   return (
     <div className="bg-white text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
-      
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 bg-gradient-to-b from-slate-50 to-white border-b border-slate-100">
         <div className="absolute inset-0 bg-[radial-gradient(#f97316_1px,transparent_1px)] [background-size:24px_24px] opacity-5"></div>
@@ -67,7 +67,8 @@ export default function CommentCaMarche() {
             Comment fonctionne FretTalent ?
           </h1>
           <p className="text-slate-655 text-lg max-w-2xl mx-auto">
-            Une plateforme éthique, performante et sans intermédiaire qui connecte les entreprises de transport et les conducteurs routiers.
+            Une plateforme éthique, performante et sans intermédiaire qui
+            connecte les entreprises de transport et les conducteurs routiers.
           </p>
         </div>
       </section>
@@ -83,12 +84,14 @@ export default function CommentCaMarche() {
               Recrutez vos chauffeurs en quelques clics
             </h2>
             <p className="text-slate-600 text-base leading-relaxed">
-              Fini les coefficients d'intérim exorbitants et les CV non qualifiés. Trouvez directement les conducteurs possédant les permis requis à proximité de vos dépôts.
+              Fini les coefficients d'intérim exorbitants et les CV non
+              qualifiés. Trouvez directement les conducteurs possédant les
+              permis requis à proximité de vos dépôts.
             </p>
           </div>
           <div className="lg:col-span-5 flex lg:justify-end">
-            <Link 
-              href="/register?role=recruiter" 
+            <Link
+              href="/register?role=recruiter"
               className="inline-flex items-center justify-center px-6 py-3.5 rounded-full text-xs font-bold text-white bg-orange-500 hover:bg-orange-600 shadow-lg shadow-orange-500/20 transition-all duration-300 hover:-translate-y-0.5"
             >
               Je crée un compte entreprise
@@ -101,7 +104,7 @@ export default function CommentCaMarche() {
           {stepsRecruiter.map((step, idx) => {
             const Icon = step.icon;
             return (
-              <div 
+              <div
                 key={idx}
                 className="bg-white border border-slate-200 p-8 rounded-3xl space-y-4 hover:-translate-y-1.5 transition-all duration-300 shadow-sm hover:shadow-md group"
               >
@@ -132,12 +135,14 @@ export default function CommentCaMarche() {
                 Valorisez votre profil en toute sécurité
               </h2>
               <p className="text-slate-600 text-base leading-relaxed">
-                Gardez la main sur vos données personnelles. Soyez visible uniquement des entreprises locales sérieuses sans dévoiler vos coordonnées à tout le monde.
+                Gardez la main sur vos données personnelles. Soyez visible
+                uniquement des entreprises locales sérieuses sans dévoiler vos
+                coordonnées à tout le monde.
               </p>
             </div>
             <div className="lg:col-span-5 flex lg:justify-end">
-              <Link 
-                href="/register?role=candidate" 
+              <Link
+                href="/register?role=candidate"
                 className="inline-flex items-center justify-center px-6 py-3.5 rounded-full text-xs font-bold text-white bg-slate-900 hover:bg-slate-950 shadow-lg transition-all duration-300 hover:-translate-y-0.5"
               >
                 Je m'inscris gratuitement
@@ -150,7 +155,7 @@ export default function CommentCaMarche() {
             {stepsCandidate.map((step, idx) => {
               const Icon = step.icon;
               return (
-                <div 
+                <div
                   key={idx}
                   className="bg-white border border-slate-200 p-8 rounded-3xl space-y-4 hover:-translate-y-1.5 transition-all duration-300 shadow-sm hover:shadow-md group"
                 >
@@ -174,13 +179,21 @@ export default function CommentCaMarche() {
       <section className="py-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
         <div className="bg-orange-500 text-white p-8 rounded-3xl space-y-6 shadow-xl relative overflow-hidden">
           <div className="absolute -right-16 -bottom-16 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
-          <h3 className="text-2xl font-black text-white">Une fluidité administrative garantie</h3>
+          <h3 className="text-2xl font-black text-white">
+            Une fluidité administrative garantie
+          </h3>
           <p className="text-sm text-orange-50 max-w-3xl mx-auto leading-relaxed">
-            Grâce à l'intégration du <strong>Dossier Numérique Chauffeur</strong>, les candidats ne perdent plus de temps à renvoyer leurs documents par e-mail et les entreprises disposent instantanément de toutes les pièces obligatoires (permis de conduire C/CE, carte de qualification conducteur FIMO/FCO, carte chronotachygraphe) pour rédiger le contrat de travail.
+            Grâce à l'intégration du{' '}
+            <strong>Dossier Numérique Chauffeur</strong>, les candidats ne
+            perdent plus de temps à renvoyer leurs documents par e-mail et les
+            entreprises disposent instantanément de toutes les pièces
+            obligatoires (permis de conduire C/CE, carte de qualification
+            conducteur FIMO/FCO, carte chronotachygraphe) pour rédiger le
+            contrat de travail.
           </p>
           <div className="flex justify-center gap-4 pt-2">
-            <Link 
-              href="/register" 
+            <Link
+              href="/register"
               className="px-6 py-3 rounded-full text-xs font-bold bg-white text-orange-600 hover:bg-orange-50 transition-colors"
             >
               Je crée mon compte
@@ -188,7 +201,6 @@ export default function CommentCaMarche() {
           </div>
         </div>
       </section>
-
     </div>
   );
 }

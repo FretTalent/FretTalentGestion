@@ -1,25 +1,25 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 export default function CookieBanner() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    const consent = localStorage.getItem("frettalent_cookie_consent");
+    const consent = localStorage.getItem('frettalent_cookie_consent');
     if (!consent) {
       setIsOpen(true);
     }
   }, []);
 
   const acceptAll = () => {
-    localStorage.setItem("frettalent_cookie_consent", "accepted");
+    localStorage.setItem('frettalent_cookie_consent', 'accepted');
     setIsOpen(false);
   };
 
   const declineAll = () => {
-    localStorage.setItem("frettalent_cookie_consent", "declined");
+    localStorage.setItem('frettalent_cookie_consent', 'declined');
     setIsOpen(false);
   };
 
@@ -29,13 +29,18 @@ export default function CookieBanner() {
     <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-slate-900/95 text-white shadow-2xl border-t border-slate-800 backdrop-blur-md transition-transform duration-300">
       <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="space-y-1">
-          <p className="font-semibold text-sm">Gestion des cookies et vie privée</p>
+          <p className="font-semibold text-sm">
+            Gestion des cookies et vie privée
+          </p>
           <p className="text-xs text-slate-300">
-            FretTalent utilise des cookies pour assurer le bon fonctionnement du site et mesurer notre audience.
-            Consultez notre{" "}
-            <Link href="/legal/cookies" className="underline text-orange-400 hover:text-orange-300">
+            FretTalent utilise des cookies pour assurer le bon fonctionnement du
+            site et mesurer notre audience. Consultez notre{' '}
+            <Link
+              href="/legal/cookies"
+              className="underline text-orange-400 hover:text-orange-300"
+            >
               politique de cookies
-            </Link>{" "}
+            </Link>{' '}
             pour en savoir plus.
           </p>
         </div>

@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   Body,
   Button,
@@ -13,33 +13,35 @@ import {
   Section,
   Text,
   Tailwind,
-} from "@react-email/components";
+} from '@react-email/components';
 
 export default function MarketingEmail({
-  type = "custom", // 'promo', 'update', 'custom'
-  title = "Nouvelle annonce FretTalent",
-  message = "Voici un message de FretTalent.",
-  ctaText = "Découvrir",
-  ctaLink = "https://frettalent.fr",
+  type = 'custom', // 'promo', 'update', 'custom'
+  title = 'Nouvelle annonce FretTalent',
+  message = 'Voici un message de FretTalent.',
+  ctaText = 'Découvrir',
+  ctaLink = 'https://frettalent.fr',
 }) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://fret-talent-gestion.vercel.app";
-  
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    'https://fret-talent-gestion.vercel.app';
+
   // Custom styles and emojis based on type
-  let badgeText = "Annonce";
-  let badgeColor = "bg-slate-100 text-slate-800";
-  let titleColor = "text-slate-900";
-  let buttonColor = "bg-orange-500 text-white";
-  
-  if (type === "promo") {
-    badgeText = "🎉 Offre Spéciale";
-    badgeColor = "bg-purple-100 text-purple-700";
-    titleColor = "text-purple-900";
-    buttonColor = "bg-purple-600 text-white";
-  } else if (type === "update") {
-    badgeText = "🚀 Nouveauté";
-    badgeColor = "bg-blue-100 text-blue-700";
-    titleColor = "text-blue-900";
-    buttonColor = "bg-blue-600 text-white";
+  let badgeText = 'Annonce';
+  let badgeColor = 'bg-slate-100 text-slate-800';
+  let titleColor = 'text-slate-900';
+  let buttonColor = 'bg-orange-500 text-white';
+
+  if (type === 'promo') {
+    badgeText = '🎉 Offre Spéciale';
+    badgeColor = 'bg-purple-100 text-purple-700';
+    titleColor = 'text-purple-900';
+    buttonColor = 'bg-purple-600 text-white';
+  } else if (type === 'update') {
+    badgeText = '🚀 Nouveauté';
+    badgeColor = 'bg-blue-100 text-blue-700';
+    titleColor = 'text-blue-900';
+    buttonColor = 'bg-blue-600 text-white';
   }
 
   const previewText = title;
@@ -59,12 +61,16 @@ export default function MarketingEmail({
             </Section>
 
             <Section className="text-center mb-[20px]">
-              <Text className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${badgeColor} m-0`}>
+              <Text
+                className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${badgeColor} m-0`}
+              >
                 {badgeText}
               </Text>
             </Section>
 
-            <Heading className={`${titleColor} text-[26px] font-extrabold text-center p-0 mt-0 mb-[32px] mx-0 leading-tight`}>
+            <Heading
+              className={`${titleColor} text-[26px] font-extrabold text-center p-0 mt-0 mb-[32px] mx-0 leading-tight`}
+            >
               {title}
             </Heading>
 
@@ -84,13 +90,16 @@ export default function MarketingEmail({
             )}
 
             <Hr className="border border-slate-100 my-[20px] mx-0" />
-            
+
             <Text className="text-slate-400 text-[12px] leading-[20px]">
-              Vous recevez cet e-mail car vous êtes inscrit sur FretTalent. <br/>
-              Si vous avez des questions, vous pouvez nous contacter à support@frettalent.fr.
+              Vous recevez cet e-mail car vous êtes inscrit sur FretTalent.{' '}
+              <br />
+              Si vous avez des questions, vous pouvez nous contacter à
+              support@frettalent.fr.
             </Text>
             <Text className="text-slate-400 text-[12px] leading-[20px] text-center mt-[20px]">
-              &copy; {new Date().getFullYear()} FretTalent. Tous droits réservés.
+              &copy; {new Date().getFullYear()} FretTalent. Tous droits
+              réservés.
             </Text>
           </Container>
         </Body>

@@ -16,11 +16,11 @@ const ADMIN_EMAIL = 'support@frettalent.fr'; // A envoyer aux admins de FretTale
 export async function sendNewCandidateNotification(candidate) {
   try {
     const html = await render(
-      <NewCandidateNotification 
+      <NewCandidateNotification
         candidateName={candidate.first_name || 'Candidat'}
         candidateId={candidate.id}
         location={candidate.postal_code || 'Non spécifié'}
-      />
+      />,
     );
 
     const data = await resend.emails.send({
@@ -42,13 +42,13 @@ export async function sendNewCandidateNotification(candidate) {
 export async function sendPaymentConfirmation(email, paymentDetails) {
   try {
     const html = await render(
-      <PaymentConfirmation 
+      <PaymentConfirmation
         companyName={paymentDetails.companyName}
         amount={paymentDetails.amount}
         planName={paymentDetails.planName}
         receiptUrl={paymentDetails.receiptUrl}
         date={new Date().toLocaleDateString('fr-FR')}
-      />
+      />,
     );
 
     const data = await resend.emails.send({
@@ -70,7 +70,7 @@ export async function sendPaymentConfirmation(email, paymentDetails) {
 export async function sendAccountVerifiedEmail(email, candidateName) {
   try {
     const html = await render(
-      <AccountVerified candidateName={candidateName} />
+      <AccountVerified candidateName={candidateName} />,
     );
 
     const data = await resend.emails.send({
@@ -89,13 +89,17 @@ export async function sendAccountVerifiedEmail(email, candidateName) {
 /**
  * Envoie un email au candidat pour lui demander des documents supplémentaires
  */
-export async function sendMissingDocumentsEmail(email, candidateName, missingList) {
+export async function sendMissingDocumentsEmail(
+  email,
+  candidateName,
+  missingList,
+) {
   try {
     const html = await render(
-      <MissingDocuments 
+      <MissingDocuments
         candidateName={candidateName}
         missingList={missingList}
-      />
+      />,
     );
 
     const data = await resend.emails.send({

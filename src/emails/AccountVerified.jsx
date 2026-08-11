@@ -2,30 +2,36 @@ import { Button, Text, Section } from '@react-email/components';
 import * as React from 'react';
 import BaseLayout from './BaseLayout';
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.frettalent.com';
+const baseUrl =
+  process.env.NEXT_PUBLIC_BASE_URL || 'https://www.frettalent.com';
 
 export default function AccountVerified({ candidateName }) {
   return (
-    <BaseLayout 
+    <BaseLayout
       previewText="Votre compte FretTalent est maintenant en ligne !"
       heading="Compte Validé ✅"
     >
       <Text style={text}>
         Félicitations <strong>{candidateName}</strong> !
       </Text>
-      
+
       <Text style={text}>
-        Notre équipe a examiné vos documents. Votre compte chauffeur est désormais <strong>validé et 100% en ligne</strong> sur la plateforme FretTalent.
+        Notre équipe a examiné vos documents. Votre compte chauffeur est
+        désormais <strong>validé et 100% en ligne</strong> sur la plateforme
+        FretTalent.
       </Text>
 
       <Section style={highlightBox}>
         <Text style={highlightText}>
-          Votre profil est maintenant visible (de manière anonymisée) par des centaines d'entreprises de transport à la recherche de vos compétences.
+          Votre profil est maintenant visible (de manière anonymisée) par des
+          centaines d'entreprises de transport à la recherche de vos
+          compétences.
         </Text>
       </Section>
 
       <Text style={text}>
-        Assurez-vous que vos disponibilités sont à jour pour maximiser vos chances d'être contacté.
+        Assurez-vous que vos disponibilités sont à jour pour maximiser vos
+        chances d'être contacté.
       </Text>
 
       <Section style={btnContainer}>

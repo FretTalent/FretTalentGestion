@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { useState, useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
 import {
   Truck,
   Search,
@@ -17,54 +17,64 @@ import {
   ChevronRight,
   Mail,
   FileText,
-} from "lucide-react";
+} from 'lucide-react';
 
 const navCandidate = [
-  { href: "/dashboard/candidate", icon: Settings, label: "Mon profil" },
-  { href: "/dashboard/candidate/documents", icon: FileText, label: "Mes documents" },
+  { href: '/dashboard/candidate', icon: Settings, label: 'Mon profil' },
+  {
+    href: '/dashboard/candidate/documents',
+    icon: FileText,
+    label: 'Mes documents',
+  },
 ];
 const navRecruiter = [
-  { href: "/dashboard/recruiter", icon: Search, label: "Recherche" },
-  { href: "/dashboard/recruiter/jobs", icon: Briefcase, label: "Mes offres" },
+  { href: '/dashboard/recruiter', icon: Search, label: 'Recherche' },
+  { href: '/dashboard/recruiter/jobs', icon: Briefcase, label: 'Mes offres' },
 ];
 const navAdmin = [
-  { href: "/dashboard/admin", icon: BarChart3, label: "Tableau de bord" },
-  { href: "/dashboard/admin/jobs", icon: Briefcase, label: "Modération annonces" },
-  { href: "/dashboard/admin/users", icon: Users, label: "Utilisateurs" },
-  { href: "/dashboard/admin/mail", icon: Mail, label: "Gestion mails" },
+  { href: '/dashboard/admin', icon: BarChart3, label: 'Tableau de bord' },
+  {
+    href: '/dashboard/admin/jobs',
+    icon: Briefcase,
+    label: 'Modération annonces',
+  },
+  { href: '/dashboard/admin/users', icon: Users, label: 'Utilisateurs' },
+  { href: '/dashboard/admin/mail', icon: Mail, label: 'Gestion mails' },
 ];
 
 export default function AppLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
   const [role, setRole] = useState(null);
-  const [userEmail, setUserEmail] = useState("");
-  const [companyName, setCompanyName] = useState("");
+  const [userEmail, setUserEmail] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
-        router.push("/login");
+        router.push('/login');
         return;
       }
       setUserEmail(user.email);
 
       const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
         .single();
 
       if (profile) {
         setRole(profile.role);
 
-        if (profile.role === "recruiter") {
+        if (profile.role === 'recruiter') {
           const { data: company } = await supabase
-            .from("companies")
-            .select("name")
-            .eq("id", user.id)
+            .from('companies')
+            .select('name')
+            .eq('id', user.id)
             .single();
           if (company) setCompanyName(company.name);
         }
@@ -75,21 +85,30 @@ export default function AppLayout({ children }) {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    router.push("/login");
+    router.push('/login');
   };
 
   const navItems =
-    role === "admin" ? navAdmin : role === "recruiter" ? navRecruiter : navCandidate;
+    role === 'admin'
+      ? navAdmin
+      : role === 'recruiter'
+        ? navRecruiter
+        : navCandidate;
 
   const roleLabel =
-    role === "admin" ? "Administrateur" : role === "recruiter" ? "Recruteur" : "Chauffeur";
+    role === 'admin'
+      ? 'Administrateur'
+      : role === 'recruiter'
+        ? 'Recruteur'
+        : 'Chauffeur';
 
-  const displayName = role === "recruiter" && companyName ? companyName : userEmail;
+  const displayName =
+    role === 'recruiter' && companyName ? companyName : userEmail;
 
   const Sidebar = ({ mobile = false }) => (
     <aside
       className={`${
-        mobile ? "flex" : "hidden lg:flex"
+        mobile ? 'flex' : 'hidden lg:flex'
       } flex-col w-64 bg-slate-900 text-white min-h-screen fixed top-0 left-0 z-40 shadow-2xl`}
     >
       {/* Logo */}
@@ -116,19 +135,21 @@ export default function AppLayout({ children }) {
           <div className="flex items-center gap-2">
             <div
               className={`w-2 h-2 rounded-full ${
-                role === "admin"
-                  ? "bg-purple-400"
-                  : role === "recruiter"
-                  ? "bg-blue-400"
-                  : "bg-orange-400"
+                role === 'admin'
+                  ? 'bg-purple-400'
+                  : role === 'recruiter'
+                    ? 'bg-blue-400'
+                    : 'bg-orange-400'
               }`}
             />
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
               {roleLabel}
             </span>
           </div>
-          <p className="text-sm font-semibold text-white truncate">{displayName}</p>
-          {role === "recruiter" && companyName && (
+          <p className="text-sm font-semibold text-white truncate">
+            {displayName}
+          </p>
+          {role === 'recruiter' && companyName && (
             <p className="text-[10px] text-slate-400 truncate">{userEmail}</p>
           )}
         </div>
@@ -136,7 +157,7 @@ export default function AppLayout({ children }) {
 
       {/* Navigation */}
       <nav className="flex-grow px-3 py-4 space-y-1">
-        {navItems.map((item) => {
+        {navItems.map(item => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
 
@@ -147,13 +168,17 @@ export default function AppLayout({ children }) {
               onClick={() => setSidebarOpen(false)}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all group ${
                 isActive
-                  ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20"
-                  : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                  ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20'
+                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
               }`}
             >
-              <Icon className={`h-5 w-5 flex-shrink-0 ${isActive ? "text-white" : "text-slate-500 group-hover:text-orange-400"}`} />
+              <Icon
+                className={`h-5 w-5 flex-shrink-0 ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-orange-400'}`}
+              />
               {item.label}
-              {isActive && <ChevronRight className="ml-auto h-4 w-4 opacity-70" />}
+              {isActive && (
+                <ChevronRight className="ml-auto h-4 w-4 opacity-70" />
+              )}
             </Link>
           );
         })}
@@ -222,22 +247,22 @@ export default function AppLayout({ children }) {
             </span>
           </div>
           <div className="ml-auto">
-            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
-              role === "admin"
-                ? "bg-purple-100 text-purple-700"
-                : role === "recruiter"
-                ? "bg-blue-100 text-blue-700"
-                : "bg-orange-100 text-orange-700"
-            }`}>
+            <span
+              className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
+                role === 'admin'
+                  ? 'bg-purple-100 text-purple-700'
+                  : role === 'recruiter'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'bg-orange-100 text-orange-700'
+              }`}
+            >
               {roleLabel}
             </span>
           </div>
         </header>
 
         {/* Page content */}
-        <main className="flex-grow p-4 sm:p-6 lg:p-8">
-          {children}
-        </main>
+        <main className="flex-grow p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );

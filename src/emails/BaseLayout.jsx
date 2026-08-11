@@ -13,7 +13,8 @@ import {
 } from '@react-email/components';
 import * as React from 'react';
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.frettalent.com';
+const baseUrl =
+  process.env.NEXT_PUBLIC_BASE_URL || 'https://www.frettalent.com';
 
 export default function BaseLayout({ previewText, heading, children }) {
   return (
@@ -24,16 +25,18 @@ export default function BaseLayout({ previewText, heading, children }) {
         <Container style={container}>
           <Section style={header}>
             {/* Si un logo externe est disponible, utiliser son URL. Sinon utiliser le texte */}
-            <Text style={logoText}>Fret<span style={logoAccent}>Talent</span></Text>
+            <Text style={logoText}>
+              Fret<span style={logoAccent}>Talent</span>
+            </Text>
           </Section>
-          
+
           <Section style={content}>
             {heading && <Heading style={h1}>{heading}</Heading>}
             {children}
           </Section>
-          
+
           <Hr style={hr} />
-          
+
           <Section style={footer}>
             <Text style={footerText}>
               © {new Date().getFullYear()} FretTalent. Tous droits réservés.
@@ -41,11 +44,17 @@ export default function BaseLayout({ previewText, heading, children }) {
             <Text style={footerText}>
               Cet e-mail vous a été envoyé car vous êtes inscrit sur FretTalent.
               <br />
-              <Link href={`${baseUrl}/legal/confidentialite`} style={footerLink}>
+              <Link
+                href={`${baseUrl}/legal/confidentialite`}
+                style={footerLink}
+              >
                 Politique de confidentialité
               </Link>
               {' • '}
-              <Link href={`${baseUrl}/legal/mentions-legales`} style={footerLink}>
+              <Link
+                href={`${baseUrl}/legal/mentions-legales`}
+                style={footerLink}
+              >
                 Mentions légales
               </Link>
             </Text>
@@ -95,7 +104,8 @@ const content = {
   padding: '40px',
   borderBottomLeftRadius: '12px',
   borderBottomRightRadius: '12px',
-  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+  boxShadow:
+    '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
 };
 
 const h1 = {

@@ -2,31 +2,46 @@ import { Button, Section, Text } from '@react-email/components';
 import * as React from 'react';
 import BaseLayout from './BaseLayout';
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.frettalent.com';
+const baseUrl =
+  process.env.NEXT_PUBLIC_BASE_URL || 'https://www.frettalent.com';
 
-export default function NewCandidateNotification({ candidateName, candidateId, location }) {
+export default function NewCandidateNotification({
+  candidateName,
+  candidateId,
+  location,
+}) {
   return (
-    <BaseLayout 
+    <BaseLayout
       previewText="Une nouvelle inscription sur FretTalent !"
       heading="Nouveau Candidat Inscrit 🚀"
     >
       <Text style={text}>
         Un nouveau chauffeur vient de s'inscrire sur la plateforme FretTalent.
       </Text>
-      
+
       <Section style={card}>
         <Text style={cardTitle}>Détails du profil :</Text>
-        <Text style={cardRow}><strong>ID :</strong> {candidateId}</Text>
-        <Text style={cardRow}><strong>Nom/Pseudo :</strong> {candidateName}</Text>
-        <Text style={cardRow}><strong>Localisation :</strong> {location}</Text>
+        <Text style={cardRow}>
+          <strong>ID :</strong> {candidateId}
+        </Text>
+        <Text style={cardRow}>
+          <strong>Nom/Pseudo :</strong> {candidateName}
+        </Text>
+        <Text style={cardRow}>
+          <strong>Localisation :</strong> {location}
+        </Text>
       </Section>
-      
+
       <Text style={text}>
-        Vous pouvez vérifier ce profil et ses documents depuis le tableau de bord administrateur.
+        Vous pouvez vérifier ce profil et ses documents depuis le tableau de
+        bord administrateur.
       </Text>
 
       <Section style={btnContainer}>
-        <Button style={button} href={`${baseUrl}/dashboard/admin/candidats/${candidateId}`}>
+        <Button
+          style={button}
+          href={`${baseUrl}/dashboard/admin/candidats/${candidateId}`}
+        >
           Voir le profil
         </Button>
       </Section>
@@ -80,5 +95,6 @@ const button = {
   textAlign: 'center',
   display: 'inline-block',
   padding: '14px 28px',
-  boxShadow: '0 4px 6px -1px rgba(249, 115, 22, 0.2), 0 2px 4px -1px rgba(249, 115, 22, 0.1)',
+  boxShadow:
+    '0 4px 6px -1px rgba(249, 115, 22, 0.2), 0 2px 4px -1px rgba(249, 115, 22, 0.1)',
 };

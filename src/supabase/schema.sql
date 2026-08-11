@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS public.candidates (
     licenses VARCHAR(50)[] NOT NULL DEFAULT '{}', -- 'B', 'C', 'CE', 'PL', 'SPL'
     certifications VARCHAR(50)[] NOT NULL DEFAULT '{}', -- 'FIMO', 'FCO', 'ADR', 'Chrono'
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    is_verified BOOLEAN NOT NULL DEFAULT FALSE, -- Profil validé par un administrateur
     documents JSONB DEFAULT '{}'::jsonb, -- Fichiers joints du candidat
     
     -- Données nominatives et de contact, cachées par défaut

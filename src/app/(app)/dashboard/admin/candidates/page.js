@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { RefreshCw, CheckCircle, XCircle, Search, Eye } from 'lucide-react';
 import CandidateChecker from './CandidateChecker';
 import DatabaseChecker from './DatabaseChecker';
+import TableChecker from './TableChecker';
 
 export default function AdminCandidates() {
   const router = useRouter();
@@ -100,6 +101,7 @@ export default function AdminCandidates() {
     <div className="max-w-7xl mx-auto space-y-6">
       <CandidateChecker />
       <DatabaseChecker />
+      <TableChecker />
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-slate-950">Candidats</h1>
         <div className="relative">

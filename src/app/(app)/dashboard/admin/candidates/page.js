@@ -43,6 +43,32 @@ export default function AdminCandidates() {
     };
     verifyInitialData();
   }, []);
+  
+  // Vérification des permissions
+  useEffect(() => {
+    const checkPermissions = async () => {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        console.error('Utilisateur non authentifié');
+        return;
+      }
+      
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      
+      if (profileError) {
+        console.error('Erreur lors de la récupération du profil:', profileError);
+      } else if (profile?.role !== 'admin') {
+        console.warn('Utilisateur non admin:', profile?.role);
+      } else {
+        console.log('Permissions vérifiées: Utilisateur admin');
+      }
+    };
+    checkPermissions();
+  }, []);
 
   useEffect(() => {
     fetchCandidates();

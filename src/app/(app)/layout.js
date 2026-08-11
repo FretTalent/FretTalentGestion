@@ -14,13 +14,14 @@ import {
   Users,
   Shield,
   Menu,
-  X,
   ChevronRight,
   Mail,
+  FileText,
 } from "lucide-react";
 
 const navCandidate = [
   { href: "/dashboard/candidate", icon: Settings, label: "Mon profil" },
+  { href: "/dashboard/candidate/documents", icon: FileText, label: "Mes documents" },
 ];
 const navRecruiter = [
   { href: "/dashboard/recruiter", icon: Search, label: "Recherche" },

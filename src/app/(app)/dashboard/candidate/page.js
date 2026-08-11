@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Save, RefreshCw, Eye, EyeOff, UserCheck, ShieldAlert } from "lucide-react";
-import CandidateDocuments from "@/components/CandidateDocuments";
 
 export default function CandidateDashboard() {
   const router = useRouter();
@@ -361,12 +360,6 @@ export default function CandidateDashboard() {
                 </button>
               </div>
             </form>
-
-            <CandidateDocuments 
-              candidateId={profile?.id} 
-              documents={documents} 
-              onUpdate={(newDocs) => setDocuments(newDocs)} 
-            />
           </div>
 
           {/* Widgets de confidentialité & Historique */}

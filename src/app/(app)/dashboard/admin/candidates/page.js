@@ -134,8 +134,8 @@ export default function AdminCandidates() {
       ) : (
         candidates.length > 0 ? (
           <div>
-            <h2 className="text-xl font-bold mb-4">Liste des candidats ({candidates.length})</h2>
-            <p className="text-sm text-slate-500 mb-4">Voici la liste complète des {candidates.length} candidats enregistrés.</p>
+            <h2 className="text-xl font-bold mb-4">Liste des candidats ({filteredCandidates.length}/{candidates.length})</h2>
+            <p className="text-sm text-slate-500 mb-4">Voici la liste des {filteredCandidates.length} candidats sur {candidates.length} enregistrés.</p>
             <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4">
               <p className="text-sm font-medium">Succès: {candidates.length} candidats trouvés.</p>
             </div>
@@ -152,7 +152,7 @@ export default function AdminCandidates() {
             </tr>
           </thead>
           <tbody>
-            {candidates.map((candidate) => (
+            {filteredCandidates.map((candidate) => (
               <tr key={candidate.id} className="border-b border-slate-100">
                 <td className="py-3 px-4">{candidate.full_name || '—'}</td>
                 <td className="py-3 px-4">{candidate.email || '—'}</td>

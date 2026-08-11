@@ -7,16 +7,79 @@ import { Send, AlertCircle, CheckCircle2, RefreshCw } from "lucide-react";
 
 export default function AdminMail() {
   const router = useRouter();
+
+  const predefinedTemplates = {
+    update: {
+      name: "🚀 Mise à jour / Nouveauté",
+      type: "update",
+      subject: "Découvrez les nouveautés sur FretTalent",
+      title: "De nouvelles fonctionnalités sont en ligne !",
+      message: "Bonjour,\n\nNous sommes ravis de vous annoncer que de nouvelles fonctionnalités ont été ajoutées sur FretTalent pour améliorer votre expérience.\n\nConnectez-vous dès maintenant pour les découvrir !\n\nL'équipe FretTalent",
+      ctaText: "Se connecter",
+      ctaLink: "https://fret-talent-gestion.vercel.app/login"
+    },
+    promo: {
+      name: "🎉 Promotion / Offre spéciale",
+      type: "promo",
+      subject: "Offre exceptionnelle sur FretTalent",
+      title: "Profitez de notre offre limitée !",
+      message: "Bonjour,\n\nPour une durée limitée, profitez d'une offre exclusive sur vos prochains recrutements avec FretTalent.\n\nNe manquez pas cette occasion de trouver les meilleurs chauffeurs au meilleur prix.\n\nA très vite sur FretTalent !",
+      ctaText: "Voir l'offre",
+      ctaLink: "https://fret-talent-gestion.vercel.app/tarifs"
+    },
+    missing_doc: {
+      name: "⚠️ Documents manquants (Candidat)",
+      type: "custom",
+      subject: "Action requise : Documents manquants sur votre profil",
+      title: "Mettez à jour votre profil",
+      message: "Bonjour,\n\nNous avons remarqué qu'il manque certains documents obligatoires sur votre profil FretTalent (Permis, FIMO, etc.).\n\nAfin que votre profil soit visible par les recruteurs, merci de vous connecter et de télécharger les documents manquants au plus vite.\n\nCordialement,\nL'équipe FretTalent",
+      ctaText: "Mettre à jour mon profil",
+      ctaLink: "https://fret-talent-gestion.vercel.app/dashboard/candidate"
+    },
+    new_candidates: {
+      name: "🚛 Nouveaux chauffeurs disponibles (Entreprise)",
+      type: "update",
+      subject: "De nouveaux chauffeurs sont disponibles !",
+      title: "Découvrez les nouveaux talents",
+      message: "Bonjour,\n\nDe nouveaux chauffeurs qualifiés viennent de s'inscrire sur FretTalent dans votre région.\n\nConnectez-vous dès maintenant pour consulter leurs profils et entrer en contact avec eux avant vos concurrents !\n\nL'équipe FretTalent",
+      ctaText: "Voir les chauffeurs",
+      ctaLink: "https://fret-talent-gestion.vercel.app/dashboard/recruiter"
+    },
+    custom: {
+      name: "📝 Message classique (Personnalisé)",
+      type: "custom",
+      subject: "",
+      title: "",
+      message: "",
+      ctaText: "",
+      ctaLink: ""
+    }
+  };
   
-  const [target, setTarget] = useState("specific"); // 'all_candidates', 'all_companies', 'specific'
+  const [target, setTarget] = useState("specific");
   const [specificEmails, setSpecificEmails] = useState("");
   
-  const [type, setType] = useState("update"); // 'promo', 'update', 'custom'
+  const [selectedTemplateKey, setSelectedTemplateKey] = useState("custom");
+  const [type, setType] = useState("custom");
   const [subject, setSubject] = useState("");
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [ctaText, setCtaText] = useState("");
   const [ctaLink, setCtaLink] = useState("");
+  
+  const handleTemplateChange = (e) => {
+    const key = e.target.value;
+    setSelectedTemplateKey(key);
+    const tpl = predefinedTemplates[key];
+    if (tpl) {
+      setType(tpl.type);
+      setSubject(tpl.subject);
+      setTitle(tpl.title);
+      setMessage(tpl.message);
+      setCtaText(tpl.ctaText);
+      setCtaLink(tpl.ctaLink);
+    }
+  };
   
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState(null); // { type: 'success' | 'error', message: string }
@@ -121,15 +184,28 @@ export default function AdminMail() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-2">Type de modèle</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-2">Charger un modèle (Auto-remplissage)</label>
+                  <select 
+                    value={selectedTemplateKey} 
+                    onChange={handleTemplateChange}
+                    className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white font-medium"
+                  >
+                    {Object.entries(predefinedTemplates).map(([key, tpl]) => (
+                      <option key={key} value={key}>{tpl.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-2">Design de l'e-mail</label>
                   <select 
                     value={type} 
                     onChange={(e) => setType(e.target.value)}
                     className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white"
                   >
-                    <option value="update">🚀 Mise à jour / Nouveauté</option>
-                    <option value="promo">🎉 Promotion / Offre spéciale</option>
-                    <option value="custom">📝 Message classique (Neutre)</option>
+                    <option value="update">Bleu - Nouveauté / Info</option>
+                    <option value="promo">Violet - Promotion / Offre</option>
+                    <option value="custom">Orange - Message classique</option>
                   </select>
                 </div>
                 

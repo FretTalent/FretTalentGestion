@@ -50,14 +50,12 @@ export default function MarketingEmail({
       <Preview>{previewText}</Preview>
       <Tailwind>
         <Body className="bg-slate-50 my-auto mx-auto font-sans">
-          <Container className="border border-slate-200 rounded-xl my-[40px] mx-auto p-[20px] bg-white w-full max-w-xl shadow-sm">
-            <Section className="mt-[10px] mb-[20px] text-center">
-              <Img
-                src="https://frettalent.fr/images/logo_fret_talent.png"
-                width="150"
-                alt="FretTalent"
-                className="my-0 mx-auto"
-              />
+          <Container className="border border-slate-200 rounded-2xl my-[40px] mx-auto p-[32px] bg-white w-full max-w-xl shadow-md">
+            <Section className="text-center mb-[32px]">
+              <Text className="m-0 text-3xl font-extrabold tracking-tight">
+                <span className="text-slate-900">Fret</span>
+                <span className="text-orange-500">Talent</span>
+              </Text>
             </Section>
 
             <Section className="text-center mb-[20px]">
@@ -66,18 +64,18 @@ export default function MarketingEmail({
               </Text>
             </Section>
 
-            <Heading className={`${titleColor} text-[24px] font-bold text-center p-0 mt-0 mb-[30px] mx-0`}>
+            <Heading className={`${titleColor} text-[26px] font-extrabold text-center p-0 mt-0 mb-[32px] mx-0 leading-tight`}>
               {title}
             </Heading>
 
-            <Text className="text-slate-600 text-[16px] leading-[26px] whitespace-pre-line">
+            <Text className="text-slate-600 text-[16px] leading-[28px] whitespace-pre-line text-left">
               {message}
             </Text>
 
             {ctaText && ctaLink && (
-              <Section className="text-center mt-[32px] mb-[32px]">
+              <Section className="text-center mt-[40px] mb-[40px]">
                 <Button
-                  className={`${buttonColor} rounded-lg text-center text-[14px] font-bold no-underline py-4 px-8`}
+                  className={`${buttonColor} rounded-xl text-center text-[15px] font-bold no-underline py-4 px-8 shadow-sm`}
                   href={ctaLink}
                 >
                   {ctaText}

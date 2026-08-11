@@ -39,7 +39,7 @@ export default function AdminCandidates() {
 
       const { data, error } = await supabase
               .from('candidates')
-              .select('id, full_name, email, phone, validated, validated_at')
+              .select('*')
               .order('created_at', { ascending: false });
 
       if (error) throw error;

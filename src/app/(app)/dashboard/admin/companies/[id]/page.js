@@ -60,9 +60,8 @@ export default function CompanyProfile() {
         .from('companies')
         .update({
           name: company.name,
-          email: company.email,
-          phone: company.phone,
-          validated: company.validated,
+          siret: company.siret,
+          has_payment_method: company.has_payment_method,
         })
         .eq('id', params.id);
 
@@ -112,32 +111,23 @@ export default function CompanyProfile() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
-            <input
-              type="email"
-              value={company.email || ''}
-              onChange={(e) => setCompany({ ...company, email: e.target.value })}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Téléphone</label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">SIRET</label>
             <input
               type="text"
-              value={company.phone || ''}
-              onChange={(e) => setCompany({ ...company, phone: e.target.value })}
+              value={company.siret || ''}
+              onChange={(e) => setCompany({ ...company, siret: e.target.value })}
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Statut</label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Paiement</label>
             <select
-              value={company.validated ? 'validated' : 'pending'}
-              onChange={(e) => setCompany({ ...company, validated: e.target.value === 'validated' })}
+              value={company.has_payment_method ? 'yes' : 'no'}
+              onChange={(e) => setCompany({ ...company, has_payment_method: e.target.value === 'yes' })}
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
-              <option value="pending">En attente</option>
-              <option value="validated">Validée</option>
+              <option value="no">Non configuré</option>
+              <option value="yes">Configuré</option>
             </select>
           </div>
         </div>

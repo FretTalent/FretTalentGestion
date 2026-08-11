@@ -38,9 +38,9 @@ export default function AdminCompanies() {
       }
 
       const { data, error } = await supabase
-        .from('companies')
-        .select('id, name, email, phone, validated, created_at')
-        .order('created_at', { ascending: false });
+              .from('companies')
+              .select('*')
+              .order('created_at', { ascending: false });
 
       if (error) throw error;
       setCompanies(data || []);
@@ -85,9 +85,8 @@ export default function AdminCompanies() {
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200">
               <th className="text-left py-3 px-4 font-semibold text-slate-700">Nom</th>
-              <th className="text-left py-3 px-4 font-semibold text-slate-700">Email</th>
-              <th className="text-left py-3 px-4 font-semibold text-slate-700">Téléphone</th>
-              <th className="text-center py-3 px-4 font-semibold text-slate-700">Statut</th>
+              <th className="text-left py-3 px-4 font-semibold text-slate-700">SIRET</th>
+                          <th className="text-center py-3 px-4 font-semibold text-slate-700">Paiement</th>
               <th className="text-center py-3 px-4 font-semibold text-slate-700">Actions</th>
             </tr>
           </thead>
@@ -95,15 +94,14 @@ export default function AdminCompanies() {
             {filteredCompanies.map((company) => (
               <tr key={company.id} className="border-b border-slate-100">
                 <td className="py-3 px-4">{company.name || '—'}</td>
-                <td className="py-3 px-4">{company.email || '—'}</td>
-                <td className="py-3 px-4">{company.phone || '—'}</td>
-                <td className="py-3 px-4 text-center">
-                  {company.validated ? (
-                    <span className="text-green-600 font-medium">Validée</span>
-                  ) : (
-                    <span className="text-red-600 font-medium">En attente</span>
-                  )}
-                </td>
+                <td className="py-3 px-4">{company.siret || '—'}</td>
+                                <td className="py-3 px-4 text-center">
+                                  {company.has_payment_method ? (
+                                    <span className="text-green-600 font-medium">Payante</span>
+                                  ) : (
+                                    <span className="text-orange-500 font-medium">À régler</span>
+                                  )}
+                                </td>
                 <td className="py-3 px-4 text-center">
                   <button
                     onClick={() => router.push(`/dashboard/admin/companies/${company.id}`)}

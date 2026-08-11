@@ -6,8 +6,9 @@ import { createClient } from '@supabase/supabase-js';
  * Valide le profil d'un candidat (admin uniquement)
  * Utilise la service role key pour bypasser le RLS
  */
-export async function POST(request, { params }) {
-  const candidateId = params.id;
+export async function POST(request, context) {
+  // Next.js 16 : params est une Promise
+  const { id: candidateId } = await context.params;
 
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

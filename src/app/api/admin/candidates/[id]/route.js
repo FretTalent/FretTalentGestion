@@ -2,8 +2,11 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 // Route GET : récupère un candidat spécifique par ID (admin seulement, bypass RLS)
-export async function GET(req, { params }) {
+export async function GET(req, context) {
   try {
+    // Next.js 16 : params est une Promise, il faut l'await
+    const { id } = await context.params;
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -36,14 +39,19 @@ export async function GET(req, { params }) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
+    if (!id) {
+      return NextResponse.json({ error: 'ID manquant' }, { status: 400 });
+    }
+
     // Récupérer le candidat par ID (service role = bypass RLS)
     const { data, error } = await supabaseAdmin
       .from('candidates')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .single();
 
     if (error) {
+      console.error('Erreur Supabase:', error.message, '| ID cherché:', id);
       return NextResponse.json({ error: 'Candidat non trouvé' }, { status: 404 });
     }
 

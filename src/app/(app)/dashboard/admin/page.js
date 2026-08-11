@@ -95,6 +95,12 @@ export default function AdminDashboard() {
             {stats.candidatesCount}
             <Truck className="h-6 w-6 text-orange-500" />
           </div>
+          <button
+            onClick={() => router.push('/dashboard/admin/candidates')}
+            className="text-sm text-orange-500 hover:underline mt-2"
+          >
+            Voir les détails
+          </button>
         </div>
         <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2">
           <div className="text-xs font-bold text-slate-400 uppercase">

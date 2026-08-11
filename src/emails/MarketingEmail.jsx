@@ -22,6 +22,7 @@ export default function MarketingEmail({
   ctaText = "Découvrir",
   ctaLink = "https://frettalent.fr",
 }) {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://fret-talent-gestion.vercel.app";
   
   // Custom styles and emojis based on type
   let badgeText = "Annonce";
@@ -52,7 +53,7 @@ export default function MarketingEmail({
           <Container className="border border-slate-200 rounded-xl my-[40px] mx-auto p-[20px] bg-white w-full max-w-xl shadow-sm">
             <Section className="mt-[10px] mb-[20px] text-center">
               <Img
-                src="https://frettalent.fr/images/logo_fret_talent.png"
+                src={`${baseUrl}/logo.png`}
                 width="150"
                 alt="FretTalent"
                 className="my-0 mx-auto"

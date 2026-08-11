@@ -23,8 +23,12 @@ export default function BaseLayout({ previewText, heading, children }) {
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>
-            {/* Si un logo externe est disponible, utiliser son URL. Sinon utiliser le texte */}
-            <Text style={logoText}>Fret<span style={logoAccent}>Talent</span></Text>
+            <Img
+              src={`${baseUrl}/logo.png`}
+              width="150"
+              alt="FretTalent"
+              style={{ margin: '0 auto' }}
+            />
           </Section>
           
           <Section style={content}>

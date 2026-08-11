@@ -37,7 +37,7 @@ export default function AdminCandidates() {
   const fetchCandidates = async () => {
     setLoading(true);
     try {
-      // Récupérer tous les candidats avec une requête simple
+      // Récupérer tous les candidats avec une requête complète
       const { data, error } = await supabase
         .from('candidates')
         .select('*');
@@ -47,6 +47,7 @@ export default function AdminCandidates() {
         setCandidates([]);
       } else {
         console.log('Candidats récupérés:', data);
+        console.log('Nombre total de candidats:', data?.length || 0);
         setCandidates(data || []);
       }
     } catch (err) {

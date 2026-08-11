@@ -15,7 +15,9 @@ export default function Home() {
         const { data, error } = await supabase
           .from('candidates')
           .select('id, city, postal_code, validated')
-          .eq('is_active', true);
+          .not('postal_code', 'is', null)
+          .neq('postal_code', '');
+
 
         if (error) throw error;
         if (!data || data.length === 0) {

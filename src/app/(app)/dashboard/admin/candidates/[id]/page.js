@@ -66,14 +66,22 @@ export default function CandidateAdminProfile() {
         return;
       }
 
-      const { data, error } = await supabase
-        .from('candidates')
-        .select('*')
-        .eq('id', params.id)
-        .single();
+      // Utiliser la session token pour appeler l'API admin (bypass RLS)
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch(`/api/admin/candidates/${params.id}`, {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
 
-      if (error) throw error;
-      setCandidate(data);
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Candidat non trouvé');
+      }
+
+      const result = await response.json();
+      setCandidate(result.candidate);
+
     } catch (err) {
       console.error(err);
     } finally {
@@ -85,8 +93,12 @@ export default function CandidateAdminProfile() {
     setValidating(true);
     setShowConfirm(false);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
       const response = await fetch(`/api/candidates/${params.id}/validate`, {
         method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
       });
       const result = await response.json();
 

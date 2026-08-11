@@ -1,92 +1,77 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
-import { REQUIRED_DOCUMENT_TYPES } from '@/lib/validation/candidateValidation';
-
-// Helper to get the admin session (or any privileged role)
-async function getAdminSession() {
-  const { data, error } = await supabase.auth.getSession();
-  if (error) throw new Error('Auth error');
-  // Assuming you store the role in the user metadata or a profile table.
-  // Adjust the check according to your auth implementation.
-  const { data: user } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', data.session.user.id)
-    .single();
-
-  if (!user || user.role !== 'admin') {
-    throw new Error('Forbidden');
-  }
-  return data.session;
-}
+import { createClient } from '@supabase/supabase-js';
 
 /**
  * POST /api/candidates/[id]/validate
- * Body: { candidateId: string }
- * Returns: { success: boolean, candidate: record }
+ * Valide le profil d'un candidat (admin uniquement)
+ * Utilise la service role key pour bypasser le RLS
  */
 export async function POST(request, { params }) {
   const candidateId = params.id;
 
-  // 1️⃣ Verify admin session
   try {
-    await getAdminSession();
-  } catch (e) {
-    return NextResponse.json({ error: e.message }, { status: 403 });
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    // Vérification du token admin depuis le header Authorization
+    const authHeader = request.headers.get('authorization');
+    let adminUser = null;
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey);
+
+    if (authHeader) {
+      const token = authHeader.replace('Bearer ', '');
+      const { data: { user } } = await supabaseAdmin.auth.getUser(token);
+      adminUser = user;
+    }
+
+    // Si pas de header, essayer de récupérer via cookie (fallback)
+    if (!adminUser) {
+      // En mode serveur sans cookie, on rejette
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    }
+
+    // Vérifier le rôle admin
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('role')
+      .eq('id', adminUser.id)
+      .single();
+
+    if (profile?.role !== 'admin') {
+      return NextResponse.json({ error: 'Accès refusé - Administrateur requis' }, { status: 403 });
+    }
+
+    // Vérifier que le candidat existe
+    const { data: candidate, error: fetchErr } = await supabaseAdmin
+      .from('candidates')
+      .select('id, full_name, validated')
+      .eq('id', candidateId)
+      .single();
+
+    if (fetchErr || !candidate) {
+      return NextResponse.json({ error: 'Candidat introuvable' }, { status: 404 });
+    }
+
+    // Marquer comme validé (service role bypasse le RLS)
+    const { data: updated, error: updateErr } = await supabaseAdmin
+      .from('candidates')
+      .update({
+        validated: true,
+        validated_at: new Date().toISOString(),
+      })
+      .eq('id', candidateId)
+      .select()
+      .single();
+
+    if (updateErr) {
+      console.error('Erreur mise à jour validation:', updateErr);
+      return NextResponse.json({ error: updateErr.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, candidate: updated });
+  } catch (err) {
+    console.error('Erreur serveur validation candidat:', err);
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
-
-  // 2️⃣ Fetch candidate + profile + documents
-  const { data: candidate, error: fetchErr } = await supabase
-    .from('candidates')
-    .select('documents, profile')
-    .eq('id', candidateId)
-    .single();
-
-  if (fetchErr) {
-    return NextResponse.json({ error: fetchErr.message }, { status: 400 });
-  }
-
-  // 3️⃣ Validate required document types are present
-  const docTypesPresent = new Set(
-    Object.keys(candidate.documents || {}).map(t => t.toLowerCase()),
-  );
-
-  const missingDocs = [...REQUIRED_DOCUMENT_TYPES].filter(
-    t => !docTypesPresent.has(t),
-  );
-  if (missingDocs.length > 0) {
-    return NextResponse.json(
-      { error: `Missing required document types: ${missingDocs.join(', ')}` },
-      { status: 400 },
-    );
-  }
-
-  // 4️⃣ Validate required profile fields (customize to your schema)
-  const requiredProfileFields = ['company', 'role', 'location'];
-  const missingFields = requiredProfileFields.filter(
-    f => !candidate.profile?.[f],
-  );
-  if (missingFields.length > 0) {
-    return NextResponse.json(
-      { error: `Missing profile fields: ${missingFields.join(', ')}` },
-      { status: 400 },
-    );
-  }
-
-  // 5️⃣ Mark as validated
-  const { data: updated, error: updateErr } = await supabase
-    .from('candidates')
-    .update({
-      validated: true,
-      validated_at: new Date().toISOString(),
-    })
-    .eq('id', candidateId)
-    .select()
-    .single();
-
-  if (updateErr) {
-    return NextResponse.json({ error: updateErr.message }, { status: 400 });
-  }
-
-  return NextResponse.json({ success: true, candidate: updated });
 }

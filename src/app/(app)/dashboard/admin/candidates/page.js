@@ -48,12 +48,28 @@ export default function AdminCandidates() {
   const fetchCandidates = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.from('candidates').select('*').order('created_at', { ascending: false });
-      if (error) {
-        console.error('Erreur lors de la récupération des candidats:', error);
+      // Récupérer le token de la session pour l'envoyer à l'API admin
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.error('Pas de session active');
+        setCandidates([]);
+        return;
+      }
+
+      // Appel à l'API admin qui bypass le RLS via la service role key
+      const response = await fetch('/api/admin/candidates', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        console.error('Erreur API:', result.error);
         setCandidates([]);
       } else {
-        setCandidates(data || []);
+        setCandidates(result.candidates || []);
       }
     } catch (err) {
       console.error('Erreur inattendue:', err);

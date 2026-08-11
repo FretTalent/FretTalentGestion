@@ -19,18 +19,17 @@ export default function AdminCandidates() {
   const fetchCandidates = async () => {
     setLoading(true);
     try {
-      // Récupérer tous les candidats sans filtre
-      const { data: allCandidates, error: fetchError } = await supabase
+      // Récupérer tous les candidats avec une requête simple
+      const { data, error } = await supabase
         .from('candidates')
-        .select('*');
+        .select('id, full_name, email, phone, validated, is_active');
 
-      if (fetchError) {
-        console.error('Erreur lors de la récupération des candidats:', fetchError);
+      if (error) {
+        console.error('Erreur lors de la récupération des candidats:', error);
         setCandidates([]);
       } else {
-        console.log('Nombre total de candidats:', allCandidates?.length || 0);
-        console.log('Exemple de candidat:', allCandidates?.[0]);
-        setCandidates(allCandidates || []);
+        console.log('Candidats récupérés:', data);
+        setCandidates(data || []);
       }
     } catch (err) {
       console.error('Erreur inattendue:', err);
@@ -81,6 +80,11 @@ export default function AdminCandidates() {
       </div>
     );
   }
+
+  // Afficher les données directement pour le debug
+  useEffect(() => {
+    console.log('Candidates state:', candidates);
+  }, [candidates]);
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">

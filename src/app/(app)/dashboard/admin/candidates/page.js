@@ -30,6 +30,19 @@ export default function AdminCandidates() {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Vérification initiale des données
+  useEffect(() => {
+    const verifyInitialData = async () => {
+      const data = await verifyCandidates();
+      if (data.length > 0) {
+        console.log('Données initiales vérifiées:', data.length, 'candidats');
+      } else {
+        console.warn('Aucun candidat trouvé dans la base de données');
+      }
+    };
+    verifyInitialData();
+  }, []);
 
   useEffect(() => {
     fetchCandidates();
@@ -38,9 +51,18 @@ export default function AdminCandidates() {
   const fetchCandidates = async () => {
     setLoading(true);
     try {
-      // Utiliser la fonction de vérification directe
-      const candidatesData = await verifyCandidates();
-      setCandidates(candidatesData);
+      // Récupérer les candidats avec une requête directe
+      const { data, error } = await supabase
+        .from('candidates')
+        .select('*');
+
+      if (error) {
+        console.error('Erreur lors de la récupération des candidats:', error);
+        setCandidates([]);
+      } else {
+        console.log('Candidats récupérés:', data);
+        setCandidates(data || []);
+      }
     } catch (err) {
       console.error('Erreur inattendue:', err);
       setCandidates([]);
@@ -134,14 +156,22 @@ export default function AdminCandidates() {
       {loading ? (
         <div className="text-center py-8">
           <p>Chargement des candidats...</p>
+          <div className="mt-4 flex justify-center">
+            <button
+              onClick={() => alert('Vérifiez les logs de la console pour plus d’informations')}
+              className="text-orange-500 hover:underline"
+            >
+              Voir les logs de debug
+            </button>
+          </div>
         </div>
       ) : (
         candidates.length > 0 ? (
           <div>
             <h2 className="text-xl font-bold mb-4">Liste des candidats ({candidates.length})</h2>
             <p className="text-sm text-slate-500 mb-4">Voici la liste complète des {candidates.length} candidats enregistrés.</p>
-            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
-              <p className="text-sm font-medium">Note: {candidates.length} candidats trouvés dans la base de données.</p>
+            <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4">
+              <p className="text-sm font-medium">Succès: {candidates.length} candidats trouvés dans la base de données.</p>
             </div>
             <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
               <table className="w-full">
@@ -195,7 +225,7 @@ export default function AdminCandidates() {
         )) : (
             <div className="text-center py-8">
               <p className="text-red-600 font-bold">Aucun candidat trouvé.</p>
-              <p className="text-sm text-slate-500 mt-2">Il semble qu'il n'y ait aucun candidat enregistré dans la base de données.</p>
+              <p className="text-sm text-slate-500 mt-2">Il semble qu'il n'y ait aucun candidat enregistré.</p>
               <p className="text-sm text-slate-500">Vérifiez que des candidats ont bien été créés via l'inscription.</p>
               <div className="mt-4 flex flex-col sm:flex-row gap-4">
                 <button
@@ -205,11 +235,14 @@ export default function AdminCandidates() {
                   Accéder au tableau de bord Supabase
                 </button>
                 <button
-                  onClick={() => alert('Vérifiez les logs de la console pour plus d’informations sur les erreurs')}
+                  onClick={() => alert('Vérifiez les logs de la console pour plus d’informations')}
                   className="text-orange-500 hover:underline"
                 >
                   Voir les logs de debug
                 </button>
+              </div>
+              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded">
+                <p className="text-sm text-red-700">Astuce: Vérifiez que les candidats ont été créés avec succès et que leur statut est 'is_active: true'.</p>
               </div>
             </div>
           )}

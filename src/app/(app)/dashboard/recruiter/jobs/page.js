@@ -41,7 +41,11 @@ export default function RecruiterDashboard() {
   const [newJobLocation, setNewJobLocation] = useState('');
   const [newJobSalary, setNewJobSalary] = useState('');
   const [newJobDesc, setNewJobDesc] = useState('');
+  const [newJobLicense, setNewJobLicense] = useState('');
+  const [newJobCert, setNewJobCert] = useState('');
+  const [newJobExp, setNewJobExp] = useState('');
   const [jobPosting, setJobPosting] = useState(false);
+  const [jobDeleting, setJobDeleting] = useState(null);
 
   // États UI
   const [loading, setLoading] = useState(true);
@@ -260,6 +264,9 @@ export default function RecruiterDashboard() {
             location: newJobLocation,
             salary: newJobSalary || null,
             description: newJobDesc,
+            required_license: newJobLicense || null,
+            required_cert: newJobCert || null,
+            experience_required: newJobExp || null,
             status: 'pending',
           },
         ])
@@ -275,14 +282,41 @@ export default function RecruiterDashboard() {
       setNewJobLocation('');
       setNewJobSalary('');
       setNewJobDesc('');
+      setNewJobLicense('');
+      setNewJobCert('');
+      setNewJobExp('');
       setMessage({
         type: 'success',
         text: "Votre annonce a été soumise à validation et sera en ligne d'ici quelques minutes !",
       });
     } catch (err) {
-      setMessage({ type: 'error', text: "Erreur lors du dépôt de l'annonce." });
+      console.error(err);
+      setMessage({ type: 'error', text: err.message });
     } finally {
       setJobPosting(false);
+    }
+  };
+
+  // Supprimer une offre
+  const handleDeleteJob = async (jobId) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette annonce ?")) return;
+    
+    setJobDeleting(jobId);
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .delete()
+        .eq('id', jobId);
+
+      if (error) throw error;
+
+      setMyJobs(myJobs.filter(job => job.id !== jobId));
+      setMessage({ type: 'success', text: 'Offre supprimée avec succès.' });
+    } catch (err) {
+      console.error(err);
+      setMessage({ type: 'error', text: "Erreur lors de la suppression de l'offre." });
+    } finally {
+      setJobDeleting(null);
     }
   };
 
@@ -638,6 +672,55 @@ export default function RecruiterDashboard() {
                     />
                   </div>
                 </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700 uppercase">
+                      Permis (Optionnel)
+                    </label>
+                    <select
+                      value={newJobLicense}
+                      onChange={e => setNewJobLicense(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 bg-white"
+                    >
+                      <option value="">Non spécifié</option>
+                      <option value="B">Permis B</option>
+                      <option value="C">Permis C</option>
+                      <option value="CE">Permis CE</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700 uppercase">
+                      Habilitation (Optionnel)
+                    </label>
+                    <select
+                      value={newJobCert}
+                      onChange={e => setNewJobCert(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 bg-white"
+                    >
+                      <option value="">Non spécifié</option>
+                      <option value="FIMO">FIMO</option>
+                      <option value="FCO">FCO</option>
+                      <option value="ADR de base">ADR de base</option>
+                      <option value="Carte Chrono">Carte Chrono</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700 uppercase">
+                      Expérience
+                    </label>
+                    <select
+                      value={newJobExp}
+                      onChange={e => setNewJobExp(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 bg-white"
+                    >
+                      <option value="">Non spécifié</option>
+                      <option value="Débutant accepté">Débutant accepté</option>
+                      <option value="1 à 3 ans">1 à 3 ans</option>
+                      <option value="+3 ans">+3 ans</option>
+                    </select>
+                  </div>
+                </div>
 
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-700 uppercase">
@@ -695,7 +778,7 @@ export default function RecruiterDashboard() {
                       key={job.id}
                       className="py-4 first:pt-0 last:pb-0 flex justify-between items-center"
                     >
-                      <div className="space-y-1">
+                      <div className="space-y-2">
                         <h4 className="font-bold text-slate-900 text-base">
                           {job.title}
                         </h4>
@@ -704,9 +787,14 @@ export default function RecruiterDashboard() {
                           <span>📄 {job.contract_type}</span>
                           {job.salary && <span>💶 {job.salary}</span>}
                         </div>
+                        <div className="flex gap-2 text-[10px] text-slate-500 font-medium">
+                          {job.required_license && <span className="bg-slate-100 px-2 py-0.5 rounded">Permis {job.required_license}</span>}
+                          {job.required_cert && <span className="bg-slate-100 px-2 py-0.5 rounded">{job.required_cert}</span>}
+                          {job.experience_required && <span className="bg-slate-100 px-2 py-0.5 rounded">{job.experience_required}</span>}
+                        </div>
                       </div>
 
-                      <div>
+                      <div className="flex flex-col items-end gap-2">
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-bold ${
                             job.status === 'approved'
@@ -722,6 +810,14 @@ export default function RecruiterDashboard() {
                               ? 'Refusée'
                               : 'En attente'}
                         </span>
+                        
+                        <button
+                          onClick={() => handleDeleteJob(job.id)}
+                          disabled={jobDeleting === job.id}
+                          className="text-xs text-red-500 hover:text-red-700 font-semibold px-2 py-1 flex items-center gap-1 transition-colors"
+                        >
+                          {jobDeleting === job.id ? 'Suppression...' : 'Supprimer'}
+                        </button>
                       </div>
                     </div>
                   ))}

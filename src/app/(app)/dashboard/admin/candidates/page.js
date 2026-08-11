@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { RefreshCw, CheckCircle, XCircle, Search, Eye } from 'lucide-react';
 import CandidateChecker from './CandidateChecker';
+import DatabaseChecker from './DatabaseChecker';
 
 export default function AdminCandidates() {
   const router = useRouter();
@@ -93,6 +94,7 @@ export default function AdminCandidates() {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <CandidateChecker />
+      <DatabaseChecker />
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-slate-950">Candidats</h1>
         <div className="relative">

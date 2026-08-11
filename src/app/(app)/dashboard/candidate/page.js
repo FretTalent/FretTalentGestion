@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Save, RefreshCw, Eye, EyeOff, UserCheck, ShieldAlert } from "lucide-react";
+import CandidateDocuments from "@/components/CandidateDocuments";
 
 export default function CandidateDashboard() {
   const router = useRouter();
@@ -21,6 +22,7 @@ export default function CandidateDashboard() {
   const [experienceYears, setExperienceYears] = useState(0);
   const [availability, setAvailability] = useState("immediate");
   const [availabilityDate, setAvailabilityDate] = useState("");
+  const [documents, setDocuments] = useState({});
   
   // Listes multi-sélection
   const [selectedLicenses, setSelectedLicenses] = useState([]);
@@ -87,6 +89,7 @@ export default function CandidateDashboard() {
         setSelectedCertifications(candidateData.certifications || []);
         setSelectedContractTypes(candidateData.contract_types || []);
         setIsActive(candidateData.is_active ?? true);
+        setDocuments(candidateData.documents || {});
       }
 
       // Charger l'historique des déblocages de son contact
@@ -358,6 +361,12 @@ export default function CandidateDashboard() {
                 </button>
               </div>
             </form>
+
+            <CandidateDocuments 
+              candidateId={profile?.id} 
+              documents={documents} 
+              onUpdate={(newDocs) => setDocuments(newDocs)} 
+            />
           </div>
 
           {/* Widgets de confidentialité & Historique */}

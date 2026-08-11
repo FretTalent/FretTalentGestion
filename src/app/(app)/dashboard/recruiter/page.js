@@ -9,10 +9,11 @@ import {
   Unlock, 
   CreditCard, 
   CheckCircle2, 
-  AlertCircle, 
   RefreshCw, 
   Filter, 
-  UserCheck 
+  UserCheck,
+  FileText,
+  Download
 } from "lucide-react";
 
 export default function RecruiterDashboard() {
@@ -216,6 +217,21 @@ export default function RecruiterDashboard() {
       setMessage({ type: "error", text: err.message || "Erreur de déblocage." });
     } finally {
       setUnlocking(false);
+    }
+  };
+
+  const handleDownloadDocument = async (path) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('candidate-documents')
+        .createSignedUrl(path, 60);
+
+      if (error) throw error;
+      
+      window.open(data.signedUrl, '_blank');
+    } catch (err) {
+      console.error(err);
+      alert("Erreur: Impossible d'accéder à ce document (Vérifiez vos droits).");
     }
   };
 
@@ -433,6 +449,31 @@ export default function RecruiterDashboard() {
                       </div>
                     )}
                   </div>
+
+                  {/* Documents justificatifs (si débloqué) */}
+                  {myUnlocks.includes(selectedCandidate.id) && selectedCandidate.documents && Object.keys(selectedCandidate.documents).length > 0 && (
+                    <div className="space-y-2">
+                      <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Pièces justificatives</span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {Object.entries(selectedCandidate.documents).map(([key, doc]) => (
+                          <button
+                            key={key}
+                            onClick={() => handleDownloadDocument(doc.path)}
+                            className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:border-orange-500 hover:shadow-sm transition-all text-left group"
+                          >
+                            <div className="flex items-center gap-2 overflow-hidden">
+                              <FileText className="h-4 w-4 text-orange-500 flex-shrink-0" />
+                              <div className="truncate">
+                                <span className="text-xs font-bold text-slate-700 block truncate uppercase">{key}</span>
+                                <span className="text-[10px] text-slate-400 block truncate">{doc.name}</span>
+                              </div>
+                            </div>
+                            <Download className="h-4 w-4 text-slate-300 group-hover:text-orange-500 flex-shrink-0" />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Profil pro */}
                   <div className="space-y-2">

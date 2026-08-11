@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { RefreshCw, Search, Trash2 } from "lucide-react";
+import { RefreshCw, Search, Trash2, FileText, Download, X } from "lucide-react";
 
 export default function AdminUsers() {
   const router = useRouter();
@@ -11,6 +11,7 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDocsUser, setSelectedDocsUser] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -36,7 +37,7 @@ export default function AdminUsers() {
           id, 
           role, 
           created_at,
-          candidates(full_name),
+          candidates(full_name, documents),
           companies(name)
         `)
         .order("created_at", { ascending: false });
@@ -96,6 +97,20 @@ export default function AdminUsers() {
       alert("Erreur de connexion au serveur");
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const handleDownloadDocument = async (path) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('candidate-documents')
+        .createSignedUrl(path, 60);
+
+      if (error) throw error;
+      window.open(data.signedUrl, '_blank');
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de la récupération du document.");
     }
   };
 
@@ -160,6 +175,15 @@ export default function AdminUsers() {
                         {new Date(usr.created_at).toLocaleDateString("fr-FR")}
                       </td>
                       <td className="p-4 text-right space-x-2">
+                        {usr.role === "candidate" && usr.candidates?.documents && Object.keys(usr.candidates.documents).length > 0 && (
+                          <button
+                            onClick={() => setSelectedDocsUser(usr)}
+                            className="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors inline-flex items-center gap-1"
+                            title="Voir les documents"
+                          >
+                            <FileText className="w-3 h-3" /> Docs
+                          </button>
+                        )}
                         {usr.role !== "admin" && (
                           <>
                             <button
@@ -226,6 +250,53 @@ export default function AdminUsers() {
           </>
         )}
       </div>
+
+      {/* Modal Documents Candidat */}
+      {selectedDocsUser && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 max-w-md w-full space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-bold text-slate-900">
+                Documents de {selectedDocsUser.candidates?.full_name}
+              </h3>
+              <button 
+                onClick={() => setSelectedDocsUser(null)}
+                className="p-2 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors text-slate-500"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {Object.entries(selectedDocsUser.candidates.documents).map(([key, doc]) => (
+                <button
+                  key={key}
+                  onClick={() => handleDownloadDocument(doc.path)}
+                  className="w-full flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:border-orange-500 hover:shadow-sm transition-all text-left group"
+                >
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <FileText className="h-5 w-5 text-orange-500 flex-shrink-0" />
+                    <div className="truncate">
+                      <span className="text-sm font-bold text-slate-700 block truncate uppercase">{key}</span>
+                      <span className="text-xs text-slate-400 block truncate">{doc.name}</span>
+                    </div>
+                  </div>
+                  <Download className="h-4 w-4 text-slate-300 group-hover:text-orange-500 flex-shrink-0" />
+                </button>
+              ))}
+            </div>
+            
+            <div className="pt-2 flex justify-end">
+              <button
+                onClick={() => setSelectedDocsUser(null)}
+                className="px-4 py-2 bg-slate-900 text-white font-bold rounded-xl text-sm"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

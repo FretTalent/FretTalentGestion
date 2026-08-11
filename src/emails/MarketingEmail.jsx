@@ -53,7 +53,7 @@ export default function MarketingEmail({
           <Container className="border border-slate-200 rounded-xl my-[40px] mx-auto p-[20px] bg-white w-full max-w-xl shadow-sm">
             <Section className="mt-[10px] mb-[20px] text-center">
               <Img
-                src={`${baseUrl}/logo.png`}
+                src="https://frettalent.fr/images/logo_fret_talent.png"
                 width="150"
                 alt="FretTalent"
                 className="my-0 mx-auto"

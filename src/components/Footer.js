@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Truck } from "lucide-react";
 
 export default function Footer() {
@@ -10,13 +9,12 @@ export default function Footer() {
           {/* Logo & Intro */}
           <div className="space-y-4">
             <Link href="/" className="flex items-center gap-2.5">
-              <Image 
-                src="/logo.png" 
-                alt="FretTalent Logo" 
-                width={160} 
-                height={40} 
-                className="object-contain hover:opacity-90 transition-opacity filter brightness-0 invert" 
-              />
+              <div className="bg-orange-500 text-white p-2 rounded-xl">
+                <Truck className="h-5 w-5" />
+              </div>
+              <span className="text-xl font-bold text-white tracking-tight">
+                Fret<span className="text-orange-500">Talent</span>
+              </span>
             </Link>
             <p className="text-sm text-slate-400 leading-relaxed">
               Le premier réseau de recrutement en direct pour les chauffeurs routiers et entreprises de transport en France.

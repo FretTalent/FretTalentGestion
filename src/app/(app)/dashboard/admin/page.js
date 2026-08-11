@@ -55,7 +55,9 @@ export default function AdminDashboard() {
         console.error('Erreur lors de la récupération des candidats:', candError);
       } else {
         console.log('Candidats trouvés dans le dashboard:', candCount);
-        console.log('Exemple de candidat:', candidates?.[0]);
+        if (candCount > 0) {
+          console.log('Exemple de candidat:', candidates[0]);
+        }
       }
       const { count: compCount } = await supabase
         .from('companies')

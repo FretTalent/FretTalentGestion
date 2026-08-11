@@ -18,10 +18,6 @@ export default function AdminDashboard() {
 
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchAdminData();
-  }, []);
-
   const fetchAdminData = async () => {
     setLoading(true);
     try {
@@ -74,6 +70,10 @@ export default function AdminDashboard() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchAdminData();
+  }, []);
 
   if (loading) {
     return (

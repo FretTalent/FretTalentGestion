@@ -31,25 +31,13 @@ export default function AdminCandidates() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   
-  // Vérification initiale des données
-  useEffect(() => {
-    const verifyInitialData = async () => {
-      const data = await verifyCandidates();
-      if (data.length > 0) {
-        console.log('Données initiales vérifiées:', data.length, 'candidats');
-      } else {
-        console.warn('Aucun candidat trouvé dans la base de données');
-      }
-    };
-    verifyInitialData();
-  }, []);
-  
   // Vérification des permissions
   useEffect(() => {
     const checkPermissions = async () => {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (authError || !user) {
         console.error('Utilisateur non authentifié');
+        router.push('/login');
         return;
       }
       
@@ -61,11 +49,17 @@ export default function AdminCandidates() {
       
       if (profileError) {
         console.error('Erreur lors de la récupération du profil:', profileError);
-      } else if (profile?.role !== 'admin') {
-        console.warn('Utilisateur non admin:', profile?.role);
-      } else {
-        console.log('Permissions vérifiées: Utilisateur admin');
+        router.push('/');
+        return;
       }
+      
+      if (profile?.role !== 'admin') {
+        console.warn('Utilisateur non admin:', profile?.role);
+        router.push('/');
+        return;
+      }
+      
+      console.log('Permissions vérifiées: Utilisateur admin');
     };
     checkPermissions();
   }, []);

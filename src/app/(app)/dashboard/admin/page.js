@@ -56,7 +56,7 @@ export default function AdminDashboard() {
       } else {
         console.log('Candidats trouvés dans le dashboard:', candCount);
         if (candCount > 0) {
-          console.log('Exemple de candidat:', candidates[0]);
+          console.log('Premier candidat:', candidates[0]);
         }
       }
       const { count: compCount } = await supabase

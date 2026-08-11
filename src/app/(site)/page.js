@@ -348,12 +348,7 @@ export default function Home() {
                       <span className="w-2.5 h-2.5 rounded-full bg-orange-500 inline-block" />
                       <span className="text-slate-700">{candidates.length} chauffeur{candidates.length > 1 ? 's' : ''} inscrit{candidates.length > 1 ? 's' : ''}</span>
                     </div>
-                    {candidates.filter(c => c.validated).length > 0 && (
-                      <div className="inline-flex items-center gap-2 bg-white border border-green-200 px-4 py-2 rounded-full shadow-sm text-xs font-semibold">
-                        <span className="w-2.5 h-2.5 rounded-full bg-green-500 inline-block" />
-                        <span className="text-green-700">{candidates.filter(c => c.validated).length} validé{candidates.filter(c => c.validated).length > 1 ? 's' : ''} par FretTalent</span>
-                      </div>
-                    )}
+
                     {candidates.filter(c => c.fullVerified).length > 0 && (
                       <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-50 to-emerald-50 border border-emerald-300 px-4 py-2 rounded-full shadow-sm text-xs font-semibold">
                         <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />
@@ -392,9 +387,7 @@ export default function Home() {
                         <span
                           className={`absolute inline-flex rounded-full opacity-75 animate-ping -left-1 -top-1 ${
                             candidate.fullVerified
-                              ? 'h-5 w-5 bg-emerald-400'
-                              : candidate.validated
-                              ? 'h-4 w-4 bg-green-400'
+                              ? 'h-5 w-5 bg-green-400'
                               : 'h-4 w-4 bg-orange-400'
                           }`}
                         ></span>
@@ -403,30 +396,18 @@ export default function Home() {
                         <span
                           className={`relative flex rounded-full border-2 border-white shadow-md cursor-pointer ${
                             candidate.fullVerified
-                              ? 'h-4 w-4 bg-emerald-500 ring-2 ring-emerald-300 ring-offset-1'
-                              : candidate.validated
-                              ? 'h-3 w-3 bg-green-500'
+                              ? 'h-4 w-4 bg-green-500 ring-2 ring-green-300 ring-offset-1'
                               : 'h-3 w-3 bg-orange-500'
                           }`}
                         >
-                          {candidate.fullVerified && (
-                            <span className="absolute inset-0 flex items-center justify-center text-white text-[6px] font-black">
-                              
-                            </span>
-                          )}
-                          {!candidate.fullVerified && candidate.validated && (
-                            <span className="absolute -top-2.5 -right-2.5 bg-green-500 text-white text-[7px] font-black rounded-full w-3.5 h-3.5 flex items-center justify-center border border-white shadow-sm">
-                              ✓
-                            </span>
-                          )}
                         </span>
 
                         {/* Tooltip au survol */}
                         <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-200 pointer-events-none bg-slate-900 text-white text-[10px] py-2 px-3 rounded-xl shadow-xl whitespace-nowrap z-50 min-w-[140px]">
                           {candidate.fullVerified ? (
                             <>
-                              <div className="font-bold text-emerald-400 flex items-center gap-1 mb-0.5">
-                                <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span> 100% Vérifié
+                              <div className="font-bold text-green-400 flex items-center gap-1 mb-0.5">
+                                <span className="w-2 h-2 rounded-full bg-green-400 inline-block"></span> 100% Vérifié
                               </div>
                               <div className="text-slate-300 text-[9px] space-y-0.5">
                                 <div>✓ Documents à jour</div>
@@ -434,8 +415,6 @@ export default function Home() {
                                 <div>✓ Disponible</div>
                               </div>
                             </>
-                          ) : candidate.validated ? (
-                            <span className="font-bold text-green-400">Candidat Vérifié ✓</span>
                           ) : (
                             <span className="font-bold text-orange-400">Profil en vérification</span>
                           )}
@@ -494,27 +473,16 @@ export default function Home() {
                     <div className="space-y-2">
                       <div className="flex items-center gap-3">
                         <div className="relative flex-shrink-0">
-                          <span className="block h-4 w-4 rounded-full bg-emerald-500 border-2 border-white shadow-md flex items-center justify-center">
-                            
-                          </span>
+                          <span className="block h-4 w-4 rounded-full bg-green-500 border-2 border-white shadow-md"></span>
                         </div>
                         <span className="text-xs font-semibold text-slate-700">
-                          <span className="text-emerald-600 font-bold">Vert émeraude</span> = Profil 100% vérifié
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="relative flex-shrink-0">
-                          <span className="block h-3 w-3 rounded-full bg-green-500 border-2 border-white shadow-md"></span>
-                          <span className="absolute -top-1.5 -right-1.5 bg-green-500 text-white text-[6px] rounded-full w-3 h-3 flex items-center justify-center border border-white text-[7px]">✓</span>
-                        </div>
-                        <span className="text-xs font-semibold text-slate-700">
-                          <span className="text-green-600 font-bold">✓ Vert</span> = Validé par FretTalent
+                          <span className="text-green-600 font-bold">Vert</span> = Profil 100% vérifié
                         </span>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="block h-3 w-3 rounded-full bg-orange-500 flex-shrink-0 animate-pulse"></span>
                         <span className="text-xs font-semibold text-slate-700">
-                          <span className="text-orange-500 font-bold">● Orange</span> = En cours de vérification
+                          <span className="text-orange-500 font-bold">Orange</span> = En cours de vérification
                         </span>
                       </div>
                     </div>

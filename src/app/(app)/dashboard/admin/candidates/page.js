@@ -44,8 +44,9 @@ export default function AdminCandidates() {
               .eq('is_active', true)
               .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setCandidates(data || []);
+            if (error) throw error;
+            console.log('Candidates data:', data);
+            setCandidates(data || []);
     } catch (err) {
       console.error(err);
     } finally {

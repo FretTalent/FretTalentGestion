@@ -5,6 +5,25 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { RefreshCw, CheckCircle, XCircle, Search, Eye } from 'lucide-react';
 
+// Vérification directe des données candidates
+const verifyCandidates = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('candidates')
+      .select('*');
+
+    if (error) {
+      console.error('Erreur lors de la vérification des candidats:', error);
+      return [];
+    }
+    console.log('Vérification directe des candidats:', data);
+    return data || [];
+  } catch (err) {
+    console.error('Erreur inattendue:', err);
+    return [];
+  }
+};
+
 
 export default function AdminCandidates() {
   const router = useRouter();
@@ -19,18 +38,9 @@ export default function AdminCandidates() {
   const fetchCandidates = async () => {
     setLoading(true);
     try {
-      // Vérification directe des candidats
-      const { data: candidatesData, error: fetchError } = await supabase
-        .from('candidates')
-        .select('*');
-
-      if (fetchError) {
-        console.error('Erreur lors de la récupération des candidats:', fetchError);
-        setCandidates([]);
-      } else {
-        console.log('Candidats récupérés:', candidatesData);
-        setCandidates(candidatesData || []);
-      }
+      // Utiliser la fonction de vérification directe
+      const candidatesData = await verifyCandidates();
+      setCandidates(candidatesData);
     } catch (err) {
       console.error('Erreur inattendue:', err);
       setCandidates([]);
@@ -93,6 +103,17 @@ export default function AdminCandidates() {
       alert('Aucun candidat trouvé. Vérifiez les logs de la console pour plus d’informations.');
     }
   }, [candidates, loading]);
+
+  // Vérification initiale des données
+  useEffect(() => {
+    const checkInitialData = async () => {
+      const initialData = await verifyCandidates();
+      if (initialData.length > 0) {
+        console.log('Données initiales vérifiées:', initialData);
+      }
+    };
+    checkInitialData();
+  }, []);
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">

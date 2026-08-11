@@ -19,18 +19,17 @@ export default function AdminCandidates() {
   const fetchCandidates = async () => {
     setLoading(true);
     try {
-      // Récupérer tous les candidats avec une requête complète
-      const { data, error } = await supabase
+      // Vérification directe des candidats
+      const { data: candidatesData, error: fetchError } = await supabase
         .from('candidates')
         .select('*');
 
-      if (error) {
-        console.error('Erreur lors de la récupération des candidats:', error);
+      if (fetchError) {
+        console.error('Erreur lors de la récupération des candidats:', fetchError);
         setCandidates([]);
       } else {
-        console.log('Nombre total de candidats:', data?.length || 0);
-        console.log('Exemple de candidat:', data?.[0]);
-        setCandidates(data || []);
+        console.log('Candidats récupérés:', candidatesData);
+        setCandidates(candidatesData || []);
       }
     } catch (err) {
       console.error('Erreur inattendue:', err);
@@ -91,6 +90,7 @@ export default function AdminCandidates() {
   useEffect(() => {
     if (candidates.length === 0 && !loading) {
       console.warn('Aucun candidat trouvé, vérifiez la base de données');
+      alert('Aucun candidat trouvé. Vérifiez les logs de la console pour plus d’informations.');
     }
   }, [candidates, loading]);
 
@@ -118,9 +118,9 @@ export default function AdminCandidates() {
         candidates.length > 0 ? (
           <div>
             <h2 className="text-xl font-bold mb-4">Liste des candidats ({candidates.length})</h2>
-            <p className="text-sm text-slate-500 mb-4">Voici la liste complète des candidats enregistrés.</p>
-            <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-4">
-              <p className="text-sm font-medium">Note: {candidates.length} candidats trouvés.</p>
+            <p className="text-sm text-slate-500 mb-4">Voici la liste complète des {candidates.length} candidats enregistrés.</p>
+            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
+              <p className="text-sm font-medium">Note: {candidates.length} candidats trouvés dans la base de données.</p>
             </div>
             <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
               <table className="w-full">
@@ -174,7 +174,7 @@ export default function AdminCandidates() {
         )) : (
             <div className="text-center py-8">
               <p className="text-red-600 font-bold">Aucun candidat trouvé.</p>
-              <p className="text-sm text-slate-500 mt-2">Il semble qu'il n'y ait aucun candidat enregistré.</p>
+              <p className="text-sm text-slate-500 mt-2">Il semble qu'il n'y ait aucun candidat enregistré dans la base de données.</p>
               <p className="text-sm text-slate-500">Vérifiez que des candidats ont bien été créés via l'inscription.</p>
               <div className="mt-4 flex flex-col sm:flex-row gap-4">
                 <button
@@ -184,7 +184,7 @@ export default function AdminCandidates() {
                   Accéder au tableau de bord Supabase
                 </button>
                 <button
-                  onClick={() => alert('Vérifiez les logs de la console pour plus d'informations')}
+                  onClick={() => alert('Vérifiez les logs de la console pour plus d’informations sur les erreurs')}
                   className="text-orange-500 hover:underline"
                 >
                   Voir les logs de debug

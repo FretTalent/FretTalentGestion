@@ -124,7 +124,7 @@ export default function AdminCandidates() {
           <p>Chargement des candidats...</p>
           <div className="mt-4 flex justify-center">
             <button
-              onClick={() => alert('Vérifiez les logs de la console pour plus d’informations')}
+              onClick={() => alert('Vérifiez les logs de la console pour plus d'informations')}
               className="text-orange-500 hover:underline"
             >
               Voir les logs de debug
@@ -188,7 +188,22 @@ export default function AdminCandidates() {
               </tr>
             ))}
           </tbody>
-        )) : (
+        </table>
+            </div>
+          </div>
+        ) : (
+          searchTerm ? (
+            <div className="text-center py-8">
+              <p className="text-red-600 font-bold">Aucun résultat pour "{searchTerm}"</p>
+              <p className="text-sm text-slate-500 mt-2">Essayez de modifier votre recherche.</p>
+              <button
+                onClick={() => setSearchTerm('')}
+                className="mt-4 text-orange-500 hover:underline"
+              >
+                Réinitialiser la recherche
+              </button>
+            </div>
+          ) : (
             <div className="text-center py-8">
               <p className="text-red-600 font-bold">Aucun candidat trouvé.</p>
               <p className="text-sm text-slate-500 mt-2">Il semble qu'il n'y ait aucun candidat enregistré.</p>
@@ -201,15 +216,16 @@ export default function AdminCandidates() {
                   Accéder au tableau de bord Supabase
                 </button>
                 <button
-                  onClick={() => alert('Vérifiez les logs de la console pour plus d’informations')}
+                  onClick={() => alert('Vérifiez les logs de la console pour plus d'informations')}
                   className="text-orange-500 hover:underline"
                 >
                   Voir les logs de debug
                 </button>
               </div>
             </div>
-          )}
-        )}
+          )
+        )
+      )}
       </div>
     </div>
   );

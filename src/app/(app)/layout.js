@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
@@ -23,18 +23,17 @@ const navCandidate = [
 ];
 const navRecruiter = [
   { href: "/dashboard/recruiter", icon: Search, label: "Recherche" },
-  { href: "/dashboard/recruiter?tab=jobs", icon: Briefcase, label: "Mes offres" },
+  { href: "/dashboard/recruiter/jobs", icon: Briefcase, label: "Mes offres" },
 ];
 const navAdmin = [
   { href: "/dashboard/admin", icon: BarChart3, label: "Tableau de bord" },
-  { href: "/dashboard/admin?tab=jobs", icon: Briefcase, label: "Modération annonces" },
-  { href: "/dashboard/admin?tab=users", icon: Users, label: "Utilisateurs" },
+  { href: "/dashboard/admin/jobs", icon: Briefcase, label: "Modération annonces" },
+  { href: "/dashboard/admin/users", icon: Users, label: "Utilisateurs" },
 ];
 
 export default function AppLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [role, setRole] = useState(null);
   const [userEmail, setUserEmail] = useState("");
   const [companyName, setCompanyName] = useState("");
@@ -136,11 +135,7 @@ export default function AppLayout({ children }) {
       <nav className="flex-grow px-3 py-4 space-y-1">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const searchParamsString = searchParams.toString();
-          const currentUrl = searchParamsString ? `${pathname}?${searchParamsString}` : pathname;
-          
-          // Vérification stricte de l'URL pour gérer les onglets (?tab=...)
-          const isActive = currentUrl === item.href || (item.href === pathname && !searchParamsString && !item.href.includes("?"));
+          const isActive = pathname === item.href;
 
           return (
             <Link

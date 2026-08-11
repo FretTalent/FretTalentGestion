@@ -17,7 +17,7 @@ import {
 
 export default function RecruiterDashboard() {
   const router = useRouter();
-  const activeTab = "search";
+  const activeTab = "jobs";
 
   // Profil et entreprise
   const [profile, setProfile] = useState(null);

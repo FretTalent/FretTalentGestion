@@ -19,17 +19,17 @@ export default function AdminCandidates() {
   const fetchCandidates = async () => {
     setLoading(true);
     try {
-      // Récupérer tous les candidats sans restriction
-      const { data, error } = await supabase
+      // Vérification directe des candidats avec une requête simple
+      const { data: candidatesData, error: fetchError } = await supabase
         .from('candidates')
         .select('*');
 
-      if (error) {
-        console.error('Erreur lors de la récupération des candidats:', error);
+      if (fetchError) {
+        console.error('Erreur lors de la récupération des candidats:', fetchError);
         setCandidates([]);
       } else {
-        console.log('Candidats récupérés:', data);
-        setCandidates(data || []);
+        console.log('Candidats récupérés:', candidatesData);
+        setCandidates(candidatesData || []);
       }
     } catch (err) {
       console.error('Erreur inattendue:', err);
@@ -81,10 +81,17 @@ export default function AdminCandidates() {
     );
   }
 
-  // Afficher les données directement pour le debug
+  // Vérification des données récupérées
   useEffect(() => {
     console.log('Candidates state:', candidates);
   }, [candidates]);
+
+  // Vérification des erreurs potentielles
+  useEffect(() => {
+    if (candidates.length === 0 && !loading) {
+      console.warn('Aucun candidat trouvé, vérifiez la base de données');
+    }
+  }, [candidates, loading]);
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">

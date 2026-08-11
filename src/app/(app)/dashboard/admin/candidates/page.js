@@ -19,17 +19,18 @@ export default function AdminCandidates() {
   const fetchCandidates = async () => {
     setLoading(true);
     try {
-      // Vérification directe des données candidates
-      const { data, error } = await supabase
+      // Récupérer tous les candidats sans filtre
+      const { data: allCandidates, error: fetchError } = await supabase
         .from('candidates')
         .select('*');
 
-      if (error) {
-        console.error('Erreur lors de la récupération des candidats:', error.message);
+      if (fetchError) {
+        console.error('Erreur lors de la récupération des candidats:', fetchError);
         setCandidates([]);
       } else {
-        console.log('Candidats récupérés:', data);
-        setCandidates(data || []);
+        console.log('Nombre total de candidats:', allCandidates?.length || 0);
+        console.log('Exemple de candidat:', allCandidates?.[0]);
+        setCandidates(allCandidates || []);
       }
     } catch (err) {
       console.error('Erreur inattendue:', err);
@@ -39,6 +40,9 @@ export default function AdminCandidates() {
     }
   };
 
+  useEffect(() => {
+    fetchCandidates();
+  }, []);
   const handleValidate = async (candidateId) => {
     if (!confirm('Valider ce candidat ?')) return;
 
@@ -101,8 +105,8 @@ export default function AdminCandidates() {
       ) : (
         candidates.length > 0 ? (
           <div>
-            <h2 className="text-xl font-bold mb-4">Liste des candidats trouvés ({candidates.length})</h2>
-            <p className="text-sm text-slate-500 mb-4">Affichage des {candidates.length} candidats actifs</p>
+            <h2 className="text-xl font-bold mb-4">Liste des candidats ({candidates.length})</h2>
+            <p className="text-sm text-slate-500 mb-4">Affichage de tous les candidats enregistrés</p>
             <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
               <table className="w-full">
           <thead>
@@ -155,7 +159,13 @@ export default function AdminCandidates() {
         )) : (
             <div className="text-center py-8">
               <p>Aucun candidat trouvé.</p>
-              <p className="text-sm text-slate-500">Vérifiez que des candidats sont bien enregistrés dans la base de données.</p>
+              <p className="text-sm text-slate-500">Vérifiez que des candidats sont enregistrés dans la base de données.</p>
+              <button
+                onClick={() => window.open('https://supabase.com/dashboard', '_blank')}
+                className="mt-4 text-orange-500 hover:underline"
+              >
+                Accéder au tableau de bord Supabase
+              </button>
             </div>
           )}
       </div>

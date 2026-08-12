@@ -31,6 +31,7 @@ const navCandidate = [
 const navRecruiter = [
   { href: '/dashboard/recruiter', icon: Search, label: 'Recherche' },
   { href: '/dashboard/recruiter/jobs', icon: Briefcase, label: 'Mes offres' },
+  { href: '/dashboard/recruiter/settings', icon: Settings, label: 'Paramètres' },
 ];
 const navAdmin = [
   { href: '/dashboard/admin', icon: BarChart3, label: 'Tableau de bord' },

@@ -93,7 +93,7 @@ export default function Tarifs() {
 
       {/* Grille Tarifaire */}
       <section className="py-16 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
           {/* Formule à l'usage */}
           <div className="bg-white border-2 border-slate-200 rounded-3xl p-8 flex flex-col justify-between hover:border-slate-300 transition-all duration-300 shadow-sm hover:shadow-md relative">
             <div className="space-y-6">
@@ -105,8 +105,7 @@ export default function Tarifs() {
                   À la performance
                 </h3>
                 <p className="text-xs text-slate-500 mt-1">
-                  Idéal pour combler des besoins en recrutement très
-                  occasionnels.
+                  Idéal pour combler des besoins en recrutement occasionnels.
                 </p>
               </div>
 
@@ -130,7 +129,7 @@ export default function Tarifs() {
                     <strong>
                       Déblocage des documents officiels obligatoires
                     </strong>{' '}
-                    du candidat (Permis C/CE, FIMO/FCO, Carte conducteur...)
+                    du candidat (Permis, FIMO, Carte...)
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
@@ -157,8 +156,8 @@ export default function Tarifs() {
           </div>
 
           {/* Formule Abonnement Pro */}
-          <div className="bg-white border-2 border-orange-500 rounded-3xl p-8 flex flex-col justify-between shadow-xl relative">
-            <span className="absolute -top-3.5 right-8 bg-orange-500 text-white font-bold text-[9px] uppercase tracking-widest py-1.5 px-3 rounded-full shadow-md">
+          <div className="bg-white border-2 border-orange-500 rounded-3xl p-8 flex flex-col justify-between shadow-xl relative transform md:-translate-y-4 z-10">
+            <span className="absolute -top-3.5 right-6 bg-orange-500 text-white font-bold text-[9px] uppercase tracking-widest py-1.5 px-3 rounded-full shadow-md">
               Recommandé par les transporteurs
             </span>
 
@@ -171,14 +170,13 @@ export default function Tarifs() {
                   Forfait Illimité Pro
                 </h3>
                 <p className="text-xs text-slate-500 mt-1">
-                  Idéal pour les flottes actives qui recrutent régulièrement et
-                  publient des offres.
+                  Idéal pour les flottes actives qui recrutent régulièrement.
                 </p>
               </div>
 
               <div className="flex items-baseline gap-1.5 border-b border-orange-100 pb-6">
                 <span className="text-5xl font-black text-slate-955">
-                  49,99 €
+                  39,99 €
                 </span>
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   / mois
@@ -204,31 +202,14 @@ export default function Tarifs() {
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="h-4.5 w-4.5 text-orange-500 flex-shrink-0 mt-0.5" />
                   <span>
-                    <strong>Publication d'offres d'emploi illimitée</strong>{' '}
-                    diffusées en direct sur le site
+                    <strong>Publication d'offres d'emploi illimitée</strong>
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="h-4.5 w-4.5 text-orange-500 flex-shrink-0 mt-0.5" />
                   <span>
-                    <strong>Accès prioritaire 24h avant</strong> sur tous les
-                    nouveaux candidats inscrits sur la plateforme
+                    <strong>Alertes e-mail temps réel</strong> sur critères
                   </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="h-4.5 w-4.5 text-orange-500 flex-shrink-0 mt-0.5" />
-                  <span>
-                    <strong>Alertes e-mail temps réel</strong> sur critères de
-                    recherche (permis, localisation)
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="h-4.5 w-4.5 text-orange-500 flex-shrink-0 mt-0.5" />
-                  <span>Mise en avant automatique de vos annonces</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="h-4.5 w-4.5 text-orange-500 flex-shrink-0 mt-0.5" />
-                  <span>Support client prioritaire dédié 7j/7</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="h-4.5 w-4.5 text-orange-500 flex-shrink-0 mt-0.5" />
@@ -244,7 +225,80 @@ export default function Tarifs() {
                 href="/register?role=recruiter"
                 className="w-full inline-flex items-center justify-center py-3.5 rounded-xl text-xs font-bold text-white bg-orange-500 hover:bg-orange-600 shadow-lg shadow-orange-500/20 transition-all duration-300 text-center hover:-translate-y-0.5"
               >
-                Activer le Forfait Illimité
+                Activer le Forfait Pro
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Formule Abonnement Premium Plus */}
+          <div className="bg-white border-2 border-slate-900 rounded-3xl p-8 flex flex-col justify-between shadow-xl relative">
+            <span className="absolute -top-3.5 right-6 bg-slate-900 text-white font-bold text-[9px] uppercase tracking-widest py-1.5 px-3 rounded-full shadow-md">
+              Marque Employeur Forte
+            </span>
+
+            <div className="space-y-6">
+              <div>
+                <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider bg-slate-100 px-2.5 py-1 rounded-md">
+                  Visibilité Maximale
+                </span>
+                <h3 className="text-xl font-bold text-slate-955 mt-3">
+                  Forfait Premium Plus
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Idéal pour attirer les meilleurs profils et valoriser sa flotte.
+                </p>
+              </div>
+
+              <div className="flex items-baseline gap-1.5 border-b border-slate-200 pb-6">
+                <span className="text-5xl font-black text-slate-955">
+                  54,99 €
+                </span>
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  / mois
+                </span>
+              </div>
+
+              <ul className="space-y-4 text-xs text-slate-650">
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="h-4.5 w-4.5 text-slate-900 flex-shrink-0 mt-0.5" />
+                  <span>
+                    <strong>Toutes les options du Forfait Pro</strong> (Illimité)
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="h-4.5 w-4.5 text-slate-900 flex-shrink-0 mt-0.5" />
+                  <span>
+                    <strong>Mise en avant du logo entreprise</strong> sur le site
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="h-4.5 w-4.5 text-slate-900 flex-shrink-0 mt-0.5" />
+                  <span>
+                    <strong>Article sur mesure</strong> (flotte, salariés, avantages...)
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="h-4.5 w-4.5 text-slate-900 flex-shrink-0 mt-0.5" />
+                  <span>
+                    <strong>Mise en avant des offres d'emploi premium</strong>
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="h-4.5 w-4.5 text-slate-900 flex-shrink-0 mt-0.5" />
+                  <span>
+                    <strong>Support prioritaire</strong> dédié
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="pt-8">
+              <Link
+                href="/register?role=recruiter"
+                className="w-full inline-flex items-center justify-center py-3.5 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-lg shadow-slate-900/20 transition-all duration-300 text-center hover:-translate-y-0.5"
+              >
+                Activer le Forfait Premium Plus
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </div>

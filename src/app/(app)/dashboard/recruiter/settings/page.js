@@ -203,11 +203,11 @@ export default function RecruiterSettings() {
             <label className="text-xs font-bold text-slate-700 uppercase">
               Mode de facturation
             </label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Option 1 : Paiement à l'acte */}
               <div 
                 onClick={() => setSubscriptionPlan('pay_per_unlock')}
-                className={`cursor-pointer border-2 rounded-2xl p-4 transition-all ${
+                className={`cursor-pointer border-2 rounded-2xl p-4 transition-all flex flex-col ${
                   subscriptionPlan === 'pay_per_unlock' 
                   ? 'border-orange-500 bg-orange-50/50' 
                   : 'border-slate-200 bg-white hover:border-orange-300'
@@ -215,40 +215,67 @@ export default function RecruiterSettings() {
               >
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="font-bold text-slate-900">Paiement à l'acte</h3>
-                  <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${
+                  <div className={`h-4 w-4 rounded-full border flex items-center justify-center flex-shrink-0 ${
                     subscriptionPlan === 'pay_per_unlock' ? 'border-orange-500' : 'border-slate-300'
                   }`}>
                     {subscriptionPlan === 'pay_per_unlock' && <div className="h-2 w-2 bg-orange-500 rounded-full" />}
                   </div>
                 </div>
-                <div className="text-2xl font-black text-slate-900 mb-2">2€ <span className="text-sm text-slate-500 font-normal">/ déblocage</span></div>
-                <p className="text-xs text-slate-600">
+                <div className="text-2xl font-black text-slate-900 mb-2">2€ <span className="text-sm text-slate-500 font-normal">/ contact</span></div>
+                <p className="text-xs text-slate-600 mt-auto">
                   Débloquez les coordonnées et les documents des candidats un par un au fil de vos besoins.
                 </p>
               </div>
 
-              {/* Option 2 : Abonnement Premium */}
+              {/* Option 2 : Abonnement Premium Pro */}
               <div 
                 onClick={() => setSubscriptionPlan('premium_monthly')}
-                className={`cursor-pointer border-2 rounded-2xl p-4 transition-all ${
+                className={`cursor-pointer border-2 rounded-2xl p-4 transition-all flex flex-col ${
                   subscriptionPlan === 'premium_monthly' 
                   ? 'border-orange-500 bg-orange-50/50' 
                   : 'border-slate-200 bg-white hover:border-orange-300'
                 }`}
               >
                 <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-bold text-slate-900 flex items-center gap-2">
-                    Premium <span className="bg-orange-100 text-orange-600 text-[10px] uppercase px-2 py-0.5 rounded-full">Illimité</span>
+                  <h3 className="font-bold text-slate-900 flex flex-col gap-1">
+                    <span>Forfait Pro</span>
+                    <span className="bg-orange-100 text-orange-600 text-[10px] w-fit uppercase px-2 py-0.5 rounded-full">Illimité</span>
                   </h3>
-                  <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${
+                  <div className={`h-4 w-4 rounded-full border flex items-center justify-center flex-shrink-0 ${
                     subscriptionPlan === 'premium_monthly' ? 'border-orange-500' : 'border-slate-300'
                   }`}>
                     {subscriptionPlan === 'premium_monthly' && <div className="h-2 w-2 bg-orange-500 rounded-full" />}
                   </div>
                 </div>
-                <div className="text-2xl font-black text-slate-900 mb-2">99€ <span className="text-sm text-slate-500 font-normal">/ mois</span></div>
-                <p className="text-xs text-slate-600">
-                  Accédez en illimité à tous les profils de candidats. Sans engagement.
+                <div className="text-2xl font-black text-slate-900 mb-2">39,99€ <span className="text-sm text-slate-500 font-normal">/ mois</span></div>
+                <p className="text-xs text-slate-600 mt-auto">
+                  Accès illimité aux profils, documents officiels, et publication d'offres sans limites.
+                </p>
+              </div>
+
+              {/* Option 3 : Abonnement Premium Plus */}
+              <div 
+                onClick={() => setSubscriptionPlan('premium_plus_monthly')}
+                className={`cursor-pointer border-2 rounded-2xl p-4 transition-all flex flex-col ${
+                  subscriptionPlan === 'premium_plus_monthly' 
+                  ? 'border-slate-900 bg-slate-50' 
+                  : 'border-slate-200 bg-white hover:border-slate-400'
+                }`}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="font-bold text-slate-900 flex flex-col gap-1">
+                    <span>Premium Plus</span>
+                    <span className="bg-slate-200 text-slate-800 text-[10px] w-fit uppercase px-2 py-0.5 rounded-full">Intégral</span>
+                  </h3>
+                  <div className={`h-4 w-4 rounded-full border flex items-center justify-center flex-shrink-0 ${
+                    subscriptionPlan === 'premium_plus_monthly' ? 'border-slate-900' : 'border-slate-300'
+                  }`}>
+                    {subscriptionPlan === 'premium_plus_monthly' && <div className="h-2 w-2 bg-slate-900 rounded-full" />}
+                  </div>
+                </div>
+                <div className="text-2xl font-black text-slate-900 mb-2">54,99€ <span className="text-sm text-slate-500 font-normal">/ mois</span></div>
+                <p className="text-xs text-slate-600 mt-auto">
+                  Idéal pour la marque employeur : article dédié, logo en une, et support prioritaire.
                 </p>
               </div>
             </div>

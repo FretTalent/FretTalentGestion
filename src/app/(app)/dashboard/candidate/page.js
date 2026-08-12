@@ -36,6 +36,8 @@ export default function CandidateDashboard() {
   const [selectedContractTypes, setSelectedContractTypes] = useState([]);
   const [selectedJobPreferences, setSelectedJobPreferences] = useState([]);
   const [isActive, setIsActive] = useState(true);
+  const [country, setCountry] = useState('FR');
+  const [bio, setBio] = useState('');
 
   // Historique des déblocages
   const [unlocks, setUnlocks] = useState([]);
@@ -146,6 +148,8 @@ export default function CandidateDashboard() {
         setSelectedContractTypes(Array.isArray(candidateData.contract_types) ? candidateData.contract_types : []);
         setSelectedJobPreferences(Array.isArray(candidateData.job_preferences) ? candidateData.job_preferences : []);
         setIsActive(candidateData.is_active ?? true);
+        setCountry(candidateData.country || 'FR');
+        setBio(candidateData.bio || '');
         setDocuments(typeof candidateData.documents === 'object' && candidateData.documents !== null ? candidateData.documents : {});
       }
 
@@ -189,6 +193,8 @@ export default function CandidateDashboard() {
           contract_types: selectedContractTypes,
           job_preferences: selectedJobPreferences,
           is_active: isActive,
+          country: country,
+          bio: bio,
           updated_at: new Date(),
         })
         .eq('id', profile?.id || candidate?.id);
@@ -312,6 +318,27 @@ export default function CandidateDashboard() {
                   onAddressSelect={setAddressInfo}
                   required={true}
                 />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 uppercase">
+                  Pays de recherche d&apos;emploi
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[{ code: 'FR', label: '🇫🇷 France' }, { code: 'BE', label: '🇧🇪 Belgique' }].map(c => (
+                    <button
+                      key={c.code}
+                      type="button"
+                      onClick={() => setCountry(c.code)}
+                      className={`py-2.5 px-4 rounded-xl text-sm font-bold border transition-colors ${
+                        country === c.code
+                          ? 'bg-orange-500 text-white border-orange-500'
+                          : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
+                      }`}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -511,6 +538,21 @@ export default function CandidateDashboard() {
               </div>
             </div>
 
+            {/* Présentation courte */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-700 uppercase block">
+                Présentation courte (visible par les recruteurs)
+              </label>
+              <textarea
+                value={bio}
+                onChange={e => setBio(e.target.value.slice(0, 250))}
+                placeholder="Ex: Chauffeur SPL avec 8 ans d'expérience en transport frigorifique et citerne, disponible en région lyonnaise..."
+                rows={3}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 resize-none"
+              />
+              <p className="text-[10px] text-slate-400 text-right">{bio.length}/250 caractères</p>
+            </div>
+
             <div className="pt-4 border-t border-slate-100 flex justify-end">
               <button
                 type="submit"
@@ -526,6 +568,38 @@ export default function CandidateDashboard() {
 
         {/* Widgets de confidentialité & Historique */}
         <div className="space-y-6">
+          {/* Complétude du profil */}
+          {(() => {
+            let score = 0;
+            if (fullName) score += 15;
+            if (phone) score += 15;
+            if (addressInfo.city) score += 15;
+            if (selectedLicenses.length > 0) score += 20;
+            if (selectedCertifications.length > 0) score += 15;
+            if (bio) score += 10;
+            if (documents && Object.keys(documents).length > 0) score += 10;
+
+            return (
+              <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-900">
+                  <span>Complétude du profil</span>
+                  <span className="text-orange-500">{score}%</span>
+                </div>
+                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-orange-500 h-full transition-all duration-300 rounded-full"
+                    style={{ width: `${score}%` }}
+                  />
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  {score < 100
+                    ? "Complétez votre profil pour maximiser vos chances d'être contacté !"
+                    : "Votre profil est parfaitement complété !"}
+                </p>
+              </div>
+            );
+          })()}
+
           {/* Statut de visibilité */}
           <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
             <h3 className="text-sm font-bold text-slate-900">

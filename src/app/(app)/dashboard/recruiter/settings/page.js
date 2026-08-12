@@ -96,7 +96,6 @@ export default function RecruiterSettings() {
           address: addressInfo.address,
           postal_code: addressInfo.postalCode,
           city: addressInfo.city,
-          subscription_plan: subscriptionPlan,
           updated_at: new Date()
         })
         .eq('id', profile.id);
@@ -113,18 +112,23 @@ export default function RecruiterSettings() {
     }
   };
 
-  const handleSimulateStripe = async () => {
+  const handleStripeCheckout = async () => {
     try {
-      const { error } = await supabase
-        .from('companies')
-        .update({ has_payment_method: true })
-        .eq('id', profile.id);
+      setSaving(true);
+      const res = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: subscriptionPlan }),
+      });
 
-      if (error) throw error;
-      setCompany({ ...company, has_payment_method: true });
-      toast.success('Carte bancaire enregistrée (Simulation Stripe)');
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      
+      // Redirect to Stripe
+      window.location.href = data.url;
     } catch (err) {
-      toast.error('Erreur lors de l\'enregistrement de la carte');
+      toast.error(err.message || 'Erreur lors de la connexion à Stripe');
+      setSaving(false);
     }
   };
 
@@ -283,24 +287,29 @@ export default function RecruiterSettings() {
 
           <div className="pt-4 border-t border-slate-100">
             <h3 className="text-sm font-bold text-slate-900 mb-3">Moyen de paiement</h3>
-            {company?.has_payment_method ? (
+            {company?.has_payment_method && company?.subscription_plan === subscriptionPlan ? (
               <div className="flex items-center gap-3 bg-green-50 text-green-700 p-4 rounded-xl border border-green-200">
                 <CheckCircle2 className="h-5 w-5" />
-                <span className="text-sm font-medium">Carte bancaire enregistrée (Stripe)</span>
+                <span className="text-sm font-medium">
+                  {company.subscription_plan === 'pay_per_unlock' 
+                    ? 'Carte bancaire enregistrée (Prêt pour le paiement à l\'acte)' 
+                    : 'Abonnement actif'}
+                </span>
               </div>
             ) : (
               <div className="space-y-3">
                 <div className="bg-slate-50 text-slate-600 p-4 rounded-xl text-xs flex gap-2 border border-slate-200">
                   <ShieldAlert className="h-4 w-4 flex-shrink-0 text-slate-400" />
-                  Vous devez enregistrer une carte bancaire pour pouvoir débloquer des candidats ou souscrire un abonnement.
+                  Vous allez être redirigé vers l'interface sécurisée de Stripe pour valider ce choix.
                 </div>
                 <button
                   type="button"
-                  onClick={handleSimulateStripe}
+                  onClick={handleStripeCheckout}
+                  disabled={saving}
                   className="bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2"
                 >
                   <CreditCard className="h-4 w-4" />
-                  Enregistrer une carte (Simulation)
+                  {saving ? 'Redirection Stripe...' : (subscriptionPlan === 'pay_per_unlock' ? 'Enregistrer ma carte via Stripe' : 'S\'abonner via Stripe')}
                 </button>
               </div>
             )}

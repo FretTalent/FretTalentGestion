@@ -104,8 +104,8 @@ export async function POST(req) {
     }
 
     // 6. Intégration Stripe (Post-payé) :
-    // On ajoute un Invoice Item pour ce client sur sa facture mensuelle en attente.
-    if (company.stripe_customer_id) {
+    // On ajoute un Invoice Item pour ce client sur sa facture mensuelle en attente (seulement si pas d'abonnement).
+    if (company.stripe_customer_id && company.subscription_plan === 'pay_per_unlock') {
       try {
         await stripe.invoiceItems.create({
           customer: company.stripe_customer_id,

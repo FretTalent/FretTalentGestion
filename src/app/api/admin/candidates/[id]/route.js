@@ -4,8 +4,8 @@ import { createClient } from '@supabase/supabase-js';
 // Route GET : récupère un candidat spécifique par ID (admin seulement, bypass RLS)
 export async function GET(req, context) {
   try {
-    // Next.js 16 : params est une Promise, il faut l'await
-    const { id } = await context.params;
+    const resolvedParams = context?.params ? await context.params : {};
+    const id = resolvedParams.id;
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

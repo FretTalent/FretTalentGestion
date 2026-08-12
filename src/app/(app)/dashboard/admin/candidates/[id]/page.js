@@ -34,6 +34,8 @@ const DOCUMENT_TYPES = [
 export default function CandidateAdminProfile() {
   const router = useRouter();
   const params = useParams();
+  const candidateId = params?.id;
+
   const [candidate, setCandidate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [validating, setValidating] = useState(false);
@@ -41,10 +43,13 @@ export default function CandidateAdminProfile() {
   const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => {
-    fetchCandidate();
-  }, [params.id]);
+    if (candidateId) {
+      fetchCandidate();
+    }
+  }, [candidateId]);
 
   const fetchCandidate = async () => {
+    if (!candidateId) return;
     setLoading(true);
     try {
       const {
@@ -68,9 +73,9 @@ export default function CandidateAdminProfile() {
 
       // Utiliser la session token pour appeler l'API admin (bypass RLS)
       const { data: { session } } = await supabase.auth.getSession();
-      const response = await fetch(`/api/admin/candidates/${params.id}`, {
+      const response = await fetch(`/api/admin/candidates/${candidateId}`, {
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${session?.access_token || ''}`,
         },
       });
 
@@ -173,7 +178,7 @@ export default function CandidateAdminProfile() {
     );
   }
 
-  const docs = candidate.documents || {};
+  const docs = (candidate && typeof candidate.documents === 'object' && candidate.documents !== null) ? candidate.documents : {};
   const REQUIRED_KEYS = ['cv', 'permis', 'chrono', 'fimo'];
   const uploadedRequired = REQUIRED_KEYS.filter(k => docs[k]).length;
   const allRequiredUploaded = uploadedRequired === REQUIRED_KEYS.length;

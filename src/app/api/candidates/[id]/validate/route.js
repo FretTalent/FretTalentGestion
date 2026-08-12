@@ -7,8 +7,8 @@ import { createClient } from '@supabase/supabase-js';
  * Utilise la service role key pour bypasser le RLS
  */
 export async function POST(request, context) {
-  // Next.js 16 : params est une Promise
-  const { id: candidateId } = await context.params;
+  const resolvedParams = context?.params ? await context.params : {};
+  const candidateId = resolvedParams.id;
 
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

@@ -68,10 +68,8 @@ function RegisterContent() {
           const info = data.results[0];
           setSiretValid(true);
           setSiretCompanyInfo(info.nom_complet);
-          // Préremplir le nom de l'entreprise s'il est vide
-          if (!companyName) {
-            setCompanyName(info.nom_complet);
-          }
+          // Remplir le nom de l'entreprise avec le nom officiel
+          setCompanyName(info.nom_complet);
         } else {
           setSiretValid(false);
           setSiretCompanyInfo('Aucune entreprise trouvée pour ce SIRET.');

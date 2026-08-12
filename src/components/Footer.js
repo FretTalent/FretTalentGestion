@@ -20,12 +20,28 @@ export default function Footer() {
           {/* Product links */}
           <div>
             <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
-              Produit
+              Plateforme
             </h4>
             <ul className="space-y-2.5 text-sm">
               <li>
                 <Link
-                  href="#comment-ca-marche"
+                  href="/entreprises"
+                  className="hover:text-white transition-colors"
+                >
+                  Pour les Entreprises
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/chauffeurs"
+                  className="hover:text-white transition-colors"
+                >
+                  Pour les Chauffeurs
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/comment-ca-marche"
                   className="hover:text-white transition-colors"
                 >
                   Comment ça marche
@@ -33,18 +49,10 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="#tarifs"
+                  href="/tarifs"
                   className="hover:text-white transition-colors"
                 >
-                  Tarifs
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="#pour-les-entreprises"
-                  className="hover:text-white transition-colors"
-                >
-                  Entreprises
+                  Tarifs & Abonnements
                 </Link>
               </li>
               <li>
@@ -58,24 +66,27 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Resources */}
+          {/* Account links */}
           <div>
             <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
-              Ressources
+              Espace membre
             </h4>
             <ul className="space-y-2.5 text-sm">
               <li>
                 <Link
-                  href="#faq"
+                  href="/login"
                   className="hover:text-white transition-colors"
                 >
-                  FAQ
+                  Connexion
                 </Link>
               </li>
               <li>
-                <span className="text-slate-500">
-                  Blog & Conseils (Bientôt)
-                </span>
+                <Link
+                  href="/register"
+                  className="hover:text-white transition-colors"
+                >
+                  Créer un compte
+                </Link>
               </li>
             </ul>
           </div>

@@ -16,8 +16,10 @@ function RegisterContent() {
   const [password, setPassword] = useState('');
 
   // Champs entreprise
+  const [country, setCountry] = useState('FR'); // 'FR' ou 'BE'
   const [companyName, setCompanyName] = useState('');
   const [siret, setSiret] = useState('');
+  const [bce, setBce] = useState('');
 
   // Champs candidat
   const [fullName, setFullName] = useState('');
@@ -96,11 +98,23 @@ function RegisterContent() {
       return;
     }
 
-    if (role === 'recruiter' && siretValid !== true) {
-      setError(
-        'Veuillez saisir un numéro SIRET valide avant de finaliser votre inscription.',
-      );
-      return;
+    if (role === 'recruiter') {
+      if (country === 'FR' && siretValid !== true) {
+        setError(
+          'Veuillez saisir un numéro SIRET valide avant de finaliser votre inscription.',
+        );
+        return;
+      }
+      if (country === 'BE' && bce.length !== 10) {
+        setError(
+          'Veuillez saisir un numéro BCE valide (10 chiffres) avant de finaliser votre inscription.',
+        );
+        return;
+      }
+      if (!companyName.trim()) {
+        setError('Le nom de l\'entreprise est obligatoire.');
+        return;
+      }
     }
 
     setLoading(true);
@@ -157,7 +171,9 @@ function RegisterContent() {
             {
               id: user.id,
               name: companyName,
-              siret: siret,
+              siret: country === 'FR' ? siret : null,
+              bce: country === 'BE' ? bce : null,
+              country: country,
               address: addressInfo.address,
               postal_code: addressInfo.postalCode,
               city: addressInfo.city,
@@ -322,58 +338,112 @@ function RegisterContent() {
           <div className="space-y-4 pt-2 border-t border-slate-100">
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-700 uppercase">
-                Nom de l'entreprise
+                Pays de l'entreprise *
+              </label>
+              <select
+                value={country}
+                onChange={e => {
+                  setCountry(e.target.value);
+                  setSiret('');
+                  setBce('');
+                  setCompanyName('');
+                  setSiretValid(null);
+                  setSiretCompanyInfo('');
+                }}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white transition-all"
+              >
+                <option value="FR">France</option>
+                <option value="BE">Belgique</option>
+              </select>
+            </div>
+            
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700 uppercase">
+                Nom de l'entreprise *
               </label>
               <input
                 type="text"
                 required
                 value={companyName}
                 onChange={e => setCompanyName(e.target.value)}
-                placeholder="Logistique Fret SAS"
+                placeholder={country === 'FR' ? 'Logistique Fret SAS' : 'Logistique Fret SPRL'}
                 className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
               />
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700 uppercase">
-                Numéro SIRET
-              </label>
-              <input
-                type="text"
-                required
-                maxLength={14}
-                value={siret}
-                onChange={e => setSiret(e.target.value.replace(/\D/g, ''))}
-                placeholder="14 chiffres"
-                className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 transition-all ${
-                  siretValid === true
-                    ? 'border-green-500 focus:ring-green-500/20 focus:border-green-500'
-                    : siretValid === false
+
+            {country === 'FR' ? (
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 uppercase">
+                  Numéro SIRET *
+                </label>
+                <input
+                  type="text"
+                  required
+                  maxLength={14}
+                  value={siret}
+                  onChange={e => setSiret(e.target.value.replace(/\D/g, ''))}
+                  placeholder="14 chiffres"
+                  className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 transition-all ${
+                    siretValid === true
+                      ? 'border-green-500 focus:ring-green-500/20 focus:border-green-500'
+                      : siretValid === false
                       ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
                       : 'border-slate-200 focus:ring-orange-500/20 focus:border-orange-500'
-                }`}
-              />
-              {/* États de chargement et de validation */}
-              {siretLoading && (
-                <p className="text-[10px] text-slate-500 font-semibold animate-pulse pt-1">
-                  🔍 Vérification du SIRET en direct...
-                </p>
-              )}
-              {siretValid === true && (
-                <p className="text-[10px] text-green-600 font-bold pt-1">
-                  ✅ Entreprise identifiée :{' '}
-                  <span className="underline">{siretCompanyInfo}</span>
-                </p>
-              )}
-              {siretValid === false && (
-                <p className="text-[10px] text-red-600 font-bold pt-1">
-                  ❌ Aucun établissement actif trouvé : {siretCompanyInfo}
-                </p>
-              )}
-            </div>
-            
+                  }`}
+                />
+                {/* Loader SIRET */}
+                {siretLoading && (
+                  <p className="text-[10px] text-slate-400 font-medium animate-pulse mt-1">
+                    Vérification du SIRET en cours...
+                  </p>
+                )}
+                {/* Résultat SIRET */}
+                {siretValid !== null && !siretLoading && (
+                  <p
+                    className={`text-[10px] font-bold mt-1 ${
+                      siretValid ? 'text-green-600' : 'text-red-500'
+                    }`}
+                  >
+                    {siretCompanyInfo}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 uppercase">
+                  Numéro BCE *
+                </label>
+                <input
+                  type="text"
+                  required
+                  maxLength={10}
+                  value={bce}
+                  onChange={e => setBce(e.target.value.replace(/\D/g, ''))}
+                  placeholder="10 chiffres (ex: 0123456789)"
+                  className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 transition-all ${
+                    bce.length === 10
+                      ? 'border-green-500 focus:ring-green-500/20 focus:border-green-500'
+                      : bce.length > 0
+                      ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
+                      : 'border-slate-200 focus:ring-orange-500/20 focus:border-orange-500'
+                  }`}
+                />
+                {bce.length > 0 && bce.length < 10 && (
+                  <p className="text-[10px] font-bold mt-1 text-red-500">
+                    Le numéro BCE doit contenir 10 chiffres.
+                  </p>
+                )}
+                {bce.length === 10 && (
+                  <p className="text-[10px] font-bold mt-1 text-green-600">
+                    Format BCE valide.
+                  </p>
+                )}
+              </div>
+            )}
+
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-700 uppercase">
-                Adresse de l'entreprise *
+                Adresse du siège *
               </label>
               <AddressAutocomplete 
                 onAddressSelect={setAddressInfo}

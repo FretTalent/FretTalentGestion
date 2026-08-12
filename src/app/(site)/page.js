@@ -14,7 +14,7 @@ export default function Home() {
       try {
         const { data, error } = await supabase
           .from('candidates')
-          .select('id, city, postal_code, validated, availability, documents, is_active')
+          .select('id, city, postal_code, country, validated, availability, documents, is_active')
           .not('postal_code', 'is', null)
           .neq('postal_code', '');
 
@@ -26,37 +26,51 @@ export default function Home() {
           return;
         }
 
-        // Géocoder chaque code postal unique présent dans les résultats
-        const uniquePostalCodes = [...new Set(data.map(c => c.postal_code))];
+        // Géocoder chaque code postal unique présent dans les résultats (selon pays)
         const coordsCache = {};
+        const uniqueKeys = [...new Set(data.map(c => `${c.country || 'FR'}_${c.postal_code}`))];
 
         await Promise.all(
-          uniquePostalCodes.map(async pc => {
+          uniqueKeys.map(async key => {
+            const [cCountry, pc] = key.split('_');
             try {
-              const res = await fetch(
-                `https://api-adresse.data.gouv.fr/search/?q=${pc}&type=municipality&limit=1`,
-              );
-              if (!res.ok) return;
-              const json = await res.json();
-              if (json.features && json.features.length > 0) {
-                const [lon, lat] = json.features[0].geometry.coordinates;
-                coordsCache[pc] = { lon, lat };
+              if (cCountry === 'BE') {
+                const res = await fetch(
+                  `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(pc)}&format=json&countrycodes=be&limit=1`,
+                  { headers: { 'User-Agent': 'FretTalentApp/1.0' } }
+                );
+                if (!res.ok) return;
+                const json = await res.json();
+                if (json && json.length > 0) {
+                  coordsCache[key] = { lon: parseFloat(json[0].lon), lat: parseFloat(json[0].lat) };
+                }
+              } else {
+                const res = await fetch(
+                  `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(pc)}&type=municipality&limit=1`,
+                );
+                if (!res.ok) return;
+                const json = await res.json();
+                if (json.features && json.features.length > 0) {
+                  const [lon, lat] = json.features[0].geometry.coordinates;
+                  coordsCache[key] = { lon, lat };
+                }
               }
             } catch (e) {
-              console.error('Erreur géocodage pour ' + pc, e);
+              console.error('Erreur géocodage pour ' + key, e);
             }
           }),
         );
 
-        // Projeter les coordonnées sur la carte de France réelle (en x/y de 0 à 100)
+        // Projeter les coordonnées sur la carte (France + Belgique) (en x/y de 0 à 100)
         const minLon = -5.5;
-        const maxLon = 10.0;
-        const minLat = 41.0;
-        const maxLat = 51.2;
+        const maxLon = 9.8;
+        const minLat = 41.2;
+        const maxLat = 51.6;
 
         const mappedCandidates = data
           .map(c => {
-            const coords = coordsCache[c.postal_code];
+            const key = `${c.country || 'FR'}_${c.postal_code}`;
+            const coords = coordsCache[key];
             if (!coords) return null;
 
             const x = ((coords.lon - minLon) / (maxLon - minLon)) * 100;
@@ -367,8 +381,8 @@ export default function Home() {
                   {/* Conteneur de la carte */}
                   <div className="w-full h-full relative">
                     <img
-                      src="/france-map.svg"
-                      alt="Carte de France"
+                      src="/france-belgique-map.svg"
+                      alt="Carte de France et Belgique"
                       className="w-full h-full object-contain opacity-60 select-none pointer-events-none filter grayscale contrast-125"
                     />
 

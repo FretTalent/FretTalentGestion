@@ -115,13 +115,12 @@ export default function AppLayout({ children }) {
       } flex-col w-64 bg-slate-900 text-white min-h-screen fixed top-0 left-0 z-40 shadow-2xl`}
     >
       {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-4 border-b border-slate-700/60 bg-white/95 my-2 mx-4 rounded-xl">
+      <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-slate-700/60 bg-white/95 my-2 mx-4 rounded-xl">
         <img src="/logo.png" alt="FretTalent" className="h-8 w-auto object-contain" />
-      </div>
         {mobile && (
           <button
             onClick={() => setSidebarOpen(false)}
-            className="ml-auto p-1 rounded-lg hover:bg-slate-700 transition-colors"
+            className="p-1 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>

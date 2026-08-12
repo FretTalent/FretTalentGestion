@@ -120,7 +120,12 @@ export default function AdminCandidates() {
       filterStatus === 'all' ||
       (filterStatus === 'validated' && c.validated) ||
       (filterStatus === 'pending' && !c.validated);
-    return matchesSearch && matchesFilter;
+    const matchesCountry =
+      filterCountry === 'all' || (c.country || 'FR') === filterCountry;
+    const matchesPreference =
+      filterPreference === 'all' ||
+      (Array.isArray(c.job_preferences) && c.job_preferences.includes(filterPreference));
+    return matchesSearch && matchesFilter && matchesCountry && matchesPreference;
   });
 
   const validatedCount = candidates.filter(c => c.validated).length;

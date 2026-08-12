@@ -88,21 +88,44 @@ export default function CandidateDashboard() {
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (profileError || profileData?.role !== 'candidate') {
-        router.push('/');
+      if (profileData?.role === 'recruiter') {
+        router.push('/dashboard/recruiter');
+        return;
+      }
+      if (profileData?.role === 'admin') {
+        router.push('/dashboard/admin');
         return;
       }
 
-      setProfile(profileData);
+      setProfile(profileData || { id: user.id, role: 'candidate' });
 
       // Charger les détails du candidat
-      const { data: candidateData, error: candidateError } = await supabase
+      let { data: candidateData } = await supabase
         .from('candidates')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
+
+      // Si la ligne candidat n'existe pas encore, la créer automatiquement
+      if (!candidateData) {
+        const newCandidate = {
+          id: user.id,
+          full_name: user.email?.split('@')[0] || '',
+          email: user.email,
+          phone: '',
+          country: 'FR',
+          is_active: true,
+        };
+        const { data: createdCandidate } = await supabase
+          .from('candidates')
+          .insert([newCandidate])
+          .select()
+          .single();
+
+        candidateData = createdCandidate || newCandidate;
+      }
 
       if (candidateData) {
         setCandidate(candidateData);

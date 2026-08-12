@@ -5,14 +5,28 @@ import { stripe } from '@/lib/stripe';
 export async function POST(req) {
   try {
     const supabase = await createClient();
-    const { data: { session } } = await supabase.auth.getSession();
+    let { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    if (!session) {
+    // Fallback: Si getUser échoue (ex: problème de cookies), on lit le header Authorization
+    if (authError || !user) {
+      const authHeader = req.headers.get('Authorization');
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.split(' ')[1];
+        const { data: jwtData } = await supabase.auth.getUser(token);
+        if (jwtData?.user) {
+          user = jwtData.user;
+          authError = null;
+        }
+      }
+    }
+
+    if (authError || !user) {
+      console.error('Erreur auth checkout:', authError);
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
-    const userId = session.user.id;
-    const userEmail = session.user.email;
+    const userId = user.id;
+    const userEmail = user.email;
 
     const body = await req.json();
     const { plan } = body;

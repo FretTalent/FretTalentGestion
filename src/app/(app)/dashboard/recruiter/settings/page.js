@@ -115,9 +115,14 @@ export default function RecruiterSettings() {
   const handleStripeCheckout = async () => {
     try {
       setSaving(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      
       const res = await fetch('/api/stripe/create-checkout-session', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {})
+        },
         body: JSON.stringify({ plan: subscriptionPlan }),
       });
 

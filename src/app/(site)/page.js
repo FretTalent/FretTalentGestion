@@ -517,6 +517,49 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* Section SEO enrichie — Informations et recrutement transport */}
+        <section className="py-16 bg-white border-t border-slate-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 text-slate-700">
+            <div className="max-w-3xl space-y-4">
+              <h2 className="text-2xl font-bold text-slate-900">
+                La plateforme de référence pour le recrutement dans le transport routier
+              </h2>
+              <p className="text-sm leading-relaxed">
+                FretTalent est le premier réseau spécialisé dans la mise en relation directe entre <strong>chauffeurs routiers qualifiés</strong> et <strong>entreprises de transport</strong> en France et en Belgique. Notre mission est de simplifier l&apos;embauche de conducteurs poids lourds et super poids lourds sans passer par les agences d&apos;intérim traditionnelles, garantissant rapidité, transparence et zéro commission sur les salaires.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
+              <div className="space-y-2">
+                <h3 className="text-base font-bold text-slate-900">
+                  Pour les Chauffeurs Routiers (PL, SPL)
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Accédez gratuitement à des opportunités de recrutement en CDI, CDD, Intérim et missions indépendantes. Valorisez votre expérience, vos permis (B, C, CE), vos certifications (FIMO, FCO, Carte Chronotachygraphe) et vos habilitations spéciales (ADR de base, Citerne, Explosifs) auprès de centaines de transporteurs certifiés.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-base font-bold text-slate-900">
+                  Pour les Entreprises & Transporteurs
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Recrutez efficacement vos conducteurs en France (numéro SIRET) et en Belgique (numéro BCE). Filtrez les profils disponibles selon le rayon de mobilité, les spécialités de matériel (Benne, Frigo, Tautliner, Citerne, Plateau, Messagerie) et débloquez directement les coordonnées vérifiées des candidats.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-base font-bold text-slate-900">
+                  Transparence & Sécurité Garanties
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Tous les documents essentiels (permis de conduire, carte de qualification conducteur, attestation FIMO/FCO) sont vérifiés par notre équipe de modération. Les candidats conservent un contrôle total sur l&apos;anonymat de leurs données jusqu&apos;à la demande de déblocage par une entreprise.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   );

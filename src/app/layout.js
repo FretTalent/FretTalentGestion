@@ -15,11 +15,11 @@ const geistMono = Geist_Mono({
 export const metadata = {
   metadataBase: new URL('https://www.frettalent.fr'),
   title: {
-    default: 'FretTalent - Recrutement Chauffeurs Routiers (France & Belgique)',
+    default: 'Recrutement Chauffeurs Routiers France & Belgique | FretTalent',
     template: '%s | FretTalent',
   },
   description:
-    'Le 1er réseau de recrutement en direct pour chauffeurs routiers (SPL, PL, Benne, Frigo, Citerne ADR) et entreprises de transport en France et en Belgique. Compatible SIRET & BCE.',
+    'Recrutement en direct de chauffeurs routiers (SPL, PL, ADR, Frigo) et transporteurs en France et Belgique. 100% gratuit chauffeurs.',
   keywords: [
     'recrutement chauffeur routier france',
     'recrutement chauffeur poids lourd belgique',
@@ -30,7 +30,13 @@ export const metadata = {
     'fret talent',
   ],
   alternates: {
-    canonical: '/',
+    canonical: 'https://www.frettalent.fr',
+    languages: {
+      'fr-FR': 'https://www.frettalent.fr',
+      'fr-BE': 'https://www.frettalent.fr',
+      'nl-BE': 'https://www.frettalent.fr',
+      'x-default': 'https://www.frettalent.fr',
+    },
   },
   verification: {
     google: 'HaOFAtVy2hTWaEMQwIe99GOYa82kYu0inM7cgWsnIp4',
@@ -41,9 +47,9 @@ export const metadata = {
     apple: '/logo.png',
   },
   openGraph: {
-    title: 'FretTalent - Recrutement Chauffeurs Routiers (France & Belgique)',
+    title: 'Recrutement Chauffeurs Routiers France & Belgique | FretTalent',
     description:
-      'Mise en relation directe sans intermédiaire pour chauffeurs et transporteurs en France et en Belgique. 100% gratuit pour les chauffeurs.',
+      'Recrutement en direct de chauffeurs routiers (SPL, PL, ADR, Frigo) et transporteurs en France et Belgique. 100% gratuit chauffeurs.',
     url: 'https://www.frettalent.fr',
     siteName: 'FretTalent',
     images: [

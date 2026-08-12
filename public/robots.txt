@@ -1,0 +1,10 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Disallow private/admin routes
+Disallow: /dashboard/
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://www.frettalent.fr/sitemap.xml

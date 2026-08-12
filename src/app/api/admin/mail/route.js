@@ -115,23 +115,37 @@ export async function POST(req) {
       },
     });
 
-    // 5. Envoi du mail
-    // On utilise BCC pour envoyer à plusieurs personnes sans qu'elles voient les autres adresses.
-    // L'adresse 'to' sera l'adresse de support (ou l'expéditeur) pour que le champ "À" ne soit pas vide.
-    const mailOptions = {
-      from: `"FretTalent" <${process.env.SMTP_USER}>`,
-      to: process.env.SMTP_USER, // S'envoyer à soi-même
-      bcc: recipientEmails.join(', '), // Liste des destinataires cachés
-      subject: subject || title,
-      html: htmlBody,
-    };
+    // 5. Envoi individuel à chaque destinataire pour meilleure délivrabilité
+    // (un mail par personne = moins de spam, pas de copie à support)
+    let sentCount = 0;
+    const errors = [];
 
-    const info = await transporter.sendMail(mailOptions);
+    for (const email of recipientEmails) {
+      try {
+        const mailOptions = {
+          from: `"FretTalent" <${process.env.SMTP_USER}>`,
+          to: email,
+          subject: subject || title,
+          html: htmlBody,
+          // Headers anti-spam
+          headers: {
+            'X-Mailer': 'FretTalent Mailer 1.0',
+            'List-Unsubscribe': `<mailto:${process.env.SMTP_USER}?subject=unsubscribe>`,
+            'Precedence': 'bulk',
+          },
+        };
+        await transporter.sendMail(mailOptions);
+        sentCount++;
+      } catch (err) {
+        console.error(`Erreur envoi à ${email}:`, err.message);
+        errors.push(email);
+      }
+    }
 
     return NextResponse.json({
       success: true,
-      message: `${recipientEmails.length} e-mail(s) envoyé(s)`,
-      info: info.messageId,
+      count: sentCount,
+      message: `${sentCount} e-mail(s) envoyé(s) avec succès${errors.length > 0 ? `, ${errors.length} échec(s)` : ''}`,
     });
   } catch (err) {
     console.error('Erreur API Mail:', err);

@@ -363,9 +363,9 @@ export default function Home() {
                 <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-orange-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
                 {/* Carte de France SVG */}
-                <div className="relative w-full max-w-[500px] aspect-square flex-shrink-0 group/map cursor-crosshair overflow-hidden rounded-2xl">
-                  {/* Conteneur avec zoom au survol pour les écrans de bureau */}
-                  <div className="w-full h-full relative transition-transform duration-700 md:group-hover/map:scale-150 md:group-hover/map:translate-y-10">
+                <div className="relative w-full max-w-[500px] aspect-square flex-shrink-0 overflow-hidden rounded-2xl">
+                  {/* Conteneur de la carte */}
+                  <div className="w-full h-full relative">
                     <img
                       src="/france-map.svg"
                       alt="Carte de France"

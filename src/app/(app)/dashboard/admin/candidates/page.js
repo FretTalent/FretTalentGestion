@@ -24,6 +24,7 @@ export default function AdminCandidates() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCountry, setFilterCountry] = useState('all'); // 'all' | 'FR' | 'BE'
   const [filterPreference, setFilterPreference] = useState('all'); // 'all' | preference string
+  const [filterStatus, setFilterStatus] = useState('all'); // 'all' | 'validated' | 'pending'
 
   const exportToCSV = () => {
     if (filteredCandidates.length === 0) return;
@@ -231,6 +232,17 @@ export default function AdminCandidates() {
               <option value="all">Tous les Pays</option>
               <option value="FR">France</option>
               <option value="BE">Belgique</option>
+            </select>
+
+            {/* Filter Status */}
+            <select
+              value={filterStatus}
+              onChange={e => setFilterStatus(e.target.value)}
+              className="px-3 py-2 border border-slate-200 rounded-xl text-sm font-medium bg-slate-50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              <option value="all">Tous les statuts</option>
+              <option value="validated">Validés</option>
+              <option value="pending">En attente</option>
             </select>
 
             {/* Filter Preference */}

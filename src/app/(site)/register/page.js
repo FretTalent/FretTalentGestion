@@ -199,7 +199,7 @@ function RegisterContent() {
           href="/"
           className="inline-flex items-center gap-2 group justify-center"
         >
-          <img src="/logo.png" alt="FretTalent" className="h-12 w-auto object-contain" />
+          <img src="/logo.png" alt="FretTalent" className="h-16 md:h-20 w-auto object-contain" />
         </Link>
         <h2 className="text-2xl font-extrabold text-slate-900">
           Créer mon compte

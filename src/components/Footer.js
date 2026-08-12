@@ -8,8 +8,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Logo & Intro */}
           <div className="space-y-4">
-            <Link href="/" className="inline-block bg-white p-2 rounded-xl">
-              <img src="/logo.png" alt="FretTalent" className="h-10 w-auto object-contain" />
+            <Link href="/" className="inline-block">
+              <img src="/logo.png" alt="FretTalent" className="h-16 md:h-20 w-auto object-contain brightness-0 invert" />
             </Link>
             <p className="text-sm text-slate-400 leading-relaxed">
               Le premier réseau de recrutement en direct pour les chauffeurs

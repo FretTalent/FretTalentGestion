@@ -141,12 +141,12 @@ export default function CandidateDashboard() {
         setExperienceYears(candidateData.experience_years || 0);
         setAvailability(candidateData.availability || 'immediate');
         setAvailabilityDate(candidateData.availability_date || '');
-        setSelectedLicenses(candidateData.licenses || []);
-        setSelectedCertifications(candidateData.certifications || []);
-        setSelectedContractTypes(candidateData.contract_types || []);
-        setSelectedJobPreferences(candidateData.job_preferences || []);
+        setSelectedLicenses(Array.isArray(candidateData.licenses) ? candidateData.licenses : []);
+        setSelectedCertifications(Array.isArray(candidateData.certifications) ? candidateData.certifications : []);
+        setSelectedContractTypes(Array.isArray(candidateData.contract_types) ? candidateData.contract_types : []);
+        setSelectedJobPreferences(Array.isArray(candidateData.job_preferences) ? candidateData.job_preferences : []);
         setIsActive(candidateData.is_active ?? true);
-        setDocuments(candidateData.documents || {});
+        setDocuments(typeof candidateData.documents === 'object' && candidateData.documents !== null ? candidateData.documents : {});
       }
 
       // Charger l'historique des déblocages de son contact
@@ -191,7 +191,7 @@ export default function CandidateDashboard() {
           is_active: isActive,
           updated_at: new Date(),
         })
-        .eq('id', profile.id);
+        .eq('id', profile?.id || candidate?.id);
 
       if (error) throw error;
       setMessage({ type: 'success', text: 'Profil mis à jour avec succès !' });
@@ -205,7 +205,8 @@ export default function CandidateDashboard() {
     }
   };
 
-  const toggleMultiSelect = (item, list, setList) => {
+  const toggleMultiSelect = (item, currentList, setList) => {
+    const list = Array.isArray(currentList) ? currentList : [];
     if (list.includes(item)) {
       setList(list.filter(x => x !== item));
     } else {
@@ -389,7 +390,7 @@ export default function CandidateDashboard() {
               </label>
               <div className="flex flex-wrap gap-2">
                 {licensesOptions.map(license => {
-                  const isSelected = selectedLicenses.includes(license);
+                  const isSelected = Array.isArray(selectedLicenses) && selectedLicenses.includes(license);
                   return (
                     <button
                       key={license}
@@ -421,7 +422,7 @@ export default function CandidateDashboard() {
               </label>
               <div className="flex flex-wrap gap-2">
                 {certificationsOptions.map(cert => {
-                  const isSelected = selectedCertifications.includes(cert);
+                  const isSelected = Array.isArray(selectedCertifications) && selectedCertifications.includes(cert);
                   return (
                     <button
                       key={cert}
@@ -453,7 +454,7 @@ export default function CandidateDashboard() {
               </label>
               <div className="flex flex-wrap gap-2">
                 {contractOptions.map(contract => {
-                  const isSelected = selectedContractTypes.includes(contract);
+                  const isSelected = Array.isArray(selectedContractTypes) && selectedContractTypes.includes(contract);
                   return (
                     <button
                       key={contract}
@@ -485,7 +486,7 @@ export default function CandidateDashboard() {
               </label>
               <div className="flex flex-wrap gap-2">
                 {jobPreferencesOptions.map(pref => {
-                  const isSelected = selectedJobPreferences.includes(pref);
+                  const isSelected = Array.isArray(selectedJobPreferences) && selectedJobPreferences.includes(pref);
                   return (
                     <button
                       key={pref}

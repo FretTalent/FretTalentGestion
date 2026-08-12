@@ -29,28 +29,32 @@ export default function CandidateDocumentsPage() {
       }
 
       // Load user profile
-      const { data: profileData, error: profileError } = await supabase
+      const { data: profileData } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (profileError || profileData?.role !== 'candidate') {
-        router.push('/');
+      if (profileData?.role === 'recruiter') {
+        router.push('/dashboard/recruiter');
+        return;
+      }
+      if (profileData?.role === 'admin') {
+        router.push('/dashboard/admin');
         return;
       }
 
-      setProfile(profileData);
+      setProfile(profileData || { id: user.id, role: 'candidate' });
 
       // Load candidate documents
-      const { data: candidateData, error: candidateError } = await supabase
+      const { data: candidateData } = await supabase
         .from('candidates')
         .select('documents')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (candidateData) {
-        setDocuments(candidateData.documents || {});
+      if (candidateData && typeof candidateData.documents === 'object' && candidateData.documents !== null) {
+        setDocuments(candidateData.documents);
       }
     } catch (err) {
       console.error(err);

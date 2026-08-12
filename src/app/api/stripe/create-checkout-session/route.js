@@ -112,7 +112,7 @@ export async function POST(req) {
   } catch (error) {
     console.error('Erreur Stripe Checkout:', error);
     return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
+      { error: 'Erreur interne du serveur: ' + (error.message || error.toString()) },
       { status: 500 }
     );
   }

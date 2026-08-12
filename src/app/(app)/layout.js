@@ -19,6 +19,7 @@ import {
   Mail,
   FileText,
   CreditCard,
+  X,
 } from 'lucide-react';
 
 const navCandidate = [
@@ -70,7 +71,7 @@ export default function AppLayout({ children }) {
         .from('profiles')
         .select('role')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (profile) {
         setRole(profile.role);
@@ -80,9 +81,12 @@ export default function AppLayout({ children }) {
             .from('companies')
             .select('name')
             .eq('id', user.id)
-            .single();
+            .maybeSingle();
           if (company) setCompanyName(company.name);
         }
+      } else {
+        // Pas de profil trouvé, on considère le rôle candidat par défaut
+        setRole('candidate');
       }
     };
     fetchUser();

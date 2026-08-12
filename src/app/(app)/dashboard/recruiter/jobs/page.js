@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import ConfirmModal from '@/components/ConfirmModal';
 import {
   Search,
   MapPin,
@@ -46,6 +47,7 @@ export default function RecruiterDashboard() {
   const [newJobExp, setNewJobExp] = useState('');
   const [jobPosting, setJobPosting] = useState(false);
   const [jobDeleting, setJobDeleting] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, jobId: null });
 
   // États UI
   const [loading, setLoading] = useState(true);
@@ -297,11 +299,19 @@ export default function RecruiterDashboard() {
     }
   };
 
-  // Supprimer une offre
-  const handleDeleteJob = async (jobId) => {
-    if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette annonce ?")) return;
-    
+  // Préparer la suppression
+  const handleDeleteJob = (jobId) => {
+    setConfirmModal({ isOpen: true, jobId });
+  };
+
+  // Exécuter la suppression
+  const executeDeleteJob = async () => {
+    const jobId = confirmModal.jobId;
+    if (!jobId) return;
+
     setJobDeleting(jobId);
+    setConfirmModal({ isOpen: false, jobId: null });
+    
     try {
       const { error } = await supabase
         .from('jobs')
@@ -902,6 +912,16 @@ export default function RecruiterDashboard() {
           </div>
         </div>
       )}
+
+      {/* Modal de confirmation de suppression */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title="Supprimer l'annonce"
+        message="Êtes-vous sûr de vouloir supprimer définitivement cette annonce ? Cette action est irréversible."
+        onConfirm={executeDeleteJob}
+        onCancel={() => setConfirmModal({ isOpen: false, jobId: null })}
+        confirmText="Oui, supprimer"
+      />
     </div>
   );
 }

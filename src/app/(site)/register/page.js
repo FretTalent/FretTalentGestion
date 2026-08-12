@@ -22,6 +22,7 @@ function RegisterContent() {
   const [bce, setBce] = useState('');
 
   // Champs candidat
+  const [candidateCountry, setCandidateCountry] = useState('FR'); // 'FR' ou 'BE'
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   
@@ -153,6 +154,7 @@ function RegisterContent() {
               postal_code: addressInfo.postalCode,
               city: addressInfo.city,
               address: addressInfo.address,
+              country: candidateCountry,
               is_active: true,
             },
           ]);
@@ -286,6 +288,23 @@ function RegisterContent() {
           <div className="space-y-4 pt-2 border-t border-slate-100">
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-700 uppercase">
+                Pays de résidence *
+              </label>
+              <select
+                value={candidateCountry}
+                onChange={e => {
+                  setCandidateCountry(e.target.value);
+                  setAddressInfo({ address: '', city: '', postalCode: '' });
+                }}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white transition-all"
+              >
+                <option value="FR">France</option>
+                <option value="BE">Belgique</option>
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700 uppercase">
                 Nom complet
               </label>
               <input
@@ -318,6 +337,7 @@ function RegisterContent() {
               <AddressAutocomplete 
                 onAddressSelect={setAddressInfo}
                 required={true}
+                country={candidateCountry}
               />
             </div>
             <div className="bg-orange-50 text-orange-800 p-3 rounded-xl flex items-start gap-2.5 text-xs">
@@ -446,6 +466,7 @@ function RegisterContent() {
               <AddressAutocomplete 
                 onAddressSelect={setAddressInfo}
                 required={true}
+                country={country}
               />
             </div>
           </div>

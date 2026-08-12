@@ -8,7 +8,8 @@ export default function AddressAutocomplete({
   onAddressSelect,
   placeholder = "Saisissez une adresse complète...",
   required = false,
-  className = ""
+  className = "",
+  country = "FR" // "FR" ou "BE"
 }) {
   const [query, setQuery] = useState(initialValue);
   const [results, setResults] = useState([]);
@@ -43,10 +44,46 @@ export default function AddressAutocomplete({
     
     setLoading(true);
     try {
-      const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(searchTerm)}&limit=5`);
-      const data = await response.json();
-      if (data && data.features) {
-        setResults(data.features);
+      if (country === 'BE') {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchTerm)}&format=json&addressdetails=1&limit=5&countrycodes=be`,
+          { headers: { 'User-Agent': 'FretTalentApp/1.0' } }
+        );
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          const formatted = data.map((item, idx) => {
+            const addr = item.address || {};
+            const street = addr.road || addr.pedestrian || addr.suburb || item.name || '';
+            const houseNum = addr.house_number ? `${addr.house_number} ` : '';
+            const streetAddr = `${houseNum}${street}`.trim() || item.display_name.split(',')[0];
+            const city = addr.city || addr.town || addr.village || addr.municipality || '';
+            const postcode = addr.postcode || '';
+            const label = `${streetAddr}${postcode ? `, ${postcode}` : ''}${city ? ` ${city}` : ''}`;
+            
+            return {
+              id: item.place_id || idx,
+              name: streetAddr,
+              city: city,
+              postcode: postcode,
+              fullLabel: label
+            };
+          });
+          setResults(formatted);
+        }
+      } else {
+        // France par défaut (API Data.gouv)
+        const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(searchTerm)}&limit=5`);
+        const data = await response.json();
+        if (data && data.features) {
+          const formatted = data.features.map((feature) => ({
+            id: feature.properties.id,
+            name: feature.properties.name,
+            city: feature.properties.city,
+            postcode: feature.properties.postcode,
+            fullLabel: feature.properties.label
+          }));
+          setResults(formatted);
+        }
       }
     } catch (error) {
       console.error("Erreur API adresse:", error);
@@ -76,17 +113,16 @@ export default function AddressAutocomplete({
     }, 300);
   };
 
-  const handleSelect = (feature) => {
-    const { label, name, city, postcode } = feature.properties;
-    setQuery(label);
+  const handleSelect = (item) => {
+    setQuery(item.fullLabel);
     setIsOpen(false);
     
     if (onAddressSelect) {
       onAddressSelect({
-        address: name, // Nom de voie + numéro
-        city: city,
-        postalCode: postcode,
-        fullLabel: label
+        address: item.name, // Nom de voie + numéro
+        city: item.city,
+        postalCode: item.postcode,
+        fullLabel: item.fullLabel
       });
     }
   };
@@ -111,22 +147,22 @@ export default function AddressAutocomplete({
       {isOpen && (query.length >= 3) && (
         <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
           {loading ? (
-            <div className="p-4 text-sm text-center text-slate-500">Recherche...</div>
+            <div className="p-4 text-sm text-center text-slate-500">Recherche d'adresse...</div>
           ) : results.length > 0 ? (
             <ul className="py-1">
-              {results.map((feature) => (
+              {results.map((item) => (
                 <li
-                  key={feature.properties.id}
-                  onClick={() => handleSelect(feature)}
+                  key={item.id}
+                  onClick={() => handleSelect(item)}
                   className="px-4 py-2.5 hover:bg-slate-50 cursor-pointer flex items-start gap-2"
                 >
                   <MapPin className="w-4 h-4 text-orange-500 mt-0.5 shrink-0" />
                   <div className="flex flex-col">
                     <span className="text-sm font-medium text-slate-900">
-                      {feature.properties.name}
+                      {item.name}
                     </span>
                     <span className="text-xs text-slate-500">
-                      {feature.properties.postcode} {feature.properties.city}
+                      {item.postcode} {item.city}
                     </span>
                   </div>
                 </li>

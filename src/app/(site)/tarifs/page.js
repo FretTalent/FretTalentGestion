@@ -110,8 +110,10 @@ export default function Tarifs() {
               </div>
 
               <div className="flex items-baseline gap-1.5 border-b border-slate-100 pb-6">
-                <span className="text-5xl font-black text-slate-950">2 €</span>
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                <span className="text-4xl lg:text-5xl font-black text-slate-950 whitespace-nowrap">
+                  2 €
+                </span>
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider shrink-0">
                   / contact
                 </span>
               </div>
@@ -175,10 +177,10 @@ export default function Tarifs() {
               </div>
 
               <div className="flex items-baseline gap-1.5 border-b border-orange-100 pb-6">
-                <span className="text-5xl font-black text-slate-955">
+                <span className="text-4xl lg:text-5xl font-black text-slate-955 whitespace-nowrap">
                   39,99 €
                 </span>
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider shrink-0">
                   / mois
                 </span>
               </div>
@@ -251,10 +253,10 @@ export default function Tarifs() {
               </div>
 
               <div className="flex items-baseline gap-1.5 border-b border-slate-200 pb-6">
-                <span className="text-5xl font-black text-slate-955">
+                <span className="text-4xl lg:text-5xl font-black text-slate-955 whitespace-nowrap">
                   54,99 €
                 </span>
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider shrink-0">
                   / mois
                 </span>
               </div>

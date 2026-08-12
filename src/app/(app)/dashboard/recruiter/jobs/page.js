@@ -618,9 +618,9 @@ export default function RecruiterDashboard() {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="space-y-8">
           {/* Formulaire de dépôt d'offre */}
-          <div className="lg:col-span-1">
+          <div>
             <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 💼 Déposer une offre d'emploi
@@ -763,7 +763,7 @@ export default function RecruiterDashboard() {
           </div>
 
           {/* Historique des offres déposées */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6">
             <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 💼 Historique de mes offres

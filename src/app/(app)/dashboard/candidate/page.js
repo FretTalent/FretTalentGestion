@@ -34,6 +34,7 @@ export default function CandidateDashboard() {
   const [selectedLicenses, setSelectedLicenses] = useState([]);
   const [selectedCertifications, setSelectedCertifications] = useState([]);
   const [selectedContractTypes, setSelectedContractTypes] = useState([]);
+  const [selectedJobPreferences, setSelectedJobPreferences] = useState([]);
   const [isActive, setIsActive] = useState(true);
 
   // Historique des déblocages
@@ -41,6 +42,7 @@ export default function CandidateDashboard() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [message, setMessage] = useState(null);
 
   const licensesOptions = ['B', 'C', 'CE', 'PL', 'SPL'];
@@ -53,6 +55,17 @@ export default function CandidateDashboard() {
     'Carte Chrono',
   ];
   const contractOptions = ['CDI', 'CDD', 'Intérim', 'Temps partiel'];
+  const jobPreferencesOptions = [
+    'Benne',
+    'Tautliner',
+    'Citerne',
+    'Citerne ADR',
+    'Frigo',
+    'Plateau',
+    'Porte-char',
+    'Ampiroll',
+    'Messagerie',
+  ];
 
   useEffect(() => {
     fetchProfileData();
@@ -108,6 +121,7 @@ export default function CandidateDashboard() {
         setSelectedLicenses(candidateData.licenses || []);
         setSelectedCertifications(candidateData.certifications || []);
         setSelectedContractTypes(candidateData.contract_types || []);
+        setSelectedJobPreferences(candidateData.job_preferences || []);
         setIsActive(candidateData.is_active ?? true);
         setDocuments(candidateData.documents || {});
       }
@@ -150,6 +164,7 @@ export default function CandidateDashboard() {
           licenses: selectedLicenses,
           certifications: selectedCertifications,
           contract_types: selectedContractTypes,
+          job_preferences: selectedJobPreferences,
           is_active: isActive,
           updated_at: new Date(),
         })
@@ -172,6 +187,35 @@ export default function CandidateDashboard() {
       setList(list.filter(x => x !== item));
     } else {
       setList([...list, item]);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmDelete = window.confirm(
+      'Êtes-vous sûr de vouloir supprimer définitivement votre compte ? Cette action est irréversible et toutes vos données (CV, profil, candidatures) seront effacées.'
+    );
+
+    if (!confirmDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const res = await fetch('/api/candidate/delete-account', {
+        method: 'POST',
+      });
+      if (res.ok) {
+        await supabase.auth.signOut();
+        router.push('/');
+      } else {
+        const errorData = await res.json();
+        setMessage({
+          type: 'error',
+          text: errorData.error || 'Erreur lors de la suppression du compte.',
+        });
+      }
+    } catch (err) {
+      setMessage({ type: 'error', text: 'Erreur réseau.' });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -411,6 +455,38 @@ export default function CandidateDashboard() {
               </div>
             </div>
 
+            {/* Préférences d'emploi */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-700 uppercase block">
+                Préférences d'emploi
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {jobPreferencesOptions.map(pref => {
+                  const isSelected = selectedJobPreferences.includes(pref);
+                  return (
+                    <button
+                      key={pref}
+                      type="button"
+                      onClick={() =>
+                        toggleMultiSelect(
+                          pref,
+                          selectedJobPreferences,
+                          setSelectedJobPreferences,
+                        )
+                      }
+                      className={`px-4 py-2 rounded-xl text-xs font-bold border transition-colors ${
+                        isSelected
+                          ? 'bg-orange-500 text-white border-orange-500'
+                          : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
+                      }`}
+                    >
+                      {pref}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="pt-4 border-t border-slate-100 flex justify-end">
               <button
                 type="submit"
@@ -496,6 +572,21 @@ export default function CandidateDashboard() {
                 ))}
               </div>
             )}
+          </div>
+
+          {/* Zone Danger : Supprimer le compte */}
+          <div className="bg-red-50 p-6 rounded-3xl border border-red-200 shadow-sm space-y-4">
+            <h3 className="text-sm font-bold text-red-900">Zone Danger</h3>
+            <p className="text-xs text-red-700">
+              La suppression de votre compte est définitive. Toutes vos données seront effacées.
+            </p>
+            <button
+              onClick={handleDeleteAccount}
+              disabled={isDeleting}
+              className="w-full px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50"
+            >
+              {isDeleting ? 'Suppression en cours...' : 'Supprimer mon compte'}
+            </button>
           </div>
         </div>
       </div>

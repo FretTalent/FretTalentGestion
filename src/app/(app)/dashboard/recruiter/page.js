@@ -454,12 +454,20 @@ export default function RecruiterDashboard() {
                         </div>
 
                         <div className="flex flex-wrap gap-1.5 mt-4">
-                          {cand.licenses.map(lic => (
+                          {cand.licenses?.map(lic => (
                             <span
                               key={lic}
                               className="bg-slate-100 px-2 py-0.5 rounded text-[10px] font-medium text-slate-600"
                             >
                               {lic}
+                            </span>
+                          ))}
+                          {cand.job_preferences?.map(pref => (
+                            <span
+                              key={pref}
+                              className="bg-orange-50 px-2 py-0.5 rounded text-[10px] font-medium text-orange-600 border border-orange-100"
+                            >
+                              {pref}
                             </span>
                           ))}
                         </div>
@@ -624,7 +632,7 @@ export default function RecruiterDashboard() {
                         Certifications
                       </span>
                       <div className="flex flex-wrap gap-1">
-                        {selectedCandidate.certifications.map(cert => (
+                        {selectedCandidate.certifications?.map(cert => (
                           <span
                             key={cert}
                             className="bg-slate-100 px-2.5 py-1 rounded text-xs font-medium text-slate-700"
@@ -634,6 +642,23 @@ export default function RecruiterDashboard() {
                         ))}
                       </div>
                     </div>
+                    {selectedCandidate.job_preferences?.length > 0 && (
+                      <div className="space-y-2">
+                        <span className="text-xs font-bold text-slate-400 uppercase block">
+                          Préférences d'emploi
+                        </span>
+                        <div className="flex flex-wrap gap-1">
+                          {selectedCandidate.job_preferences.map(pref => (
+                            <span
+                              key={pref}
+                              className="bg-orange-50 px-2.5 py-1 rounded text-xs font-medium text-orange-700 border border-orange-100"
+                            >
+                              {pref}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (

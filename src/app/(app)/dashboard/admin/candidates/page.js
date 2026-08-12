@@ -14,6 +14,7 @@ import {
   Clock,
   Filter,
   X,
+  Download,
 } from 'lucide-react';
 
 export default function AdminCandidates() {
@@ -21,7 +22,34 @@ export default function AdminCandidates() {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all'); // 'all' | 'validated' | 'pending'
+  const [filterCountry, setFilterCountry] = useState('all'); // 'all' | 'FR' | 'BE'
+  const [filterPreference, setFilterPreference] = useState('all'); // 'all' | preference string
+
+  const exportToCSV = () => {
+    if (filteredCandidates.length === 0) return;
+    const headers = ['ID', 'Nom Complet', 'Email', 'Téléphone', 'Ville', 'Code Postal', 'Pays', 'Préférences Emploi', 'Statut Validation', 'Date Inscription'];
+    const rows = filteredCandidates.map(c => [
+      c.id,
+      `"${c.full_name || ''}"`,
+      `"${c.email || ''}"`,
+      `"${c.phone || ''}"`,
+      `"${c.city || ''}"`,
+      `"${c.postal_code || ''}"`,
+      c.country || 'FR',
+      `"${(c.job_preferences || []).join(', ')}"`,
+      c.validated ? 'Validé' : 'En attente',
+      c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : ''
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(';'), ...rows.map(e => e.join(';'))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `candidats-frettalent-${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   useEffect(() => {
     const checkPermissions = async () => {
@@ -117,13 +145,22 @@ export default function AdminCandidates() {
             {candidates.length} chauffeur{candidates.length > 1 ? 's' : ''} inscrit{candidates.length > 1 ? 's' : ''}
           </p>
         </div>
-        <button
-          onClick={fetchCandidates}
-          className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors"
-        >
-          <RefreshCw className="h-4 w-4" />
-          Actualiser
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={exportToCSV}
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm"
+          >
+            <Download className="h-4 w-4" />
+            Exporter (CSV)
+          </button>
+          <button
+            onClick={fetchCandidates}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Actualiser
+          </button>
+        </div>
       </div>
 
       {/* Stats summary */}
@@ -158,35 +195,66 @@ export default function AdminCandidates() {
       </div>
 
       {/* Search & Filters */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Rechercher par nom, email, ville..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-10 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm bg-slate-50"
-          />
-          {searchTerm && (
-            <button
-              onClick={() => setSearchTerm('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+      <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
+        <div className="flex flex-col md:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Rechercher par nom, email, ville..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-10 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm bg-slate-50"
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {/* Filter Country */}
+            <select
+              value={filterCountry}
+              onChange={e => setFilterCountry(e.target.value)}
+              className="px-3 py-2 border border-slate-200 rounded-xl text-sm font-medium bg-slate-50 focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
-              <X className="h-4 w-4" />
-            </button>
-          )}
+              <option value="all">Tous les Pays</option>
+              <option value="FR">France</option>
+              <option value="BE">Belgique</option>
+            </select>
+
+            {/* Filter Preference */}
+            <select
+              value={filterPreference}
+              onChange={e => setFilterPreference(e.target.value)}
+              className="px-3 py-2 border border-slate-200 rounded-xl text-sm font-medium bg-slate-50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              <option value="all">Toutes Spécialités</option>
+              <option value="Benne">Benne</option>
+              <option value="Taut">Tautliner</option>
+              <option value="Citerne">Citerne</option>
+              <option value="Citerne ADR">Citerne ADR</option>
+              <option value="Frigo">Frigo</option>
+              <option value="Plateau">Plateau</option>
+            </select>
+          </div>
         </div>
-        <div className="flex gap-2">
+
+        <div className="flex gap-2 pt-2 border-t border-slate-100">
           {[
-            { key: 'all', label: 'Tous' },
+            { key: 'all', label: 'Tous les statuts' },
             { key: 'validated', label: 'Validés' },
             { key: 'pending', label: 'En attente' },
           ].map(f => (
             <button
               key={f.key}
               onClick={() => setFilterStatus(f.key)}
-              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
                 filterStatus === f.key
                   ? 'bg-orange-500 text-white shadow-sm'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'

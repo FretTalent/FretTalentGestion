@@ -18,6 +18,7 @@ import {
   ChevronRight,
   Mail,
   FileText,
+  CreditCard,
 } from 'lucide-react';
 
 const navCandidate = [
@@ -35,6 +36,7 @@ const navRecruiter = [
 ];
 const navAdmin = [
   { href: '/dashboard/admin', icon: BarChart3, label: 'Tableau de bord' },
+  { href: '/dashboard/admin/finance', icon: CreditCard, label: 'Finances & Stripe' },
   {
     href: '/dashboard/admin/jobs',
     icon: Briefcase,

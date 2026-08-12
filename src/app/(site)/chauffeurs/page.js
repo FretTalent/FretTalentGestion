@@ -13,7 +13,7 @@ import {
 export const metadata = {
   title: 'Emploi Chauffeur Routier France & Belgique (SPL / PL)',
   description:
-    'Inscrivez-vous gratuitement en tant que chauffeur routier en France 🇫🇷 et en Belgique 🇧🇪. Valorisez vos permis C/CE, FIMO, ADR, Benne, Frigo, Citerne et soyez contacté directement et anonymement.',
+    'Inscrivez-vous gratuitement en tant que chauffeur routier en France et en Belgique. Valorisez vos permis C/CE, FIMO, ADR, Benne, Frigo, Citerne et soyez contacté directement et anonymement.',
 };
 
 export default function PourLesChauffeurs() {

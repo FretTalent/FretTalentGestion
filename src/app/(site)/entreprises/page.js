@@ -13,7 +13,7 @@ import {
 export const metadata = {
   title: 'Recrutement Chauffeurs Routiers France & Belgique (SIRET & BCE)',
   description:
-    'Accédez à notre CVthèque de chauffeurs routiers qualifiés en France 🇫🇷 et en Belgique 🇧🇪. Validation SIRET & BCE instantanée, recherche multicritères (permis C/CE, FIMO, ADR).',
+    'Accédez à notre CVthèque de chauffeurs routiers qualifiés en France et en Belgique. Validation SIRET & BCE instantanée, recherche multicritères (permis C/CE, FIMO, ADR).',
 };
 
 export default function PourLesEntreprises() {

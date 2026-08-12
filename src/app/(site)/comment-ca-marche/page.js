@@ -14,7 +14,7 @@ import {
 export const metadata = {
   title: 'Comment ça marche ? Recrutement Chauffeurs France & Belgique',
   description:
-    'Découvrez le fonctionnement de FretTalent. Mise en relation directe entre transporteurs (SIRET / BCE) et chauffeurs routiers en France 🇫🇷 et en Belgique 🇧🇪. Simple, rapide et 100% sécurisé.',
+    'Découvrez le fonctionnement de FretTalent. Mise en relation directe entre transporteurs (SIRET / BCE) et chauffeurs routiers en France et en Belgique. Simple, rapide et 100% sécurisé.',
 };
 
 export default function CommentCaMarche() {

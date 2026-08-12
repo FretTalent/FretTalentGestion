@@ -19,7 +19,7 @@ export const metadata = {
     template: '%s | FretTalent',
   },
   description:
-    'Le 1er réseau de recrutement en direct pour chauffeurs routiers (SPL, PL, Benne, Frigo, Citerne ADR) et entreprises de transport en France 🇫🇷 et en Belgique 🇧🇪. Compatible SIRET & BCE.',
+    'Le 1er réseau de recrutement en direct pour chauffeurs routiers (SPL, PL, Benne, Frigo, Citerne ADR) et entreprises de transport en France et en Belgique. Compatible SIRET & BCE.',
   keywords: [
     'recrutement chauffeur routier france',
     'recrutement chauffeur poids lourd belgique',
@@ -43,7 +43,7 @@ export const metadata = {
   openGraph: {
     title: 'FretTalent - Recrutement Chauffeurs Routiers (France & Belgique)',
     description:
-      'Mise en relation directe sans intermédiaire pour chauffeurs et transporteurs en France 🇫🇷 et en Belgique 🇧🇪. 100% gratuit pour les chauffeurs.',
+      'Mise en relation directe sans intermédiaire pour chauffeurs et transporteurs en France et en Belgique. 100% gratuit pour les chauffeurs.',
     url: 'https://www.frettalent.fr',
     siteName: 'FretTalent',
     images: [

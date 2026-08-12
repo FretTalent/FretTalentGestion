@@ -128,7 +128,7 @@ export default function Home() {
               <div className="lg:col-span-7 space-y-8 text-center lg:text-left">
                 <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 text-xs font-semibold">
                   <ShieldCheck className="h-4 w-4 text-orange-500" />
-                  <span>🇫🇷 🇧🇪 Réseau Franco-Belge N°1 du Recrutement Transport</span>
+                  <span>Réseau Franco-Belge N°1 du Recrutement Transport</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-955 tracking-tight leading-none">
                   Trouvez vos chauffeurs ou votre prochain job{' '}
@@ -347,7 +347,7 @@ export default function Home() {
                   Réseau temps réel
                 </span>
                 <h2 className="text-3xl font-extrabold text-slate-950 tracking-tight">
-                  Candidats disponibles en France & Belgique 🇫🇷 🇧🇪
+                  Candidats disponibles en France & Belgique
                 </h2>
                 <p className="text-slate-600 text-sm max-w-xl mx-auto">
                   Découvrez la géolocalisation en temps réel de nos chauffeurs poids lourds inscrits en France et en Belgique.

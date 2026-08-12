@@ -13,7 +13,7 @@ export default function Footer() {
             </Link>
             <p className="text-sm text-slate-400 leading-relaxed">
               Le premier réseau de recrutement en direct pour les chauffeurs
-              routiers et entreprises de transport en France 🇫🇷 et en Belgique 🇧🇪.
+              routiers et entreprises de transport en France et en Belgique.
             </p>
           </div>
 
@@ -147,7 +147,7 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} FretTalent. Tous droits réservés.
           </p>
           <p className="bg-slate-800 text-orange-400 px-3.5 py-1.5 rounded-full font-medium text-center">
-            100% gratuit pour les chauffeurs — Compatible SIRET (France 🇫🇷) & BCE (Belgique 🇧🇪)
+            100% gratuit pour les chauffeurs — Compatible SIRET (France) & BCE (Belgique)
           </p>
         </div>
       </div>

@@ -30,18 +30,13 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2 group">
-              <img 
-                src="/logo.png" 
-                alt="FretTalent - Recrutement Chauffeurs Routiers France et Belgique" 
-                className="h-16 md:h-20 w-auto object-contain transition-transform group-hover:scale-105 duration-300"
-              />
-            </Link>
-            <span className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-[11px] font-semibold text-slate-700 shadow-sm">
-              <span className="text-xs">🇫🇷</span> <span className="text-xs">🇧🇪</span> France & Belgique
-            </span>
-          </div>
+          <Link href="/" className="flex items-center gap-2 group">
+            <img 
+              src="/logo.png" 
+              alt="FretTalent - Recrutement Chauffeurs Routiers France et Belgique" 
+              className="h-16 md:h-20 w-auto object-contain transition-transform group-hover:scale-105 duration-300"
+            />
+          </Link>
 
           {/* Navigation avec détection d'état actif */}
           <nav className="hidden md:flex items-center gap-8">

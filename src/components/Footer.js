@@ -57,6 +57,14 @@ export default function Footer() {
               </li>
               <li>
                 <Link
+                  href="/faq"
+                  className="hover:text-white transition-colors text-orange-400 font-semibold"
+                >
+                  Foire Aux Questions (FAQ)
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/offres"
                   className="hover:text-white transition-colors text-orange-400 font-bold"
                 >

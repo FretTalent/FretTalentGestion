@@ -359,85 +359,88 @@ export default function Home() {
                 )}
               </div>
 
-              <div className="bg-slate-50 border border-slate-200 rounded-3xl p-8 shadow-sm flex flex-col md:flex-row items-center justify-center gap-12 relative overflow-hidden">
+              <div className="bg-slate-50 border border-slate-200 rounded-3xl p-4 md:p-8 shadow-sm flex flex-col md:flex-row items-center justify-center gap-8 relative overflow-hidden">
                 <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-orange-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
                 {/* Carte de France SVG */}
-                <div className="relative w-full max-w-[340px] h-[340px] flex-shrink-0">
-                  <img
-                    src="/france-map.svg"
-                    alt="Carte de France"
-                    className="w-full h-full object-contain opacity-60 select-none pointer-events-none filter grayscale contrast-125"
-                  />
+                <div className="relative w-full max-w-[500px] aspect-square flex-shrink-0 group/map cursor-crosshair overflow-hidden rounded-2xl">
+                  {/* Conteneur avec zoom au survol pour les écrans de bureau */}
+                  <div className="w-full h-full relative transition-transform duration-700 md:group-hover/map:scale-150 md:group-hover/map:translate-y-10">
+                    <img
+                      src="/france-map.svg"
+                      alt="Carte de France"
+                      className="w-full h-full object-contain opacity-60 select-none pointer-events-none filter grayscale contrast-125"
+                    />
 
-                  {/* Points des candidats */}
-                  {!loadingMap &&
-                    candidates.map(candidate => (
-                      <div
-                        key={candidate.id}
-                        className="absolute group"
-                        style={{
-                          left: `${candidate.x}%`,
-                          top: `${candidate.y}%`,
-                          transform: 'translate(-50%, -50%)',
-                          zIndex: candidate.fullVerified ? 30 : candidate.validated ? 20 : 10,
-                        }}
-                      >
-                        {/* Onde pulsante — couleur selon niveau */}
-                        <span
-                          className={`absolute inline-flex rounded-full opacity-75 animate-ping -left-1 -top-1 ${
-                            candidate.fullVerified
-                              ? 'h-5 w-5 bg-green-400'
-                              : 'h-4 w-4 bg-orange-400'
-                          }`}
-                        ></span>
-
-                        {/* Point central */}
-                        <span
-                          className={`relative flex rounded-full border-2 border-white shadow-md cursor-pointer ${
-                            candidate.fullVerified
-                              ? 'h-4 w-4 bg-green-500 ring-2 ring-green-300 ring-offset-1'
-                              : 'h-3 w-3 bg-orange-500'
-                          }`}
+                    {/* Points des candidats */}
+                    {!loadingMap &&
+                      candidates.map(candidate => (
+                        <div
+                          key={candidate.id}
+                          className="absolute group"
+                          style={{
+                            left: `${candidate.x}%`,
+                            top: `${candidate.y}%`,
+                            transform: 'translate(-50%, -50%)',
+                            zIndex: candidate.fullVerified ? 30 : candidate.validated ? 20 : 10,
+                          }}
                         >
-                        </span>
+                          {/* Onde pulsante — couleur selon niveau */}
+                          <span
+                            className={`absolute inline-flex rounded-full opacity-75 animate-ping -left-0.5 -top-0.5 h-4 w-4 ${
+                              candidate.fullVerified
+                                ? 'bg-green-400'
+                                : 'bg-orange-400'
+                            }`}
+                          ></span>
 
-                        {/* Tooltip au survol */}
-                        <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-200 pointer-events-none bg-slate-900 text-white text-[10px] py-2 px-3 rounded-xl shadow-xl whitespace-nowrap z-50 min-w-[140px]">
-                          {candidate.fullVerified ? (
-                            <>
-                              <div className="font-bold text-green-400 flex items-center gap-1 mb-0.5">
-                                <span className="w-2 h-2 rounded-full bg-green-400 inline-block"></span> 100% Vérifié
-                              </div>
-                              <div className="text-slate-300 text-[9px] space-y-0.5">
-                                <div>✓ Documents à jour</div>
-                                <div>✓ Localisation validée</div>
-                                <div>✓ Disponible</div>
-                              </div>
-                            </>
-                          ) : (
-                            <span className="font-bold text-orange-400">Profil en vérification</span>
-                          )}
-                          <div className="text-slate-400 mt-1">📍 {candidate.city}</div>
-                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-[4px] border-transparent border-t-slate-900 w-0 h-0"></div>
+                          {/* Point central */}
+                          <span
+                            className={`relative flex rounded-full border-2 border-white shadow-md cursor-pointer h-3 w-3 ${
+                              candidate.fullVerified
+                                ? 'bg-green-500'
+                                : 'bg-orange-500'
+                            }`}
+                          >
+                          </span>
+
+                          {/* Tooltip au survol */}
+                          <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-200 pointer-events-none bg-slate-900 text-white text-[10px] py-2 px-3 rounded-xl shadow-xl whitespace-nowrap z-50 min-w-[140px]">
+                            {candidate.fullVerified ? (
+                              <>
+                                <div className="font-bold text-green-400 flex items-center gap-1 mb-0.5">
+                                  <span className="w-2 h-2 rounded-full bg-green-400 inline-block"></span> 100% Vérifié
+                                </div>
+                                <div className="text-slate-300 text-[9px] space-y-0.5">
+                                  <div>✓ Documents à jour</div>
+                                  <div>✓ Localisation validée</div>
+                                  <div>✓ Disponible</div>
+                                </div>
+                              </>
+                            ) : (
+                              <span className="font-bold text-orange-400">Profil en vérification</span>
+                            )}
+                            <div className="text-slate-400 mt-1">📍 {candidate.city}</div>
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-[4px] border-transparent border-t-slate-900 w-0 h-0"></div>
+                          </div>
+                        </div>
+                      ))}
+
+                    {loadingMap && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-2xl">
+                        <div className="text-center space-y-2">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
+                          <p className="text-xs text-slate-500 font-medium">Chargement de la carte...</p>
                         </div>
                       </div>
-                    ))}
+                    )}
 
-                  {loadingMap && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-2xl">
-                      <div className="text-center space-y-2">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
-                        <p className="text-xs text-slate-500 font-medium">Chargement de la carte...</p>
+                    {!loadingMap && candidates.length === 0 && (
+                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/90 border border-slate-200 py-1.5 px-4 rounded-xl shadow-sm text-[10px] font-bold text-slate-500">
+                        En attente de nouvelles inscriptions
                       </div>
-                    </div>
-                  )}
-
-                  {!loadingMap && candidates.length === 0 && (
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/90 border border-slate-200 py-1.5 px-4 rounded-xl shadow-sm text-[10px] font-bold text-slate-500">
-                      En attente de nouvelles inscriptions
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
 
                 {/* Explication & Légende */}
@@ -473,7 +476,7 @@ export default function Home() {
                     <div className="space-y-2">
                       <div className="flex items-center gap-3">
                         <div className="relative flex-shrink-0">
-                          <span className="block h-4 w-4 rounded-full bg-green-500 border-2 border-white shadow-md"></span>
+                          <span className="block h-3 w-3 rounded-full bg-green-500 border-2 border-white shadow-md"></span>
                         </div>
                         <span className="text-xs font-semibold text-slate-700">
                           <span className="text-green-600 font-bold">Vert</span> = Profil 100% vérifié

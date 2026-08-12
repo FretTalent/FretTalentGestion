@@ -15,10 +15,9 @@ import {
 } from 'lucide-react';
 
 export const metadata = {
-  title:
-    'Tarifs de Recrutement Chauffeurs Routiers - Forfaits & Usage | FretTalent',
+  title: 'Tarifs Recrutement Chauffeurs France & Belgique (SIRET & BCE)',
   description:
-    'Découvrez nos offres claires et sans surprise. À la performance à 2€ par contact ou forfait illimité à 49,99€/mois avec déblocage des documents officiels.',
+    'Tarifs transparents pour recruter des chauffeurs routiers en France 🇫🇷 et en Belgique 🇧🇪. À la performance à 2€/contact ou forfaits illimités Pro (39,99€) et Premium (54,99€).',
 };
 
 export default function Tarifs() {

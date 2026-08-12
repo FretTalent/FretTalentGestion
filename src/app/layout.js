@@ -13,9 +13,25 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: 'FretTalent - Recrutez vos chauffeurs routiers en 1 clic',
+  metadataBase: new URL('https://www.frettalent.fr'),
+  title: {
+    default: 'FretTalent - Recrutement Chauffeurs Routiers (France & Belgique)',
+    template: '%s | FretTalent',
+  },
   description:
-    'Plateforme de mise en relation directe et recrutement anonyme pour chauffeurs routiers et entreprises de transport en France.',
+    'Le 1er réseau de recrutement en direct pour chauffeurs routiers (SPL, PL, Benne, Frigo, Citerne ADR) et entreprises de transport en France 🇫🇷 et en Belgique 🇧🇪. Compatible SIRET & BCE.',
+  keywords: [
+    'recrutement chauffeur routier france',
+    'recrutement chauffeur poids lourd belgique',
+    'emploi transport routier',
+    'chauffeur spl france belgique',
+    'conducteur poids lourd bce siret',
+    'emploi benne frigo citerne adr',
+    'fret talent',
+  ],
+  alternates: {
+    canonical: '/',
+  },
   verification: {
     google: 'HaOFAtVy2hTWaEMQwIe99GOYa82kYu0inM7cgWsnIp4',
   },
@@ -25,14 +41,14 @@ export const metadata = {
     apple: '/logo.png',
   },
   openGraph: {
-    title: 'FretTalent - Recrutement Chauffeurs Routiers',
+    title: 'FretTalent - Recrutement Chauffeurs Routiers (France & Belgique)',
     description:
-      'Mise en relation directe sans intermédiaire. 100% gratuit pour les chauffeurs, paiement au contact pour les entreprises.',
-    url: 'https://fret-talent-gestion.vercel.app',
+      'Mise en relation directe sans intermédiaire pour chauffeurs et transporteurs en France 🇫🇷 et en Belgique 🇧🇪. 100% gratuit pour les chauffeurs.',
+    url: 'https://www.frettalent.fr',
     siteName: 'FretTalent',
     images: [
       {
-        url: 'https://fret-talent-gestion.vercel.app/logo.png',
+        url: 'https://www.frettalent.fr/logo.png',
         width: 800,
         height: 600,
         alt: 'FretTalent Logo',
@@ -44,11 +60,36 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'EmploymentAgency',
+    name: 'FretTalent',
+    url: 'https://www.frettalent.fr',
+    logo: 'https://www.frettalent.fr/logo.png',
+    description:
+      'Plateforme de recrutement en direct pour les chauffeurs routiers et transporteurs en France et en Belgique.',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: '7 RUE DE BOIS',
+      addressLocality: 'PARGNY-LES-BOIS',
+      postalCode: '02270',
+      addressCountry: 'FR',
+    },
+    areaServed: ['FR', 'BE'],
+    priceRange: '€',
+  };
+
   return (
     <html
-      lang="en"
+      lang="fr"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         <Toaster
           position="top-center"

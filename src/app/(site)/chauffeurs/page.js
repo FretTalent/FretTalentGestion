@@ -11,10 +11,9 @@ import {
 } from 'lucide-react';
 
 export const metadata = {
-  title:
-    'Espace Chauffeurs Routiers - Emploi & Recrutement Direct | FretTalent',
+  title: 'Emploi Chauffeur Routier France & Belgique (SPL / PL)',
   description:
-    'Inscrivez-vous gratuitement en tant que chauffeur routier (PL/SPL). Valorisez vos permis C/CE, FIMO, ADR et soyez contacté directement et de manière anonyme par les transporteurs.',
+    'Inscrivez-vous gratuitement en tant que chauffeur routier en France 🇫🇷 et en Belgique 🇧🇪. Valorisez vos permis C/CE, FIMO, ADR, Benne, Frigo, Citerne et soyez contacté directement et anonymement.',
 };
 
 export default function PourLesChauffeurs() {

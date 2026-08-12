@@ -126,20 +126,20 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
               {/* Text side */}
               <div className="lg:col-span-7 space-y-8 text-center lg:text-left">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 text-xs font-semibold">
-                  <ShieldCheck className="h-4 w-4" /> Plateforme conforme 100%
-                  anonyme
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 text-xs font-semibold">
+                  <ShieldCheck className="h-4 w-4 text-orange-500" />
+                  <span>🇫🇷 🇧🇪 Réseau Franco-Belge N°1 du Recrutement Transport</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-955 tracking-tight leading-none">
                   Trouvez vos chauffeurs ou votre prochain job{' '}
                   <span className="text-orange-500 relative">
-                    en 1 clic
+                    en France & Belgique
                     <span className="absolute bottom-1 left-0 w-full h-2 bg-orange-200/50 -z-10 rounded"></span>
                   </span>
                 </h1>
                 <p className="text-lg sm:text-xl text-slate-600 font-normal leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                  FretTalent connecte directement les entreprises de transport
-                  et les chauffeurs routiers disponibles. Simple, rapide et 100%
+                  FretTalent connecte directement les entreprises de transport (compatibles SIRET & BCE)
+                  et les chauffeurs routiers (SPL, PL, Benne, Frigo, Citerne ADR). Simple, rapide et 100%
                   gratuit pour les candidats.
                 </p>
 
@@ -347,12 +347,11 @@ export default function Home() {
                   Réseau temps réel
                 </span>
                 <h2 className="text-3xl font-extrabold text-slate-950 tracking-tight">
-                  Candidats actuellement disponibles
+                  Candidats disponibles en France & Belgique 🇫🇷 🇧🇪
                 </h2>
                 <p className="text-slate-600 text-sm max-w-xl mx-auto">
-                  Découvrez la répartition géographique en direct de nos chauffeurs inscrits.
-                  Un candidat <strong>100% vérifié</strong> a ses documents à jour, ses coordonnées renseignées
-                  et est disponible immédiatement.
+                  Découvrez la géolocalisation en temps réel de nos chauffeurs poids lourds inscrits en France et en Belgique.
+                  Un candidat <strong>100% vérifié</strong> a ses permis et documents à jour.
                 </p>
 
                 {/* Compteurs dynamiques */}

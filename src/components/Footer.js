@@ -9,11 +9,11 @@ export default function Footer() {
           {/* Logo & Intro */}
           <div className="space-y-4">
             <Link href="/" className="inline-block">
-              <img src="/logo.png" alt="FretTalent" className="h-16 md:h-20 w-auto object-contain brightness-0 invert" />
+              <img src="/logo.png" alt="FretTalent - Recrutement Chauffeurs Routiers France & Belgique" className="h-16 md:h-20 w-auto object-contain brightness-0 invert" />
             </Link>
             <p className="text-sm text-slate-400 leading-relaxed">
               Le premier réseau de recrutement en direct pour les chauffeurs
-              routiers et entreprises de transport en France.
+              routiers et entreprises de transport en France 🇫🇷 et en Belgique 🇧🇪.
             </p>
           </div>
 
@@ -146,9 +146,8 @@ export default function Footer() {
           <p className="text-slate-500 text-center md:text-left">
             &copy; {new Date().getFullYear()} FretTalent. Tous droits réservés.
           </p>
-          <p className="bg-slate-800 text-orange-400 px-3 py-1.5 rounded-full font-medium text-center">
-            100% gratuit pour les chauffeurs — conforme au Code du travail (art.
-            L5321-3)
+          <p className="bg-slate-800 text-orange-400 px-3.5 py-1.5 rounded-full font-medium text-center">
+            100% gratuit pour les chauffeurs — Compatible SIRET (France 🇫🇷) & BCE (Belgique 🇧🇪)
           </p>
         </div>
       </div>

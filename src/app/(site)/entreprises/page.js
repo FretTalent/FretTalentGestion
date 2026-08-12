@@ -11,9 +11,9 @@ import {
 } from 'lucide-react';
 
 export const metadata = {
-  title: 'Recrutement Chauffeurs Routiers - Espace Entreprise | FretTalent',
+  title: 'Recrutement Chauffeurs Routiers France & Belgique (SIRET & BCE)',
   description:
-    'Accédez à notre base de chauffeurs routiers disponibles immédiatement. Recherche multicritères (permis C/CE, FIMO, ADR), déblocage à 2€ ou forfait illimité.',
+    'Accédez à notre CVthèque de chauffeurs routiers qualifiés en France 🇫🇷 et en Belgique 🇧🇪. Validation SIRET & BCE instantanée, recherche multicritères (permis C/CE, FIMO, ADR).',
 };
 
 export default function PourLesEntreprises() {

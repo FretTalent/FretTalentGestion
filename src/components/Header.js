@@ -30,13 +30,12 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="bg-orange-500 text-white p-2 rounded-xl transition-transform group-hover:rotate-[360deg] duration-700 ease-in-out">
-              <Truck className="h-5 w-5" />
-            </div>
-            <span className="text-2xl font-extrabold text-slate-900 tracking-tight">
-              Fret<span className="text-orange-500">Talent</span>
-            </span>
+          <Link href="/" className="flex items-center gap-2 group">
+            <img 
+              src="/logo.png" 
+              alt="FretTalent" 
+              className="h-10 md:h-12 w-auto object-contain transition-transform group-hover:scale-105 duration-300"
+            />
           </Link>
 
           {/* Navigation avec détection d'état actif */}

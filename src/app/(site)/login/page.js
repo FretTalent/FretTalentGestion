@@ -65,12 +65,7 @@ export default function Login() {
               href="/"
               className="inline-flex items-center gap-2 group justify-center"
             >
-              <div className="bg-orange-500 text-white p-2 rounded-lg">
-                <Truck className="h-6 w-6" />
-              </div>
-              <span className="text-2xl font-extrabold text-slate-900 tracking-tight">
-                Fret<span className="text-orange-500">Talent</span>
-              </span>
+              <img src="/logo.png" alt="FretTalent" className="h-12 w-auto object-contain" />
             </Link>
             <h2 className="text-2xl font-extrabold text-slate-900">
               Connexion à votre espace

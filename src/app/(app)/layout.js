@@ -115,13 +115,9 @@ export default function AppLayout({ children }) {
       } flex-col w-64 bg-slate-900 text-white min-h-screen fixed top-0 left-0 z-40 shadow-2xl`}
     >
       {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-700/60">
-        <div className="bg-orange-500 text-white p-2 rounded-xl">
-          <Truck className="h-5 w-5" />
-        </div>
-        <span className="text-xl font-extrabold tracking-tight">
-          Fret<span className="text-orange-400">Talent</span>
-        </span>
+      <div className="flex items-center gap-3 px-6 py-4 border-b border-slate-700/60 bg-white/95 my-2 mx-4 rounded-xl">
+        <img src="/logo.png" alt="FretTalent" className="h-8 w-auto object-contain" />
+      </div>
         {mobile && (
           <button
             onClick={() => setSidebarOpen(false)}

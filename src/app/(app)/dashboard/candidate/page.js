@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import AddressAutocomplete from '@/components/AddressAutocomplete';
 import {
   Save,
   RefreshCw,
@@ -22,8 +23,7 @@ export default function CandidateDashboard() {
   // Formulaire d'édition de profil
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
-  const [postalCode, setPostalCode] = useState('');
-  const [city, setCity] = useState('');
+  const [addressInfo, setAddressInfo] = useState({ address: '', city: '', postalCode: '' });
   const [mobilityRadius, setMobilityRadius] = useState(50);
   const [experienceYears, setExperienceYears] = useState(0);
   const [availability, setAvailability] = useState('immediate');
@@ -95,8 +95,12 @@ export default function CandidateDashboard() {
         setCandidate(candidateData);
         setFullName(candidateData.full_name || '');
         setPhone(candidateData.phone || '');
-        setPostalCode(candidateData.postal_code || '');
-        setCity(candidateData.city || '');
+        setAddressInfo({
+          address: candidateData.address || '',
+          postalCode: candidateData.postal_code || '',
+          city: candidateData.city || '',
+          fullLabel: candidateData.address ? `${candidateData.address} ${candidateData.postal_code} ${candidateData.city}` : `${candidateData.postal_code || ''} ${candidateData.city || ''}`
+        });
         setMobilityRadius(candidateData.mobility_radius || 50);
         setExperienceYears(candidateData.experience_years || 0);
         setAvailability(candidateData.availability || 'immediate');
@@ -135,8 +139,9 @@ export default function CandidateDashboard() {
         .update({
           full_name: fullName,
           phone: phone,
-          postal_code: postalCode,
-          city: city,
+          address: addressInfo.address,
+          postal_code: addressInfo.postalCode,
+          city: addressInfo.city,
           mobility_radius: parseInt(mobilityRadius),
           experience_years: parseInt(experienceYears),
           availability,
@@ -230,28 +235,14 @@ export default function CandidateDashboard() {
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                 />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1 md:col-span-2">
                 <label className="text-xs font-bold text-slate-700 uppercase">
-                  Code postal
+                  Adresse complète
                 </label>
-                <input
-                  type="text"
-                  required
-                  value={postalCode}
-                  onChange={e => setPostalCode(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700 uppercase">
-                  Ville
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={city}
-                  onChange={e => setCity(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm"
+                <AddressAutocomplete 
+                  initialValue={addressInfo.fullLabel || addressInfo.city}
+                  onAddressSelect={setAddressInfo}
+                  required={true}
                 />
               </div>
             </div>

@@ -497,6 +497,13 @@ export default function RecruiterDashboard() {
                         <div className="text-xs text-slate-600">
                           <strong>E-mail:</strong> {selectedCandidate.email}
                         </div>
+                        {selectedCandidate.address && (
+                          <div className="text-xs text-slate-600 pt-2 mt-2 border-t border-green-100">
+                            <strong>Adresse complète:</strong><br/>
+                            {selectedCandidate.address}<br/>
+                            {selectedCandidate.postal_code} {selectedCandidate.city}
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl space-y-3">

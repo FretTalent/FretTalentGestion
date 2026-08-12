@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { Truck, AlertCircle, ShieldAlert } from 'lucide-react';
+import AddressAutocomplete from '@/components/AddressAutocomplete';
 
 function RegisterContent() {
   const router = useRouter();
@@ -21,8 +22,9 @@ function RegisterContent() {
   // Champs candidat
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
-  const [postalCode, setPostalCode] = useState('');
-  const [city, setCity] = useState('');
+  
+  // Champ Adresse Globale
+  const [addressInfo, setAddressInfo] = useState({ address: '', city: '', postalCode: '' });
 
   const [rgpdConsent, setRgpdConsent] = useState(false);
   const [error, setError] = useState(null);
@@ -136,8 +138,9 @@ function RegisterContent() {
               full_name: fullName,
               email: email,
               phone: phone,
-              postal_code: postalCode,
-              city: city,
+              postal_code: addressInfo.postalCode,
+              city: addressInfo.city,
+              address: addressInfo.address,
               is_active: true,
             },
           ]);
@@ -155,6 +158,9 @@ function RegisterContent() {
               id: user.id,
               name: companyName,
               siret: siret,
+              address: addressInfo.address,
+              postal_code: addressInfo.postalCode,
+              city: addressInfo.city,
               has_payment_method: false,
             },
           ]);
@@ -290,33 +296,15 @@ function RegisterContent() {
                 className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
               />
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700 uppercase">
-                  Code postal
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={postalCode}
-                  onChange={e => setPostalCode(e.target.value)}
-                  placeholder="69001"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700 uppercase">
-                  Ville
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={city}
-                  onChange={e => setCity(e.target.value)}
-                  placeholder="Lyon"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
-                />
-              </div>
+            
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700 uppercase">
+                Adresse complète *
+              </label>
+              <AddressAutocomplete 
+                onAddressSelect={setAddressInfo}
+                required={true}
+              />
             </div>
             <div className="bg-orange-50 text-orange-800 p-3 rounded-xl flex items-start gap-2.5 text-xs">
               <ShieldAlert className="h-5 w-5 text-orange-600 flex-shrink-0" />
@@ -381,6 +369,16 @@ function RegisterContent() {
                   ❌ Aucun établissement actif trouvé : {siretCompanyInfo}
                 </p>
               )}
+            </div>
+            
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700 uppercase">
+                Adresse de l'entreprise *
+              </label>
+              <AddressAutocomplete 
+                onAddressSelect={setAddressInfo}
+                required={true}
+              />
             </div>
           </div>
         )}

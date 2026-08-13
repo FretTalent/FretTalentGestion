@@ -4,6 +4,8 @@ import { render } from '@react-email/render';
 import { resend } from '@/lib/resend';
 import MarketingEmail from '@/emails/MarketingEmail';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req) {
   try {
     const {

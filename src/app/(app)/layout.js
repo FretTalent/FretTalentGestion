@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   BarChart3,
+  TrendingUp,
   Users,
   Building2,
   Shield,

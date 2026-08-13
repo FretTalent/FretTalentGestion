@@ -245,9 +245,12 @@ export default function Home() {
                         <div className="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-t-slate-950/95 w-0 h-0"></div>
                       </div>
 
-                      <button className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-md transition-all">
+                      <Link
+                        href="/login"
+                        className="block w-full text-center bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-md transition-all"
+                      >
                         Débloquer le contact (2€)
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -388,15 +391,17 @@ export default function Home() {
                     {/* Points des candidats */}
                     {!loadingMap &&
                       candidates.map(candidate => (
-                        <div
+                        <Link
                           key={candidate.id}
-                          className="absolute group"
+                          href="/login"
+                          className="absolute group cursor-pointer block"
                           style={{
                             left: `${candidate.x}%`,
                             top: `${candidate.y}%`,
                             transform: 'translate(-50%, -50%)',
                             zIndex: candidate.fullVerified ? 30 : candidate.validated ? 20 : 10,
                           }}
+                          title={`Voir le profil à ${candidate.city} (Connexion requise)`}
                         >
                           {/* Onde pulsante — couleur selon niveau */}
                           <span
@@ -409,7 +414,7 @@ export default function Home() {
 
                           {/* Point central */}
                           <span
-                            className={`relative flex rounded-full border-2 border-white shadow-md cursor-pointer h-3 w-3 ${
+                            className={`relative flex rounded-full border-2 border-white shadow-md h-3 w-3 ${
                               candidate.fullVerified
                                 ? 'bg-green-500'
                                 : 'bg-orange-500'
@@ -434,9 +439,10 @@ export default function Home() {
                               <span className="font-bold text-orange-400">Profil en vérification</span>
                             )}
                             <div className="text-slate-400 mt-1">📍 {candidate.city}</div>
+                            <div className="text-orange-400 text-[9px] font-bold mt-1">👉 Cliquez pour vous connecter</div>
                             <div className="absolute top-full left-1/2 -translate-x-1/2 border-[4px] border-transparent border-t-slate-900 w-0 h-0"></div>
                           </div>
-                        </div>
+                        </Link>
                       ))}
 
                     {loadingMap && (

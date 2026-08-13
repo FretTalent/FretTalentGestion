@@ -95,6 +95,18 @@ export default function Header() {
 
             {/* CTA Buttons & Mobile Toggle */}
             <div className="flex items-center gap-2 md:gap-3">
+              <a
+                href="https://www.facebook.com/profile.php?id=61593021909293"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden xl:flex items-center justify-center w-9 h-9 rounded-full bg-slate-100 hover:bg-[#1877F2] text-slate-600 hover:text-white transition-all shadow-sm group"
+                title="Suivez FretTalent sur Facebook"
+              >
+                <svg className="w-4 h-4 fill-current text-[#1877F2] group-hover:text-white transition-colors" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+              </a>
+
               <Link
                 href="/login"
                 className={`whitespace-nowrap hidden md:flex px-4 py-2.5 text-sm font-bold rounded-full transition-all duration-300 ${
@@ -175,6 +187,21 @@ export default function Header() {
               <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${isActive('/offres') ? 'bg-white' : 'bg-orange-500'}`}></span>
             </div>
           </Link>
+
+          {/* Facebook Link in Mobile Menu */}
+          <div className="pt-4 mt-2 border-t border-slate-100">
+            <a
+              href="https://www.facebook.com/profile.php?id=61593021909293"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-blue-50 hover:bg-blue-100 text-[#1877F2] font-bold text-sm transition-colors"
+            >
+              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+              <span>Suivez-nous sur Facebook</span>
+            </a>
+          </div>
         </div>
         <div className="p-6 border-t border-slate-100 bg-slate-50">
           <Link

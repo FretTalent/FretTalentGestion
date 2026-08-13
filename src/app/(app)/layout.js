@@ -174,7 +174,7 @@ export default function AppLayout({ children }) {
               key={item.href}
               href={item.href}
               onClick={() => setSidebarOpen(false)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all group ${
+              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all group ${
                 isActive
                   ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20'
                   : 'text-slate-400 hover:bg-slate-800 hover:text-white'
@@ -183,9 +183,9 @@ export default function AppLayout({ children }) {
               <Icon
                 className={`h-5 w-5 flex-shrink-0 ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-orange-400'}`}
               />
-              {item.label}
+              <span className="truncate flex-1 min-w-0">{item.label}</span>
               {isActive && (
-                <ChevronRight className="ml-auto h-4 w-4 opacity-70" />
+                <ChevronRight className="h-4 w-4 opacity-70 flex-shrink-0" />
               )}
             </Link>
           );
@@ -195,10 +195,10 @@ export default function AppLayout({ children }) {
         <div className="pt-4 mt-4 border-t border-slate-700/60">
           <Link
             href="/"
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition-all group"
+            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition-all group"
           >
-            <Truck className="h-5 w-5 text-slate-500 group-hover:text-orange-400" />
-            Retour au site
+            <Truck className="h-5 w-5 text-slate-500 group-hover:text-orange-400 flex-shrink-0" />
+            <span className="truncate flex-1 min-w-0">Retour au site</span>
           </Link>
         </div>
       </nav>
@@ -207,10 +207,10 @@ export default function AppLayout({ children }) {
       <div className="px-3 py-4 border-t border-slate-700/60">
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all group"
+          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all group"
         >
-          <LogOut className="h-5 w-5 text-slate-500 group-hover:text-red-400" />
-          Se déconnecter
+          <LogOut className="h-5 w-5 text-slate-500 group-hover:text-red-400 flex-shrink-0" />
+          <span className="truncate flex-1 text-left">Se déconnecter</span>
         </button>
       </div>
     </aside>

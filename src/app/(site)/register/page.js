@@ -23,7 +23,8 @@ function RegisterContent() {
 
   // Champs candidat
   const [candidateCountry, setCandidateCountry] = useState('FR'); // 'FR' ou 'BE'
-  const [fullName, setFullName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [firstName, setFirstName] = useState('');
   const [phone, setPhone] = useState('');
   
   // Champ Adresse Globale
@@ -116,6 +117,13 @@ function RegisterContent() {
       }
     }
 
+    if (role === 'candidate') {
+      if (!lastName.trim() || !firstName.trim()) {
+        setError('Veuillez renseigner votre nom et votre prénom.');
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
@@ -143,12 +151,13 @@ function RegisterContent() {
 
       // 3. Insérer les détails spécifiques de l'espace
       if (role === 'candidate') {
+        const fullCandidateName = `${lastName.trim().toUpperCase()} ${firstName.trim()}`;
         const { error: candidateError } = await supabase
           .from('candidates')
           .insert([
             {
               id: user.id,
-              full_name: fullName,
+              full_name: fullCandidateName,
               email: email,
               phone: phone,
               postal_code: addressInfo.postalCode,
@@ -298,18 +307,33 @@ function RegisterContent() {
               </select>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700 uppercase">
-                Nom complet
-              </label>
-              <input
-                type="text"
-                required
-                value={fullName}
-                onChange={e => setFullName(e.target.value)}
-                placeholder="Jean Dupont"
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 uppercase">
+                  Nom *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={lastName}
+                  onChange={e => setLastName(e.target.value)}
+                  placeholder="Dupont"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 uppercase">
+                  Prénom *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={firstName}
+                  onChange={e => setFirstName(e.target.value)}
+                  placeholder="Jean"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                />
+              </div>
             </div>
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-700 uppercase">

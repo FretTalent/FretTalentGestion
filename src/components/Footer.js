@@ -49,6 +49,14 @@ export default function Footer() {
               </li>
               <li>
                 <Link
+                  href="/a-propos"
+                  className="hover:text-white transition-colors text-orange-400 font-semibold"
+                >
+                  À propos de nous
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/tarifs"
                   className="hover:text-white transition-colors"
                 >

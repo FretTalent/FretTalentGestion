@@ -417,7 +417,8 @@ export default function AdminJobs() {
                   </div>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

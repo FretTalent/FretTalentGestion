@@ -193,7 +193,28 @@ export default function AdminDashboard() {
       )}
 
       {/* KPIs Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2 hover:border-orange-200 transition-colors">
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            Visites Site (Aujourd'hui)
+          </div>
+          <div className="text-3xl font-black text-slate-950 flex items-center justify-between">
+            Trafic
+            <div className="bg-orange-50 p-2.5 rounded-2xl">
+              <TrendingUp className="h-6 w-6 text-orange-500" />
+            </div>
+          </div>
+          <div className="flex items-center justify-between text-xs pt-1">
+            <span className="text-slate-500 font-medium">Pages vues & clics</span>
+            <button
+              onClick={() => router.push('/dashboard/admin/stats')}
+              className="text-orange-500 hover:underline font-bold flex items-center gap-0.5"
+            >
+              Stats site <ChevronRight className="h-3 w-3" />
+            </button>
+          </div>
+        </div>
+
         <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2 hover:border-orange-200 transition-colors">
           <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
             Chauffeurs Inscrits

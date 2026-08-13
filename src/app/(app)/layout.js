@@ -37,6 +37,7 @@ const navRecruiter = [
 ];
 const navAdmin = [
   { href: '/dashboard/admin', icon: BarChart3, label: 'Tableau de bord' },
+  { href: '/dashboard/admin/stats', icon: TrendingUp, label: 'Statistiques site' },
   { href: '/dashboard/admin/finance', icon: CreditCard, label: 'Finances & Stripe' },
   {
     href: '/dashboard/admin/jobs',

@@ -14,6 +14,13 @@ import {
 import toast from 'react-hot-toast';
 import ConfirmModal from '@/components/ConfirmModal';
 
+const LEGACY_LABELS = {
+  permis: 'Permis de conduire (Ancien dépôt)',
+  chrono: 'Carte Chronotachygraphe (Ancien dépôt)',
+  fimo: 'FIMO / FCO (Ancien dépôt)',
+  adr: 'Carte ADR (Ancien dépôt)',
+};
+
 const DOCUMENT_TYPES = [
   { key: 'cv', label: 'CV', required: true },
   { key: 'permis_recto', label: 'Permis de conduire (Recto)', required: true },
@@ -176,6 +183,62 @@ export default function CandidateDocuments({
       )}
 
       <div className="space-y-4">
+        {/* Prise en compte rétrocompatible des anciens fichiers s'ils existent */}
+        {Object.keys(documents).map(key => {
+          if (DOCUMENT_TYPES.some(d => d.key === key)) return null; // déjà géré
+          const docData = documents[key];
+          const label = LEGACY_LABELS[key] || `Document (${key})`;
+          const isProcessing = uploading === key;
+
+          return (
+            <div
+              key={key}
+              className="p-4 rounded-2xl border border-green-200 bg-green-50/30 flex flex-col md:flex-row items-center justify-between gap-4 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-green-100 text-green-600">
+                  <CheckCircle2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-sm">{label}</h3>
+                  <p className="text-xs text-slate-500">
+                    <span className="text-green-600 font-medium">
+                      Document transmis (
+                      {new Date(docData.uploaded_at).toLocaleDateString()})
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {isProcessing ? (
+                  <div className="px-4 py-2 flex items-center gap-2 text-sm text-slate-500">
+                    <Loader2 className="h-4 w-4 animate-spin" /> Traitement...
+                  </div>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => handleDownload(docData.path, docData.name)}
+                      type="button"
+                      className="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 hover:text-orange-500 hover:border-orange-500 rounded-lg text-xs font-bold transition-colors"
+                    >
+                      Voir le fichier
+                    </button>
+                    <button
+                      onClick={() => requestDelete({ key, label })}
+                      type="button"
+                      className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Supprimer"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          );
+        })}
+
         {DOCUMENT_TYPES.map(docType => {
           const isUploaded = !!documents?.[docType.key];
           const docData = documents?.[docType.key];

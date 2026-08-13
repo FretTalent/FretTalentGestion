@@ -183,9 +183,17 @@ export default function CandidateAdminProfile() {
   }
 
   const docs = (candidate && typeof candidate.documents === 'object' && candidate.documents !== null) ? candidate.documents : {};
-  const REQUIRED_KEYS = ['cv', 'permis_recto', 'permis_verso', 'chrono_recto', 'chrono_verso', 'fimo_recto', 'fimo_verso'];
-  const uploadedRequired = REQUIRED_KEYS.filter(k => docs[k]).length;
-  const allRequiredUploaded = uploadedRequired === REQUIRED_KEYS.length;
+  
+  // Validation flexible : accepte soit l'ancien champ (ex: 'permis'), soit le nouveau 'permis_recto'
+  const isDocPresent = (key, legacyKey) => !!docs[key] || (legacyKey && !!docs[legacyKey]);
+  
+  const hasCv = isDocPresent('cv');
+  const hasPermis = isDocPresent('permis_recto', 'permis') || isDocPresent('permis_verso');
+  const hasChrono = isDocPresent('chrono_recto', 'chrono') || isDocPresent('chrono_verso');
+  const hasFimo = isDocPresent('fimo_recto', 'fimo') || isDocPresent('fimo_verso');
+  
+  const allRequiredUploaded = hasCv && hasPermis && hasChrono && hasFimo;
+  const uploadedRequiredCount = [hasCv, hasPermis, hasChrono, hasFimo].filter(Boolean).length;
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -392,7 +400,7 @@ export default function CandidateAdminProfile() {
                     : 'bg-orange-100 text-orange-700'
                 }`}
               >
-                {uploadedRequired}/{REQUIRED_KEYS.length} obligatoires
+                {uploadedRequiredCount}/4 catégories obligatoires
               </span>
             </div>
 

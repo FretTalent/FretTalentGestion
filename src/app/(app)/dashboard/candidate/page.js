@@ -277,7 +277,7 @@ export default function CandidateDashboard() {
         <div className="lg:col-span-2 space-y-6">
           <form
             onSubmit={handleSave}
-            className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6"
+            className="bg-white p-5 sm:p-8 rounded-[2rem] sm:rounded-3xl border border-slate-200 shadow-sm space-y-6"
           >
             <h2 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
               <UserCheck className="h-5 w-5 text-orange-500" /> Mon Profil
@@ -580,7 +580,7 @@ export default function CandidateDashboard() {
             if (documents && Object.keys(documents).length > 0) score += 10;
 
             return (
-              <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+              <div className="bg-white p-5 sm:p-6 rounded-[2rem] sm:rounded-3xl border border-slate-200 shadow-sm space-y-3">
                 <div className="flex items-center justify-between text-xs font-bold text-slate-900">
                   <span>Complétude du profil</span>
                   <span className="text-orange-500">{score}%</span>
@@ -601,7 +601,7 @@ export default function CandidateDashboard() {
           })()}
 
           {/* Statut de visibilité */}
-          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+          <div className="bg-white p-5 sm:p-6 rounded-[2rem] sm:rounded-3xl border border-slate-200 shadow-sm space-y-4">
             <h3 className="text-sm font-bold text-slate-900">
               Statut de visibilité
             </h3>
@@ -644,7 +644,7 @@ export default function CandidateDashboard() {
           </div>
 
           {/* Historique des entreprises */}
-          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+          <div className="bg-white p-5 sm:p-6 rounded-[2rem] sm:rounded-3xl border border-slate-200 shadow-sm space-y-4">
             <h3 className="text-sm font-bold text-slate-900">
               Entreprises intéressées ({unlocks.length})
             </h3>
@@ -673,7 +673,7 @@ export default function CandidateDashboard() {
           </div>
 
           {/* Zone Danger : Supprimer le compte */}
-          <div className="bg-red-50 p-6 rounded-3xl border border-red-200 shadow-sm space-y-4">
+          <div className="bg-red-50 p-5 sm:p-6 rounded-[2rem] sm:rounded-3xl border border-red-200 shadow-sm space-y-4">
             <h3 className="text-sm font-bold text-red-900">Zone Danger</h3>
             <p className="text-xs text-red-700">
               La suppression de votre compte est définitive. Toutes vos données seront effacées.

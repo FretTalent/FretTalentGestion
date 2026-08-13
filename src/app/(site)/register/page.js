@@ -193,31 +193,31 @@ function RegisterContent() {
   };
 
   return (
-    <div className="max-w-md w-full bg-white p-8 rounded-3xl border border-slate-200 shadow-xl space-y-6">
+    <div className="max-w-md w-full bg-white p-5 sm:p-8 rounded-[2rem] sm:rounded-3xl border border-slate-200 shadow-xl space-y-5 sm:space-y-6">
       <div className="text-center space-y-2">
         <Link
           href="/"
           className="inline-flex items-center gap-2 group justify-center"
         >
-          <img src="/logo.png" alt="FretTalent" className="h-16 md:h-20 w-auto object-contain" />
+          <img src="/logo.png" alt="FretTalent" className="h-14 sm:h-16 md:h-20 w-auto object-contain" />
         </Link>
-        <h2 className="text-2xl font-extrabold text-slate-900">
+        <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900">
           Créer mon compte
         </h2>
-        <p className="text-sm text-slate-500">
+        <p className="text-xs sm:text-sm text-slate-500">
           Rejoignez la plateforme FretTalent dès maintenant.
         </p>
       </div>
 
       {/* Choix du Rôle */}
-      <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1.5 rounded-xl">
+      <div className="grid grid-cols-2 gap-1.5 sm:gap-2 bg-slate-100 p-1.5 rounded-xl">
         <button
           type="button"
           onClick={() => {
             setRole('candidate');
             setError(null);
           }}
-          className={`py-2 text-xs font-bold rounded-lg transition-all ${
+          className={`py-2 text-[11px] sm:text-xs font-bold rounded-lg transition-all ${
             role === 'candidate'
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-500 hover:text-slate-900'
@@ -231,7 +231,7 @@ function RegisterContent() {
             setRole('recruiter');
             setError(null);
           }}
-          className={`py-2 text-xs font-bold rounded-lg transition-all ${
+          className={`py-2 text-[11px] sm:text-xs font-bold rounded-lg transition-all ${
             role === 'recruiter'
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-500 hover:text-slate-900'

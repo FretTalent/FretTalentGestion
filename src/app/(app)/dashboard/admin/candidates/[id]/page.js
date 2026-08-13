@@ -431,6 +431,59 @@ export default function CandidateAdminProfile() {
 
             {/* Liste des documents */}
             <div className="space-y-3">
+              {/* Prise en compte des anciens documents legacy */}
+              {Object.keys(docs).map(key => {
+                if (DOCUMENT_TYPES.some(d => d.key === key)) return null;
+                const legacyDoc = docs[key];
+                if (!legacyDoc) return null;
+
+                const legacyLabels = {
+                  permis: 'Permis de conduire (Ancien dépôt)',
+                  chrono: 'Carte Chronotachygraphe (Ancien dépôt)',
+                  fimo: 'FIMO / FCO (Ancien dépôt)',
+                  adr: 'Carte ADR (Ancien dépôt)',
+                };
+                const label = legacyLabels[key] || `Document (${key})`;
+
+                return (
+                  <div
+                    key={key}
+                    className="flex items-center justify-between p-4 rounded-2xl border border-green-200 bg-green-50/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-xl flex-shrink-0 bg-green-100 text-green-600">
+                        <CheckCircle className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-slate-900">{label}</p>
+                        <p className="text-xs text-slate-500">
+                          <span className="text-green-600 font-medium">
+                            Déposé le{' '}
+                            {legacyDoc.uploaded_at
+                              ? new Date(legacyDoc.uploaded_at).toLocaleDateString('fr-FR')
+                              : 'Reçu'}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                    {legacyDoc.path && (
+                      <button
+                        onClick={() => handleOpenDoc(legacyDoc.path, legacyDoc.name)}
+                        disabled={docLoading === legacyDoc.path}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:border-orange-400 hover:text-orange-500 text-slate-600 rounded-xl text-xs font-bold transition-all"
+                      >
+                        {docLoading === legacyDoc.path ? (
+                          <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        )}
+                        Ouvrir
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+
               {DOCUMENT_TYPES.map(docType => {
                 const doc = docs[docType.key];
                 const isUploaded = !!doc;
@@ -473,7 +526,9 @@ export default function CandidateAdminProfile() {
                           {isUploaded ? (
                             <span className="text-green-600 font-medium">
                               Déposé le{' '}
-                              {new Date(doc.uploaded_at).toLocaleDateString('fr-FR')}
+                              {doc.uploaded_at
+                                ? new Date(doc.uploaded_at).toLocaleDateString('fr-FR')
+                                : 'Reçu'}
                             </span>
                           ) : docType.required ? (
                             <span className="text-red-500">Document manquant</span>

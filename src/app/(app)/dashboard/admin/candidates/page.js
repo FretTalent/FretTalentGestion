@@ -326,9 +326,14 @@ export default function AdminCandidates() {
               <tbody>
                 {filteredCandidates.map((candidate, idx) => {
                   const docs = candidate.documents || {};
-                  const REQUIRED_KEYS = ['cv', 'permis', 'chrono', 'fimo'];
-                  const uploadedRequired = REQUIRED_KEYS.filter(k => docs[k]).length;
-                  const totalRequired = REQUIRED_KEYS.length;
+                  const isDocPresent = (key, legacyKey) => !!docs[key] || (legacyKey && !!docs[legacyKey]);
+                  const hasCv = isDocPresent('cv');
+                  const hasPermis = isDocPresent('permis_recto', 'permis') || isDocPresent('permis_verso');
+                  const hasChrono = isDocPresent('chrono_recto', 'chrono') || isDocPresent('chrono_verso');
+                  const hasFimo = isDocPresent('fimo_recto', 'fimo') || isDocPresent('fimo_verso');
+                  
+                  const uploadedRequired = [hasCv, hasPermis, hasChrono, hasFimo].filter(Boolean).length;
+                  const totalRequired = 4;
                   const docsProgress = Math.round((uploadedRequired / totalRequired) * 100);
 
                   return (

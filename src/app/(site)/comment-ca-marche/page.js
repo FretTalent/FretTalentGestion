@@ -57,13 +57,13 @@ export default function CommentCaMarche() {
   return (
     <div className="bg-white text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-12 pb-24 bg-gradient-to-b from-slate-50 to-white border-b border-slate-100">
+      <section className="relative overflow-hidden pt-12 pb-28 md:pb-36 bg-gradient-to-b from-slate-50 to-white border-b border-slate-100">
         <div className="absolute inset-0 bg-[radial-gradient(#f97316_1px,transparent_1px)] [background-size:24px_24px] opacity-5"></div>
         <div className="absolute left-1/2 -translate-x-1/2 bottom-0 hidden md:block opacity-25 pointer-events-none">
           <img
             src="https://png.pngtree.com/png-vector/20240309/ourmid/pngtree-orange-truck-transport-png-image_11920914.png"
             alt="Camion Transport"
-            className="h-40 md:h-52 w-auto object-contain"
+            className="h-56 md:h-72 w-auto object-contain"
           />
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-4">

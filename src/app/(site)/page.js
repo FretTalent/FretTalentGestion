@@ -519,9 +519,12 @@ export default function Home() {
         </section>
 
         {/* Section SEO enrichie — Informations et recrutement transport */}
-        <section className="py-16 bg-white border-t border-slate-100">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 text-slate-700">
-            <div className="max-w-3xl space-y-4">
+        <section className="py-16 bg-white border-t border-slate-100 relative overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 text-slate-700 relative">
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden lg:block opacity-20 pointer-events-none">
+              <img src="https://png.pngtree.com/png-clipart/20250521/original/pngtree-an-orange-logistic-truck-with-container-png-image_21052117.png" alt="Camion logistique FretTalent" className="w-[500px] object-contain" />
+            </div>
+            <div className="max-w-3xl space-y-4 relative z-10">
               <h2 className="text-2xl font-bold text-slate-900">
                 La plateforme de référence pour le recrutement dans le transport routier
               </h2>

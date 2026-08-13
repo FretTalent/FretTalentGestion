@@ -59,6 +59,9 @@ export default function CommentCaMarche() {
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 bg-gradient-to-b from-slate-50 to-white border-b border-slate-100">
         <div className="absolute inset-0 bg-[radial-gradient(#f97316_1px,transparent_1px)] [background-size:24px_24px] opacity-5"></div>
+        <div className="absolute right-0 bottom-0 hidden md:block opacity-20 pointer-events-none">
+          <img src="https://png.pngtree.com/png-vector/20240309/ourmid/pngtree-orange-truck-transport-png-image_11920914.png" alt="Camion Transport" className="w-[450px] object-contain" />
+        </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-4">
           <span className="text-xs font-bold text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-100">
             Mise en relation directe
@@ -179,7 +182,10 @@ export default function CommentCaMarche() {
       <section className="py-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
         <div className="bg-orange-500 text-white p-8 rounded-3xl space-y-6 shadow-xl relative overflow-hidden">
           <div className="absolute -right-16 -bottom-16 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
-          <h3 className="text-2xl font-black text-white">
+          <div className="absolute -left-10 bottom-0 hidden md:block opacity-25 pointer-events-none">
+            <img src="https://png.pngtree.com/png-clipart/20250521/original/pngtree-an-orange-truck-with-logistics-container-turning-png-image_21052111.png" alt="Camion FretTalent" className="w-[300px] object-contain" />
+          </div>
+          <h3 className="text-2xl font-black text-white relative z-10">
             Une fluidité administrative garantie
           </h3>
           <p className="text-sm text-orange-50 max-w-3xl mx-auto leading-relaxed">

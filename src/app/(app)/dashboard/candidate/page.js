@@ -316,22 +316,28 @@ export default function CandidateDashboard() {
                 <AddressAutocomplete 
                   initialValue={addressInfo.fullLabel || addressInfo.city}
                   onAddressSelect={setAddressInfo}
+                  country={country}
                   required={true}
                 />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-700 uppercase">
-                  Pays de recherche d&apos;emploi
+                  Pays de résidence / Recherche d&apos;emploi
                 </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {[{ code: 'FR', label: '🇫🇷 France' }, { code: 'BE', label: '🇧🇪 Belgique' }].map(c => (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {[
+                    { code: 'FR', label: '🇫🇷 France' },
+                    { code: 'BE', label: '🇧🇪 Belgique' },
+                    { code: 'LU', label: '🇱🇺 Luxembourg' },
+                    { code: 'CH', label: '🇨🇭 Suisse' },
+                  ].map(c => (
                     <button
                       key={c.code}
                       type="button"
                       onClick={() => setCountry(c.code)}
-                      className={`py-2.5 px-4 rounded-xl text-sm font-bold border transition-colors ${
+                      className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold border transition-colors ${
                         country === c.code
-                          ? 'bg-orange-500 text-white border-orange-500'
+                          ? 'bg-orange-500 text-white border-orange-500 shadow-sm'
                           : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
                       }`}
                     >

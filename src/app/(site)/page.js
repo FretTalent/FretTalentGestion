@@ -34,10 +34,11 @@ export default function Home() {
           uniqueKeys.map(async key => {
             const [cCountry, pc] = key.split('_');
             try {
-              if (cCountry === 'BE') {
+              if (cCountry === 'BE' || cCountry === 'LU' || cCountry === 'CH') {
+                const countryCodeParam = cCountry.toLowerCase();
                 const res = await fetch(
-                  `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(pc)}&format=json&countrycodes=be&limit=1`,
-                  { headers: { 'User-Agent': 'FretTalentApp/1.0' } }
+                  `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(pc)}&format=json&countrycodes=${countryCodeParam}&limit=1`,
+                  { headers: { 'User-Agent': 'FretTalentApp/1.0 (contact@frettalent.fr)' } }
                 );
                 if (!res.ok) return;
                 const json = await res.json();
@@ -61,11 +62,11 @@ export default function Home() {
           }),
         );
 
-        // Projeter les coordonnées sur la carte (France + Belgique) (en x/y de 0 à 100)
+        // Projeter les coordonnées sur la carte (France, Belgique, Luxembourg, Suisse) (en x/y de 0 à 100)
         const minLon = -5.5;
-        const maxLon = 9.8;
+        const maxLon = 10.6;
         const minLat = 41.2;
-        const maxLat = 51.6;
+        const maxLat = 51.8;
 
         const mappedCandidates = data
           .map(c => {
@@ -354,10 +355,10 @@ export default function Home() {
                   Réseau temps réel
                 </span>
                 <h2 className="text-3xl font-extrabold text-slate-950 tracking-tight">
-                  Candidats disponibles en France & Belgique
+                  Candidats disponibles : France, Belgique, Luxembourg & Suisse
                 </h2>
                 <p className="text-slate-600 text-sm max-w-xl mx-auto">
-                  Découvrez la géolocalisation en temps réel de nos chauffeurs poids lourds inscrits en France et en Belgique.
+                  Découvrez la géolocalisation en temps réel de nos chauffeurs poids lourds inscrits en France, Belgique, Luxembourg et Suisse.
                   Un candidat <strong>100% vérifié</strong> a ses permis et documents à jour.
                 </p>
 
@@ -382,13 +383,13 @@ export default function Home() {
               <div className="bg-slate-50 border border-slate-200 rounded-3xl p-4 md:p-8 shadow-sm flex flex-col md:flex-row items-center justify-center gap-8 relative overflow-hidden">
                 <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-orange-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
-                {/* Carte de France SVG */}
+                {/* Carte SVG multi-pays */}
                 <div className="relative w-full max-w-[500px] aspect-square flex-shrink-0 overflow-hidden rounded-2xl">
                   {/* Conteneur de la carte */}
                   <div className="w-full h-full relative">
                     <img
                       src="/france-belgique-map.svg"
-                      alt="Carte de France et Belgique"
+                      alt="Carte de France, Belgique, Luxembourg et Suisse"
                       className="w-full h-full object-contain opacity-60 select-none pointer-events-none filter grayscale contrast-125"
                     />
 
@@ -570,7 +571,7 @@ export default function Home() {
                 La plateforme de référence pour le recrutement dans le transport routier
               </h2>
               <p className="text-sm leading-relaxed">
-                FretTalent est le premier réseau spécialisé dans la mise en relation directe entre <strong>chauffeurs routiers qualifiés</strong> et <strong>entreprises de transport</strong> en France et en Belgique. Notre mission est de simplifier l&apos;embauche de conducteurs poids lourds et super poids lourds sans passer par les agences d&apos;intérim traditionnelles, garantissant rapidité, transparence et zéro commission sur les salaires.
+                FretTalent est le premier réseau spécialisé dans la mise en relation directe entre <strong>chauffeurs routiers qualifiés</strong> et <strong>entreprises de transport</strong> en France, en Belgique, au Luxembourg et en Suisse. Notre mission est de simplifier l&apos;embauche de conducteurs poids lourds et super poids lourds sans passer par les agences d&apos;intérim traditionnelles, garantissant rapidité, transparence et zéro commission sur les salaires.
               </p>
             </div>
 
@@ -589,7 +590,7 @@ export default function Home() {
                   Pour les Entreprises & Transporteurs
                 </h3>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Recrutez efficacement vos conducteurs en France (numéro SIRET) et en Belgique (numéro BCE). Filtrez les profils disponibles selon le rayon de mobilité, les spécialités de matériel (Benne, Frigo, Tautliner, Citerne, Plateau, Messagerie) et débloquez directement les coordonnées vérifiées des candidats.
+                  Recrutez efficacement vos conducteurs en France (SIRET), Belgique (BCE), Luxembourg (RCS/TVA) et Suisse (IDE). Filtrez les profils disponibles selon le rayon de mobilité, les spécialités de matériel (Benne, Frigo, Tautliner, Citerne, Plateau, Messagerie) et débloquez directement les coordonnées vérifiées des candidats.
                 </p>
               </div>
 

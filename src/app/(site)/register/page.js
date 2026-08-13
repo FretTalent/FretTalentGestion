@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import { Truck, AlertCircle, ShieldAlert } from 'lucide-react';
+import { Truck, AlertCircle, ShieldAlert, CheckCircle2, Loader2, Building2 } from 'lucide-react';
 import AddressAutocomplete from '@/components/AddressAutocomplete';
+import { COUNTRIES, COUNTRY_LIST, detectCountryFromId, validateCompanyIdFormat, formatCompanyIdentifier } from '@/lib/country';
 
 function RegisterContent() {
   const router = useRouter();
@@ -16,13 +17,12 @@ function RegisterContent() {
   const [password, setPassword] = useState('');
 
   // Champs entreprise
-  const [country, setCountry] = useState('FR'); // 'FR' ou 'BE'
+  const [country, setCountry] = useState('FR'); // 'FR' | 'BE' | 'LU' | 'CH'
   const [companyName, setCompanyName] = useState('');
-  const [siret, setSiret] = useState('');
-  const [bce, setBce] = useState('');
-
+  const [companyIdInput, setCompanyIdInput] = useState('');
+  
   // Champs candidat
-  const [candidateCountry, setCandidateCountry] = useState('FR'); // 'FR' ou 'BE'
+  const [candidateCountry, setCandidateCountry] = useState('FR'); // 'FR' | 'BE' | 'LU' | 'CH'
   const [lastName, setLastName] = useState('');
   const [firstName, setFirstName] = useState('');
   const [phone, setPhone] = useState('');
@@ -34,10 +34,11 @@ function RegisterContent() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // États pour la validation de SIRET
-  const [siretLoading, setSiretLoading] = useState(false);
-  const [siretValid, setSiretValid] = useState(null); // null, true, false
-  const [siretCompanyInfo, setSiretCompanyInfo] = useState('');
+  // États pour la validation de l'entreprise
+  const [idLoading, setIdLoading] = useState(false);
+  const [idValid, setIdValid] = useState(null); // null | true | false
+  const [idFeedback, setIdFeedback] = useState('');
+  const verifyTimerRef = useRef(null);
 
   useEffect(() => {
     const roleParam = searchParams.get('role');
@@ -46,46 +47,89 @@ function RegisterContent() {
     }
   }, [searchParams]);
 
-  // Hook de validation SIRET en direct
+  // Hook de validation en direct de l'identifiant d'entreprise
   useEffect(() => {
-    const validateSiret = async () => {
-      const cleanSiret = siret.replace(/\s+/g, ''); // Nettoyer les espaces
-      if (cleanSiret.length !== 14) {
-        setSiretValid(null);
-        setSiretCompanyInfo('');
-        return;
-      }
+    if (role !== 'recruiter') return;
 
-      setSiretLoading(true);
-      setSiretValid(null);
+    if (verifyTimerRef.current) clearTimeout(verifyTimerRef.current);
 
+    if (!companyIdInput.trim()) {
+      setIdValid(null);
+      setIdFeedback('');
+      setIdLoading(false);
+      return;
+    }
+
+    // Détection automatique du pays selon le format saisi
+    const autoDetected = detectCountryFromId(companyIdInput);
+    if (autoDetected && autoDetected !== country) {
+      setCountry(autoDetected);
+    }
+
+    const currentCountry = autoDetected || country;
+    const formatCheck = validateCompanyIdFormat(currentCountry, companyIdInput);
+
+    if (!formatCheck.valid) {
+      setIdValid(false);
+      setIdFeedback(formatCheck.message);
+      setIdLoading(false);
+      return;
+    }
+
+    // Lancer la vérification officielle après debounce
+    setIdLoading(true);
+    setIdValid(null);
+    setIdFeedback('');
+
+    verifyTimerRef.current = setTimeout(async () => {
       try {
-        const res = await fetch(
-          `https://recherche-entreprises.api.gouv.fr/search?q=${cleanSiret}`,
-        );
-        if (!res.ok) throw new Error();
+        const res = await fetch('/api/companies/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            country: currentCountry,
+            identifier: companyIdInput,
+          }),
+        });
+
         const data = await res.json();
 
-        if (data.results && data.results.length > 0) {
-          const info = data.results[0];
-          setSiretValid(true);
-          setSiretCompanyInfo(info.nom_complet);
-          // Remplir le nom de l'entreprise avec le nom officiel
-          setCompanyName(info.nom_complet);
+        if (data.valid) {
+          setIdValid(true);
+          if (data.companyName) {
+            setIdFeedback(`Entreprise certifiée : ${data.companyName}`);
+            if (!companyName.trim()) {
+              setCompanyName(data.companyName);
+            }
+          } else {
+            setIdFeedback('Format d\'identifiant officiel valide.');
+          }
+
+          // Préremplissage adresse si renvoyée
+          if (data.address && (!addressInfo.address || !addressInfo.city)) {
+            setAddressInfo({
+              address: data.address,
+              city: data.city || '',
+              postalCode: data.postalCode || '',
+            });
+          }
         } else {
-          setSiretValid(false);
-          setSiretCompanyInfo('Aucune entreprise trouvée pour ce SIRET.');
+          setIdValid(false);
+          setIdFeedback(data.message || 'Numéro non valide.');
         }
       } catch (err) {
-        setSiretValid(false);
-        setSiretCompanyInfo('Impossible de valider le SIRET pour le moment.');
+        console.error('Erreur vérification:', err);
+        setIdValid(true); // Tolérance si indisponibilité réseau
+        setIdFeedback('Format validé.');
       } finally {
-        setSiretLoading(false);
+        setIdLoading(false);
       }
-    };
+    }, 450);
 
-    validateSiret();
-  }, [siret]);
+    return () => {
+      if (verifyTimerRef.current) clearTimeout(verifyTimerRef.current);
+    };
+  }, [companyIdInput, country, role]);
 
   const handleRegister = async e => {
     e.preventDefault();
@@ -99,20 +143,15 @@ function RegisterContent() {
     }
 
     if (role === 'recruiter') {
-      if (country === 'FR' && siretValid !== true) {
+      const formatCheck = validateCompanyIdFormat(country, companyIdInput);
+      if (!formatCheck.valid || idValid === false) {
         setError(
-          'Veuillez saisir un numéro SIRET valide avant de finaliser votre inscription.',
-        );
-        return;
-      }
-      if (country === 'BE' && bce.length !== 10) {
-        setError(
-          'Veuillez saisir un numéro BCE valide (10 chiffres) avant de finaliser votre inscription.',
+          `Veuillez saisir un identifiant d'entreprise valide pour ${COUNTRIES[country]?.name || 'le pays sélectionné'}.`,
         );
         return;
       }
       if (!companyName.trim()) {
-        setError('Le nom de l\'entreprise est obligatoire.');
+        setError("Le nom de l'entreprise est obligatoire.");
         return;
       }
     }
@@ -160,32 +199,32 @@ function RegisterContent() {
               full_name: fullCandidateName,
               email: email,
               phone: phone,
-              postal_code: addressInfo.postalCode,
-              city: addressInfo.city,
-              address: addressInfo.address,
+              postal_code: addressInfo.postalCode || '00000',
+              city: addressInfo.city || 'Non renseigné',
+              address: addressInfo.address || '',
               country: candidateCountry,
               is_active: true,
             },
           ]);
         if (candidateError) {
-          console.error('Erreur lors de l insertion du candidat:', candidateError);
+          console.error('Erreur insertion candidat:', candidateError);
           throw candidateError;
         }
-        console.log('Candidat enregistré avec succès:', { id: user.id, full_name: fullName });
         router.push('/dashboard/candidate');
       } else if (role === 'recruiter') {
+        const cleanId = companyIdInput.trim();
         const { error: companyError } = await supabase
           .from('companies')
           .insert([
             {
               id: user.id,
               name: companyName,
-              siret: country === 'FR' ? siret : null,
-              bce: country === 'BE' ? bce : null,
+              siret: country === 'FR' ? cleanId.replace(/\D/g, '') : null,
+              bce: country === 'BE' ? cleanId.replace(/\D/g, '') : null,
               country: country,
-              address: addressInfo.address,
-              postal_code: addressInfo.postalCode,
-              city: addressInfo.city,
+              address: addressInfo.address || '',
+              postal_code: addressInfo.postalCode || '',
+              city: addressInfo.city || '',
               has_payment_method: false,
             },
           ]);
@@ -214,7 +253,7 @@ function RegisterContent() {
           Créer mon compte
         </h2>
         <p className="text-xs sm:text-sm text-slate-500">
-          Rejoignez la plateforme FretTalent dès maintenant.
+          Rejoignez le réseau FretTalent en France, Belgique, Luxembourg et Suisse.
         </p>
       </div>
 
@@ -268,7 +307,7 @@ function RegisterContent() {
             required
             value={email}
             onChange={e => setEmail(e.target.value)}
-            placeholder="nom@exemple.fr"
+            placeholder="contact@exemple.com"
             className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
           />
         </div>
@@ -291,20 +330,30 @@ function RegisterContent() {
         {role === 'candidate' && (
           <div className="space-y-4 pt-2 border-t border-slate-100">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700 uppercase">
-                Pays de résidence *
+              <label className="text-xs font-bold text-slate-700 uppercase flex items-center justify-between">
+                <span>Pays de résidence *</span>
+                <span className="text-[10px] text-slate-400 font-normal">Zone de travail</span>
               </label>
-              <select
-                value={candidateCountry}
-                onChange={e => {
-                  setCandidateCountry(e.target.value);
-                  setAddressInfo({ address: '', city: '', postalCode: '' });
-                }}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white transition-all"
-              >
-                <option value="FR">France</option>
-                <option value="BE">Belgique</option>
-              </select>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {COUNTRY_LIST.map(c => (
+                  <button
+                    key={c.code}
+                    type="button"
+                    onClick={() => {
+                      setCandidateCountry(c.code);
+                      setAddressInfo({ address: '', city: '', postalCode: '' });
+                    }}
+                    className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl border text-xs font-bold transition-all ${
+                      candidateCountry === c.code
+                        ? 'border-orange-500 bg-orange-50/80 text-orange-700 shadow-sm'
+                        : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                    }`}
+                  >
+                    <span className="text-base">{c.flag}</span>
+                    <span className="truncate">{c.name}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -335,6 +384,7 @@ function RegisterContent() {
                 />
               </div>
             </div>
+
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-700 uppercase">
                 Téléphone portable
@@ -344,27 +394,29 @@ function RegisterContent() {
                 required
                 value={phone}
                 onChange={e => setPhone(e.target.value)}
-                placeholder="06 12 34 56 78"
+                placeholder={COUNTRIES[candidateCountry]?.phonePrefix ? `${COUNTRIES[candidateCountry].phonePrefix} 6...` : '06 12 34 56 78'}
                 className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
               />
             </div>
             
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-700 uppercase">
-                Adresse complète *
+                Adresse complète ({COUNTRIES[candidateCountry]?.name}) *
               </label>
               <AddressAutocomplete 
                 onAddressSelect={setAddressInfo}
                 required={true}
                 country={candidateCountry}
+                placeholder={`Rechercher une adresse en ${COUNTRIES[candidateCountry]?.name}...`}
               />
             </div>
+
             <div className="bg-orange-50 text-orange-800 p-3 rounded-xl flex items-start gap-2.5 text-xs">
               <ShieldAlert className="h-5 w-5 text-orange-600 flex-shrink-0" />
               <span>
-                <strong>Anonymat Garanti :</strong> Vos coordonnées (nom,
-                téléphone, e-mail) sont masquées et visibles uniquement après
-                paiement du déblocage par le recruteur de votre choix.
+                <strong>Anonymat Garanti :</strong> Vos coordonnées directes (nom,
+                téléphone, e-mail) restent strictement masquées sur la carte et visibles
+                uniquement après accord du recruteur.
               </span>
             </div>
           </div>
@@ -374,24 +426,83 @@ function RegisterContent() {
         {role === 'recruiter' && (
           <div className="space-y-4 pt-2 border-t border-slate-100">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700 uppercase">
-                Pays de l'entreprise *
+              <label className="text-xs font-bold text-slate-700 uppercase flex items-center justify-between">
+                <span>Pays de l'entreprise *</span>
+                <span className="text-[10px] text-slate-400 font-normal">Détection auto active</span>
               </label>
-              <select
-                value={country}
-                onChange={e => {
-                  setCountry(e.target.value);
-                  setSiret('');
-                  setBce('');
-                  setCompanyName('');
-                  setSiretValid(null);
-                  setSiretCompanyInfo('');
-                }}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white transition-all"
-              >
-                <option value="FR">France</option>
-                <option value="BE">Belgique</option>
-              </select>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {COUNTRY_LIST.map(c => (
+                  <button
+                    key={c.code}
+                    type="button"
+                    onClick={() => {
+                      setCountry(c.code);
+                      setCompanyIdInput('');
+                      setIdValid(null);
+                      setIdFeedback('');
+                    }}
+                    className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl border text-xs font-bold transition-all ${
+                      country === c.code
+                        ? 'border-orange-500 bg-orange-50/80 text-orange-700 shadow-sm'
+                        : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                    }`}
+                  >
+                    <span className="text-base">{c.flag}</span>
+                    <span className="truncate">{c.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Identifiant dynamique (SIRET / BCE / RCS-TVA / IDE) */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700 uppercase flex items-center justify-between">
+                <span>{COUNTRIES[country]?.idLabel || "Identifiant d'entreprise"} *</span>
+                <span className="text-[10px] text-slate-400 font-medium">
+                  Ex: {COUNTRIES[country]?.idExample}
+                </span>
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  required
+                  value={companyIdInput}
+                  onChange={e => setCompanyIdInput(e.target.value)}
+                  placeholder={COUNTRIES[country]?.idPlaceholder}
+                  className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 transition-all ${
+                    idValid === true
+                      ? 'border-green-500 focus:ring-green-500/20 focus:border-green-500'
+                      : idValid === false
+                      ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
+                      : 'border-slate-200 focus:ring-orange-500/20 focus:border-orange-500'
+                  }`}
+                />
+                {idLoading && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <Loader2 className="w-4 h-4 text-orange-500 animate-spin" />
+                  </div>
+                )}
+                {idValid === true && !idLoading && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                  </div>
+                )}
+              </div>
+
+              {/* Feedback validation */}
+              {idFeedback && (
+                <p
+                  className={`text-[10px] font-bold mt-1 ${
+                    idValid === true
+                      ? 'text-green-600'
+                      : idValid === false
+                      ? 'text-red-500'
+                      : 'text-slate-500'
+                  }`}
+                >
+                  {idFeedback}
+                </p>
+              )}
             </div>
             
             <div className="space-y-1">
@@ -403,89 +514,20 @@ function RegisterContent() {
                 required
                 value={companyName}
                 onChange={e => setCompanyName(e.target.value)}
-                placeholder={country === 'FR' ? 'Logistique Fret SAS' : 'Logistique Fret SPRL'}
+                placeholder="ex: Transports & Logistique Europe"
                 className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
               />
             </div>
 
-            {country === 'FR' ? (
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700 uppercase">
-                  Numéro SIRET *
-                </label>
-                <input
-                  type="text"
-                  required
-                  maxLength={14}
-                  value={siret}
-                  onChange={e => setSiret(e.target.value.replace(/\D/g, ''))}
-                  placeholder="14 chiffres"
-                  className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 transition-all ${
-                    siretValid === true
-                      ? 'border-green-500 focus:ring-green-500/20 focus:border-green-500'
-                      : siretValid === false
-                      ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
-                      : 'border-slate-200 focus:ring-orange-500/20 focus:border-orange-500'
-                  }`}
-                />
-                {/* Loader SIRET */}
-                {siretLoading && (
-                  <p className="text-[10px] text-slate-400 font-medium animate-pulse mt-1">
-                    Vérification du SIRET en cours...
-                  </p>
-                )}
-                {/* Résultat SIRET */}
-                {siretValid !== null && !siretLoading && (
-                  <p
-                    className={`text-[10px] font-bold mt-1 ${
-                      siretValid ? 'text-green-600' : 'text-red-500'
-                    }`}
-                  >
-                    {siretCompanyInfo}
-                  </p>
-                )}
-              </div>
-            ) : (
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700 uppercase">
-                  Numéro BCE *
-                </label>
-                <input
-                  type="text"
-                  required
-                  maxLength={10}
-                  value={bce}
-                  onChange={e => setBce(e.target.value.replace(/\D/g, ''))}
-                  placeholder="10 chiffres (ex: 0123456789)"
-                  className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 transition-all ${
-                    bce.length === 10
-                      ? 'border-green-500 focus:ring-green-500/20 focus:border-green-500'
-                      : bce.length > 0
-                      ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
-                      : 'border-slate-200 focus:ring-orange-500/20 focus:border-orange-500'
-                  }`}
-                />
-                {bce.length > 0 && bce.length < 10 && (
-                  <p className="text-[10px] font-bold mt-1 text-red-500">
-                    Le numéro BCE doit contenir 10 chiffres.
-                  </p>
-                )}
-                {bce.length === 10 && (
-                  <p className="text-[10px] font-bold mt-1 text-green-600">
-                    Format BCE valide.
-                  </p>
-                )}
-              </div>
-            )}
-
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-700 uppercase">
-                Adresse du siège *
+                Adresse du siège ({COUNTRIES[country]?.name}) *
               </label>
               <AddressAutocomplete 
                 onAddressSelect={setAddressInfo}
                 required={true}
                 country={country}
+                placeholder={`Rechercher l'adresse du siège en ${COUNTRIES[country]?.name}...`}
               />
             </div>
           </div>
@@ -520,14 +562,14 @@ function RegisterContent() {
           type="submit"
           disabled={
             loading ||
-            (role === 'recruiter' && siretValid !== true) ||
-            (role === 'recruiter' && siretLoading)
+            (role === 'recruiter' && idValid === false) ||
+            (role === 'recruiter' && idLoading)
           }
-          className="w-full py-3 rounded-xl text-sm font-bold text-white bg-orange-500 hover:bg-orange-600 disabled:bg-slate-200 disabled:text-slate-450 disabled:cursor-not-allowed transition-colors shadow-lg shadow-orange-500/20"
+          className="w-full py-3.5 rounded-xl text-sm font-bold text-white bg-orange-500 hover:bg-orange-600 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-all shadow-lg shadow-orange-500/20 hover:-translate-y-0.5"
         >
           {loading
             ? 'Création du compte...'
-            : role === 'recruiter' && siretLoading
+            : role === 'recruiter' && idLoading
               ? "Vérification de l'entreprise..."
               : 'Créer mon compte'}
         </button>
@@ -552,7 +594,7 @@ export default function Register() {
       <main className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <Suspense
           fallback={
-            <div className="text-center p-8">Chargement de la page...</div>
+            <div className="text-center p-8 text-slate-500">Chargement du formulaire...</div>
           }
         >
           <RegisterContent />

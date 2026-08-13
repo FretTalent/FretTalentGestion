@@ -10,16 +10,16 @@ export default function AdminCompanies() {
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterCountry, setFilterCountry] = useState('all'); // 'all' | 'FR' | 'BE'
+  const [filterCountry, setFilterCountry] = useState('all'); // 'all' | 'FR' | 'BE' | 'LU' | 'CH'
 
   const exportToCSV = () => {
     if (filteredCompanies.length === 0) return;
-    const headers = ['ID', 'Nom Entreprise', 'Email', 'Numéro Identification (SIRET/BCE)', 'Pays', 'Moyen de Paiement', 'Date Inscription'];
+    const headers = ['ID', 'Nom Entreprise', 'Email', 'Identifiant Entreprise', 'Pays', 'Moyen de Paiement', 'Date Inscription'];
     const rows = filteredCompanies.map(c => [
       c.id,
       `"${c.name || ''}"`,
       `"${c.email || ''}"`,
-      `"${c.siret || c.bce || ''}"`,
+      `"${c.siret || c.bce || c.rcs_lux || c.ide_ch || c.registration_number || ''}"`,
       c.country || (c.bce ? 'BE' : 'FR'),
       c.has_payment_method ? 'Configuré' : 'Non configuré',
       c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : ''
@@ -80,7 +80,10 @@ export default function AdminCompanies() {
       c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.siret?.includes(searchTerm) ||
-      c.bce?.includes(searchTerm);
+      c.bce?.includes(searchTerm) ||
+      c.rcs_lux?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.ide_ch?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.registration_number?.toLowerCase().includes(searchTerm.toLowerCase());
     const companyCountry = c.country || (c.bce ? 'BE' : 'FR');
     const matchesCountry = filterCountry === 'all' || companyCountry === filterCountry;
     return matchesSearch && matchesCountry;
@@ -117,15 +120,17 @@ export default function AdminCompanies() {
             className="px-3 py-2 border border-slate-200 rounded-xl text-sm font-medium bg-slate-50 focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
             <option value="all">Tous les Pays</option>
-            <option value="FR">France (SIRET)</option>
-            <option value="BE">Belgique (BCE)</option>
+            <option value="FR">🇫🇷 France (SIRET)</option>
+            <option value="BE">🇧🇪 Belgique (BCE)</option>
+            <option value="LU">🇱🇺 Luxembourg (RCS/TVA)</option>
+            <option value="CH">🇨🇭 Suisse (IDE)</option>
           </select>
 
           <div className="relative flex-1 sm:w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Rechercher nom, SIRET, BCE..."
+              placeholder="Rechercher nom, SIRET, BCE, IDE..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm bg-slate-50"
@@ -139,16 +144,23 @@ export default function AdminCompanies() {
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200">
               <th className="text-left py-3 px-4 font-semibold text-slate-700">Nom</th>
-              <th className="text-left py-3 px-4 font-semibold text-slate-700">SIRET</th>
-                          <th className="text-center py-3 px-4 font-semibold text-slate-700">Paiement</th>
+              <th className="text-left py-3 px-4 font-semibold text-slate-700">Identifiant</th>
+              <th className="text-center py-3 px-4 font-semibold text-slate-700">Paiement</th>
               <th className="text-center py-3 px-4 font-semibold text-slate-700">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredCompanies.map((company) => (
               <tr key={company.id} className="border-b border-slate-100">
-                <td className="py-3 px-4">{company.name || '—'}</td>
-                <td className="py-3 px-4">{company.siret || '—'}</td>
+                <td className="py-3 px-4">
+                  <div className="flex items-center gap-2">
+                    <span>{company.country === 'BE' ? '🇧🇪' : company.country === 'LU' ? '🇱🇺' : company.country === 'CH' ? '🇨🇭' : '🇫🇷'}</span>
+                    <span className="font-semibold text-slate-900">{company.name || '—'}</span>
+                  </div>
+                </td>
+                <td className="py-3 px-4 text-xs font-mono text-slate-600">
+                  {company.siret || company.bce || company.rcs_lux || company.ide_ch || company.registration_number || '—'}
+                </td>
                                 <td className="py-3 px-4 text-center">
                                   {company.has_payment_method ? (
                                     <span className="text-green-600 font-medium">Payante</span>

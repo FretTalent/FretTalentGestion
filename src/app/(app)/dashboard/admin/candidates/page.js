@@ -230,8 +230,10 @@ export default function AdminCandidates() {
               className="px-3 py-2 border border-slate-200 rounded-xl text-sm font-medium bg-slate-50 focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
               <option value="all">Tous les Pays</option>
-              <option value="FR">France</option>
-              <option value="BE">Belgique</option>
+              <option value="FR">🇫🇷 France</option>
+              <option value="BE">🇧🇪 Belgique</option>
+              <option value="LU">🇱🇺 Luxembourg</option>
+              <option value="CH">🇨🇭 Suisse</option>
             </select>
 
             {/* Filter Status */}
@@ -379,7 +381,10 @@ export default function AdminCandidates() {
                         <p className="text-xs text-slate-400">{candidate.phone || '—'}</p>
                       </td>
                       <td className="py-4 px-5">
-                        <p className="text-sm text-slate-700">{candidate.city || '—'}</p>
+                        <div className="flex items-center gap-1.5">
+                          <span>{candidate.country === 'BE' ? '🇧🇪' : candidate.country === 'LU' ? '🇱🇺' : candidate.country === 'CH' ? '🇨🇭' : '🇫🇷'}</span>
+                          <span className="text-sm text-slate-700 font-medium">{candidate.city || '—'}</span>
+                        </div>
                         <p className="text-xs text-slate-400">{candidate.postal_code || ''}</p>
                       </td>
                       <td className="py-4 px-5 text-center">

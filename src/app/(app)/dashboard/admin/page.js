@@ -74,6 +74,8 @@ export default function AdminDashboard() {
       const pendingCand = candidates ? candidates.filter(c => !c.validated).length : 0;
       const frCand = candidates ? candidates.filter(c => (c.country || 'FR') === 'FR').length : 0;
       const beCand = candidates ? candidates.filter(c => c.country === 'BE').length : 0;
+      const luCand = candidates ? candidates.filter(c => c.country === 'LU').length : 0;
+      const chCand = candidates ? candidates.filter(c => c.country === 'CH').length : 0;
 
       // Fetch companies
       const { count: compCount } = await supabase
@@ -113,6 +115,8 @@ export default function AdminDashboard() {
         totalRevenue: totalRev,
         franceCandidates: frCand,
         belgiumCandidates: beCand,
+        luxembourgCandidates: luCand,
+        switzerlandCandidates: chCand,
       });
 
       setRecentCandidates(candidates ? candidates.slice(0, 5) : []);
@@ -226,10 +230,12 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="flex items-center justify-between text-xs pt-1">
-            <span className="text-slate-500 font-medium">🇫🇷 {stats.franceCandidates} | 🇧🇪 {stats.belgiumCandidates}</span>
+            <span className="text-slate-500 font-medium truncate">
+              🇫🇷 {stats.franceCandidates} | 🇧🇪 {stats.belgiumCandidates} | 🇱🇺 {stats.luxembourgCandidates || 0} | 🇨🇭 {stats.switzerlandCandidates || 0}
+            </span>
             <button
               onClick={() => router.push('/dashboard/admin/candidates')}
-              className="text-orange-500 hover:underline font-bold flex items-center gap-0.5"
+              className="text-orange-500 hover:underline font-bold flex items-center gap-0.5 flex-shrink-0 ml-1"
             >
               Gérer <ChevronRight className="h-3 w-3" />
             </button>
@@ -247,7 +253,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="flex items-center justify-between text-xs pt-1">
-            <span className="text-slate-500 font-medium">SIRET & BCE vérifiés</span>
+            <span className="text-slate-500 font-medium">SIRET, BCE, RCS & IDE vérifiés</span>
             <button
               onClick={() => router.push('/dashboard/admin/companies')}
               className="text-blue-600 hover:underline font-bold flex items-center gap-0.5"

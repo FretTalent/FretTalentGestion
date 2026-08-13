@@ -80,7 +80,7 @@ export default function RootLayout({ children }) {
     url: 'https://www.frettalent.fr',
     logo: 'https://www.frettalent.fr/logo.png',
     description:
-      'Plateforme de recrutement en direct pour les chauffeurs routiers et transporteurs en France et en Belgique.',
+      'Plateforme de recrutement en direct pour les chauffeurs routiers et transporteurs en France, Belgique, Luxembourg et Suisse.',
     address: {
       '@type': 'PostalAddress',
       streetAddress: '7 RUE DE BOIS',
@@ -88,7 +88,7 @@ export default function RootLayout({ children }) {
       postalCode: '02270',
       addressCountry: 'FR',
     },
-    areaServed: ['FR', 'BE'],
+    areaServed: ['FR', 'BE', 'LU', 'CH'],
     priceRange: '€',
   };
 

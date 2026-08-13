@@ -9,7 +9,7 @@ export default function AddressAutocomplete({
   placeholder = "Saisissez une adresse complète...",
   required = false,
   className = "",
-  country = "FR" // "FR" ou "BE"
+  country = "FR" // "FR" | "BE" | "LU" | "CH"
 }) {
   const [query, setQuery] = useState(initialValue);
   const [results, setResults] = useState([]);
@@ -44,44 +44,59 @@ export default function AddressAutocomplete({
     
     setLoading(true);
     try {
-      if (country === 'BE') {
+      const countryUpper = (country || 'FR').toUpperCase();
+
+      if (countryUpper === 'FR') {
+        // France (API Data.gouv - ultra rapide et précise)
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchTerm)}&format=json&addressdetails=1&limit=5&countrycodes=be`,
-          { headers: { 'User-Agent': 'FretTalentApp/1.0' } }
+          `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(searchTerm)}&limit=5`
         );
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          const formatted = data.map((item, idx) => {
-            const addr = item.address || {};
-            const street = addr.road || addr.pedestrian || addr.suburb || item.name || '';
-            const houseNum = addr.house_number ? `${addr.house_number} ` : '';
-            const streetAddr = `${houseNum}${street}`.trim() || item.display_name.split(',')[0];
-            const city = addr.city || addr.town || addr.village || addr.municipality || '';
-            const postcode = addr.postcode || '';
-            const label = `${streetAddr}${postcode ? `, ${postcode}` : ''}${city ? ` ${city}` : ''}`;
-            
-            return {
-              id: item.place_id || idx,
-              name: streetAddr,
-              city: city,
-              postcode: postcode,
-              fullLabel: label
-            };
-          });
-          setResults(formatted);
-        }
-      } else {
-        // France par défaut (API Data.gouv)
-        const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(searchTerm)}&limit=5`);
         const data = await response.json();
         if (data && data.features) {
           const formatted = data.features.map((feature) => ({
-            id: feature.properties.id,
+            id: feature.properties.id || `${feature.properties.postcode}-${feature.properties.city}`,
             name: feature.properties.name,
             city: feature.properties.city,
             postcode: feature.properties.postcode,
-            fullLabel: feature.properties.label
+            fullLabel: feature.properties.label,
           }));
+          setResults(formatted);
+        }
+      } else {
+        // Belgique (BE), Luxembourg (LU), Suisse (CH) via Nominatim OpenStreetMap
+        const countryCodeParam = countryUpper.toLowerCase();
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchTerm)}&format=json&addressdetails=1&limit=6&countrycodes=${countryCodeParam}`,
+          { headers: { 'User-Agent': 'FretTalentApp/1.0 (contact@frettalent.fr)' } }
+        );
+        const data = await response.json();
+
+        if (Array.isArray(data)) {
+          const formatted = data.map((item, idx) => {
+            const addr = item.address || {};
+            const street = addr.road || addr.pedestrian || addr.footway || addr.suburb || addr.neighbourhood || item.name || '';
+            const houseNum = addr.house_number ? `${addr.house_number} ` : '';
+            const streetAddr = `${houseNum}${street}`.trim() || item.display_name.split(',')[0];
+            const city = addr.city || addr.town || addr.village || addr.municipality || addr.county || '';
+            const postcode = addr.postcode || '';
+            
+            let label = streetAddr;
+            if (postcode && city) {
+              label = `${streetAddr ? `${streetAddr}, ` : ''}${postcode} ${city}`;
+            } else if (city) {
+              label = `${streetAddr ? `${streetAddr}, ` : ''}${city}`;
+            } else {
+              label = item.display_name;
+            }
+            
+            return {
+              id: item.place_id || idx,
+              name: streetAddr || city,
+              city: city,
+              postcode: postcode,
+              fullLabel: label,
+            };
+          });
           setResults(formatted);
         }
       }
@@ -97,10 +112,10 @@ export default function AddressAutocomplete({
     setQuery(val);
     setIsOpen(true);
     
-    // Vider les données sélectionnées si l'utilisateur modifie
+    // Transmettre la valeur tapée si l'utilisateur modifie sans sélectionner
     if (onAddressSelect) {
       onAddressSelect({
-        address: val, // on garde au moins ce qui est tapé manuellement
+        address: val,
         city: '',
         postalCode: '',
         fullLabel: val
@@ -119,7 +134,7 @@ export default function AddressAutocomplete({
     
     if (onAddressSelect) {
       onAddressSelect({
-        address: item.name, // Nom de voie + numéro
+        address: item.name,
         city: item.city,
         postalCode: item.postcode,
         fullLabel: item.fullLabel
@@ -159,7 +174,7 @@ export default function AddressAutocomplete({
                   <MapPin className="w-4 h-4 text-orange-500 mt-0.5 shrink-0" />
                   <div className="flex flex-col">
                     <span className="text-sm font-medium text-slate-900">
-                      {item.name}
+                      {item.name || item.fullLabel}
                     </span>
                     <span className="text-xs text-slate-500">
                       {item.postcode} {item.city}

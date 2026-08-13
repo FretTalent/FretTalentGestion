@@ -534,11 +534,9 @@ export default function RecruiterDashboard() {
                             <span className="text-xs font-black text-orange-500 uppercase">
                               {isUnlocked ? cand.full_name : 'Chauffeur Anonyme'}
                             </span>
-                            {cand.country === 'BE' ? (
-                              <span className="text-xs">🇧🇪</span>
-                            ) : (
-                              <span className="text-xs">🇫🇷</span>
-                            )}
+                            <span className="text-xs">
+                              {cand.country === 'BE' ? '🇧🇪' : cand.country === 'LU' ? '🇱🇺' : cand.country === 'CH' ? '🇨🇭' : '🇫🇷'}
+                            </span>
                           </div>
                           <h4 className="font-bold text-slate-900">
                             {cand.city || '—'}{' '}
@@ -737,6 +735,10 @@ export default function RecruiterDashboard() {
                       <div className="font-bold text-slate-900 mt-1">
                         {selectedCandidate.country === 'BE'
                           ? '🇧🇪 Belgique'
+                          : selectedCandidate.country === 'LU'
+                          ? '🇱🇺 Luxembourg'
+                          : selectedCandidate.country === 'CH'
+                          ? '🇨🇭 Suisse'
                           : '🇫🇷 France'}
                       </div>
                     </div>

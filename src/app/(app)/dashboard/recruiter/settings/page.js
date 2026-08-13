@@ -27,7 +27,8 @@ export default function RecruiterSettings() {
 
   // Form states
   const [name, setName] = useState('');
-  const [siret, setSiret] = useState('');
+  const [country, setCountry] = useState('FR');
+  const [companyId, setCompanyId] = useState('');
   const [addressInfo, setAddressInfo] = useState({ address: '', postalCode: '', city: '' });
   const [subscriptionPlan, setSubscriptionPlan] = useState('pay_per_unlock');
 
@@ -66,7 +67,8 @@ export default function RecruiterSettings() {
       if (compData) {
         setCompany(compData);
         setName(compData.name || '');
-        setSiret(compData.siret || '');
+        setCountry(compData.country || 'FR');
+        setCompanyId(compData.siret || compData.bce || compData.rcs_lux || compData.ide_ch || compData.registration_number || '');
         setAddressInfo({
           address: compData.address || '',
           postalCode: compData.postal_code || '',
@@ -88,11 +90,14 @@ export default function RecruiterSettings() {
     setMessage(null);
 
     try {
+      const cleanId = companyId.trim();
       const { error } = await supabase
         .from('companies')
         .update({
           name,
-          siret,
+          country,
+          siret: country === 'FR' ? cleanId.replace(/\D/g, '') : null,
+          bce: country === 'BE' ? cleanId.replace(/\D/g, '') : null,
           address: addressInfo.address,
           postal_code: addressInfo.postalCode,
           city: addressInfo.city,
@@ -121,16 +126,17 @@ export default function RecruiterSettings() {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {})
+          'Authorization': `Bearer ${session?.access_token}`
         },
-        body: JSON.stringify({ plan: subscriptionPlan }),
+        body: JSON.stringify({ planId: subscriptionPlan }),
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      
-      // Redirect to Stripe
-      window.location.href = data.url;
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error(data.error || 'Erreur lors de la redirection');
+      }
     } catch (err) {
       toast.error(err.message || 'Erreur lors de la connexion à Stripe');
       setSaving(false);
@@ -139,14 +145,23 @@ export default function RecruiterSettings() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center min-h-[60vh]">
         <RefreshCw className="h-8 w-8 text-orange-500 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8 pb-12 font-sans">
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          Paramètres de l'entreprise
+        </h1>
+        <p className="text-slate-500 text-sm mt-1">
+          Gérez les informations légales, l'adresse de votre siège et votre facturation.
+        </p>
+      </div>
+
       {message && (
         <div className={`p-4 rounded-xl border ${message.type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
           <p className="text-sm font-semibold text-center">{message.text}</p>
@@ -164,6 +179,33 @@ export default function RecruiterSettings() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1 md:col-span-2">
               <label className="text-xs font-bold text-slate-700 uppercase">
+                Pays de l'entreprise *
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {[
+                  { code: 'FR', label: '🇫🇷 France' },
+                  { code: 'BE', label: '🇧🇪 Belgique' },
+                  { code: 'LU', label: '🇱🇺 Luxembourg' },
+                  { code: 'CH', label: '🇨🇭 Suisse' },
+                ].map(c => (
+                  <button
+                    key={c.code}
+                    type="button"
+                    onClick={() => setCountry(c.code)}
+                    className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-colors ${
+                      country === c.code
+                        ? 'bg-orange-500 text-white border-orange-500 shadow-sm'
+                        : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
+                    }`}
+                  >
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-1 md:col-span-2">
+              <label className="text-xs font-bold text-slate-700 uppercase">
                 Nom de l'entreprise *
               </label>
               <input
@@ -177,15 +219,15 @@ export default function RecruiterSettings() {
             
             <div className="space-y-1 md:col-span-2">
               <label className="text-xs font-bold text-slate-700 uppercase">
-                Numéro SIRET *
+                {country === 'FR' ? 'Numéro SIRET *' : country === 'BE' ? 'Numéro BCE *' : country === 'LU' ? 'RCS ou TVA Luxembourg *' : 'Numéro IDE Suisse *'}
               </label>
               <input
                 type="text"
                 required
-                value={siret}
-                onChange={e => setSiret(e.target.value)}
+                value={companyId}
+                onChange={e => setCompanyId(e.target.value)}
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                placeholder="14 chiffres"
+                placeholder={country === 'FR' ? '14 chiffres' : country === 'BE' ? '10 chiffres' : country === 'LU' ? 'B123456 ou LU12345678' : 'CHE-123.456.789'}
               />
             </div>
 
@@ -196,6 +238,7 @@ export default function RecruiterSettings() {
               <AddressAutocomplete 
                 initialValue={addressInfo.fullLabel || addressInfo.city}
                 onAddressSelect={setAddressInfo}
+                country={country}
                 required={true}
               />
             </div>

@@ -203,7 +203,7 @@ export default function Footer() {
             </a>
           </div>
           <p className="bg-slate-800 text-orange-400 px-3.5 py-1.5 rounded-full font-medium text-center">
-            100% gratuit pour les chauffeurs — Compatible SIRET (France) & BCE (Belgique)
+            100% gratuit pour les chauffeurs — Compatible SIRET (FR), BCE (BE), RCS/TVA (LU) & IDE (CH)
           </p>
         </div>
       </div>

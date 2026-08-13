@@ -385,7 +385,7 @@ export default function CandidateAdminProfile() {
                 </div>
                 {!allRequiredUploaded && (
                   <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl p-3 font-medium">
-                    ⚠ {uploadedRequired}/{REQUIRED_KEYS.length} documents obligatoires déposés. Il est conseillé d'attendre la complétion.
+                    ⚠ {uploadedRequiredCount}/4 catégories obligatoires déposées. Il est conseillé d'attendre la complétion.
                   </div>
                 )}
                 <button

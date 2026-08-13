@@ -1,20 +1,24 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 
 export async function GET(request) {
   try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
     const authHeader = request.headers.get('authorization');
     if (!authHeader) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
     const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
     if (userError || !user) {
       return NextResponse.json({ error: 'Session invalide' }, { status: 401 });
     }
 
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('role')
       .eq('id', user.id)
@@ -38,8 +42,8 @@ export async function GET(request) {
       startDate = new Date(0); // all
     }
 
-    // Récupération des vues de page
-    const { data: views, error: viewsError } = await supabase
+    // Récupération des vues de page avec supabaseAdmin
+    const { data: views, error: viewsError } = await supabaseAdmin
       .from('page_views')
       .select('*')
       .gte('created_at', startDate.toISOString())

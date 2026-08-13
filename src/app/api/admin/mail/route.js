@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { render } from '@react-email/render';
-import nodemailer from 'nodemailer';
+import { resend } from '@/lib/resend';
 import MarketingEmail from '@/emails/MarketingEmail';
 
 export async function POST(req) {
@@ -57,15 +57,6 @@ export async function POST(req) {
         .map(e => e.trim())
         .filter(e => e);
     } else if (target === 'all_candidates' || target === 'all_companies') {
-      const tableName =
-        target === 'all_candidates' ? 'candidates' : 'companies';
-      // Fetch users from auth.users via profiles, but since candidates/companies tables have emails?
-      // Wait, candidates table has 'email'. companies table doesn't have email in the schema! It relies on auth.users for email.
-      // So we should query auth.users instead, filtering by role in profiles.
-      // Or query profiles and fetch email from auth.users.
-      // Fortunately, supabaseAdmin.auth.admin.listUsers() can list users.
-      // But a simple join on profiles and candidates/companies might be easier.
-      // Let's just fetch from profiles and then use auth admin API to map emails.
       const roleFilter =
         target === 'all_candidates' ? 'candidate' : 'recruiter';
       const { data: profilesList } = await supabaseAdmin
@@ -74,7 +65,6 @@ export async function POST(req) {
         .eq('role', roleFilter);
 
       if (profilesList && profilesList.length > 0) {
-        // Fetch all users to get their emails
         const {
           data: { users },
         } = await supabaseAdmin.auth.admin.listUsers();
@@ -104,40 +94,32 @@ export async function POST(req) {
       />,
     );
 
-    // 4. Configuration Nodemailer
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp-fr.securemail.pro',
-      port: parseInt(process.env.SMTP_PORT || '465'),
-      secure: true, // true for 465, false for other ports
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'FretTalent <support@frettalent.fr>';
 
-    // 5. Envoi individuel à chaque destinataire pour meilleure délivrabilité
-    // (un mail par personne = moins de spam, pas de copie à support)
+    // 4. Envoi via Resend (Domaine vérifié DKIM / SPF)
     let sentCount = 0;
     const errors = [];
 
     for (const email of recipientEmails) {
       try {
-        const mailOptions = {
-          from: `"FretTalent" <${process.env.SMTP_USER}>`,
+        const { error: resendError } = await resend.emails.send({
+          from: fromEmail,
           to: email,
           subject: subject || title,
           html: htmlBody,
-          // Headers anti-spam
           headers: {
-            'X-Mailer': 'FretTalent Mailer 1.0',
-            'List-Unsubscribe': `<mailto:${process.env.SMTP_USER}?subject=unsubscribe>`,
-            'Precedence': 'bulk',
+            'List-Unsubscribe': `<mailto:support@frettalent.fr?subject=unsubscribe>`,
           },
-        };
-        await transporter.sendMail(mailOptions);
-        sentCount++;
+        });
+
+        if (resendError) {
+          console.error(`Erreur Resend pour ${email}:`, resendError);
+          errors.push(email);
+        } else {
+          sentCount++;
+        }
       } catch (err) {
-        console.error(`Erreur envoi à ${email}:`, err.message);
+        console.error(`Exception envoi Resend à ${email}:`, err.message);
         errors.push(email);
       }
     }

@@ -34,94 +34,92 @@ export default function Header() {
 
   return (
     <>
-      <div
-        className={`sticky top-0 z-50 w-full flex justify-center transition-all duration-300 ${
-          scrolled ? 'md:pt-4' : 'pt-0'
-        }`}
-      >
+      <div className="sticky top-0 z-50 w-full transition-all duration-300">
         <header
-          className={`w-full transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] flex items-center justify-between ${
+          className={`w-full transition-all duration-300 ${
             scrolled
-              ? 'max-w-6xl bg-white/80 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-b md:border border-slate-200/60 md:rounded-full py-2.5 px-4 md:px-6'
-              : 'max-w-7xl bg-white/95 md:bg-white/0 md:backdrop-blur-none border-b border-slate-100 md:border-transparent py-4 md:py-6 px-4 md:px-8'
+              ? 'bg-white/85 backdrop-blur-2xl shadow-sm border-b border-slate-200/60 py-3'
+              : 'bg-white/95 md:bg-white/0 border-b border-slate-100 md:border-transparent py-5'
           }`}
         >
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group flex-shrink-0">
-            <img
-              src="/logo.png"
-              alt="FretTalent"
-              className={`w-auto object-contain transition-all duration-500 group-hover:scale-105 ${
-                scrolled ? 'h-10 md:h-12' : 'h-14 md:h-16'
-              }`}
-            />
-          </Link>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-2 group flex-shrink-0">
+              <img
+                src="/logo.png"
+                alt="FretTalent"
+                className={`w-auto object-contain transition-all duration-500 group-hover:scale-105 ${
+                  scrolled ? 'h-12 md:h-14' : 'h-14 md:h-16'
+                }`}
+              />
+            </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-2">
-            {navLinks.map((link) => (
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center gap-1 xl:gap-3">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  href={link.path}
+                  className={`whitespace-nowrap relative px-3 xl:px-4 py-2 text-sm font-semibold rounded-full transition-all duration-300 ${
+                    isActive(link.path)
+                      ? 'text-orange-700 bg-orange-100/80'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              ))}
               <Link
-                key={link.path}
-                href={link.path}
-                className={`relative px-4 py-2 text-sm font-semibold rounded-full transition-all duration-300 ${
-                  isActive(link.path)
-                    ? 'text-orange-700 bg-orange-100/80'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
+                href="/offres"
+                className={`whitespace-nowrap group relative flex items-center gap-2 px-4 xl:px-5 py-2 text-sm font-bold rounded-full transition-all duration-300 ${
+                  isActive('/offres')
+                    ? 'bg-orange-500 text-white shadow-md shadow-orange-500/25'
+                    : 'text-orange-600 bg-orange-50 hover:bg-orange-500 hover:text-white hover:shadow-lg hover:shadow-orange-500/30'
                 }`}
               >
-                {link.name}
+                Offres d'emploi
+                <div className="relative flex h-2 w-2 ml-0.5">
+                  <span
+                    className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                      isActive('/offres') ? 'bg-white' : 'bg-orange-400 group-hover:bg-white'
+                    }`}
+                  ></span>
+                  <span
+                    className={`relative inline-flex rounded-full h-2 w-2 ${
+                      isActive('/offres') ? 'bg-white' : 'bg-orange-500 group-hover:bg-white'
+                    }`}
+                  ></span>
+                </div>
               </Link>
-            ))}
-            <Link
-              href="/offres"
-              className={`group relative flex items-center gap-2 px-5 py-2 ml-2 text-sm font-bold rounded-full transition-all duration-300 ${
-                isActive('/offres')
-                  ? 'bg-orange-500 text-white shadow-md shadow-orange-500/25'
-                  : 'text-orange-600 bg-orange-50 hover:bg-orange-500 hover:text-white hover:shadow-lg hover:shadow-orange-500/30'
-              }`}
-            >
-              Offres d'emploi
-              <div className="relative flex h-2 w-2 ml-0.5">
-                <span
-                  className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                    isActive('/offres') ? 'bg-white' : 'bg-orange-400 group-hover:bg-white'
-                  }`}
-                ></span>
-                <span
-                  className={`relative inline-flex rounded-full h-2 w-2 ${
-                    isActive('/offres') ? 'bg-white' : 'bg-orange-500 group-hover:bg-white'
-                  }`}
-                ></span>
-              </div>
-            </Link>
-          </nav>
+            </nav>
 
-          {/* CTA Buttons & Mobile Toggle */}
-          <div className="flex items-center gap-2 md:gap-3">
-            <Link
-              href="/login"
-              className={`hidden md:flex px-4 py-2.5 text-sm font-bold rounded-full transition-all duration-300 ${
-                isActive('/login')
-                  ? 'text-orange-600 bg-orange-50'
-                  : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100/80'
-              }`}
-            >
-              Connexion
-            </Link>
-            <Link
-              href="/register"
-              className="inline-flex items-center justify-center px-5 py-2.5 md:px-6 md:py-2.5 rounded-full text-sm font-extrabold text-white bg-gradient-to-tr from-orange-600 to-orange-400 hover:from-orange-500 hover:to-orange-400 shadow-[0_4px_14px_0_rgba(249,115,22,0.39)] hover:shadow-[0_6px_20px_rgba(249,115,22,0.23)] hover:-translate-y-0.5 transition-all duration-300"
-            >
-              Je m'inscris
-            </Link>
-            
-            {/* Mobile Menu Toggle */}
-            <button
-              className="lg:hidden p-2 text-slate-600 hover:text-orange-500 hover:bg-orange-50 rounded-full transition-colors ml-1"
-              onClick={() => setMobileMenuOpen(true)}
-            >
-              <Menu className="h-6 w-6" />
-            </button>
+            {/* CTA Buttons & Mobile Toggle */}
+            <div className="flex items-center gap-2 md:gap-3">
+              <Link
+                href="/login"
+                className={`whitespace-nowrap hidden md:flex px-4 py-2.5 text-sm font-bold rounded-full transition-all duration-300 ${
+                  isActive('/login')
+                    ? 'text-orange-600 bg-orange-50'
+                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100/80'
+                }`}
+              >
+                Connexion
+              </Link>
+              <Link
+                href="/register"
+                className="whitespace-nowrap inline-flex items-center justify-center px-4 py-2.5 md:px-6 md:py-2.5 rounded-full text-sm font-extrabold text-white bg-gradient-to-tr from-orange-600 to-orange-400 hover:from-orange-500 hover:to-orange-400 shadow-[0_4px_14px_0_rgba(249,115,22,0.39)] hover:shadow-[0_6px_20px_rgba(249,115,22,0.23)] hover:-translate-y-0.5 transition-all duration-300"
+              >
+                Je m'inscris
+              </Link>
+              
+              {/* Mobile Menu Toggle */}
+              <button
+                className="lg:hidden p-2 text-slate-600 hover:text-orange-500 hover:bg-orange-50 rounded-full transition-colors ml-1"
+                onClick={() => setMobileMenuOpen(true)}
+              >
+                <Menu className="h-6 w-6" />
+              </button>
+            </div>
           </div>
         </header>
       </div>

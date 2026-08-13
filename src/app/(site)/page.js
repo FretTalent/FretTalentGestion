@@ -119,7 +119,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-orange-500 selection:text-white">
-      <main className="flex-grow flex items-center">
+      <main className="flex-grow flex flex-col">
         {/* HERO SECTION UNIQUE */}
         <section className="w-full relative overflow-hidden py-16 md:py-24">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

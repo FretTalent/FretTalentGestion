@@ -328,12 +328,25 @@ export default function AdminCandidates() {
                   const docs = candidate.documents || {};
                   const isDocPresent = (key, legacyKey) => !!docs[key] || (legacyKey && !!docs[legacyKey]);
                   const hasCv = isDocPresent('cv');
-                  const hasPermis = isDocPresent('permis_recto', 'permis') || isDocPresent('permis_verso');
-                  const hasChrono = isDocPresent('chrono_recto', 'chrono') || isDocPresent('chrono_verso');
-                  const hasFimo = isDocPresent('fimo_recto', 'fimo') || isDocPresent('fimo_verso');
+                  const hasPermisRecto = isDocPresent('permis_recto', 'permis');
+                  const hasPermisVerso = isDocPresent('permis_verso', 'permis');
+                  const hasChronoRecto = isDocPresent('chrono_recto', 'chrono');
+                  const hasChronoVerso = isDocPresent('chrono_verso', 'chrono');
+                  const hasFimoRecto = isDocPresent('fimo_recto', 'fimo');
+                  const hasFimoVerso = isDocPresent('fimo_verso', 'fimo');
                   
-                  const uploadedRequired = [hasCv, hasPermis, hasChrono, hasFimo].filter(Boolean).length;
-                  const totalRequired = 4;
+                  const requiredDocs = [
+                    hasCv,
+                    hasPermisRecto,
+                    hasPermisVerso,
+                    hasChronoRecto,
+                    hasChronoVerso,
+                    hasFimoRecto,
+                    hasFimoVerso,
+                  ];
+                  
+                  const uploadedRequired = requiredDocs.filter(Boolean).length;
+                  const totalRequired = 7;
                   const docsProgress = Math.round((uploadedRequired / totalRequired) * 100);
 
                   return (

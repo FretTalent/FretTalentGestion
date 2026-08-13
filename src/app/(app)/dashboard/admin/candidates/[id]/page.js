@@ -211,12 +211,25 @@ export default function CandidateAdminProfile() {
   const isDocPresent = (key, legacyKey) => !!docs[key] || (legacyKey && !!docs[legacyKey]);
   
   const hasCv = isDocPresent('cv');
-  const hasPermis = isDocPresent('permis_recto', 'permis') || isDocPresent('permis_verso');
-  const hasChrono = isDocPresent('chrono_recto', 'chrono') || isDocPresent('chrono_verso');
-  const hasFimo = isDocPresent('fimo_recto', 'fimo') || isDocPresent('fimo_verso');
+  const hasPermisRecto = isDocPresent('permis_recto', 'permis');
+  const hasPermisVerso = isDocPresent('permis_verso', 'permis');
+  const hasChronoRecto = isDocPresent('chrono_recto', 'chrono');
+  const hasChronoVerso = isDocPresent('chrono_verso', 'chrono');
+  const hasFimoRecto = isDocPresent('fimo_recto', 'fimo');
+  const hasFimoVerso = isDocPresent('fimo_verso', 'fimo');
   
-  const allRequiredUploaded = hasCv && hasPermis && hasChrono && hasFimo;
-  const uploadedRequiredCount = [hasCv, hasPermis, hasChrono, hasFimo].filter(Boolean).length;
+  const requiredDocs = [
+    hasCv,
+    hasPermisRecto,
+    hasPermisVerso,
+    hasChronoRecto,
+    hasChronoVerso,
+    hasFimoRecto,
+    hasFimoVerso,
+  ];
+
+  const allRequiredUploaded = requiredDocs.every(Boolean);
+  const uploadedRequiredCount = requiredDocs.filter(Boolean).length;
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -385,7 +398,7 @@ export default function CandidateAdminProfile() {
                 </div>
                 {!allRequiredUploaded && (
                   <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl p-3 font-medium">
-                    ⚠ {uploadedRequiredCount}/4 catégories obligatoires déposées. Il est conseillé d'attendre la complétion.
+                    ⚠ {uploadedRequiredCount}/7 documents obligatoires déposés. Il est conseillé d'attendre la complétion.
                   </div>
                 )}
                 <button
@@ -423,7 +436,7 @@ export default function CandidateAdminProfile() {
                     : 'bg-orange-100 text-orange-700'
                 }`}
               >
-                {uploadedRequiredCount}/4 catégories obligatoires
+                {uploadedRequiredCount}/7 documents obligatoires
               </span>
             </div>
 

@@ -81,9 +81,13 @@ export default function Home() {
             // 2. Documents obligatoires tous présents
             // 3. Coordonnées géographiques valides (déjà filtrées)
             // 4. Candidat disponible (availability défini et is_active)
-            const REQUIRED_DOCS = ['cv', 'permis', 'chrono', 'fimo'];
             const docs = c.documents || {};
-            const allDocsPresent = REQUIRED_DOCS.every(k => !!docs[k]);
+            const isDocPresent = (key, legacyKey) => !!docs[key] || (legacyKey && !!docs[legacyKey]);
+            const allDocsPresent = 
+              isDocPresent('cv') &&
+              (isDocPresent('permis_recto', 'permis') && isDocPresent('permis_verso', 'permis')) &&
+              (isDocPresent('chrono_recto', 'chrono') && isDocPresent('chrono_verso', 'chrono')) &&
+              (isDocPresent('fimo_recto', 'fimo') && isDocPresent('fimo_verso', 'fimo'));
             const isAvailable = c.is_active && c.availability && c.availability !== '';
             const fullVerified = c.validated && allDocsPresent && isAvailable;
 

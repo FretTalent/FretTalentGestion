@@ -16,7 +16,7 @@ import {
 
 const FAQ_DATA = [
   {
-    category: '🚚 Chauffeurs & Candidats',
+    category: 'Chauffeurs & Candidats',
     icon: Truck,
     color: 'text-orange-500',
     bg: 'bg-orange-50',
@@ -48,7 +48,7 @@ const FAQ_DATA = [
     ]
   },
   {
-    category: '🏢 Entreprises & Recruteurs',
+    category: 'Entreprises & Recruteurs',
     icon: Building2,
     color: 'text-blue-600',
     bg: 'bg-blue-50',
@@ -76,7 +76,7 @@ const FAQ_DATA = [
     ]
   },
   {
-    category: '💳 Tarifs & Facturation',
+    category: 'Tarifs & Facturation',
     icon: CreditCard,
     color: 'text-green-600',
     bg: 'bg-green-50',
@@ -100,7 +100,7 @@ const FAQ_DATA = [
     ]
   },
   {
-    category: '🔒 Sécurité, Modération & Général',
+    category: 'Sécurité, Modération & Général',
     icon: ShieldCheck,
     color: 'text-purple-600',
     bg: 'bg-purple-50',

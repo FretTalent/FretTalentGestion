@@ -145,7 +145,7 @@ export default function APropos() {
           <span className="text-xs font-bold text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-100">
             Roadmap & Projets futurs
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-955">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-950">
             L'avenir de FretTalent
           </h2>
           <p className="text-slate-600 text-base">
@@ -180,7 +180,7 @@ export default function APropos() {
       </section>
 
       {/* CTA Final */}
-      <section className="py-20 bg-slate-955 text-white text-center">
+      <section className="py-20 bg-slate-950 text-white text-center">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
             Prêt à faire partie de l'aventure ?
@@ -199,7 +199,7 @@ export default function APropos() {
             </Link>
             <Link
               href="/register?role=recruiter"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-bold text-white border-2 border-slate-700 hover:border-white transition-all duration-300"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-bold text-slate-900 bg-white hover:bg-slate-100 border border-slate-200 transition-all duration-300"
             >
               Je suis Recruteur
             </Link>

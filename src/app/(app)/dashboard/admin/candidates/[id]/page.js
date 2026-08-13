@@ -296,13 +296,13 @@ export default function CandidateAdminProfile() {
                     : '—'}
                 </span>
               </div>
-              {candidate.license_types && (
+              {(candidate.licenses || candidate.license_types) && (
                 <div className="flex items-start gap-3 text-sm">
                   <Truck className="h-4 w-4 text-slate-400 flex-shrink-0 mt-0.5" />
                   <span className="text-slate-700">
-                    {Array.isArray(candidate.license_types)
-                      ? candidate.license_types.join(', ')
-                      : candidate.license_types}
+                    {Array.isArray(candidate.licenses || candidate.license_types)
+                      ? (candidate.licenses || candidate.license_types).join(', ')
+                      : (candidate.licenses || candidate.license_types)}
                   </span>
                 </div>
               )}
@@ -582,13 +582,13 @@ export default function CandidateAdminProfile() {
           </div>
 
           {/* Champs complémentaires du profil */}
-          {(candidate.experience_years || candidate.availability || candidate.license_types) && (
+          {(candidate.experience_years !== undefined || candidate.availability || candidate.licenses || candidate.license_types || candidate.certifications) && (
             <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-4">
               <h2 className="text-lg font-extrabold text-slate-950 flex items-center gap-2">
                 <User className="h-5 w-5 text-orange-500" />
                 Informations métier
               </h2>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {candidate.experience_years !== undefined && candidate.experience_years !== null && (
                   <div className="bg-slate-50 rounded-2xl p-4">
                     <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-1">
@@ -607,21 +607,38 @@ export default function CandidateAdminProfile() {
                     <p className="text-sm font-bold text-slate-950">{candidate.availability}</p>
                   </div>
                 )}
-                {candidate.license_types && (
-                  <div className="bg-slate-50 rounded-2xl p-4 col-span-2">
+                {(candidate.licenses || candidate.license_types) && (
+                  <div className="bg-slate-50 rounded-2xl p-4 md:col-span-2">
                     <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-2">
-                      Permis
+                      Permis détenus
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {(Array.isArray(candidate.license_types)
-                        ? candidate.license_types
-                        : [candidate.license_types]
+                      {(Array.isArray(candidate.licenses || candidate.license_types)
+                        ? (candidate.licenses || candidate.license_types)
+                        : [candidate.licenses || candidate.license_types]
                       ).map(lt => (
                         <span
                           key={lt}
                           className="bg-orange-100 text-orange-700 text-xs font-bold px-3 py-1 rounded-full"
                         >
                           {lt}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {candidate.certifications && candidate.certifications.length > 0 && (
+                  <div className="bg-slate-50 rounded-2xl p-4 md:col-span-2">
+                    <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-2">
+                      Certifications & Formations
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {candidate.certifications.map(c => (
+                        <span
+                          key={c}
+                          className="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full"
+                        >
+                          {c}
                         </span>
                       ))}
                     </div>

@@ -57,10 +57,10 @@ export default function CommentCaMarche() {
   return (
     <div className="bg-white text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 bg-gradient-to-b from-slate-50 to-white border-b border-slate-100">
+      <section className="relative overflow-hidden pt-24 pb-20 bg-gradient-to-b from-slate-50 to-white border-b border-slate-100">
         <div className="absolute inset-0 bg-[radial-gradient(#f97316_1px,transparent_1px)] [background-size:24px_24px] opacity-5"></div>
-        <div className="absolute right-0 bottom-0 hidden md:block opacity-20 pointer-events-none">
-          <img src="https://png.pngtree.com/png-vector/20240309/ourmid/pngtree-orange-truck-transport-png-image_11920914.png" alt="Camion Transport" className="w-[450px] object-contain" />
+        <div className="absolute left-1/2 -translate-x-1/2 -bottom-8 hidden md:block opacity-20 pointer-events-none">
+          <img src="https://png.pngtree.com/png-vector/20240309/ourmid/pngtree-orange-truck-transport-png-image_11920914.png" alt="Camion Transport" className="w-[500px] md:w-[600px] object-contain" />
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-4">
           <span className="text-xs font-bold text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-100">

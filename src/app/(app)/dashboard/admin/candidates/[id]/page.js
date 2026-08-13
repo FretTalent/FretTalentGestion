@@ -45,6 +45,7 @@ export default function CandidateAdminProfile() {
   const [validating, setValidating] = useState(false);
   const [docLoading, setDocLoading] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [fetchError, setFetchError] = useState(null);
 
   useEffect(() => {
     if (candidateId) {
@@ -55,6 +56,7 @@ export default function CandidateAdminProfile() {
   const fetchCandidate = async () => {
     if (!candidateId) return;
     setLoading(true);
+    setFetchError(null);
     try {
       const {
         data: { user },
@@ -68,31 +70,52 @@ export default function CandidateAdminProfile() {
         .from('profiles')
         .select('role')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (profile?.role !== 'admin') {
         router.push('/');
         return;
       }
 
-      // Utiliser la session token pour appeler l'API admin (bypass RLS)
+      // 1. Tenter l'appel API admin
       const { data: { session } } = await supabase.auth.getSession();
-      const response = await fetch(`/api/admin/candidates/${candidateId}`, {
-        headers: {
-          Authorization: `Bearer ${session?.access_token || ''}`,
-        },
-      });
+      let fetchedCandidate = null;
 
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || 'Candidat non trouvé');
+      try {
+        const response = await fetch(`/api/admin/candidates/${candidateId}`, {
+          headers: {
+            Authorization: `Bearer ${session?.access_token || ''}`,
+          },
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          fetchedCandidate = result.candidate;
+        }
+      } catch (e) {
+        console.warn('API route failed, trying direct Supabase query...');
       }
 
-      const result = await response.json();
-      setCandidate(result.candidate);
+      // 2. Fallback direct via client Supabase si l'API route n'a pas répondu
+      if (!fetchedCandidate) {
+        const { data: directData, error: directErr } = await supabase
+          .from('candidates')
+          .select('*')
+          .eq('id', candidateId)
+          .maybeSingle();
 
+        if (directErr) throw directErr;
+        fetchedCandidate = directData;
+      }
+
+      if (!fetchedCandidate) {
+        setFetchError('Candidat introuvable');
+      } else {
+        setCandidate(fetchedCandidate);
+      }
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching candidate:', err);
+      setFetchError(err.message || 'Erreur lors du chargement du profil');
     } finally {
       setLoading(false);
     }

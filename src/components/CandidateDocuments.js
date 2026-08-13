@@ -16,10 +16,14 @@ import ConfirmModal from '@/components/ConfirmModal';
 
 const DOCUMENT_TYPES = [
   { key: 'cv', label: 'CV', required: true },
-  { key: 'permis', label: 'Permis de conduire', required: true },
-  { key: 'chrono', label: 'Carte Chronotachygraphe', required: true },
-  { key: 'fimo', label: 'FIMO / FCO', required: true },
-  { key: 'adr', label: 'Carte ADR', required: false },
+  { key: 'permis_recto', label: 'Permis de conduire (Recto)', required: true },
+  { key: 'permis_verso', label: 'Permis de conduire (Verso)', required: true },
+  { key: 'chrono_recto', label: 'Carte Chronotachygraphe (Recto)', required: true },
+  { key: 'chrono_verso', label: 'Carte Chronotachygraphe (Verso)', required: true },
+  { key: 'fimo_recto', label: 'FIMO / FCO (Recto)', required: true },
+  { key: 'fimo_verso', label: 'FIMO / FCO (Verso)', required: true },
+  { key: 'adr_recto', label: 'Carte ADR (Recto)', required: false },
+  { key: 'adr_verso', label: 'Carte ADR (Verso)', required: false },
   { key: 'formation', label: 'Attestation de formation', required: false },
   { key: 'autre', label: 'Autre document utile', required: false },
 ];

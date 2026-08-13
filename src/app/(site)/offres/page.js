@@ -126,6 +126,35 @@ export default function PublicJobsList() {
             ))}
           </div>
         )}
+
+        {/* Facebook Community Banner */}
+        <div className="bg-gradient-to-r from-blue-900 to-slate-900 rounded-3xl p-6 sm:p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl border border-blue-800/40">
+          <div className="space-y-2 text-center sm:text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold uppercase tracking-wider">
+              <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+              Alertes Offres Facebook
+            </div>
+            <h3 className="text-xl sm:text-2xl font-bold">
+              Ne manquez aucune opportunité de route
+            </h3>
+            <p className="text-sm text-slate-300 max-w-xl">
+              Toutes les nouvelles offres d&apos;emploi et actualités du transport sont également relayées sur notre page Facebook officielle.
+            </p>
+          </div>
+          <a
+            href="https://www.facebook.com/profile.php?id=61593021909293"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-shrink-0 bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold px-6 py-3.5 rounded-xl text-sm transition-all shadow-md flex items-center gap-2 hover:-translate-y-0.5"
+          >
+            <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+            Rejoindre la page Facebook
+          </a>
+        </div>
       </main>
     </div>
   );

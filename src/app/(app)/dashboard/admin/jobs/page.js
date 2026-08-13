@@ -52,17 +52,25 @@ export default function AdminJobs() {
     fetchJobs();
   }, []);
 
+  const getJobStatus = (job) => {
+    if (job.status) return job.status;
+    if (job.is_approved === true) return 'approved';
+    if (job.is_approved === false) return 'rejected';
+    return 'pending';
+  };
+
   const handleModerateJob = async (jobId, newStatus) => {
     setActionLoading(true);
     try {
+      const isApprovedBool = newStatus === 'approved';
       const { error } = await supabase
         .from('jobs')
-        .update({ status: newStatus })
+        .update({ status: newStatus, is_approved: isApprovedBool })
         .eq('id', jobId);
 
       if (error) throw error;
       setJobs(
-        jobs.map(j => (j.id === jobId ? { ...j, status: newStatus } : j)),
+        jobs.map(j => (j.id === jobId ? { ...j, status: newStatus, is_approved: isApprovedBool } : j)),
       );
       toast.success('Annonce mise à jour avec succès');
     } catch (err) {
@@ -134,7 +142,7 @@ export default function AdminJobs() {
     );
   }
 
-  const filteredJobs = jobs.filter(j => j.status === activeTab);
+  const filteredJobs = jobs.filter(j => getJobStatus(j) === activeTab);
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
@@ -157,7 +165,7 @@ export default function AdminJobs() {
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
-          En attente ({jobs.filter(j => j.status === 'pending').length})
+          En attente ({jobs.filter(j => getJobStatus(j) === 'pending').length})
         </button>
         <button
           onClick={() => setActiveTab('approved')}
@@ -167,7 +175,7 @@ export default function AdminJobs() {
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
-          En ligne ({jobs.filter(j => j.status === 'approved').length})
+          En ligne ({jobs.filter(j => getJobStatus(j) === 'approved').length})
         </button>
         <button
           onClick={() => setActiveTab('rejected')}
@@ -177,7 +185,7 @@ export default function AdminJobs() {
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
-          Rejetées ({jobs.filter(j => j.status === 'rejected').length})
+          Rejetées ({jobs.filter(j => getJobStatus(j) === 'rejected').length})
         </button>
       </div>
 
@@ -188,7 +196,9 @@ export default function AdminJobs() {
           </p>
         ) : (
           <div className="divide-y divide-slate-100">
-            {filteredJobs.map(job => (
+            {filteredJobs.map(job => {
+              const currentStatus = getJobStatus(job);
+              return (
               <div key={job.id} className="p-6">
                 {editingJob?.id === job.id ? (
                   <form onSubmit={handleSaveEdit} className="space-y-4">
@@ -314,12 +324,12 @@ export default function AdminJobs() {
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">
                           {job.contract_type}
                         </span>
-                        {job.status === 'approved' && (
+                        {currentStatus === 'approved' && (
                           <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700">
                             <Check className="w-3 h-3 mr-1" /> En ligne
                           </span>
                         )}
-                        {job.status === 'rejected' && (
+                        {currentStatus === 'rejected' && (
                           <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">
                             <EyeOff className="w-3 h-3 mr-1" /> Hors ligne
                           </span>
@@ -341,7 +351,7 @@ export default function AdminJobs() {
                     </div>
 
                     <div className="flex flex-wrap gap-2 w-full md:w-auto shrink-0 justify-end">
-                      {job.status === 'pending' && (
+                      {currentStatus === 'pending' && (
                         <>
                           <button
                             onClick={() =>
@@ -364,7 +374,7 @@ export default function AdminJobs() {
                         </>
                       )}
 
-                      {job.status === 'approved' && (
+                      {currentStatus === 'approved' && (
                         <button
                           onClick={() => handleModerateJob(job.id, 'rejected')}
                           disabled={actionLoading}
@@ -375,7 +385,7 @@ export default function AdminJobs() {
                         </button>
                       )}
 
-                      {job.status === 'rejected' && (
+                      {currentStatus === 'rejected' && (
                         <button
                           onClick={() => handleModerateJob(job.id, 'approved')}
                           disabled={actionLoading}

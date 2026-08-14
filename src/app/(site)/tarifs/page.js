@@ -15,9 +15,9 @@ import {
 } from 'lucide-react';
 
 export const metadata = {
-  title: 'Tarifs Recrutement Chauffeurs France & Belgique (SIRET & BCE)',
+  title: 'Tarifs Recrutement Chauffeurs France, Belgique, Luxembourg, Suisse',
   description:
-    'Tarifs transparents pour recruter des chauffeurs routiers en France et en Belgique. À la performance à 2€/contact ou forfaits illimités Pro (39,99€) et Premium (54,99€).',
+    'Tarifs transparents pour recruter des chauffeurs routiers en France, Belgique, Luxembourg et Suisse. À la performance à 2€/contact ou forfaits illimités Pro et Premium.',
 };
 
 export default function Tarifs() {

@@ -11,9 +11,9 @@ import {
 } from 'lucide-react';
 
 export const metadata = {
-  title: 'Emploi Chauffeur Routier France & Belgique (SPL / PL)',
+  title: 'Emploi Chauffeur Routier France, Belgique, Luxembourg, Suisse (SPL / PL)',
   description:
-    'Inscrivez-vous gratuitement en tant que chauffeur routier en France et en Belgique. Valorisez vos permis C/CE, FIMO, ADR, Benne, Frigo, Citerne et soyez contacté directement et anonymement.',
+    'Inscrivez-vous gratuitement en tant que chauffeur routier en France, Belgique, Luxembourg et Suisse. Valorisez vos permis C/CE, FIMO, ADR, Benne, Frigo, Citerne et soyez contacté directement et anonymement.',
 };
 
 export default function PourLesChauffeurs() {
@@ -21,7 +21,7 @@ export default function PourLesChauffeurs() {
     {
       icon: UserPlus,
       title: '1. Inscription 100% Gratuite',
-      desc: "Créez votre profil en 2 minutes. Renseignez vos permis (C, CE), vos habilitations (FIMO, ADR, etc.) et votre localisation. C'est totalement gratuit pour vous, sans aucun frais caché.",
+      desc: "Créez votre profil en 2 minutes. Renseignez vos permis (C, CE), vos habilitations (FIMO, ADR, etc.) et votre localisation en France, Belgique, Luxembourg ou Suisse. C'est totalement gratuit pour vous, sans aucun frais caché.",
     },
     {
       icon: Eye,
@@ -46,15 +46,14 @@ export default function PourLesChauffeurs() {
   return (
     <div className="bg-white text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 bg-gradient-to-b from-slate-50 to-white border-b border-slate-100">
+      <section className="relative overflow-hidden py-20 bg-gradient-to-b from-orange-50/20 via-slate-50 to-white border-b border-slate-100">
         <div className="absolute inset-0 bg-[radial-gradient(#f97316_1px,transparent_1px)] [background-size:24px_24px] opacity-5"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Texte Hero */}
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 text-xs font-semibold">
-                <Sparkles className="h-4 w-4" /> 100% Gratuit pour tous les
-                Chauffeurs
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 text-xs font-semibold">
+                <Sparkles className="h-4 w-4" /> 100% Gratuit • France, Belgique, Luxembourg & Suisse
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-950 tracking-tight leading-none">
                 Trouvez votre prochain job de chauffeur routier{' '}
@@ -64,10 +63,7 @@ export default function PourLesChauffeurs() {
                 </span>
               </h1>
               <p className="text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                FretTalent vous met directement en relation avec les
-                transporteurs qui recrutent. Créez votre dossier professionnel
-                sécurisé, restez anonyme et laissez les entreprises vous
-                contacter selon vos disponibilités.
+                FretTalent vous met directement en relation avec les transporteurs qui recrutent en France, en Belgique, au Luxembourg et en Suisse. Créez votre dossier professionnel sécurisé, restez anonyme et laissez les entreprises vous contacter.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
@@ -79,67 +75,52 @@ export default function PourLesChauffeurs() {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
                 <Link
-                  href="/comment-ca-marche"
+                  href="/candidats-disponibles"
                   className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-bold text-slate-900 border-2 border-slate-200 hover:border-slate-950 transition-all duration-300"
                 >
-                  Comment ça marche ?
+                  Voir les candidats en direct
                 </Link>
               </div>
             </div>
 
-            {/* Carte Visuelle interactive / Showcase anonyme */}
-            <div className="lg:col-span-5 flex justify-center">
-              <div className="bg-white border border-slate-200 p-6 rounded-3xl shadow-xl w-full max-w-md relative space-y-4 hover:shadow-2xl transition-shadow duration-300">
+            {/* Carte Visuelle interactive avec photo du chauffeur */}
+            <div className="lg:col-span-5 flex flex-col items-center justify-center relative">
+              <div className="relative z-10 max-w-[280px] sm:max-w-[320px] mb-4 animate-in fade-in zoom-in-95 duration-500">
+                <img
+                  src="/images/chauffeur-fingers-crossed.png"
+                  alt="Chauffeur FretTalent qui croise les doigts"
+                  className="w-full h-auto object-contain drop-shadow-xl"
+                />
+              </div>
+
+              <div className="bg-white border border-slate-200 p-5 rounded-3xl shadow-xl w-full max-w-md relative space-y-3 hover:shadow-2xl transition-shadow duration-300">
                 <div className="absolute -top-3 -right-3 bg-green-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md animate-pulse">
-                  Profil Actif
+                  Profil Vérifié & Actif
                 </div>
 
-                <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-                  <div className="bg-slate-100 p-3 rounded-2xl text-slate-600">
-                    <Shield className="h-6 w-6 text-orange-500" />
+                <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
+                  <div className="bg-slate-100 p-2.5 rounded-2xl text-slate-600">
+                    <Shield className="h-5 w-5 text-orange-500" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-955">
-                      Chauffeur Routier Anonyme
+                    <h3 className="text-sm font-bold text-slate-950">
+                      Chauffeur Routier Certifié
                     </h3>
                     <p className="text-xs text-slate-500">
-                      ID : #FT-9842 • 73100 Aix-les-Bains
+                      France, Belgique, Luxembourg, Suisse
                     </p>
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-505">Disponibilité :</span>
-                    <span className="bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded-full text-[10px] uppercase">
-                      Immédiate
-                    </span>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="bg-slate-50 p-2 rounded-xl">
+                    <span className="text-[10px] text-slate-400 font-medium block">Disponibilité</span>
+                    <span className="font-bold text-green-600 text-xs">Immédiate</span>
                   </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-505">
-                      Permis & Habilitations :
-                    </span>
-                    <span className="font-bold text-slate-800">
-                      CE (Super Lourd) • ADR
-                    </span>
+                  <div className="bg-slate-50 p-2 rounded-xl">
+                    <span className="text-[10px] text-slate-400 font-medium block">Permis</span>
+                    <span className="font-bold text-slate-800 text-xs">C / CE • ADR</span>
                   </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-505">
-                      Expérience de conduite :
-                    </span>
-                    <span className="font-bold text-slate-800">8 ans</span>
-                  </div>
-                </div>
-
-                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 space-y-2">
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    Statut du contact pour les transporteurs
-                  </div>
-                  <p className="text-[11px] text-slate-600 leading-normal">
-                    🔒 Coordonnées (téléphone, e-mail) et documents
-                    administratifs protégés. Visibles uniquement après
-                    validation de l'intérêt.
-                  </p>
                 </div>
               </div>
             </div>

@@ -11,9 +11,9 @@ import {
 } from 'lucide-react';
 
 export const metadata = {
-  title: 'Recrutement Chauffeurs Routiers France & Belgique (SIRET & BCE)',
+  title: 'Recrutement Chauffeurs Routiers France, Belgique, Luxembourg, Suisse (SIRET, BCE, RCS, IDE)',
   description:
-    'Accédez à notre CVthèque de chauffeurs routiers qualifiés en France et en Belgique. Validation SIRET & BCE instantanée, recherche multicritères (permis C/CE, FIMO, ADR).',
+    'Accédez à notre CVthèque de chauffeurs routiers qualifiés en France, Belgique, Luxembourg et Suisse. Validation SIRET, BCE, RCS/TVA & IDE instantanée, recherche multicritères (permis C/CE, FIMO, ADR).',
 };
 
 export default function PourLesEntreprises() {

@@ -41,7 +41,7 @@ export default function APropos() {
     {
       icon: MapPin,
       title: 'Carte & Liste des Parkings Poids Lourds',
-      desc: 'Un répertoire complet des aires de stationnement et services adaptés aux chauffeurs en France et en Belgique.',
+      desc: 'Un répertoire complet des aires de stationnement et services adaptés aux chauffeurs en France, Belgique, Luxembourg et Suisse.',
       status: 'Prochainement',
     },
     {
@@ -186,7 +186,7 @@ export default function APropos() {
             Prêt à faire partie de l'aventure ?
           </h2>
           <p className="text-slate-300 text-lg max-w-2xl mx-auto leading-relaxed">
-            Que vous soyez chauffeur ou transporteur, rejoignez le réseau qui valorise le transport routier en France et en Belgique.
+            Que vous soyez chauffeur ou transporteur, rejoignez le réseau qui valorise le transport routier en France, Belgique, Luxembourg et Suisse.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">

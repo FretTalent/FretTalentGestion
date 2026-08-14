@@ -37,11 +37,11 @@ const TEMPLATES = {
     title: 'La solution N°1 pour recruter vos chauffeurs routiers',
     message: `Bonjour,
 
-Vous êtes à la recherche de chauffeurs qualifiés en France ou en Belgique ? FretTalent est la plateforme de recrutement dédiée au transport routier qui vous connecte directement avec des profils vérifiés et disponibles.
+Vous êtes à la recherche de chauffeurs qualifiés en France, Belgique, Luxembourg ou Suisse ? FretTalent est la plateforme de recrutement dédiée au transport routier qui vous connecte directement avec des profils vérifiés et disponibles.
 
 ✅ Accès immédiat à des centaines de chauffeurs certifiés
 ✅ Profils vérifiés avec documents contrôlés (FIMO, permis, carte chrono)
-✅ Réseau Franco-Belge — France et Belgique
+✅ Réseau 4 pays — France, Belgique, Luxembourg et Suisse
 ✅ Gain de temps : filtrez par spécialité, permis, disponibilité
 ✅ Tarification simple et transparente
 
@@ -539,7 +539,7 @@ export default function AdminMail() {
                 )}
               </div>
               <div className="p-4 bg-slate-50 border-t border-slate-200 text-center">
-                <p className="text-xs text-slate-400">FretTalent — Réseau Franco-Belge N°1 du Recrutement Transport</p>
+                <p className="text-xs text-slate-400">FretTalent — Réseau N°1 du Recrutement Transport (France, Belgique, Luxembourg, Suisse)</p>
               </div>
             </div>
           </div>

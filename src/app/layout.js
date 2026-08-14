@@ -15,17 +15,19 @@ const geistMono = Geist_Mono({
 export const metadata = {
   metadataBase: new URL('https://www.frettalent.fr'),
   title: {
-    default: 'Recrutement Chauffeurs Routiers France & Belgique | FretTalent',
+    default: 'Recrutement Chauffeurs Routiers France, Belgique, Luxembourg, Suisse | FretTalent',
     template: '%s | FretTalent',
   },
   description:
-    'Recrutement en direct de chauffeurs routiers (SPL, PL, ADR, Frigo) et transporteurs en France et Belgique. 100% gratuit chauffeurs.',
+    'Recrutement en direct de chauffeurs routiers (SPL, PL, ADR, Frigo) et transporteurs en France, Belgique, Luxembourg et Suisse. 100% gratuit chauffeurs.',
   keywords: [
     'recrutement chauffeur routier france',
     'recrutement chauffeur poids lourd belgique',
+    'chauffeur routier luxembourg',
+    'chauffeur poids lourd suisse',
     'emploi transport routier',
-    'chauffeur spl france belgique',
-    'conducteur poids lourd bce siret',
+    'chauffeur spl suisse luxembourg',
+    'conducteur poids lourd bce siret rcs ide',
     'emploi benne frigo citerne adr',
     'fret talent',
   ],
@@ -34,6 +36,8 @@ export const metadata = {
     languages: {
       'fr-FR': 'https://www.frettalent.fr',
       'fr-BE': 'https://www.frettalent.fr',
+      'fr-LU': 'https://www.frettalent.fr',
+      'fr-CH': 'https://www.frettalent.fr',
       'nl-BE': 'https://www.frettalent.fr',
       'x-default': 'https://www.frettalent.fr',
     },
@@ -54,9 +58,9 @@ export const metadata = {
     ],
   },
   openGraph: {
-    title: 'Recrutement Chauffeurs Routiers France & Belgique | FretTalent',
+    title: 'Recrutement Chauffeurs Routiers France, Belgique, Luxembourg, Suisse | FretTalent',
     description:
-      'Recrutement en direct de chauffeurs routiers (SPL, PL, ADR, Frigo) et transporteurs en France et Belgique. 100% gratuit chauffeurs.',
+      'Recrutement en direct de chauffeurs routiers (SPL, PL, ADR, Frigo) et transporteurs en France, Belgique, Luxembourg et Suisse. 100% gratuit chauffeurs.',
     url: 'https://www.frettalent.fr',
     siteName: 'FretTalent',
     images: [

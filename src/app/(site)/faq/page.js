@@ -62,8 +62,8 @@ const FAQ_DATA = [
         a: "Oui, en tant que recruteur ou entreprise de transport, vous pouvez déposer vos offres d'emploi depuis votre tableau de bord. Après une rapide modération par notre équipe, vos offres sont publiées et visibles par l'ensemble des chauffeurs."
       },
       {
-        q: "Est-ce que FretTalent fonctionne en France et en Belgique ?",
-        a: "Oui ! FretTalent est le premier réseau Franco-Belge dédié au recrutement transport. Nous prenons en compte les numéros SIRET pour la France et les numéros BCE pour les entreprises belges."
+        q: "Dans quels pays FretTalent est-il disponible ?",
+        a: "FretTalent couvre 4 pays : la France (SIRET), la Belgique (BCE), le Luxembourg (RCS/TVA) et la Suisse (IDE). Les chauffeurs et entreprises de transport de ces 4 pays peuvent s'inscrire, publier et recruter en direct avec vérification automatique de leurs identifiants officiels."
       },
       {
         q: "Puis-je consulter les CV et documents des chauffeurs avant de les débloquer ?",

@@ -78,7 +78,7 @@ export default function APropos() {
 
       {/* Le Mot du Fondateur - Storytelling */}
       <section className="py-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6 sm:p-10 space-y-8 shadow-sm">
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 space-y-8 shadow-sm">
           <div className="flex flex-col sm:flex-row items-center gap-5 border-b border-slate-200 pb-6">
             <div className="bg-orange-500 text-white p-4 rounded-2xl flex-shrink-0 shadow-lg shadow-orange-500/20">
               <Truck className="h-10 w-10" />

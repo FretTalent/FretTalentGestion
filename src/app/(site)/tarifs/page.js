@@ -75,7 +75,7 @@ export default function Tarifs() {
   return (
     <div className="bg-white text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
       {/* En-tête des tarifs */}
-      <section className="py-20 bg-gradient-to-b from-slate-50 to-white border-b border-slate-100">
+      <section className="py-20 bg-white border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
           <span className="text-xs font-bold text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-100">
             Tarifs clairs & sans engagement

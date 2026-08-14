@@ -197,7 +197,7 @@ export default function PublicJobsList() {
 
   if (loading) {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center bg-slate-50 gap-3">
+      <div className="min-h-[70vh] flex flex-col items-center justify-center bg-white gap-3">
         <RefreshCw className="h-8 w-8 text-orange-500 animate-spin" />
         <p className="text-xs font-semibold text-slate-500">Chargement des offres d&apos;emploi...</p>
       </div>
@@ -205,7 +205,7 @@ export default function PublicJobsList() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/70 flex flex-col font-sans">
+    <div className="min-h-screen bg-white flex flex-col font-sans">
       <main className="flex-grow max-w-6xl mx-auto px-4 py-12 sm:px-6 lg:px-8 w-full space-y-8">
         
         {/* Header de Page */}

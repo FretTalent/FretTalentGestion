@@ -38,7 +38,7 @@ export default function PourLesEntreprises() {
   return (
     <div className="bg-white text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 bg-gradient-to-b from-slate-50 to-white border-b border-slate-100">
+      <section className="relative overflow-hidden py-20 bg-white border-b border-slate-100">
         <div className="absolute inset-0 bg-[radial-gradient(#f97316_1px,transparent_1px)] [background-size:24px_24px] opacity-5"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">

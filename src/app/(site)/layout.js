@@ -8,7 +8,7 @@ import AnalyticsTracker from '@/components/AnalyticsTracker';
 
 export default function SiteLayout({ children }) {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-white flex flex-col font-sans">
       <Header />
       <main className="flex-grow flex flex-col">{children}</main>
       <Footer />

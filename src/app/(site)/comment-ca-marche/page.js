@@ -57,7 +57,7 @@ export default function CommentCaMarche() {
   return (
     <div className="bg-white text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-12 pb-28 md:pb-36 bg-gradient-to-b from-slate-50 to-white border-b border-slate-100">
+      <section className="relative overflow-hidden pt-12 pb-28 md:pb-36 bg-white border-b border-slate-100">
         <div className="absolute inset-0 bg-[radial-gradient(#f97316_1px,transparent_1px)] [background-size:24px_24px] opacity-5"></div>
         <div className="absolute left-1/2 -translate-x-1/2 bottom-0 hidden md:block opacity-25 pointer-events-none">
           <img

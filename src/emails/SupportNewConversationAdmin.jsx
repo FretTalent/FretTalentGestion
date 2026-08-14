@@ -5,17 +5,38 @@ import BaseLayout from './BaseLayout';
 const baseUrl =
   process.env.NEXT_PUBLIC_BASE_URL || 'https://www.frettalent.fr';
 
-export default function SupportNewConversationAdmin({ userName, userEmail, userRole, subject, previewMessage }) {
+export default function SupportNewConversationAdmin({
+  userName,
+  userEmail,
+  userRole,
+  subject,
+  previewMessage,
+  isReply = false,
+}) {
   const roleLabel = userRole === 'recruiter' ? 'Entreprise / Recruteur' : 'Chauffeur / Candidat';
   const chatUrl = `${baseUrl}/dashboard/admin/chat`;
 
+  const previewText = isReply
+    ? `Nouveau message de ${userName} (${roleLabel})`
+    : `Nouveau ticket support de ${userName} (${roleLabel})`;
+
+  const heading = isReply
+    ? 'Nouveau message sur le Support 💬'
+    : 'Nouvelle demande de Support 🚨';
+
+  const introText = isReply
+    ? <>Un utilisateur vient d&apos;envoyer un nouveau message dans le tchat support :</>
+    : <>Une nouvelle conversation de support vient d&apos;être ouverte sur la plateforme :</>;
+
+  const highlightTitle = isReply ? 'Message reçu :' : 'Message initial :';
+
   return (
     <BaseLayout
-      previewText={`Nouveau message support de ${userName} (${roleLabel})`}
-      heading="Nouvelle demande de Support 🚨"
+      previewText={previewText}
+      heading={heading}
     >
       <Text style={text}>
-        Une nouvelle conversation de support vient d&apos;être ouverte sur la plateforme :
+        {introText}
       </Text>
 
       <Section style={infoBox}>
@@ -26,7 +47,7 @@ export default function SupportNewConversationAdmin({ userName, userEmail, userR
       </Section>
 
       <Section style={highlightBox}>
-        <Text style={highlightTitle}>Message initial :</Text>
+        <Text style={highlightTitle}>{highlightTitle}</Text>
         <Text style={highlightText}>
           &ldquo;{previewMessage}&rdquo;
         </Text>

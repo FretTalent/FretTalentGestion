@@ -32,6 +32,7 @@ export default function RecruiterSupportPage() {
   const [formError, setFormError] = useState(null);
 
   const messagesEndRef = useRef(null);
+  const lastMessageIdRef = useRef(null);
 
   const getAuthHeaders = async () => {
     const {
@@ -52,7 +53,22 @@ export default function RecruiterSupportPage() {
       const res = await fetch('/api/support/conversations', { headers });
       const data = await res.json();
       if (data.conversations) {
-        setConversations(data.conversations);
+        setConversations((prev) => {
+          const incoming = data.conversations;
+          if (
+            prev.length === incoming.length &&
+            prev.every(
+              (c, i) =>
+                c.id === incoming[i].id &&
+                c.last_message_at === incoming[i].last_message_at &&
+                c.status === incoming[i].status
+            )
+          ) {
+            return prev;
+          }
+          return incoming;
+        });
+
         if (data.conversations.length > 0) {
           if (!keepActive || !activeConvId) {
             setActiveConvId(data.conversations[0].id);
@@ -67,20 +83,29 @@ export default function RecruiterSupportPage() {
   };
 
   // 2. Charger les messages d'une conversation
-  const fetchMessages = async (convId) => {
+  const fetchMessages = async (convId, isBackground = false) => {
     if (!convId) return;
-    setLoadingMessages(true);
+    if (!isBackground) setLoadingMessages(true);
     try {
       const headers = await getAuthHeaders();
       const res = await fetch(`/api/support/messages?conversation_id=${convId}`, { headers });
       const data = await res.json();
       if (data.messages) {
-        setMessages(data.messages);
+        setMessages((prev) => {
+          const incoming = data.messages;
+          if (
+            prev.length === incoming.length &&
+            prev[prev.length - 1]?.id === incoming[incoming.length - 1]?.id
+          ) {
+            return prev;
+          }
+          return incoming;
+        });
       }
     } catch (err) {
       console.error('Erreur chargement messages:', err);
     } finally {
-      setLoadingMessages(false);
+      if (!isBackground) setLoadingMessages(false);
     }
   };
 
@@ -90,17 +115,18 @@ export default function RecruiterSupportPage() {
 
   useEffect(() => {
     if (activeConvId) {
-      fetchMessages(activeConvId);
+      lastMessageIdRef.current = null;
+      fetchMessages(activeConvId, false);
     } else {
       setMessages([]);
     }
   }, [activeConvId]);
 
-  // Polling automatique toutes les 6 secondes pour le direct
+  // Polling automatique discret toutes les 6 secondes pour le direct
   useEffect(() => {
     const interval = setInterval(() => {
       if (activeConvId) {
-        fetchMessages(activeConvId);
+        fetchMessages(activeConvId, true);
       }
       fetchConversations(true);
     }, 6000);
@@ -108,9 +134,15 @@ export default function RecruiterSupportPage() {
     return () => clearInterval(interval);
   }, [activeConvId]);
 
-  // Scroll en bas des messages
+  // Scroll en bas des messages UNIQUEMENT lorsqu'un nouveau message arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messages.length > 0) {
+      const latestMsgId = messages[messages.length - 1]?.id;
+      if (latestMsgId !== lastMessageIdRef.current) {
+        lastMessageIdRef.current = latestMsgId;
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
   }, [messages]);
 
   // 3. Envoyer un message

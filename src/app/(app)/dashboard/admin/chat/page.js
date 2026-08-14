@@ -56,6 +56,7 @@ export default function AdminChatPage() {
   const [userSearch, setUserSearch] = useState('');
 
   const messagesEndRef = useRef(null);
+  const lastMessageIdRef = useRef(null);
 
   const getAuthHeaders = async () => {
     const {
@@ -76,7 +77,22 @@ export default function AdminChatPage() {
       const res = await fetch('/api/support/conversations', { headers });
       const data = await res.json();
       if (data.conversations) {
-        setConversations(data.conversations);
+        setConversations((prev) => {
+          const incoming = data.conversations;
+          if (
+            prev.length === incoming.length &&
+            prev.every(
+              (c, i) =>
+                c.id === incoming[i].id &&
+                c.last_message_at === incoming[i].last_message_at &&
+                c.status === incoming[i].status
+            )
+          ) {
+            return prev;
+          }
+          return incoming;
+        });
+
         if (data.conversations.length > 0) {
           if (!keepActive || !activeConvId) {
             setActiveConvId(data.conversations[0].id);
@@ -91,20 +107,29 @@ export default function AdminChatPage() {
   };
 
   // 2. Charger les messages d'une conversation
-  const fetchMessages = async (convId) => {
+  const fetchMessages = async (convId, isBackground = false) => {
     if (!convId) return;
-    setLoadingMessages(true);
+    if (!isBackground) setLoadingMessages(true);
     try {
       const headers = await getAuthHeaders();
       const res = await fetch(`/api/support/messages?conversation_id=${convId}`, { headers });
       const data = await res.json();
       if (data.messages) {
-        setMessages(data.messages);
+        setMessages((prev) => {
+          const incoming = data.messages;
+          if (
+            prev.length === incoming.length &&
+            prev[prev.length - 1]?.id === incoming[incoming.length - 1]?.id
+          ) {
+            return prev;
+          }
+          return incoming;
+        });
       }
     } catch (err) {
       console.error('Erreur chargement messages:', err);
     } finally {
-      setLoadingMessages(false);
+      if (!isBackground) setLoadingMessages(false);
     }
   };
 
@@ -151,17 +176,18 @@ export default function AdminChatPage() {
 
   useEffect(() => {
     if (activeConvId) {
-      fetchMessages(activeConvId);
+      lastMessageIdRef.current = null;
+      fetchMessages(activeConvId, false);
     } else {
       setMessages([]);
     }
   }, [activeConvId]);
 
-  // Polling automatique toutes les 5 secondes
+  // Polling automatique discret toutes les 5 secondes (sans faire clignoter ni sauter le tchat)
   useEffect(() => {
     const interval = setInterval(() => {
       if (activeConvId) {
-        fetchMessages(activeConvId);
+        fetchMessages(activeConvId, true);
       }
       fetchConversations(true);
     }, 5000);
@@ -169,9 +195,15 @@ export default function AdminChatPage() {
     return () => clearInterval(interval);
   }, [activeConvId]);
 
-  // Scroll auto
+  // Scroll automatique UNIQUEMENT lorsqu'un nouveau message arrive ou lors du premier affichage
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messages.length > 0) {
+      const latestMsgId = messages[messages.length - 1]?.id;
+      if (latestMsgId !== lastMessageIdRef.current) {
+        lastMessageIdRef.current = latestMsgId;
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
   }, [messages]);
 
   // 4. Envoyer un message en tant qu'admin

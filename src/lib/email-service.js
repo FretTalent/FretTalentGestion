@@ -152,6 +152,41 @@ export async function sendSupportNewConversationAdmin({
 }
 
 /**
+ * Notifie l'admin par email lorsqu'un candidat ou recruteur répond / envoie un nouveau message dans le tchat
+ */
+export async function sendSupportNewMessageAdmin({
+  userName,
+  userEmail,
+  userRole,
+  subject,
+  previewMessage,
+}) {
+  try {
+    const html = await render(
+      <SupportNewConversationAdmin
+        userName={userName}
+        userEmail={userEmail}
+        userRole={userRole}
+        subject={subject}
+        previewMessage={previewMessage}
+        isReply={true}
+      />,
+    );
+
+    const data = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [ADMIN_EMAIL],
+      subject: `💬 Support FretTalent : Nouveau message de ${userName} (${subject})`,
+      html,
+    });
+    return { success: true, data };
+  } catch (error) {
+    console.error('Erreur email sendSupportNewMessageAdmin:', error);
+    return { success: false, error };
+  }
+}
+
+/**
  * Envoie 1 seul email au candidat ou recruteur lorsqu'un message du support lui est envoyé (1er message ou ouverture par l'admin)
  */
 export async function sendSupportNewMessageUser({

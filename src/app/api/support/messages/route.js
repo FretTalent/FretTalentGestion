@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient as createSupabaseServerClient } from '@/lib/supabase-server';
 import { createClient } from '@supabase/supabase-js';
-import { sendSupportNewMessageUser } from '@/lib/email-service';
+import { sendSupportNewMessageUser, sendSupportNewMessageAdmin } from '@/lib/email-service';
 
 function getAdminClient() {
   return createClient(
@@ -218,18 +218,34 @@ export async function POST(req) {
       .update(updatePayload)
       .eq('id', conv.id);
 
-    // 7. Envoi de l'e-mail unique à l'utilisateur (un seul mail pour le premier retour admin)
-    if (shouldSendEmail) {
+    // 7. Envoi de l'e-mail de notification
+    if (isAdmin) {
+      // Si l'admin répond, envoi unique anti-spam au candidat/recruteur
+      if (shouldSendEmail) {
+        try {
+          await sendSupportNewMessageUser({
+            userEmail: conv.user_email,
+            userName: conv.user_name,
+            userRole: conv.user_role,
+            subject: conv.subject,
+            previewMessage: content.trim(),
+          });
+        } catch (mailErr) {
+          console.error('Erreur envoi email support user:', mailErr);
+        }
+      }
+    } else {
+      // Si un candidat ou recruteur envoie un message / répond -> Notifier l'admin par email
       try {
-        await sendSupportNewMessageUser({
+        await sendSupportNewMessageAdmin({
+          userName: conv.user_name || senderName,
           userEmail: conv.user_email,
-          userName: conv.user_name,
           userRole: conv.user_role,
           subject: conv.subject,
           previewMessage: content.trim(),
         });
       } catch (mailErr) {
-        console.error('Erreur envoi email support user:', mailErr);
+        console.error('Erreur envoi email support admin:', mailErr);
       }
     }
 

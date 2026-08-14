@@ -1,7 +1,23 @@
 'use client';
 
 import Link from 'next/link';
-import { ShieldCheck, MapPin, ArrowRight, Truck, CheckCircle2, Search, Users, Globe } from 'lucide-react';
+import {
+  ShieldCheck,
+  MapPin,
+  ArrowRight,
+  Truck,
+  CheckCircle2,
+  Search,
+  Users,
+  Globe,
+  Building2,
+  Award,
+  Sparkles,
+  Check,
+  FileCheck,
+  Lock,
+  Zap,
+} from 'lucide-react';
 
 export default function Home() {
   const stats = [
@@ -277,49 +293,183 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Section SEO enrichie — Informations et recrutement transport */}
-        <section className="py-16 bg-white border-t border-slate-100 relative overflow-hidden">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 text-slate-700 relative">
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden lg:block opacity-20 pointer-events-none">
-              <img src="https://png.pngtree.com/png-clipart/20250521/original/pngtree-an-orange-logistic-truck-with-container-png-image_21052117.png" alt="Camion logistique FretTalent" className="w-[500px] object-contain" />
-            </div>
-            <div className="max-w-3xl space-y-4 relative z-10">
-              <h2 className="text-2xl font-bold text-slate-900">
-                La plateforme de référence pour le recrutement dans le transport routier
-              </h2>
-              <p className="text-sm leading-relaxed">
-                FretTalent est le premier réseau spécialisé dans la mise en relation directe entre <strong>chauffeurs routiers qualifiés</strong> et <strong>entreprises de transport</strong> en France, en Belgique, au Luxembourg et en Suisse. Notre mission est de simplifier l&apos;embauche de conducteurs poids lourds et super poids lourds sans passer par les agences d&apos;intérim traditionnelles, garantissant rapidité, transparence et zéro commission sur les salaires.
-              </p>
+        {/* Section Vitrine SEO & Valeur Ajoutée */}
+        <section className="py-20 bg-gradient-to-b from-white via-slate-50 to-white relative overflow-hidden border-t border-slate-100">
+          {/* Subtle background glow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 relative z-10">
+            
+            {/* Top Presentation Card with Photo */}
+            <div className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200/80 shadow-xl shadow-slate-200/40 relative overflow-hidden">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                
+                {/* Left Text Presentation */}
+                <div className="lg:col-span-7 space-y-5 text-center lg:text-left">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-50 text-orange-600 text-xs font-bold uppercase tracking-wider border border-orange-100">
+                    <Sparkles className="h-3.5 w-3.5 text-orange-500" />
+                    <span>L&apos;Excellence du Recrutement Transport</span>
+                  </div>
+
+                  <h2 className="text-2xl sm:text-4xl font-black text-slate-950 tracking-tight leading-tight">
+                    La plateforme de référence pour le recrutement dans le transport routier
+                  </h2>
+
+                  <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+                    <strong>FretTalent</strong> est le premier réseau spécialisé dans la mise en relation directe entre <strong>chauffeurs routiers qualifiés</strong> et <strong>entreprises de transport</strong> en France, en Belgique, au Luxembourg et en Suisse. Notre mission est de simplifier l&apos;embauche de conducteurs poids lourds et super poids lourds sans passer par les agences d&apos;intérim traditionnelles, garantissant rapidité, transparence et <strong>zéro commission sur les salaires</strong>.
+                  </p>
+
+                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
+                    <div className="flex items-center gap-2 bg-slate-50 border border-slate-200/80 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-800">
+                      <span className="text-emerald-500 font-black">✓</span> Sans agence d&apos;intérim
+                    </div>
+                    <div className="flex items-center gap-2 bg-slate-50 border border-slate-200/80 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-800">
+                      <span className="text-orange-500 font-black">✓</span> 0% commission sur salaire
+                    </div>
+                    <div className="flex items-center gap-2 bg-slate-50 border border-slate-200/80 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-800">
+                      <span className="text-blue-500 font-black">✓</span> Contact direct 2€
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Photo Presentation */}
+                <div className="lg:col-span-5 relative flex flex-col items-center justify-center pt-4 lg:pt-0">
+                  <div className="relative w-full max-w-[340px] sm:max-w-[380px] flex items-center justify-center">
+                    
+                    {/* Orange Glow Halo */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-orange-500/20 via-amber-400/15 to-transparent rounded-full blur-2xl pointer-events-none" />
+
+                    {/* Driver Image */}
+                    <img
+                      src="/driver-victory.png"
+                      alt="Chauffeur routier FretTalent avec le signe de la victoire"
+                      className="w-full h-auto max-h-[340px] sm:max-h-[400px] object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300 relative z-10"
+                    />
+
+                    {/* Floating badge */}
+                    <div className="absolute -bottom-2 bg-white/95 backdrop-blur-md border border-orange-200 shadow-xl px-4 py-2 rounded-full flex items-center gap-2 z-20 hover:scale-105 transition-transform">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+                      <span className="text-xs font-black text-slate-900">Embauches Réussies ✌️</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
-              <div className="space-y-2">
-                <h3 className="text-base font-bold text-slate-900">
-                  Pour les Chauffeurs Routiers (PL, SPL)
-                </h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Accédez gratuitement à des opportunités de recrutement en CDI, CDD, Intérim et missions indépendantes. Valorisez votre expérience, vos permis (B, C, CE), vos certifications (FIMO, FCO, Carte Chronotachygraphe) et vos habilitations spéciales (ADR de base, Citerne, Explosifs) auprès de centaines de transporteurs certifiés.
-                </p>
+            {/* 3 Pillar Feature Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+              
+              {/* Carte 1 : Chauffeurs Routiers */}
+              <div className="bg-white p-7 sm:p-8 rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 flex flex-col justify-between group">
+                <div className="space-y-4">
+                  <div className="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Truck className="h-6 w-6" />
+                  </div>
+                  
+                  <div className="space-y-1.5">
+                    <span className="text-[11px] font-black text-orange-600 uppercase tracking-wider">Candidats Chauffeurs</span>
+                    <h3 className="text-lg font-black text-slate-950">
+                      Pour les Chauffeurs Routiers (PL, SPL)
+                    </h3>
+                  </div>
+
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Accédez gratuitement à des opportunités de recrutement en <strong>CDI, CDD, Intérim et missions indépendantes</strong>. Valorisez votre expérience, vos permis (B, C, CE), vos certifications (FIMO, FCO, Carte Chronotachygraphe) et vos habilitations spéciales (ADR de base, Citerne, Explosifs) auprès de centaines de transporteurs certifiés.
+                  </p>
+
+                  <div className="flex flex-wrap gap-1.5 pt-2">
+                    <span className="text-[10px] font-bold bg-orange-50 text-orange-700 px-2 py-0.5 rounded-md">CDI / CDD / Intérim</span>
+                    <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">Permis B, C & CE</span>
+                    <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">FIMO • FCO • ADR</span>
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-slate-100 mt-6">
+                  <Link
+                    href="/register?role=candidate"
+                    className="text-xs font-bold text-orange-600 group-hover:text-orange-700 flex items-center gap-1.5 group-hover:underline"
+                  >
+                    <span>Créer mon profil chauffeur gratuit</span>
+                    <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <h3 className="text-base font-bold text-slate-900">
-                  Pour les Entreprises & Transporteurs
-                </h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Recrutez efficacement vos conducteurs en France (SIRET), Belgique (BCE), Luxembourg (RCS/TVA) et Suisse (IDE). Filtrez les profils disponibles selon le rayon de mobilité, les spécialités de matériel (Benne, Frigo, Tautliner, Citerne, Plateau, Messagerie) et débloquez directement les coordonnées vérifiées des candidats.
-                </p>
+              {/* Carte 2 : Entreprises & Transporteurs */}
+              <div className="bg-white p-7 sm:p-8 rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300 flex flex-col justify-between group">
+                <div className="space-y-4">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Building2 className="h-6 w-6" />
+                  </div>
+                  
+                  <div className="space-y-1.5">
+                    <span className="text-[11px] font-black text-blue-600 uppercase tracking-wider">Recruteurs & Transport</span>
+                    <h3 className="text-lg font-black text-slate-950">
+                      Pour les Entreprises & Transporteurs
+                    </h3>
+                  </div>
+
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Recrutez efficacement vos conducteurs en <strong>France</strong> (SIRET), <strong>Belgique</strong> (BCE), <strong>Luxembourg</strong> (RCS/TVA) et <strong>Suisse</strong> (IDE). Filtrez les profils disponibles selon le rayon de mobilité, les spécialités de matériel (Benne, Frigo, Tautliner, Citerne, Plateau, Messagerie) et débloquez directement les coordonnées vérifiées des candidats.
+                  </p>
+
+                  <div className="flex flex-wrap gap-1.5 pt-2">
+                    <span className="text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md">FR • BE • LU • CH</span>
+                    <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">Benne / Frigo / Citerne</span>
+                    <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">Filtre km précis</span>
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-slate-100 mt-6">
+                  <Link
+                    href="/register?role=recruiter"
+                    className="text-xs font-bold text-blue-600 group-hover:text-blue-700 flex items-center gap-1.5 group-hover:underline"
+                  >
+                    <span>Découvrir les profils transport</span>
+                    <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <h3 className="text-base font-bold text-slate-900">
-                  Transparence & Sécurité Garanties
-                </h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Tous les documents essentiels (permis de conduire, carte de qualification conducteur, attestation FIMO/FCO) sont vérifiés par notre équipe de modération. Les candidats conservent un contrôle total sur l&apos;anonymat de leurs données jusqu&apos;à la demande de déblocage par une entreprise.
-                </p>
+              {/* Carte 3 : Transparence & Sécurité */}
+              <div className="bg-white p-7 sm:p-8 rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all duration-300 flex flex-col justify-between group">
+                <div className="space-y-4">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <ShieldCheck className="h-6 w-6" />
+                  </div>
+                  
+                  <div className="space-y-1.5">
+                    <span className="text-[11px] font-black text-emerald-600 uppercase tracking-wider">Qualité & Contrôle</span>
+                    <h3 className="text-lg font-black text-slate-950">
+                      Transparence & Sécurité Garanties
+                    </h3>
+                  </div>
+
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Tous les documents essentiels (permis de conduire, carte de qualification conducteur, attestation FIMO/FCO) sont vérifiés par notre équipe de modération. Les candidats conservent un <strong>contrôle total sur l&apos;anonymat</strong> de leurs données jusqu&apos;à la demande de déblocage par une entreprise.
+                  </p>
+
+                  <div className="flex flex-wrap gap-1.5 pt-2">
+                    <span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md">Vérification manuelle</span>
+                    <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">100% Anonymat garanti</span>
+                    <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">Paiement 2€ Stripe</span>
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-slate-100 mt-6">
+                  <Link
+                    href="/comment-ca-marche"
+                    className="text-xs font-bold text-emerald-600 group-hover:text-emerald-700 flex items-center gap-1.5 group-hover:underline"
+                  >
+                    <span>Comment fonctionne FretTalent</span>
+                    <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
               </div>
+
             </div>
+
           </div>
         </section>
       </main>

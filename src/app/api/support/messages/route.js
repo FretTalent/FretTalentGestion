@@ -11,12 +11,14 @@ function getAdminClient() {
 }
 
 async function getAuthUser(req) {
-  const authHeader = req.headers.get('authorization');
+  const authHeader = req.headers.get('authorization') || req.headers.get('Authorization');
   if (authHeader) {
-    const token = authHeader.replace('Bearer ', '');
-    const supabaseAdmin = getAdminClient();
-    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-    if (user && !error) return user;
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    if (token) {
+      const supabaseAdmin = getAdminClient();
+      const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+      if (user && !error) return user;
+    }
   }
 
   try {

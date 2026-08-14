@@ -33,10 +33,23 @@ export default function RecruiterSupportPage() {
 
   const messagesEndRef = useRef(null);
 
+  const getAuthHeaders = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    return {
+      'Content-Type': 'application/json',
+      ...(session?.access_token
+        ? { Authorization: `Bearer ${session.access_token}` }
+        : {}),
+    };
+  };
+
   // 1. Charger la liste des conversations
   const fetchConversations = async (keepActive = true) => {
     try {
-      const res = await fetch('/api/support/conversations');
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/support/conversations', { headers });
       const data = await res.json();
       if (data.conversations) {
         setConversations(data.conversations);
@@ -58,7 +71,8 @@ export default function RecruiterSupportPage() {
     if (!convId) return;
     setLoadingMessages(true);
     try {
-      const res = await fetch(`/api/support/messages?conversation_id=${convId}`);
+      const headers = await getAuthHeaders();
+      const res = await fetch(`/api/support/messages?conversation_id=${convId}`, { headers });
       const data = await res.json();
       if (data.messages) {
         setMessages(data.messages);
@@ -109,9 +123,10 @@ export default function RecruiterSupportPage() {
     setNewMessage('');
 
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch('/api/support/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           conversation_id: activeConvId,
           content,
@@ -142,9 +157,10 @@ export default function RecruiterSupportPage() {
 
     setCreatingConv(true);
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch('/api/support/conversations', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           subject: newSubject.trim(),
           message: initialMessage.trim(),

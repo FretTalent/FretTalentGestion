@@ -57,10 +57,23 @@ export default function AdminChatPage() {
 
   const messagesEndRef = useRef(null);
 
+  const getAuthHeaders = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    return {
+      'Content-Type': 'application/json',
+      ...(session?.access_token
+        ? { Authorization: `Bearer ${session.access_token}` }
+        : {}),
+    };
+  };
+
   // 1. Vérifier le rôle Admin et charger les conversations
   const fetchConversations = async (keepActive = true) => {
     try {
-      const res = await fetch('/api/support/conversations');
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/support/conversations', { headers });
       const data = await res.json();
       if (data.conversations) {
         setConversations(data.conversations);
@@ -82,7 +95,8 @@ export default function AdminChatPage() {
     if (!convId) return;
     setLoadingMessages(true);
     try {
-      const res = await fetch(`/api/support/messages?conversation_id=${convId}`);
+      const headers = await getAuthHeaders();
+      const res = await fetch(`/api/support/messages?conversation_id=${convId}`, { headers });
       const data = await res.json();
       if (data.messages) {
         setMessages(data.messages);
@@ -170,9 +184,10 @@ export default function AdminChatPage() {
     setNewMessage('');
 
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch('/api/support/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           conversation_id: activeConvId,
           content,
@@ -196,8 +211,10 @@ export default function AdminChatPage() {
     if (!deleteModal.convId) return;
 
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch(`/api/support/conversations?id=${deleteModal.convId}`, {
         method: 'DELETE',
+        headers,
       });
 
       const data = await res.json();
@@ -247,9 +264,10 @@ export default function AdminChatPage() {
 
     setCreatingAdminConv(true);
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch('/api/support/conversations', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           targetUserId: selectedTargetUser.id,
           subject: adminSubject.trim(),

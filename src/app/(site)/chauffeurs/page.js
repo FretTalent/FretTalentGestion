@@ -91,8 +91,8 @@ export default function PourLesChauffeurs() {
 
                 <div className="relative z-10 w-full max-w-[420px] sm:max-w-[480px] mb-2 animate-in fade-in zoom-in-95 duration-500">
                   <img
-                    src="/images/chauffeur-fingers-crossed.png"
-                    alt="Chauffeur FretTalent qui croise les doigts"
+                    src="/images/chauffeuse-orange.png"
+                    alt="Conductrice et Chauffeur routier FretTalent"
                     className="w-full h-auto max-h-[460px] sm:max-h-[520px] object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300"
                   />
                 </div>

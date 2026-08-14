@@ -27,8 +27,8 @@ export default function Header() {
 
   const navLinks = [
     { name: 'Candidats disponibles', path: '/candidats-disponibles' },
-    { name: 'Pour les entreprises', path: '/entreprises' },
-    { name: 'Pour les chauffeurs', path: '/chauffeurs' },
+    { name: 'Entreprises', path: '/entreprises' },
+    { name: 'Chauffeurs', path: '/chauffeurs' },
     { name: 'Tarifs', path: '/tarifs' },
   ];
 

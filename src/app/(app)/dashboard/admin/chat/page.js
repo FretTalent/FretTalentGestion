@@ -19,6 +19,7 @@ import {
   Filter,
   ShieldCheck,
   Check,
+  CheckCheck,
 } from 'lucide-react';
 import ConfirmModal from '@/components/ConfirmModal';
 import toast from 'react-hot-toast';
@@ -451,21 +452,47 @@ export default function AdminChatPage() {
                         <span className="text-xs font-black text-slate-900 truncate">
                           {conv.user_name}
                         </span>
+                        {conv.unread_count > 0 && (
+                          <span className="bg-orange-500 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full shrink-0 animate-pulse">
+                            {conv.unread_count}
+                          </span>
+                        )}
                       </div>
-                      <span
-                        className={`text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
-                          conv.status === 'resolved'
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-orange-100 text-orange-700'
-                        }`}
-                      >
-                        {conv.status === 'resolved' ? 'Résolu' : 'En cours'}
-                      </span>
+                      <div className="flex items-center gap-1 shrink-0">
+                        {conv.last_message_sender === 'admin' && (
+                          conv.admin_last_message_read ? (
+                            <span className="text-blue-500 text-[10px] flex items-center gap-0.5 font-bold" title="Vu par l'utilisateur">
+                              <CheckCheck className="w-3 h-3 text-blue-500" />
+                              <span>Vu</span>
+                            </span>
+                          ) : (
+                            <span className="text-slate-400 text-[10px] flex items-center gap-0.5" title="Non lu par l'utilisateur">
+                              <Check className="w-3 h-3 text-slate-400" />
+                            </span>
+                          )
+                        )}
+                        <span
+                          className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                            conv.status === 'resolved'
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-orange-100 text-orange-700'
+                          }`}
+                        >
+                          {conv.status === 'resolved' ? 'Résolu' : 'En cours'}
+                        </span>
+                      </div>
                     </div>
 
                     <p className="text-xs font-semibold text-slate-700 line-clamp-1 mb-1">
                       {conv.subject}
                     </p>
+
+                    {conv.last_message_content && (
+                      <p className="text-[11px] text-slate-500 line-clamp-1 mb-1 italic">
+                        {conv.last_message_sender === 'admin' ? 'Vous : ' : ''}
+                        {conv.last_message_content}
+                      </p>
+                    )}
 
                     <div className="flex items-center justify-between text-[10px] text-slate-400">
                       <span className="truncate max-w-[150px]">{conv.user_email}</span>
@@ -591,6 +618,28 @@ export default function AdminChatPage() {
                                 minute: '2-digit',
                               })}
                             </span>
+                            {isAdminMsg && (
+                              <>
+                                <span>•</span>
+                                {msg.is_read ? (
+                                  <span
+                                    className="flex items-center gap-0.5 text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded-md border border-blue-100 shadow-2xs"
+                                    title="L'utilisateur a ouvert et lu ce message"
+                                  >
+                                    <CheckCheck className="w-3 h-3 text-blue-600" />
+                                    <span>Vu</span>
+                                  </span>
+                                ) : (
+                                  <span
+                                    className="flex items-center gap-0.5 text-slate-400 font-medium bg-slate-100 px-1.5 py-0.5 rounded-md"
+                                    title="Message distribué (en attente de lecture)"
+                                  >
+                                    <Check className="w-3 h-3 text-slate-400" />
+                                    <span>Non lu</span>
+                                  </span>
+                                )}
+                              </>
+                            )}
                           </div>
 
                           <div

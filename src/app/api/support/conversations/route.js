@@ -73,7 +73,49 @@ export async function GET(req) {
     const { data: conversations, error } = await query;
     if (error) throw error;
 
-    return NextResponse.json({ conversations: conversations || [] });
+    // Récupérer les statuts de lecture et derniers messages pour chaque conversation
+    const convIds = (conversations || []).map((c) => c.id);
+    let messagesByConv = {};
+    if (convIds.length > 0) {
+      const { data: allMsgs } = await supabaseAdmin
+        .from('support_messages')
+        .select('id, conversation_id, sender_role, content, is_read, created_at')
+        .in('conversation_id', convIds)
+        .order('created_at', { ascending: true });
+
+      if (allMsgs) {
+        allMsgs.forEach((m) => {
+          if (!messagesByConv[m.conversation_id]) {
+            messagesByConv[m.conversation_id] = [];
+          }
+          messagesByConv[m.conversation_id].push(m);
+        });
+      }
+    }
+
+    const enriched = (conversations || []).map((c) => {
+      const msgs = messagesByConv[c.id] || [];
+      const lastMsg = msgs[msgs.length - 1];
+      const unreadCount = msgs.filter((m) =>
+        isAdmin ? m.sender_role !== 'admin' && !m.is_read : m.sender_role === 'admin' && !m.is_read
+      ).length;
+      
+      const adminMessages = msgs.filter((m) => m.sender_role === 'admin');
+      const userMessages = msgs.filter((m) => m.sender_role !== 'admin');
+      const lastAdminMsg = adminMessages[adminMessages.length - 1];
+      const lastUserMsg = userMessages[userMessages.length - 1];
+
+      return {
+        ...c,
+        unread_count: unreadCount,
+        last_message_content: lastMsg?.content || '',
+        last_message_sender: lastMsg?.sender_role || '',
+        admin_last_message_read: lastAdminMsg ? !!lastAdminMsg.is_read : null,
+        user_last_message_read: lastUserMsg ? !!lastUserMsg.is_read : null,
+      };
+    });
+
+    return NextResponse.json({ conversations: enriched });
   } catch (error) {
     console.error('Erreur GET conversations:', error);
     return NextResponse.json(

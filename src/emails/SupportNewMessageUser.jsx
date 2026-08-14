@@ -5,25 +5,43 @@ import BaseLayout from './BaseLayout';
 const baseUrl =
   process.env.NEXT_PUBLIC_BASE_URL || 'https://www.frettalent.fr';
 
-export default function SupportNewMessageUser({ userName, subject, previewMessage, userRole = 'candidate' }) {
+export default function SupportNewMessageUser({
+  userName,
+  subject,
+  previewMessage,
+  userRole = 'candidate',
+  isNewConversation = false,
+}) {
   const rolePath = userRole === 'recruiter' ? 'recruiter' : 'candidate';
   const supportUrl = `${baseUrl}/dashboard/${rolePath}/support`;
 
+  const previewText = isNewConversation
+    ? `Message de l'équipe FretTalent : ${subject}`
+    : `Réponse du support FretTalent : ${subject}`;
+
+  const heading = isNewConversation
+    ? 'Nouveau message de FretTalent 💬'
+    : 'Réponse du Support FretTalent 💬';
+
+  const introText = isNewConversation
+    ? <>L&apos;équipe FretTalent a ouvert un nouvel échange avec vous concernant : <strong>« {subject} »</strong>.</>
+    : <>L&apos;équipe support de FretTalent vous a répondu concernant : <strong>« {subject} »</strong>.</>;
+
   return (
     <BaseLayout
-      previewText={`Nouveau message du support FretTalent : ${subject}`}
-      heading="Nouveau message du Support 💬"
+      previewText={previewText}
+      heading={heading}
     >
       <Text style={text}>
         Bonjour <strong>{userName}</strong>,
       </Text>
 
       <Text style={text}>
-        L&apos;équipe support de FretTalent vous a répondu concernant votre demande : <strong>« {subject} »</strong>.
+        {introText}
       </Text>
 
       <Section style={highlightBox}>
-        <Text style={highlightTitle}>Extrait du message :</Text>
+        <Text style={highlightTitle}>Message :</Text>
         <Text style={highlightText}>
           &ldquo;{previewMessage}&rdquo;
         </Text>

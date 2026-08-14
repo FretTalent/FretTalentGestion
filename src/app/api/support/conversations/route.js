@@ -220,6 +220,7 @@ export async function POST(req) {
           userRole: conversationUserRole,
           subject: subject.trim(),
           previewMessage: message.trim(),
+          isNewConversation: true,
         });
       } else {
         // L'utilisateur a initié la conversation -> Notifier l'administrateur

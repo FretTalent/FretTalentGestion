@@ -160,21 +160,27 @@ export async function sendSupportNewMessageUser({
   userRole,
   subject,
   previewMessage,
+  isNewConversation = false,
 }) {
   try {
+    const emailSubject = isNewConversation
+      ? `💬 Message de l'équipe FretTalent : ${subject}`
+      : `💬 Réponse du Support FretTalent : ${subject}`;
+
     const html = await render(
       <SupportNewMessageUser
         userName={userName}
         subject={subject}
         previewMessage={previewMessage}
         userRole={userRole}
+        isNewConversation={isNewConversation}
       />,
     );
 
     const data = await resend.emails.send({
       from: FROM_EMAIL,
       to: [userEmail],
-      subject: `💬 Nouveau message de l'équipe Support FretTalent (${subject})`,
+      subject: emailSubject,
       html,
     });
     return { success: true, data };

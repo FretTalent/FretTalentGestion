@@ -65,14 +65,21 @@ export const metadata = {
     siteName: 'FretTalent',
     images: [
       {
-        url: 'https://www.frettalent.fr/logo.png',
-        width: 800,
-        height: 600,
-        alt: 'FretTalent Logo',
+        url: 'https://www.frettalent.fr/og-image.png?v=3',
+        width: 1200,
+        height: 630,
+        alt: 'FretTalent - Recrutement Chauffeurs Routiers',
       },
     ],
     locale: 'fr_FR',
     type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Recrutement Chauffeurs Routiers France, Belgique, Luxembourg, Suisse | FretTalent',
+    description:
+      'Recrutement en direct de chauffeurs routiers (SPL, PL, ADR, Frigo) et transporteurs en France, Belgique, Luxembourg et Suisse. 100% gratuit chauffeurs.',
+    images: ['https://www.frettalent.fr/og-image.png?v=3'],
   },
 };
 

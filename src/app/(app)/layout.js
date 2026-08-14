@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import AnalyticsTracker from '@/components/AnalyticsTracker';
 import {
   Truck,
   Search,
@@ -272,6 +273,10 @@ export default function AppLayout({ children }) {
         {/* Page content */}
         <main className="flex-grow p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
+
+      <Suspense fallback={null}>
+        <AnalyticsTracker />
+      </Suspense>
     </div>
   );
 }

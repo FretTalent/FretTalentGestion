@@ -6,6 +6,8 @@ import NewCandidateNotification from '../emails/NewCandidateNotification';
 import PaymentConfirmation from '../emails/PaymentConfirmation';
 import AccountVerified from '../emails/AccountVerified';
 import MissingDocuments from '../emails/MissingDocuments';
+import SupportNewMessageUser from '../emails/SupportNewMessageUser';
+import SupportNewConversationAdmin from '../emails/SupportNewConversationAdmin';
 
 const FROM_EMAIL = 'FretTalent <support@frettalent.fr>';
 const ADMIN_EMAIL = 'support@frettalent.fr'; // A envoyer aux admins de FretTalent
@@ -65,7 +67,7 @@ export async function sendPaymentConfirmation(email, paymentDetails) {
 }
 
 /**
- * Envoie un email au candidat pour l'informer que son compte est vérifié et en ligne
+ * Envoie un email de compte vérifié au chauffeur
  */
 export async function sendAccountVerifiedEmail(email, candidateName) {
   try {
@@ -76,7 +78,7 @@ export async function sendAccountVerifiedEmail(email, candidateName) {
     const data = await resend.emails.send({
       from: FROM_EMAIL,
       to: [email],
-      subject: 'Votre compte FretTalent est validé ! ✅',
+      subject: 'Votre compte FretTalent est validé ! 🎉',
       html,
     });
     return { success: true, data };
@@ -111,6 +113,73 @@ export async function sendMissingDocumentsEmail(
     return { success: true, data };
   } catch (error) {
     console.error('Erreur email sendMissingDocumentsEmail:', error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * Envoie un email d'alerte à l'administrateur lorsqu'un candidat ou recruteur ouvre une nouvelle conversation de support
+ */
+export async function sendSupportNewConversationAdmin({
+  userName,
+  userEmail,
+  userRole,
+  subject,
+  previewMessage,
+}) {
+  try {
+    const html = await render(
+      <SupportNewConversationAdmin
+        userName={userName}
+        userEmail={userEmail}
+        userRole={userRole}
+        subject={subject}
+        previewMessage={previewMessage}
+      />,
+    );
+
+    const data = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [ADMIN_EMAIL],
+      subject: `🚨 Support FretTalent : Nouveau ticket de ${userName} (${subject})`,
+      html,
+    });
+    return { success: true, data };
+  } catch (error) {
+    console.error('Erreur email sendSupportNewConversationAdmin:', error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * Envoie 1 seul email au candidat ou recruteur lorsqu'un message du support lui est envoyé (1er message ou ouverture par l'admin)
+ */
+export async function sendSupportNewMessageUser({
+  userEmail,
+  userName,
+  userRole,
+  subject,
+  previewMessage,
+}) {
+  try {
+    const html = await render(
+      <SupportNewMessageUser
+        userName={userName}
+        subject={subject}
+        previewMessage={previewMessage}
+        userRole={userRole}
+      />,
+    );
+
+    const data = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [userEmail],
+      subject: `💬 Nouveau message de l'équipe Support FretTalent (${subject})`,
+      html,
+    });
+    return { success: true, data };
+  } catch (error) {
+    console.error('Erreur email sendSupportNewMessageUser:', error);
     return { success: false, error };
   }
 }

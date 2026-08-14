@@ -22,6 +22,7 @@ import {
   FileText,
   CreditCard,
   X,
+  MessageSquare,
 } from 'lucide-react';
 
 const navCandidate = [
@@ -31,11 +32,17 @@ const navCandidate = [
     icon: FileText,
     label: 'Mes documents',
   },
+  {
+    href: '/dashboard/candidate/support',
+    icon: MessageSquare,
+    label: 'Support',
+  },
 ];
 const navRecruiter = [
   { href: '/dashboard/recruiter', icon: Search, label: 'Recherche' },
   { href: '/dashboard/recruiter/jobs', icon: Briefcase, label: 'Mes offres' },
   { href: '/dashboard/recruiter/settings', icon: Settings, label: 'Paramètres' },
+  { href: '/dashboard/recruiter/support', icon: MessageSquare, label: 'Support' },
 ];
 const navAdmin = [
   { href: '/dashboard/admin', icon: BarChart3, label: 'Tableau de bord' },
@@ -48,6 +55,7 @@ const navAdmin = [
   },
   { href: '/dashboard/admin/candidates', icon: Users, label: 'Candidats' },
   { href: '/dashboard/admin/companies', icon: Building2, label: 'Entreprises' },
+  { href: '/dashboard/admin/chat', icon: MessageSquare, label: 'Tchat' },
   { href: '/dashboard/admin/mail', icon: Mail, label: 'Gestion mails' },
 ];
 

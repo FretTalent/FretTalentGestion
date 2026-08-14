@@ -20,6 +20,7 @@ import {
   Mail,
   ShieldCheck,
   UserCheck,
+  MessageSquare,
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -35,6 +36,7 @@ export default function AdminDashboard() {
     totalRevenue: 0,
     franceCandidates: 0,
     belgiumCandidates: 0,
+    supportConvCount: 0,
   });
 
   const [recentCandidates, setRecentCandidates] = useState([]);
@@ -151,13 +153,22 @@ export default function AdminDashboard() {
           <h1 className="text-3xl font-extrabold text-slate-950">Tableau de bord Administrateur</h1>
           <p className="text-slate-500 text-sm mt-0.5">Vue globale, modération & performances financières</p>
         </div>
-        <button
-          onClick={fetchAdminData}
-          className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors"
-        >
-          <RefreshCw className="h-4 w-4" />
-          Actualiser
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => router.push('/dashboard/admin/chat')}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs shadow-md shadow-orange-500/20 transition-all cursor-pointer"
+          >
+            <MessageSquare className="h-4 w-4" />
+            <span>Tchat Support {stats.supportConvCount > 0 && `(${stats.supportConvCount})`}</span>
+          </button>
+          <button
+            onClick={fetchAdminData}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Actualiser
+          </button>
+        </div>
       </div>
 
       {/* Banner Actions Requises en Attente */}
@@ -197,41 +208,41 @@ export default function AdminDashboard() {
       )}
 
       {/* KPIs Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2 hover:border-orange-200 transition-colors">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5">
+        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-2 hover:border-orange-200 transition-colors">
           <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-            Visites Site (Aujourd'hui)
+            Visites Site
           </div>
-          <div className="text-3xl font-black text-slate-950 flex items-center justify-between">
+          <div className="text-2xl font-black text-slate-950 flex items-center justify-between">
             Trafic
-            <div className="bg-orange-50 p-2.5 rounded-2xl">
-              <TrendingUp className="h-6 w-6 text-orange-500" />
+            <div className="bg-orange-50 p-2 rounded-2xl">
+              <TrendingUp className="h-5 w-5 text-orange-500" />
             </div>
           </div>
           <div className="flex items-center justify-between text-xs pt-1">
-            <span className="text-slate-500 font-medium">Pages vues & clics</span>
+            <span className="text-slate-500 font-medium">Temps réel</span>
             <button
               onClick={() => router.push('/dashboard/admin/stats')}
               className="text-orange-500 hover:underline font-bold flex items-center gap-0.5"
             >
-              Stats site <ChevronRight className="h-3 w-3" />
+              Stats <ChevronRight className="h-3 w-3" />
             </button>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2 hover:border-orange-200 transition-colors">
+        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-2 hover:border-orange-200 transition-colors">
           <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-            Chauffeurs Inscrits
+            Chauffeurs
           </div>
-          <div className="text-3xl font-black text-slate-950 flex items-center justify-between">
+          <div className="text-2xl font-black text-slate-950 flex items-center justify-between">
             {stats.candidatesCount}
-            <div className="bg-orange-50 p-2.5 rounded-2xl">
-              <Truck className="h-6 w-6 text-orange-500" />
+            <div className="bg-orange-50 p-2 rounded-2xl">
+              <Truck className="h-5 w-5 text-orange-500" />
             </div>
           </div>
           <div className="flex items-center justify-between text-xs pt-1">
             <span className="text-slate-500 font-medium truncate">
-              FR: {stats.franceCandidates} | BE: {stats.belgiumCandidates} | LU: {stats.luxembourgCandidates || 0} | CH: {stats.switzerlandCandidates || 0}
+              FR: {stats.franceCandidates} | BE: {stats.belgiumCandidates}
             </span>
             <button
               onClick={() => router.push('/dashboard/admin/candidates')}
@@ -242,18 +253,18 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2 hover:border-blue-200 transition-colors">
+        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-2 hover:border-blue-200 transition-colors">
           <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-            Entreprises Recruteurs
+            Entreprises
           </div>
-          <div className="text-3xl font-black text-slate-950 flex items-center justify-between">
+          <div className="text-2xl font-black text-slate-950 flex items-center justify-between">
             {stats.companiesCount}
-            <div className="bg-blue-50 p-2.5 rounded-2xl">
-              <Building2 className="h-6 w-6 text-blue-500" />
+            <div className="bg-blue-50 p-2 rounded-2xl">
+              <Building2 className="h-5 w-5 text-blue-500" />
             </div>
           </div>
           <div className="flex items-center justify-between text-xs pt-1">
-            <span className="text-slate-500 font-medium">SIRET, BCE, RCS & IDE vérifiés</span>
+            <span className="text-slate-500 font-medium">Recruteurs</span>
             <button
               onClick={() => router.push('/dashboard/admin/companies')}
               className="text-blue-600 hover:underline font-bold flex items-center gap-0.5"
@@ -263,18 +274,18 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2 hover:border-emerald-200 transition-colors">
+        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-2 hover:border-emerald-200 transition-colors">
           <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-            Déblocages Effectués
+            Déblocages
           </div>
-          <div className="text-3xl font-black text-slate-950 flex items-center justify-between">
+          <div className="text-2xl font-black text-slate-950 flex items-center justify-between">
             {stats.unlocksCount}
-            <div className="bg-emerald-50 p-2.5 rounded-2xl">
-              <Key className="h-6 w-6 text-emerald-600" />
+            <div className="bg-emerald-50 p-2 rounded-2xl">
+              <Key className="h-5 w-5 text-emerald-600" />
             </div>
           </div>
           <div className="flex items-center justify-between text-xs pt-1">
-            <span className="text-emerald-600 font-medium">Mises en relation 2€</span>
+            <span className="text-emerald-600 font-medium">2€ / contact</span>
             <button
               onClick={() => router.push('/dashboard/admin/finance')}
               className="text-emerald-600 hover:underline font-bold flex items-center gap-0.5"
@@ -284,23 +295,44 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2 hover:border-purple-200 transition-colors">
+        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-2 hover:border-purple-200 transition-colors">
           <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
             Chiffre d'Affaires
           </div>
-          <div className="text-3xl font-black text-slate-950 flex items-center justify-between">
+          <div className="text-2xl font-black text-slate-950 flex items-center justify-between">
             {stats.totalRevenue.toFixed(2)} €
-            <div className="bg-purple-50 p-2.5 rounded-2xl">
-              <TrendingUp className="h-6 w-6 text-purple-600" />
+            <div className="bg-purple-50 p-2 rounded-2xl">
+              <TrendingUp className="h-5 w-5 text-purple-600" />
             </div>
           </div>
           <div className="flex items-center justify-between text-xs pt-1">
-            <span className="text-slate-500 font-medium">Revenus Stripe</span>
+            <span className="text-slate-500 font-medium">Stripe Total</span>
             <button
               onClick={() => router.push('/dashboard/admin/finance')}
               className="text-purple-600 hover:underline font-bold flex items-center gap-0.5"
             >
               Détails <ChevronRight className="h-3 w-3" />
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-2 hover:border-orange-300 transition-colors">
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            Tchat Support
+          </div>
+          <div className="text-2xl font-black text-slate-950 flex items-center justify-between">
+            {stats.supportConvCount}
+            <div className="bg-orange-50 p-2 rounded-2xl">
+              <MessageSquare className="h-5 w-5 text-orange-600" />
+            </div>
+          </div>
+          <div className="flex items-center justify-between text-xs pt-1">
+            <span className="text-orange-600 font-medium">En cours</span>
+            <button
+              onClick={() => router.push('/dashboard/admin/chat')}
+              className="text-orange-600 hover:underline font-bold flex items-center gap-0.5"
+            >
+              Tchat <ChevronRight className="h-3 w-3" />
             </button>
           </div>
         </div>

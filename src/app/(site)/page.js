@@ -64,23 +64,41 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Driver Image side */}
-              <div className="lg:col-span-5 relative flex flex-col items-center justify-center">
+              {/* Driver Image side (Grand format & stylisé) */}
+              <div className="lg:col-span-5 relative flex flex-col items-center justify-center pt-6 lg:pt-0">
                 <div className="relative w-full flex items-center justify-center">
-                  <div className="relative z-10 max-w-[320px] sm:max-w-[360px] animate-in fade-in zoom-in-95 duration-500">
+                  
+                  {/* Aura lumineuse d'arrière-plan */}
+                  <div className="absolute w-[320px] sm:w-[420px] h-[320px] sm:h-[420px] bg-gradient-to-tr from-orange-500/25 via-amber-400/20 to-orange-400/15 rounded-full blur-3xl pointer-events-none"></div>
+
+                  <div className="relative z-10 w-full max-w-[460px] sm:max-w-[520px] lg:max-w-[580px] flex flex-col items-center animate-in fade-in zoom-in-95 duration-500">
+                    
+                    {/* Badge flottant supérieur gauche */}
+                    <div className="hidden sm:flex absolute -top-2 -left-4 bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-lg px-3.5 py-1.5 rounded-2xl items-center gap-2 z-20 hover:scale-105 transition-transform">
+                      <span className="text-orange-500 text-sm">🔒</span>
+                      <span className="text-[11px] font-bold text-slate-800">100% Anonyme</span>
+                    </div>
+
+                    {/* Badge flottant supérieur droit */}
+                    <div className="hidden sm:flex absolute top-6 -right-4 bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-lg px-3.5 py-1.5 rounded-2xl items-center gap-2 z-20 hover:scale-105 transition-transform">
+                      <span className="text-emerald-500 text-sm">⚡</span>
+                      <span className="text-[11px] font-bold text-slate-800">Embauche Directe</span>
+                    </div>
+
+                    {/* Image grand format */}
                     <img
                       src="/images/chauffeur-fingers-crossed.png"
                       alt="Chauffeur routier FretTalent qui croise les doigts pour son recrutement"
-                      className="w-full h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300"
+                      className="w-full h-auto max-h-[500px] sm:max-h-[580px] object-contain drop-shadow-2xl hover:scale-[1.02] transition-transform duration-300"
                     />
                     
-                    {/* Badge flottant "Plus besoin de croiser les doigts" */}
-                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md border border-slate-200 shadow-xl px-4 py-2 rounded-2xl flex items-center gap-2.5 whitespace-nowrap z-20">
-                      <span className="flex h-2.5 w-2.5 relative">
+                    {/* Badge flottant principal "Plus besoin de croiser les doigts" */}
+                    <div className="relative -mt-6 sm:-mt-8 bg-white/95 backdrop-blur-md border border-orange-200/80 shadow-2xl px-5 sm:px-6 py-2.5 sm:py-3 rounded-full flex items-center gap-3 whitespace-nowrap z-20 ring-4 ring-orange-500/10">
+                      <span className="flex h-3 w-3 relative">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
                       </span>
-                      <span className="text-xs font-black text-slate-900">
+                      <span className="text-xs sm:text-sm font-black text-slate-900 tracking-tight">
                         Plus besoin de croiser les doigts !
                       </span>
                     </div>

@@ -83,43 +83,48 @@ export default function PourLesChauffeurs() {
               </div>
             </div>
 
-            {/* Carte Visuelle interactive avec photo du chauffeur */}
-            <div className="lg:col-span-5 flex flex-col items-center justify-center relative">
-              <div className="relative z-10 max-w-[280px] sm:max-w-[320px] mb-4 animate-in fade-in zoom-in-95 duration-500">
-                <img
-                  src="/images/chauffeur-fingers-crossed.png"
-                  alt="Chauffeur FretTalent qui croise les doigts"
-                  className="w-full h-auto object-contain drop-shadow-xl"
-                />
-              </div>
+            {/* Carte Visuelle interactive avec photo du chauffeur (Grand Format) */}
+            <div className="lg:col-span-5 flex flex-col items-center justify-center relative pt-6 lg:pt-0">
+              <div className="relative w-full flex flex-col items-center justify-center">
+                {/* Aura lumineuse */}
+                <div className="absolute w-[300px] sm:w-[400px] h-[300px] sm:h-[400px] bg-gradient-to-tr from-orange-500/20 via-amber-400/15 to-orange-400/10 rounded-full blur-3xl pointer-events-none"></div>
 
-              <div className="bg-white border border-slate-200 p-5 rounded-3xl shadow-xl w-full max-w-md relative space-y-3 hover:shadow-2xl transition-shadow duration-300">
-                <div className="absolute -top-3 -right-3 bg-green-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md animate-pulse">
-                  Profil Vérifié & Actif
+                <div className="relative z-10 w-full max-w-[420px] sm:max-w-[480px] mb-2 animate-in fade-in zoom-in-95 duration-500">
+                  <img
+                    src="/images/chauffeur-fingers-crossed.png"
+                    alt="Chauffeur FretTalent qui croise les doigts"
+                    className="w-full h-auto max-h-[460px] sm:max-h-[520px] object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300"
+                  />
                 </div>
 
-                <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
-                  <div className="bg-slate-100 p-2.5 rounded-2xl text-slate-600">
-                    <Shield className="h-5 w-5 text-orange-500" />
+                <div className="bg-white/95 backdrop-blur-md border border-slate-200 p-5 rounded-3xl shadow-xl w-full max-w-md relative space-y-3 hover:shadow-2xl transition-shadow duration-300 z-20">
+                  <div className="absolute -top-3 -right-3 bg-green-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md animate-pulse">
+                    Profil Vérifié & Actif
                   </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-slate-950">
-                      Chauffeur Routier Certifié
-                    </h3>
-                    <p className="text-xs text-slate-500">
-                      France, Belgique, Luxembourg, Suisse
-                    </p>
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="bg-slate-50 p-2 rounded-xl">
-                    <span className="text-[10px] text-slate-400 font-medium block">Disponibilité</span>
-                    <span className="font-bold text-green-600 text-xs">Immédiate</span>
+                  <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
+                    <div className="bg-slate-100 p-2.5 rounded-2xl text-slate-600">
+                      <Shield className="h-5 w-5 text-orange-500" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-950">
+                        Chauffeur Routier Certifié
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        France, Belgique, Luxembourg, Suisse
+                      </p>
+                    </div>
                   </div>
-                  <div className="bg-slate-50 p-2 rounded-xl">
-                    <span className="text-[10px] text-slate-400 font-medium block">Permis</span>
-                    <span className="font-bold text-slate-800 text-xs">C / CE • ADR</span>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="bg-slate-50 p-2 rounded-xl">
+                      <span className="text-[10px] text-slate-400 font-medium block">Disponibilité</span>
+                      <span className="font-bold text-green-600 text-xs">Immédiate</span>
+                    </div>
+                    <div className="bg-slate-50 p-2 rounded-xl">
+                      <span className="text-[10px] text-slate-400 font-medium block">Permis</span>
+                      <span className="font-bold text-slate-800 text-xs">C / CE • ADR</span>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -89,15 +89,15 @@ export default function PourLesChauffeurs() {
                 {/* Aura lumineuse */}
                 <div className="absolute w-[300px] sm:w-[400px] h-[300px] sm:h-[400px] bg-gradient-to-tr from-orange-500/20 via-amber-400/15 to-orange-400/10 rounded-full blur-3xl pointer-events-none"></div>
 
-                <div className="relative z-10 w-full max-w-[420px] sm:max-w-[480px] mb-2 animate-in fade-in zoom-in-95 duration-500">
+                <div className="relative z-10 w-full max-w-[380px] sm:max-w-[440px] flex justify-center animate-in fade-in zoom-in-95 duration-500">
                   <img
                     src="/images/chauffeuse-orange.png"
                     alt="Conductrice et Chauffeur routier FretTalent"
-                    className="w-full h-auto max-h-[460px] sm:max-h-[520px] object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300"
+                    className="w-full h-auto max-h-[460px] sm:max-h-[520px] object-contain drop-shadow-2xl"
                   />
                 </div>
 
-                <div className="bg-white/95 backdrop-blur-md border border-slate-200 p-5 rounded-3xl shadow-xl w-full max-w-md relative space-y-3 hover:shadow-2xl transition-shadow duration-300 z-20">
+                <div className="bg-white/95 backdrop-blur-md border border-slate-200 p-5 rounded-3xl shadow-xl w-full max-w-md relative space-y-3 hover:shadow-2xl transition-shadow duration-300 z-20 -mt-10 sm:-mt-14">
                   <div className="absolute -top-3 -right-3 bg-green-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md animate-pulse">
                     Profil Vérifié & Actif
                   </div>

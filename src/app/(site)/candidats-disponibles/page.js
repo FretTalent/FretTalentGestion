@@ -269,19 +269,35 @@ export default function CandidatsDisponiblesPage() {
                   filteredCandidates.map(candidate => {
                     const isHovered = hoveredCandidate?.id === candidate.id;
                     const isSelected = selectedCandidate?.id === candidate.id;
+                    const isActive = isHovered || isSelected;
+
+                    // Positionnement intelligent de l'info-bulle pour éviter tout rognage par les bords
+                    const isTop = candidate.y < 35; // Au Nord (Lille, Belgique...) -> bulle vers le bas
+                    const isLeft = candidate.x < 22; // À l'Ouest (Brest...) -> alignement gauche
+                    const isRight = candidate.x > 78; // À l'Est (Strasbourg, frontière suisse...) -> alignement droite
+
+                    const verticalPos = isTop ? 'top-full mt-3' : 'bottom-full mb-3';
+                    let horizontalPos = 'left-1/2 -translate-x-1/2';
+                    if (isLeft) {
+                      horizontalPos = 'left-0 translate-x-0';
+                    } else if (isRight) {
+                      horizontalPos = 'right-0 translate-x-0';
+                    }
 
                     return (
                       <div
                         key={candidate.id}
                         style={{ left: `${candidate.x}%`, top: `${candidate.y}%` }}
-                        className="absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10"
+                        className={`absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all ${
+                          isActive ? 'z-50' : 'z-10'
+                        }`}
                         onMouseEnter={() => setHoveredCandidate(candidate)}
                         onMouseLeave={() => setHoveredCandidate(null)}
                         onClick={() => setSelectedCandidate(candidate)}
                       >
                         {/* Onde radar animée */}
                         <div
-                          className={`absolute inset-0 rounded-full animate-ping opacity-60 ${
+                          className={`absolute inset-0 rounded-full animate-ping opacity-60 pointer-events-none ${
                             candidate.fullVerified ? 'bg-emerald-400' : 'bg-orange-500'
                           }`}
                           style={{ width: '18px', height: '18px', left: '-5px', top: '-5px' }}
@@ -293,13 +309,15 @@ export default function CandidatsDisponiblesPage() {
                             candidate.fullVerified
                               ? 'bg-emerald-500 border-white text-white'
                               : 'bg-orange-500 border-white text-white'
-                          } ${isHovered || isSelected ? 'scale-150 ring-4 ring-orange-500/40' : 'scale-100 hover:scale-125'}`}
+                          } ${isActive ? 'scale-150 ring-4 ring-orange-500/40 z-10' : 'scale-100 hover:scale-125'}`}
                           style={{ width: '14px', height: '14px' }}
                         ></div>
 
                         {/* Info-bulle flottante au survol */}
                         {isHovered && (
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-52 bg-slate-950 text-white rounded-2xl p-3 shadow-2xl border border-slate-700 text-xs pointer-events-none z-30 animate-in fade-in zoom-in-95 duration-200">
+                          <div
+                            className={`absolute ${verticalPos} ${horizontalPos} w-56 bg-slate-950/95 backdrop-blur-md text-white rounded-2xl p-3 shadow-2xl border border-slate-700/80 text-xs pointer-events-none z-50 animate-in fade-in zoom-in-95 duration-200`}
+                          >
                             <div className="flex items-center justify-between gap-1 mb-1">
                               <span className="font-bold text-white truncate">{candidate.city}</span>
                               <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded font-mono text-slate-300">
@@ -311,15 +329,15 @@ export default function CandidatsDisponiblesPage() {
                               <span>Mobilité : {candidate.radius}</span>
                             </div>
                             <div className="mt-2 pt-2 border-t border-slate-800 flex items-center justify-between text-[10px]">
-                              <span className="font-semibold text-orange-400">
+                              <span className="font-semibold text-orange-400 truncate max-w-[120px]">
                                 {candidate.licenses?.join(', ') || 'Permis C/CE'}
                               </span>
                               {candidate.fullVerified ? (
-                                <span className="text-emerald-400 font-bold flex items-center gap-0.5">
+                                <span className="text-emerald-400 font-bold flex items-center gap-0.5 shrink-0">
                                   <ShieldCheck className="h-3 w-3" /> Vérifié
                                 </span>
                               ) : (
-                                <span className="text-slate-400">Disponible</span>
+                                <span className="text-slate-400 shrink-0">Disponible</span>
                               )}
                             </div>
                           </div>

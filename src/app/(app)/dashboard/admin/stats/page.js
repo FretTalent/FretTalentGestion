@@ -378,36 +378,101 @@ export default function AdminStatsPage() {
 
         {/* Heures de pointe (2/3 de largeur) */}
         <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex flex-wrap items-center justify-between border-b border-slate-100 pb-3 gap-2">
             <div className="flex items-center gap-2">
               <Clock className="h-5 w-5 text-emerald-600" />
               <h3 className="font-bold text-slate-900 text-base">Fréquentation par heure de la journée</h3>
             </div>
-            <span className="text-xs text-slate-400 font-semibold">Distribution H00 - H23</span>
+            {(() => {
+              const maxH = Math.max(...(hourlyDistribution || [0]), 0);
+              const peakH = hourlyDistribution ? hourlyDistribution.indexOf(maxH) : -1;
+              const totalH = (hourlyDistribution || []).reduce((a, b) => a + b, 0);
+
+              if (totalH === 0) {
+                return (
+                  <span className="text-xs text-slate-400 font-semibold bg-slate-50 px-2.5 py-1 rounded-full border border-slate-200">
+                    0 visite sur cette période
+                  </span>
+                );
+              }
+
+              return (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-slate-500 font-semibold hidden sm:inline">
+                    {totalH} vues réparties
+                  </span>
+                  <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold border border-emerald-200 flex items-center gap-1">
+                    🔥 Pic à {peakH}h00 ({maxH} visites)
+                  </span>
+                </div>
+              );
+            })()}
           </div>
 
-          <div className="pt-2">
-            <div className="h-32 flex items-end gap-1 overflow-x-auto">
-              {hourlyDistribution.map((count, hour) => {
-                const maxH = Math.max(...hourlyDistribution, 1);
-                const hPct = Math.max(8, Math.round((count / maxH) * 100));
+          <div className="pt-4">
+            {(() => {
+              const maxH = Math.max(...(hourlyDistribution || [0]), 0);
+              const totalH = (hourlyDistribution || []).reduce((a, b) => a + b, 0);
 
+              if (totalH === 0) {
                 return (
-                  <div key={hour} className="flex-1 min-w-[14px] flex flex-col items-center gap-1 group relative">
-                    <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[10px] py-1 px-1.5 rounded pointer-events-none whitespace-nowrap z-10">
-                      {hour}h: {count} visite(s)
-                    </div>
-                    <div className="w-full bg-slate-100 rounded-t h-full flex items-end overflow-hidden">
-                      <div
-                        style={{ height: `${hPct}%` }}
-                        className="w-full bg-emerald-500 hover:bg-emerald-600 transition-all rounded-t"
-                      />
-                    </div>
-                    <span className="text-[9px] text-slate-400 font-semibold">{hour}h</span>
+                  <div className="py-10 text-center text-slate-400 text-sm space-y-1">
+                    <p className="font-semibold text-slate-600">Aucune visite enregistrée pour le filtre sélectionné.</p>
+                    <p className="text-xs">Changez le filtre en haut (ex: "7 jours", "30 jours" ou "Tout") pour voir l'historique complet.</p>
                   </div>
                 );
-              })}
-            </div>
+              }
+
+              return (
+                <div className="h-44 flex items-end gap-1 sm:gap-1.5 pt-6 pb-2">
+                  {hourlyDistribution.map((count, hour) => {
+                    const hPct = maxH > 0 && count > 0 ? Math.max(14, Math.round((count / maxH) * 100)) : 0;
+                    const isPeak = count === maxH && maxH > 0;
+
+                    return (
+                      <div
+                        key={hour}
+                        className="flex-1 min-w-[12px] flex flex-col items-center justify-end h-full gap-1.5 group relative"
+                      >
+                        {/* Bulle d'information au survol */}
+                        <div className="absolute -top-9 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[10px] py-1 px-2 rounded-lg pointer-events-none whitespace-nowrap z-20 shadow-md">
+                          <span className="font-bold">{hour}h00 :</span> {count} visite{count > 1 ? 's' : ''}
+                        </div>
+
+                        {/* Barre de valeur */}
+                        <div className="w-full bg-slate-100/80 rounded-t h-full flex items-end overflow-hidden">
+                          {count > 0 ? (
+                            <div
+                              style={{ height: `${hPct}%` }}
+                              className={`w-full rounded-t transition-all ${
+                                isPeak
+                                  ? 'bg-gradient-to-t from-emerald-600 to-teal-400 group-hover:from-emerald-700 group-hover:to-teal-500'
+                                  : 'bg-emerald-500/85 group-hover:bg-emerald-600'
+                              }`}
+                            />
+                          ) : (
+                            <div className="w-full h-1 bg-slate-200/70 rounded-full" />
+                          )}
+                        </div>
+
+                        {/* Label de l'heure */}
+                        <span
+                          className={`text-[9px] font-semibold transition-colors ${
+                            isPeak
+                              ? 'text-emerald-700 font-extrabold'
+                              : count > 0
+                                ? 'text-slate-700'
+                                : 'text-slate-400'
+                          }`}
+                        >
+                          {hour % 2 === 0 || hour === 23 ? `${hour}h` : ''}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </div>
         </div>
       </div>

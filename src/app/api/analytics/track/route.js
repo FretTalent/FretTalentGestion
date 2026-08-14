@@ -21,10 +21,10 @@ function parseReferrerDomain(referrer) {
 function detectDevice(userAgent) {
   if (!userAgent) return 'desktop';
   const ua = userAgent.toLowerCase();
-  if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
+  if (/ipad|tablet|(android(?!.*mobile))/i.test(ua)) {
     return 'tablet';
   }
-  if (/Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
+  if (/mobile|iphone|ipod|android|blackberry|opera mini|iemobile|wpdesktop|windows phone/i.test(ua)) {
     return 'mobile';
   }
   return 'desktop';

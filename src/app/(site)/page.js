@@ -1,121 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ShieldCheck, MapPin, ArrowRight } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { ShieldCheck, MapPin, ArrowRight, Truck, CheckCircle2, Search, Users, Globe } from 'lucide-react';
 
 export default function Home() {
-  const [candidates, setCandidates] = useState([]);
-  const [loadingMap, setLoadingMap] = useState(true);
-
-  useEffect(() => {
-    const fetchCandidates = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('candidates')
-          .select('id, city, postal_code, country, validated, availability, documents, is_active')
-          .not('postal_code', 'is', null)
-          .neq('postal_code', '');
-
-
-        if (error) throw error;
-        if (!data || data.length === 0) {
-          setCandidates([]);
-          setLoadingMap(false);
-          return;
-        }
-
-        // Géocoder chaque code postal unique présent dans les résultats (selon pays)
-        const coordsCache = {};
-        const uniqueKeys = [...new Set(data.map(c => `${c.country || 'FR'}_${c.postal_code}`))];
-
-        await Promise.all(
-          uniqueKeys.map(async key => {
-            const [cCountry, pc] = key.split('_');
-            try {
-              if (cCountry === 'BE' || cCountry === 'LU' || cCountry === 'CH') {
-                const countryCodeParam = cCountry.toLowerCase();
-                const res = await fetch(
-                  `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(pc)}&format=json&countrycodes=${countryCodeParam}&limit=1`,
-                  { headers: { 'User-Agent': 'FretTalentApp/1.0 (contact@frettalent.fr)' } }
-                );
-                if (!res.ok) return;
-                const json = await res.json();
-                if (json && json.length > 0) {
-                  coordsCache[key] = { lon: parseFloat(json[0].lon), lat: parseFloat(json[0].lat) };
-                }
-              } else {
-                const res = await fetch(
-                  `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(pc)}&type=municipality&limit=1`,
-                );
-                if (!res.ok) return;
-                const json = await res.json();
-                if (json.features && json.features.length > 0) {
-                  const [lon, lat] = json.features[0].geometry.coordinates;
-                  coordsCache[key] = { lon, lat };
-                }
-              }
-            } catch (e) {
-              console.error('Erreur géocodage pour ' + key, e);
-            }
-          }),
-        );
-
-        // Projeter les coordonnées sur la carte (France, Belgique, Luxembourg, Suisse) (en x/y de 0 à 100)
-        const minLon = -5.5;
-        const maxLon = 10.6;
-        const minLat = 41.2;
-        const maxLat = 51.8;
-
-        const mappedCandidates = data
-          .map(c => {
-            const key = `${c.country || 'FR'}_${c.postal_code}`;
-            const coords = coordsCache[key];
-            if (!coords) return null;
-
-            const x = ((coords.lon - minLon) / (maxLon - minLon)) * 100;
-            const y = 100 - ((coords.lat - minLat) / (maxLat - minLat)) * 100;
-
-            // Critères pour "100% Vérifié" :
-            // 1. Profil validé par l'admin
-            // 2. Documents obligatoires tous présents
-            // 3. Coordonnées géographiques valides (déjà filtrées)
-            // 4. Candidat disponible (availability défini et is_active)
-            const docs = c.documents || {};
-            const isDocPresent = (key, legacyKey) => !!docs[key] || (legacyKey && !!docs[legacyKey]);
-            const allDocsPresent = 
-              isDocPresent('cv') &&
-              (isDocPresent('permis_recto', 'permis') && isDocPresent('permis_verso', 'permis')) &&
-              (isDocPresent('chrono_recto', 'chrono') && isDocPresent('chrono_verso', 'chrono')) &&
-              (isDocPresent('fimo_recto', 'fimo') && isDocPresent('fimo_verso', 'fimo'));
-            const isAvailable = c.is_active && c.availability && c.availability !== '';
-            const fullVerified = c.validated && allDocsPresent && isAvailable;
-
-            return {
-              id: c.id,
-              city: c.city,
-              validated: c.validated,
-              fullVerified,
-              allDocsPresent,
-              isAvailable,
-              x,
-              y,
-            };
-          })
-          .filter(Boolean);
-
-        setCandidates(mappedCandidates);
-      } catch (err) {
-        console.error('Erreur de chargement des candidats pour la carte', err);
-      } finally {
-        setLoadingMap(false);
-      }
-    };
-
-    fetchCandidates();
-  }, []);
-
   const stats = [
     { value: '100%', label: 'Gratuit pour les chauffeurs' },
     { value: '2 €', label: 'Par contact débloqué' },
@@ -348,181 +236,53 @@ export default function Home() {
               </div>
             </div>
 
-            {/* CARTE DE FRANCE DES CANDIDATS EN DIRECT */}
+            {/* BANNIÈRE VITRINE : CANDIDATS DISPONIBLES EN DIRECT */}
             <div className="mt-20 pt-16 border-t border-slate-100 max-w-5xl mx-auto">
-              <div className="text-center mb-12 space-y-3">
-                <span className="text-xs font-bold text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-100">
-                  Réseau temps réel
-                </span>
-                <h2 className="text-3xl font-extrabold text-slate-950 tracking-tight">
-                  Candidats disponibles : France, Belgique, Luxembourg & Suisse
-                </h2>
-                <p className="text-slate-600 text-sm max-w-xl mx-auto">
-                  Découvrez la géolocalisation en temps réel de nos chauffeurs poids lourds inscrits en France, Belgique, Luxembourg et Suisse.
-                  Un candidat <strong>100% vérifié</strong> a ses permis et documents à jour.
-                </p>
+              <div className="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 rounded-3xl p-8 sm:p-12 text-white border border-slate-800 shadow-2xl relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-8">
+                <div className="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-                {/* Compteurs dynamiques */}
-                {!loadingMap && candidates.length > 0 && (
-                  <div className="flex flex-wrap justify-center gap-4 pt-2">
-                    <div className="inline-flex items-center gap-2 bg-white border border-slate-200 px-4 py-2 rounded-full shadow-sm text-xs font-semibold">
-                      <span className="w-2.5 h-2.5 rounded-full bg-orange-500 inline-block" />
-                      <span className="text-slate-700">{candidates.length} chauffeur{candidates.length > 1 ? 's' : ''} inscrit{candidates.length > 1 ? 's' : ''}</span>
-                    </div>
-
-                    {candidates.filter(c => c.fullVerified).length > 0 && (
-                      <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-50 to-emerald-50 border border-emerald-300 px-4 py-2 rounded-full shadow-sm text-xs font-semibold">
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />
-                        <span className="text-emerald-700">{candidates.filter(c => c.fullVerified).length} profil{candidates.filter(c => c.fullVerified).length > 1 ? 's' : ''} 100% vérifié{candidates.filter(c => c.fullVerified).length > 1 ? 's' : ''}</span>
-                      </div>
-                    )}
+                <div className="space-y-4 max-w-xl text-center lg:text-left relative z-10">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/20 text-orange-400 text-xs font-bold uppercase tracking-wider border border-orange-500/30">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                    </span>
+                    Carte Interactive en Direct
                   </div>
-                )}
-              </div>
 
-              <div className="bg-slate-50 border border-slate-200 rounded-3xl p-4 md:p-8 shadow-sm flex flex-col md:flex-row items-center justify-center gap-8 relative overflow-hidden">
-                <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-orange-500/5 rounded-full blur-3xl pointer-events-none"></div>
+                  <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
+                    Trouvez vos chauffeurs qualifiés en temps réel
+                  </h2>
 
-                {/* Carte SVG multi-pays */}
-                <div className="relative w-full max-w-[500px] aspect-square flex-shrink-0 overflow-hidden rounded-2xl">
-                  {/* Conteneur de la carte */}
-                  <div className="w-full h-full relative">
-                    <img
-                      src="/france-belgique-map.svg"
-                      alt="Carte de France, Belgique, Luxembourg et Suisse"
-                      className="w-full h-full object-contain opacity-60 select-none pointer-events-none filter grayscale contrast-125"
-                    />
+                  <p className="text-sm text-slate-300 leading-relaxed">
+                    Visualisez nos conducteurs poids lourds disponibles en <strong>France</strong>, <strong>Belgique</strong>, <strong>Luxembourg</strong> et <strong>Suisse</strong> avec filtrage par permis (C, CE), certifications (ADR, FIMO) et badge 100% vérifié.
+                  </p>
 
-                    {/* Points des candidats */}
-                    {!loadingMap &&
-                      candidates.map(candidate => (
-                        <Link
-                          key={candidate.id}
-                          href="/login"
-                          className="absolute group cursor-pointer block"
-                          style={{
-                            left: `${candidate.x}%`,
-                            top: `${candidate.y}%`,
-                            transform: 'translate(-50%, -50%)',
-                            zIndex: candidate.fullVerified ? 30 : candidate.validated ? 20 : 10,
-                          }}
-                          title={`Voir le profil à ${candidate.city} (Connexion requise)`}
-                        >
-                          {/* Onde pulsante — couleur selon niveau */}
-                          <span
-                            className={`absolute inline-flex rounded-full opacity-75 animate-ping -left-0.5 -top-0.5 h-4 w-4 ${
-                              candidate.fullVerified
-                                ? 'bg-green-400'
-                                : 'bg-orange-400'
-                            }`}
-                          ></span>
-
-                          {/* Point central */}
-                          <span
-                            className={`relative flex rounded-full border-2 border-white shadow-md h-3 w-3 ${
-                              candidate.fullVerified
-                                ? 'bg-green-500'
-                                : 'bg-orange-500'
-                            }`}
-                          >
-                          </span>
-
-                          {/* Tooltip au survol */}
-                          <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-200 pointer-events-none bg-slate-900 text-white text-[10px] py-2 px-3 rounded-xl shadow-xl whitespace-nowrap z-50 min-w-[140px]">
-                            {candidate.fullVerified ? (
-                              <>
-                                <div className="font-bold text-green-400 flex items-center gap-1 mb-0.5">
-                                  <span className="w-2 h-2 rounded-full bg-green-400 inline-block"></span> 100% Vérifié
-                                </div>
-                                <div className="text-slate-300 text-[9px] space-y-0.5">
-                                  <div>✓ Documents à jour</div>
-                                  <div>✓ Localisation validée</div>
-                                  <div>✓ Disponible</div>
-                                </div>
-                              </>
-                            ) : (
-                              <span className="font-bold text-orange-400">Profil en vérification</span>
-                            )}
-                            <div className="text-slate-400 mt-1">📍 {candidate.city}</div>
-                            <div className="text-orange-400 text-[9px] font-bold mt-1">👉 Cliquez pour vous connecter</div>
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-[4px] border-transparent border-t-slate-900 w-0 h-0"></div>
-                          </div>
-                        </Link>
-                      ))}
-
-                    {loadingMap && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-2xl">
-                        <div className="text-center space-y-2">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
-                          <p className="text-xs text-slate-500 font-medium">Chargement de la carte...</p>
-                        </div>
-                      </div>
-                    )}
-
-                    {!loadingMap && candidates.length === 0 && (
-                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/90 border border-slate-200 py-1.5 px-4 rounded-xl shadow-sm text-[10px] font-bold text-slate-500">
-                        En attente de nouvelles inscriptions
-                      </div>
-                    )}
+                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2 text-xs font-semibold text-slate-300">
+                    <span className="flex items-center gap-1.5">
+                      <ShieldCheck className="h-4 w-4 text-emerald-400" />
+                      Profils 100% Vérifiés
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Globe className="h-4 w-4 text-blue-400" />
+                      4 Pays Couverts
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Truck className="h-4 w-4 text-orange-400" />
+                      PL & SPL Immédiats
+                    </span>
                   </div>
                 </div>
 
-                {/* Explication & Légende */}
-                <div className="space-y-6 max-w-sm">
-
-                  {/* Ce que signifie 100% vérifié */}
-                  <div className="bg-white rounded-2xl border border-emerald-200 p-4 space-y-3 shadow-sm">
-                    <div className="flex items-center gap-2">
-                      <span className="w-3 h-3 rounded-full bg-emerald-500 inline-block shadow-sm"></span>
-                      <h3 className="text-sm font-extrabold text-slate-950">Profil 100% Vérifié</h3>
-                    </div>
-                    <p className="text-[11px] text-slate-500 leading-relaxed">
-                      Un chauffeur obtient le badge <strong className="text-emerald-600">100% Vérifié</strong> lorsque les 4 critères suivants sont remplis :
-                    </p>
-                    <ul className="space-y-2">
-                      {[
-                        { icon: '✅', label: 'Profil validé par l\'équipe FretTalent' },
-                        { icon: '📄', label: 'Documents obligatoires déposés et à jour (CV, permis, chrono, FIMO)' },
-                        { icon: '📍', label: 'Coordonnées géographiques renseignées' },
-                        { icon: '🟢', label: 'Statut de disponibilité renseigné et actif' },
-                      ].map((item, i) => (
-                        <li key={i} className="flex items-start gap-2 text-[11px] text-slate-700">
-                          <span className="flex-shrink-0">{item.icon}</span>
-                          <span>{item.label}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Légende */}
-                  <div className="space-y-2.5">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Légende de la carte</p>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-3">
-                        <div className="relative flex-shrink-0">
-                          <span className="block h-3 w-3 rounded-full bg-green-500 border-2 border-white shadow-md"></span>
-                        </div>
-                        <span className="text-xs font-semibold text-slate-700">
-                          <span className="text-green-600 font-bold">Vert</span> = Profil 100% vérifié
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="block h-3 w-3 rounded-full bg-orange-500 flex-shrink-0 animate-pulse"></span>
-                        <span className="text-xs font-semibold text-slate-700">
-                          <span className="text-orange-500 font-bold">Orange</span> = En cours de vérification
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-2 border-t border-slate-100">
-                    <Link
-                      href="/offres"
-                      className="inline-flex items-center text-xs font-bold text-orange-500 hover:text-orange-600"
-                    >
-                      Consulter les profils par filtres métiers →
-                    </Link>
-                  </div>
+                <div className="flex flex-col items-center lg:items-end gap-3 flex-shrink-0 relative z-10 w-full sm:w-auto">
+                  <Link
+                    href="/candidats-disponibles"
+                    className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white font-black px-8 py-4 rounded-full text-sm transition-all shadow-xl shadow-orange-500/30 flex items-center justify-center gap-2.5 hover:scale-105"
+                  >
+                    <span>Explorer la Carte & les Candidats</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <span className="text-[11px] text-slate-400">Accès direct et libre consultation</span>
                 </div>
               </div>
             </div>

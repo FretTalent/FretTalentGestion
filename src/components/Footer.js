@@ -39,6 +39,15 @@ export default function Footer() {
             <ul className="space-y-2.5 text-sm">
               <li>
                 <Link
+                  href="/candidats-disponibles"
+                  className="hover:text-white transition-colors text-orange-400 font-semibold flex items-center gap-1.5"
+                >
+                  <span>Candidats disponibles</span>
+                  <span className="bg-orange-500/20 text-orange-400 text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-orange-500/30">En direct</span>
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/entreprises"
                   className="hover:text-white transition-colors"
                 >

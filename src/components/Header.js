@@ -26,10 +26,10 @@ export default function Header() {
   const isActive = path => pathname === path;
 
   const navLinks = [
+    { name: 'Candidats disponibles', path: '/candidats-disponibles' },
     { name: 'Pour les entreprises', path: '/entreprises' },
     { name: 'Pour les chauffeurs', path: '/chauffeurs' },
     { name: 'Tarifs', path: '/tarifs' },
-    { name: 'Comment ça marche', path: '/comment-ca-marche' },
   ];
 
   return (

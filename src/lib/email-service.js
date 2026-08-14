@@ -8,6 +8,9 @@ import AccountVerified from '../emails/AccountVerified';
 import MissingDocuments from '../emails/MissingDocuments';
 import SupportNewMessageUser from '../emails/SupportNewMessageUser';
 import SupportNewConversationAdmin from '../emails/SupportNewConversationAdmin';
+import CandidateReminderDay1 from '../emails/CandidateReminderDay1';
+import CandidateReminderDay4 from '../emails/CandidateReminderDay4';
+import CandidateReminderDay10 from '../emails/CandidateReminderDay10';
 
 const FROM_EMAIL = 'FretTalent <support@frettalent.fr>';
 const ADMIN_EMAIL = 'support@frettalent.fr'; // A envoyer aux admins de FretTalent
@@ -224,3 +227,61 @@ export async function sendSupportNewMessageUser({
     return { success: false, error };
   }
 }
+
+/**
+ * Envoie le rappel J+1 (incitation bienveillante)
+ */
+export async function sendCandidateReminderDay1(email, candidateName) {
+  try {
+    const html = await render(<CandidateReminderDay1 candidateName={candidateName} />);
+    const data = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [email],
+      subject: 'Activez votre badge Chauffeur Vérifié sur FretTalent 🚛',
+      html,
+    });
+    return { success: true, data };
+  } catch (error) {
+    console.error('Erreur email sendCandidateReminderDay1:', error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * Envoie le rappel J+4 (opportunités d'embauche)
+ */
+export async function sendCandidateReminderDay4(email, candidateName) {
+  try {
+    const html = await render(<CandidateReminderDay4 candidateName={candidateName} />);
+    const data = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [email],
+      subject: '⚠️ Des opportunités d\'embauche attendent vos documents sur FretTalent',
+      html,
+    });
+    return { success: true, data };
+  } catch (error) {
+    console.error('Erreur email sendCandidateReminderDay4:', error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * Envoie l'alerte J+10 (dernier avis avant clôture)
+ */
+export async function sendCandidateReminderDay10(email, candidateName) {
+  try {
+    const html = await render(<CandidateReminderDay10 candidateName={candidateName} />);
+    const data = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [email],
+      subject: '🔴 Dernier avis avant clôture de votre compte FretTalent',
+      html,
+    });
+    return { success: true, data };
+  } catch (error) {
+    console.error('Erreur email sendCandidateReminderDay10:', error);
+    return { success: false, error };
+  }
+}
+

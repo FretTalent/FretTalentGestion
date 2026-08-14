@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import AddressAutocomplete from '@/components/AddressAutocomplete';
+import Link from 'next/link';
 import {
   Save,
   RefreshCw,
@@ -11,6 +12,14 @@ import {
   EyeOff,
   UserCheck,
   ShieldAlert,
+  ShieldCheck,
+  Sparkles,
+  FileText,
+  Camera,
+  Clock,
+  ArrowRight,
+  CheckCircle2,
+  AlertTriangle,
 } from 'lucide-react';
 import { validatePhoneNumber, validateAddress, COUNTRIES } from '@/lib/country';
 
@@ -288,6 +297,129 @@ export default function CandidateDashboard() {
           <p className="text-sm font-semibold text-center">{message.text}</p>
         </div>
       )}
+
+      {/* BANNIÈRE DE COMPLÉTION DU PROFIL & DÉPÔT DE DOCUMENTS SANS CONTRAINTE */}
+      {(() => {
+        const hasDocs = documents && typeof documents === 'object' && Object.keys(documents).length > 0;
+        const docCount = Object.keys(documents || {}).length;
+        const createdAt = candidate?.created_at ? new Date(candidate.created_at) : new Date();
+        const daysElapsed = Math.floor((new Date() - createdAt) / (1000 * 60 * 60 * 24));
+        const daysRemaining = Math.max(1, 10 - daysElapsed);
+
+        if (hasDocs && candidate?.validated) {
+          return (
+            <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 p-6 rounded-3xl border border-emerald-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/20">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full">
+                      Profil 100% Vérifié 🛡️
+                    </span>
+                    <span className="text-xs font-bold text-emerald-700">({docCount} document{docCount > 1 ? 's' : ''} validé{docCount > 1 ? 's' : ''})</span>
+                  </div>
+                  <h2 className="text-lg font-black text-slate-900 mt-1">
+                    Votre profil est visible et prioritaire auprès des transporteurs
+                  </h2>
+                  <p className="text-xs text-slate-600">
+                    Les recruteurs en France, Suisse, Belgique et Luxembourg peuvent consulter vos compétences et vous contacter directement.
+                  </p>
+                </div>
+              </div>
+              <Link
+                href="/dashboard/candidate/documents"
+                className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold text-emerald-800 bg-white border border-emerald-200 hover:bg-emerald-100 transition-colors shadow-2xs"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>Gérer mes documents</span>
+              </Link>
+            </div>
+          );
+        }
+
+        if (hasDocs && !candidate?.validated) {
+          return (
+            <div className="bg-gradient-to-r from-blue-50 via-slate-50 to-blue-50 p-6 rounded-3xl border border-blue-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-blue-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20">
+                  <Clock className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-extrabold uppercase tracking-wider text-blue-800 bg-blue-100 px-3 py-1 rounded-full">
+                      Vérification en cours ⏳
+                    </span>
+                    <span className="text-xs font-bold text-blue-700">({docCount} document{docCount > 1 ? 's' : ''} transmis)</span>
+                  </div>
+                  <h2 className="text-lg font-black text-slate-900 mt-1">
+                    Vos documents sont en cours de validation par notre équipe
+                  </h2>
+                  <p className="text-xs text-slate-600">
+                    Votre badge « Profil Vérifié 🛡️ » sera activé dès la vérification de vos justificatifs de conduite.
+                  </p>
+                </div>
+              </div>
+              <Link
+                href="/dashboard/candidate/documents"
+                className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold text-blue-800 bg-white border border-blue-200 hover:bg-blue-100 transition-colors shadow-2xs"
+              >
+                <span>Voir mes documents</span>
+              </Link>
+            </div>
+          );
+        }
+
+        // Cas sans document : Bannière d'incitation bienveillante
+        return (
+          <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 text-white p-6 sm:p-7 rounded-3xl shadow-xl shadow-orange-500/20 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative overflow-hidden">
+            <div className="space-y-3 z-10 max-w-2xl">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-black uppercase tracking-wider text-white">
+                  <Sparkles className="w-3.5 h-3.5" /> Profil complété à 60%
+                </span>
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-black/20 text-xs font-bold text-orange-100">
+                  <Clock className="w-3 h-3" /> {daysRemaining} jour{daysRemaining > 1 ? 's' : ''} restant{daysRemaining > 1 ? 's' : ''} pour finaliser
+                </span>
+              </div>
+
+              <div>
+                <h2 className="text-xl sm:text-2xl font-black leading-tight">
+                  Activez votre badge « Chauffeur 100% Vérifié 🛡️ »
+                </h2>
+                <p className="text-xs sm:text-sm text-orange-100 leading-relaxed mt-1">
+                  Les transporteurs en <strong>France, Suisse, Belgique et Luxembourg</strong> contactent en priorité les profils vérifiés. 
+                  Prenez simplement en photo votre <strong>Permis C/CE</strong>, <strong>Carte Chrono</strong> et <strong>FIMO</strong> avec votre téléphone (1 minute).
+                </p>
+              </div>
+
+              <div className="flex items-center gap-4 pt-1 text-xs text-orange-100 font-medium">
+                <span className="flex items-center gap-1">
+                  <CheckCircle2 className="w-4 h-4 text-white" /> 100% gratuit
+                </span>
+                <span className="flex items-center gap-1">
+                  <CheckCircle2 className="w-4 h-4 text-white" /> 0 commission
+                </span>
+                <span className="flex items-center gap-1">
+                  <CheckCircle2 className="w-4 h-4 text-white" /> Données protégées & confidentielles
+                </span>
+              </div>
+            </div>
+
+            <div className="shrink-0 w-full lg:w-auto z-10">
+              <Link
+                href="/dashboard/candidate/documents"
+                className="w-full lg:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full text-xs sm:text-sm font-black text-orange-600 bg-white hover:bg-orange-50 shadow-lg hover:scale-105 transition-all"
+              >
+                <Camera className="w-4 h-4 text-orange-600" />
+                <span>Prendre en photo mes documents</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        );
+      })()}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Formulaire principal */}

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { Truck, AlertCircle, ShieldAlert, CheckCircle2, Loader2, Building2 } from 'lucide-react';
 import AddressAutocomplete from '@/components/AddressAutocomplete';
-import { COUNTRIES, COUNTRY_LIST, detectCountryFromId, validateCompanyIdFormat, formatCompanyIdentifier } from '@/lib/country';
+import { COUNTRIES, COUNTRY_LIST, detectCountryFromId, validateCompanyIdFormat, formatCompanyIdentifier, validatePhoneNumber, validateAddress } from '@/lib/country';
 
 function RegisterContent() {
   const router = useRouter();
@@ -26,9 +26,10 @@ function RegisterContent() {
   const [lastName, setLastName] = useState('');
   const [firstName, setFirstName] = useState('');
   const [phone, setPhone] = useState('');
+  const [phoneFeedback, setPhoneFeedback] = useState(null); // { valid: boolean, message: string }
   
   // Champ Adresse Globale
-  const [addressInfo, setAddressInfo] = useState({ address: '', city: '', postalCode: '' });
+  const [addressInfo, setAddressInfo] = useState({ address: '', city: '', postalCode: '', isVerified: false });
 
   const [rgpdConsent, setRgpdConsent] = useState(false);
   const [error, setError] = useState(null);
@@ -46,6 +47,17 @@ function RegisterContent() {
       setRole(roleParam);
     }
   }, [searchParams]);
+
+  // Validation en direct du numéro de téléphone
+  const handlePhoneChange = (val) => {
+    setPhone(val);
+    if (!val.trim()) {
+      setPhoneFeedback(null);
+      return;
+    }
+    const check = validatePhoneNumber(val, candidateCountry);
+    setPhoneFeedback(check);
+  };
 
   // Hook de validation en direct de l'identifiant d'entreprise
   useEffect(() => {
@@ -111,6 +123,7 @@ function RegisterContent() {
               address: data.address,
               city: data.city || '',
               postalCode: data.postalCode || '',
+              isVerified: true,
             });
           }
         } else {
@@ -154,11 +167,32 @@ function RegisterContent() {
         setError("Le nom de l'entreprise est obligatoire.");
         return;
       }
+
+      // Validation stricte de l'adresse de l'entreprise
+      const addrCheck = validateAddress(addressInfo, country);
+      if (!addrCheck.valid) {
+        setError(addrCheck.message);
+        return;
+      }
     }
 
     if (role === 'candidate') {
       if (!lastName.trim() || !firstName.trim()) {
         setError('Veuillez renseigner votre nom et votre prénom.');
+        return;
+      }
+
+      // Validation stricte du numéro de téléphone réel
+      const phoneCheck = validatePhoneNumber(phone, candidateCountry);
+      if (!phoneCheck.valid) {
+        setError(phoneCheck.message);
+        return;
+      }
+
+      // Validation stricte de l'adresse du candidat
+      const addrCheck = validateAddress(addressInfo, candidateCountry);
+      if (!addrCheck.valid) {
+        setError(addrCheck.message);
         return;
       }
     }
@@ -191,6 +225,7 @@ function RegisterContent() {
       // 3. Insérer les détails spécifiques de l'espace
       if (role === 'candidate') {
         const fullCandidateName = `${lastName.trim().toUpperCase()} ${firstName.trim()}`;
+        const cleanPhone = validatePhoneNumber(phone, candidateCountry).formatted || phone.trim();
         const { error: candidateError } = await supabase
           .from('candidates')
           .insert([
@@ -198,9 +233,9 @@ function RegisterContent() {
               id: user.id,
               full_name: fullCandidateName,
               email: email,
-              phone: phone,
-              postal_code: addressInfo.postalCode || '00000',
-              city: addressInfo.city || 'Non renseigné',
+              phone: cleanPhone,
+              postal_code: addressInfo.postalCode,
+              city: addressInfo.city,
               address: addressInfo.address || '',
               country: candidateCountry,
               is_active: true,
@@ -268,10 +303,10 @@ function RegisterContent() {
           className={`py-2 text-[11px] sm:text-xs font-bold rounded-lg transition-all ${
             role === 'candidate'
               ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-500 hover:text-slate-900'
+              : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          Je suis chauffeur
+          Je suis Chauffeur
         </button>
         <button
           type="button"
@@ -282,39 +317,40 @@ function RegisterContent() {
           className={`py-2 text-[11px] sm:text-xs font-bold rounded-lg transition-all ${
             role === 'recruiter'
               ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-500 hover:text-slate-900'
+              : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          Recruteur / Entreprise
+          Je suis Recruteur
         </button>
       </div>
 
+      {/* Message d'erreur */}
       {error && (
-        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
-          <p className="text-xs text-red-700 font-medium">{error}</p>
+        <div className="bg-red-50 text-red-700 p-3 rounded-xl flex items-start gap-2 text-xs border border-red-100">
+          <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+          <span>{error}</span>
         </div>
       )}
 
+      {/* Formulaire */}
       <form onSubmit={handleRegister} className="space-y-4">
-        {/* Champs communs */}
         <div className="space-y-1">
           <label className="text-xs font-bold text-slate-700 uppercase">
-            Adresse e-mail
+            Adresse e-mail *
           </label>
           <input
             type="email"
             required
             value={email}
             onChange={e => setEmail(e.target.value)}
-            placeholder="contact@exemple.com"
+            placeholder="jean.dupont@email.com"
             className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
           />
         </div>
 
         <div className="space-y-1">
           <label className="text-xs font-bold text-slate-700 uppercase">
-            Mot de passe
+            Mot de passe *
           </label>
           <input
             type="password"
@@ -341,7 +377,10 @@ function RegisterContent() {
                     type="button"
                     onClick={() => {
                       setCandidateCountry(c.code);
-                      setAddressInfo({ address: '', city: '', postalCode: '' });
+                      setAddressInfo({ address: '', city: '', postalCode: '', isVerified: false });
+                      if (phone) {
+                        setPhoneFeedback(validatePhoneNumber(phone, c.code));
+                      }
                     }}
                     className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl border text-xs font-bold transition-all ${
                       candidateCountry === c.code
@@ -385,28 +424,48 @@ function RegisterContent() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700 uppercase">
-                Téléphone portable
+              <label className="text-xs font-bold text-slate-700 uppercase flex items-center justify-between">
+                <span>Numéro de téléphone réel *</span>
+                <span className="text-[10px] text-slate-400 font-normal">Obligatoire pour les recruteurs</span>
               </label>
-              <input
-                type="tel"
-                required
-                value={phone}
-                onChange={e => setPhone(e.target.value)}
-                placeholder={COUNTRIES[candidateCountry]?.phonePrefix ? `${COUNTRIES[candidateCountry].phonePrefix} 6...` : '06 12 34 56 78'}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
-              />
+              <div className="relative">
+                <input
+                  type="tel"
+                  required
+                  value={phone}
+                  onChange={e => handlePhoneChange(e.target.value)}
+                  placeholder={COUNTRIES[candidateCountry]?.phonePrefix ? `${COUNTRIES[candidateCountry].phonePrefix} 6 12 34 56 78` : '06 12 34 56 78'}
+                  className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 transition-all ${
+                    phoneFeedback && phoneFeedback.valid === true
+                      ? 'border-green-500 bg-green-50/20 focus:ring-green-500/20 focus:border-green-500 text-slate-900'
+                      : phoneFeedback && phoneFeedback.valid === false
+                      ? 'border-red-400 bg-red-50/20 focus:ring-red-500/20 focus:border-red-500 text-slate-900'
+                      : 'border-slate-200 focus:ring-orange-500/20 focus:border-orange-500 text-slate-900'
+                  }`}
+                />
+                {phoneFeedback && phoneFeedback.valid === true && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500">
+                    <CheckCircle2 className="w-5 h-5" />
+                  </div>
+                )}
+              </div>
+              {phoneFeedback && phoneFeedback.valid === false && (
+                <p className="text-[11px] font-semibold text-red-500 mt-1">
+                  {phoneFeedback.message}
+                </p>
+              )}
             </div>
             
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700 uppercase">
-                Adresse complète ({COUNTRIES[candidateCountry]?.name}) *
+              <label className="text-xs font-bold text-slate-700 uppercase flex items-center justify-between">
+                <span>Adresse complète réelle ({COUNTRIES[candidateCountry]?.name}) *</span>
+                <span className="text-[10px] text-slate-400 font-normal">Sélection requise</span>
               </label>
               <AddressAutocomplete 
                 onAddressSelect={setAddressInfo}
                 required={true}
                 country={candidateCountry}
-                placeholder={`Rechercher une adresse en ${COUNTRIES[candidateCountry]?.name}...`}
+                placeholder={`Rechercher votre adresse exacte en ${COUNTRIES[candidateCountry]?.name}...`}
               />
             </div>
 

@@ -181,6 +181,178 @@ export function validateCompanyIdFormat(countryCode, idValue) {
 }
 
 /**
+ * Liste des faux numéros / séquences de test interdits
+ */
+const FAKE_PHONE_PATTERNS = [
+  /^(\d)\1+$/, // Tous les chiffres identiques: 0000000000, 1111111111, etc.
+  /^0123456789$/,
+  /^0987654321$/,
+  /^0600000000$/,
+  /^0700000000$/,
+  /^0612345678$/,
+  /^0712345678$/,
+  /^0102030405$/,
+  /^0601020304$/,
+  /^0701020304$/,
+  /^0400000000$/,
+  /^0412345678$/,
+  /^1234567890$/,
+];
+
+/**
+ * Valide rigoureusement un numéro de téléphone réel pour France, Belgique, Luxembourg, Suisse
+ * @param {string} phone 
+ * @param {'FR' | 'BE' | 'LU' | 'CH'} countryCode 
+ * @returns {{ valid: boolean, message?: string, formatted?: string }}
+ */
+export function validatePhoneNumber(phone, countryCode = 'FR') {
+  if (!phone || typeof phone !== 'string' || !phone.trim()) {
+    return { valid: false, message: 'Le numéro de téléphone est obligatoire.' };
+  }
+
+  // Nettoyage: enlever espaces, points, tirets, parenthèses
+  let clean = phone.trim().replace(/[\s.\-_/()]/g, '');
+
+  // Vérifier qu'il n'y a que des chiffres et éventuellement un '+' au début
+  if (!/^\+?\d+$/.test(clean)) {
+    return { valid: false, message: 'Le numéro de téléphone ne doit contenir que des chiffres.' };
+  }
+
+  // Convertir 0033... en +33...
+  if (clean.startsWith('00')) {
+    clean = '+' + clean.slice(2);
+  }
+
+  const digitsOnly = clean.replace(/\D/g, '');
+
+  // Vérification des faux numéros génériques
+  if (FAKE_PHONE_PATTERNS.some(pat => pat.test(digitsOnly) || pat.test(clean))) {
+    return { valid: false, message: 'Veuillez saisir un véritable numéro de téléphone valide.' };
+  }
+
+  // Vérifier qu'il n'y a pas que 2 chiffres répétés en boucle (ex: 0606060606)
+  if (/^(\d{2})\1{4,}$/.test(digitsOnly)) {
+    return { valid: false, message: 'Numéro invalide (séquence répétitive non autorisée).' };
+  }
+
+  switch (countryCode) {
+    case 'FR': {
+      // France : +33 ou 0 suivi de 1 à 9, 10 chiffres au format national
+      let national = clean;
+      if (clean.startsWith('+33')) {
+        national = '0' + clean.slice(3);
+      }
+      if (!/^0[1-9]\d{8}$/.test(national)) {
+        return { 
+          valid: false, 
+          message: 'Numéro français invalide. Saisissez un numéro à 10 chiffres (ex: 06 12 34 56 78).' 
+        };
+      }
+      return { valid: true, formatted: national };
+    }
+
+    case 'BE': {
+      // Belgique : +32 ou 0, 9 ou 10 chiffres
+      let national = clean;
+      if (clean.startsWith('+32')) {
+        national = '0' + clean.slice(3);
+      }
+      if (!/^0[1-9]\d{7,8}$/.test(national)) {
+        return { 
+          valid: false, 
+          message: 'Numéro belge invalide. Saisissez un numéro à 9 ou 10 chiffres (ex: 0470 12 34 56).' 
+        };
+      }
+      return { valid: true, formatted: national };
+    }
+
+    case 'LU': {
+      // Luxembourg : +352 ou numéro local de 8 à 11 chiffres
+      let digits = digitsOnly;
+      if (clean.startsWith('+352')) {
+        digits = clean.slice(4);
+      } else if (clean.startsWith('352')) {
+        digits = clean.slice(3);
+      }
+      if (digits.length < 8 || digits.length > 11) {
+        return { 
+          valid: false, 
+          message: 'Numéro luxembourgeois invalide. Saisissez un numéro valide (ex: +352 621 123 456).' 
+        };
+      }
+      return { valid: true, formatted: clean.startsWith('+') ? clean : `+352 ${digits}` };
+    }
+
+    case 'CH': {
+      // Suisse : +41 ou 0, 10 chiffres au format national
+      let national = clean;
+      if (clean.startsWith('+41')) {
+        national = '0' + clean.slice(3);
+      }
+      if (!/^0[1-9]\d{8}$/.test(national)) {
+        return { 
+          valid: false, 
+          message: 'Numéro suisse invalide. Saisissez un numéro à 10 chiffres (ex: 079 123 45 67).' 
+        };
+      }
+      return { valid: true, formatted: national };
+    }
+
+    default: {
+      if (digitsOnly.length < 8 || digitsOnly.length > 15) {
+        return { valid: false, message: 'Veuillez saisir un numéro de téléphone international valide.' };
+      }
+      return { valid: true, formatted: clean };
+    }
+  }
+}
+
+/**
+ * Valide qu'une adresse sélectionnée est bien une adresse officielle et non du texte approximatif
+ * @param {{ address: string, city: string, postalCode: string, isVerified?: boolean, fullLabel?: string }} addressInfo 
+ * @param {'FR' | 'BE' | 'LU' | 'CH'} countryCode 
+ * @returns {{ valid: boolean, message?: string }}
+ */
+export function validateAddress(addressInfo, countryCode = 'FR') {
+  if (!addressInfo) {
+    return { valid: false, message: "L'adresse est obligatoire." };
+  }
+
+  const { address, city, postalCode } = addressInfo;
+
+  if (!city || !city.trim() || !postalCode || !postalCode.trim()) {
+    return { 
+      valid: false, 
+      message: 'Veuillez obligatoirement sélectionner une adresse valide dans la liste suggérée.' 
+    };
+  }
+
+  const cleanPostal = postalCode.trim();
+  const countryConfig = COUNTRIES[countryCode] || COUNTRIES.FR;
+
+  if (countryConfig.postalCodeRegex && !countryConfig.postalCodeRegex.test(cleanPostal)) {
+    return {
+      valid: false,
+      message: `Le code postal "${cleanPostal}" est invalide pour ${countryConfig.name}.`,
+    };
+  }
+
+  // Vérifier la longueur minimale et exclure les textes approximatifs / bidons
+  const dummyTexts = ['test', 'nulle part', 'fake', 'inconnu', 'adresse', 'rue', 'xxx', 'aaa', '123', 'aucun', 'rien'];
+  const lowerCity = city.trim().toLowerCase();
+  const lowerAddr = (address || '').trim().toLowerCase();
+
+  if (dummyTexts.includes(lowerCity) || dummyTexts.includes(lowerAddr) || lowerCity.length < 2) {
+    return { 
+      valid: false, 
+      message: 'Adresse approximative non acceptée. Veuillez sélectionner une véritable adresse existante.' 
+    };
+  }
+
+  return { valid: true };
+}
+
+/**
  * Formate un identifiant pour un affichage propre
  */
 export function formatCompanyIdentifier(countryCode, rawId) {
@@ -211,3 +383,5 @@ export function formatCompanyIdentifier(countryCode, rawId) {
       return rawId;
   }
 }
+
+

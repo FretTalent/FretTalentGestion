@@ -12,6 +12,7 @@ import {
   UserCheck,
   ShieldAlert,
 } from 'lucide-react';
+import { validatePhoneNumber, validateAddress } from '@/lib/country';
 
 export default function CandidateDashboard() {
   const router = useRouter();
@@ -171,15 +172,31 @@ export default function CandidateDashboard() {
 
   const handleSave = async e => {
     e.preventDefault();
-    setSaving(true);
     setMessage(null);
 
+    // Validation stricte du téléphone
+    const phoneCheck = validatePhoneNumber(phone, country);
+    if (!phoneCheck.valid) {
+      setMessage({ type: 'error', text: phoneCheck.message });
+      return;
+    }
+
+    // Validation stricte de l'adresse
+    const addrCheck = validateAddress(addressInfo, country);
+    if (!addrCheck.valid) {
+      setMessage({ type: 'error', text: addrCheck.message });
+      return;
+    }
+
+    setSaving(true);
+
     try {
+      const cleanPhone = phoneCheck.formatted || phone.trim();
       const { error } = await supabase
         .from('candidates')
         .update({
           full_name: fullName,
-          phone: phone,
+          phone: cleanPhone,
           address: addressInfo.address,
           postal_code: addressInfo.postalCode,
           city: addressInfo.city,

@@ -12,7 +12,7 @@ import {
   UserCheck,
   ShieldAlert,
 } from 'lucide-react';
-import { validatePhoneNumber, validateAddress } from '@/lib/country';
+import { validatePhoneNumber, validateAddress, COUNTRIES } from '@/lib/country';
 
 export default function CandidateDashboard() {
   const router = useRouter();
@@ -338,29 +338,19 @@ export default function CandidateDashboard() {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700 uppercase">
-                  Pays de résidence / Recherche d&apos;emploi
+                <label className="text-xs font-bold text-slate-700 uppercase flex items-center justify-between">
+                  <span>Pays de résidence</span>
+                  <span className="text-[10px] text-slate-400 font-normal">Défini à l&apos;inscription</span>
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {[
-                    { code: 'FR', label: 'France' },
-                    { code: 'BE', label: 'Belgique' },
-                    { code: 'LU', label: 'Luxembourg' },
-                    { code: 'CH', label: 'Suisse' },
-                  ].map(c => (
-                    <button
-                      key={c.code}
-                      type="button"
-                      onClick={() => setCountry(c.code)}
-                      className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold border transition-colors ${
-                        country === c.code
-                          ? 'bg-orange-500 text-white border-orange-500 shadow-sm'
-                          : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
-                      }`}
-                    >
-                      {c.label}
-                    </button>
-                  ))}
+                <div className="flex items-center justify-between px-4 py-3 bg-slate-100/90 border border-slate-200 rounded-xl text-sm font-bold text-slate-800">
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+                    <span>{COUNTRIES[country]?.name || country}</span>
+                  </span>
+                  <span className="text-xs text-slate-500 font-semibold flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200/80 shadow-2xs">
+                    <span>🔒</span>
+                    <span>Fixé</span>
+                  </span>
                 </div>
               </div>
             </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import {
@@ -11,11 +11,31 @@ import {
   ChevronRight,
   RefreshCw,
   Briefcase,
+  Search,
+  Filter,
+  X,
+  Sparkles,
+  CheckCircle2,
+  DollarSign,
+  ShieldCheck,
+  Building2,
+  SlidersHorizontal,
+  ArrowUpDown,
 } from 'lucide-react';
 
 export default function PublicJobsList() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Filtres de recherche
+  const [keyword, setKeyword] = useState('');
+  const [locationQuery, setLocationQuery] = useState('');
+  const [selectedContract, setSelectedContract] = useState('ALL');
+  const [selectedLicense, setSelectedLicense] = useState('ALL');
+  const [selectedCountry, setSelectedCountry] = useState('ALL');
+  const [selectedSpecialty, setSelectedSpecialty] = useState('ALL');
+  const [salaryFilter, setSalaryFilter] = useState('ALL');
+  const [sortBy, setSortBy] = useState('recent'); // 'recent' | 'salary'
 
   useEffect(() => {
     fetchApprovedJobs();
@@ -34,101 +54,461 @@ export default function PublicJobsList() {
         setJobs(data);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Erreur chargement des offres:', err);
     } finally {
       setLoading(false);
     }
   };
 
+  // Helper pour extraire un montant numérique approximatif d'un salaire
+  const extractSalaryNumber = (salaryStr) => {
+    if (!salaryStr) return 0;
+    const matches = salaryStr.replace(/\s/g, '').match(/\d+/g);
+    if (!matches || matches.length === 0) return 0;
+    // Prendre le plus grand nombre trouvé
+    const numbers = matches.map((n) => parseInt(n, 10)).filter((n) => n > 100);
+    return numbers.length > 0 ? Math.max(...numbers) : 0;
+  };
+
+  // Filtrage multi-critères
+  const filteredJobs = useMemo(() => {
+    return jobs
+      .filter((job) => {
+        const fullText = `${job.title} ${job.description} ${job.companies?.name || ''}`.toLowerCase();
+        const jobLoc = (job.location || '').toLowerCase();
+        const jobContract = (job.contract_type || '').toUpperCase();
+
+        // 1. Mot-clé (titre, description, entreprise)
+        if (keyword.trim()) {
+          const kw = keyword.toLowerCase().trim();
+          if (!fullText.includes(kw) && !jobLoc.includes(kw)) return false;
+        }
+
+        // 2. Lieu / Ville / Code postal
+        if (locationQuery.trim()) {
+          const loc = locationQuery.toLowerCase().trim();
+          if (!jobLoc.includes(loc) && !fullText.includes(loc)) return false;
+        }
+
+        // 3. Contrat
+        if (selectedContract !== 'ALL') {
+          if (!jobContract.includes(selectedContract.toUpperCase())) return false;
+        }
+
+        // 4. Permis requis
+        if (selectedLicense !== 'ALL') {
+          if (selectedLicense === 'CE') {
+            const hasCE = /permis\s*ce|spl|super\s*poids\s*lourd|semi|tracteur/i.test(fullText);
+            if (!hasCE) return false;
+          } else if (selectedLicense === 'C') {
+            const hasC = /permis\s*c\b|poids\s*lourd|\bpl\b|porteur/i.test(fullText);
+            if (!hasC) return false;
+          } else if (selectedLicense === 'B') {
+            const hasB = /permis\s*b|véhicule\s*léger|\bvl\b|utilitaire|fourgon/i.test(fullText);
+            if (!hasB) return false;
+          } else if (selectedLicense === 'ADR') {
+            const hasADR = /adr|matières\s*dangereuses|citerne\s*adr/i.test(fullText);
+            if (!hasADR) return false;
+          }
+        }
+
+        // 5. Pays
+        if (selectedCountry !== 'ALL') {
+          if (selectedCountry === 'FR') {
+            const isFR = /france|\(?(0[1-9]|[1-8][0-9]|9[0-5]|97[1-6]|2[AB])\)?|paris|lyon|marseille|lille|toulouse|bordeaux|nantes/i.test(jobLoc);
+            if (!isFR && !jobLoc.includes('france')) return false;
+          } else if (selectedCountry === 'BE') {
+            const isBE = /belgique|belgium|bruxelles|brussels|liege|liège|charleroi|namur|mons|anvers|antwerpen/i.test(jobLoc);
+            if (!isBE) return false;
+          } else if (selectedCountry === 'LU') {
+            const isLU = /luxembourg|esch|differdange|dudelange/i.test(jobLoc);
+            if (!isLU) return false;
+          } else if (selectedCountry === 'CH') {
+            const isCH = /suisse|switzerland|schweiz|genève|geneve|lausanne|fribourg|valais|neuchâtel|neuchatel|zurich/i.test(jobLoc);
+            if (!isCH) return false;
+          }
+        }
+
+        // 6. Spécialité / Matériel
+        if (selectedSpecialty !== 'ALL') {
+          if (selectedSpecialty === 'FRIGO' && !/frigo|frigorifique|température\s*dirigée/i.test(fullText)) return false;
+          if (selectedSpecialty === 'BENNE' && !/benne|tp|travaux\s*publics|enrobé/i.test(fullText)) return false;
+          if (selectedSpecialty === 'TAUTLINER' && !/tautliner|bâché|bache|savoyarde/i.test(fullText)) return false;
+          if (selectedSpecialty === 'CITERNE' && !/citerne|pulvé|vrac|liquide/i.test(fullText)) return false;
+          if (selectedSpecialty === 'PLATEAU' && !/plateau|convoi\s*exceptionnel/i.test(fullText)) return false;
+          if (selectedSpecialty === 'MESSAGERIE' && !/messagerie|distribution|livraison/i.test(fullText)) return false;
+        }
+
+        // 7. Filtre Salaire
+        if (salaryFilter !== 'ALL') {
+          if (salaryFilter === 'WITH_SALARY') {
+            if (!job.salary || !job.salary.trim()) return false;
+          } else {
+            const minSal = parseInt(salaryFilter, 10);
+            const num = extractSalaryNumber(job.salary);
+            if (num < minSal) return false;
+          }
+        }
+
+        return true;
+      })
+      .sort((a, b) => {
+        if (sortBy === 'salary') {
+          return extractSalaryNumber(b.salary) - extractSalaryNumber(a.salary);
+        }
+        return new Date(b.created_at) - new Date(a.created_at);
+      });
+  }, [jobs, keyword, locationQuery, selectedContract, selectedLicense, selectedCountry, selectedSpecialty, salaryFilter, sortBy]);
+
+  const hasActiveFilters =
+    keyword.trim() !== '' ||
+    locationQuery.trim() !== '' ||
+    selectedContract !== 'ALL' ||
+    selectedLicense !== 'ALL' ||
+    selectedCountry !== 'ALL' ||
+    selectedSpecialty !== 'ALL' ||
+    salaryFilter !== 'ALL';
+
+  const clearFilters = () => {
+    setKeyword('');
+    setLocationQuery('');
+    setSelectedContract('ALL');
+    setSelectedLicense('ALL');
+    setSelectedCountry('ALL');
+    setSelectedSpecialty('ALL');
+    setSalaryFilter('ALL');
+    setSortBy('recent');
+  };
+
+  // Helper pour badge de contrat
+  const getContractBadge = (contract) => {
+    const c = (contract || '').toUpperCase();
+    if (c.includes('CDI')) {
+      return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    }
+    if (c.includes('CDD')) {
+      return 'bg-blue-50 text-blue-700 border-blue-200';
+    }
+    if (c.includes('INTÉR') || c.includes('INTER')) {
+      return 'bg-purple-50 text-purple-700 border-purple-200';
+    }
+    return 'bg-orange-50 text-orange-700 border-orange-200';
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-[70vh] flex flex-col items-center justify-center bg-slate-50 gap-3">
         <RefreshCw className="h-8 w-8 text-orange-500 animate-spin" />
+        <p className="text-xs font-semibold text-slate-500">Chargement des offres d&apos;emploi...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <main className="flex-grow max-w-5xl mx-auto px-4 py-16 sm:px-6 lg:px-8 w-full space-y-8">
-        <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-655 text-xs font-semibold">
-            <Briefcase className="h-4 w-4" /> Emplois du transport routier
+    <div className="min-h-screen bg-slate-50/70 flex flex-col font-sans">
+      <main className="flex-grow max-w-6xl mx-auto px-4 py-12 sm:px-6 lg:px-8 w-full space-y-8">
+        
+        {/* Header de Page */}
+        <div className="text-center max-w-3xl mx-auto space-y-3">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-50 border border-orange-200/80 text-orange-600 text-xs font-bold uppercase tracking-wider">
+            <Briefcase className="h-4 w-4 text-orange-500" />
+            <span>Offres de Recrutement Direct Transport</span>
           </div>
-          <h1 className="text-4xl font-extrabold text-slate-950 tracking-tight">
-            Offres d'emploi Actives
+
+          <h1 className="text-3xl sm:text-5xl font-black text-slate-950 tracking-tight">
+            Offres d&apos;Emploi Chauffeurs Routiers
           </h1>
-          <p className="text-slate-600">
-            Trouvez les meilleures opportunités proches de chez vous. Postulez
-            directement en partageant votre profil qualifié.
+
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
+            Trouvez les meilleures opportunités en CDI, CDD et missions en <strong>France</strong>, <strong>Belgique</strong>, <strong>Luxembourg</strong> et <strong>Suisse</strong>. Postulez en direct et sans intermédiaire.
           </p>
         </div>
 
-        {jobs.length === 0 ? (
-          <div className="bg-white p-12 rounded-3xl border border-slate-200 text-center text-slate-400 space-y-2">
-            <Briefcase className="h-8 w-8 mx-auto text-slate-300" />
-            <p>Aucune offre d'emploi n'est publiée pour le moment.</p>
-            <p className="text-xs">
-              Revenez très bientôt pour de nouvelles opportunités !
-            </p>
+        {/* PANNEAU DE RECHERCHE & FILTRES MULTI-CRITÈRES */}
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
+          
+          {/* Barre principale 2 champs : Mot-clé & Lieu */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5">
+            
+            {/* Champ 1 : Métier / Mots-clés */}
+            <div className="md:col-span-7 relative">
+              <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                placeholder="Métier, mot-clé, entreprise (ex: Conducteur SPL, Frigo, Benne...)"
+                className="w-full pl-11 pr-4 py-3 rounded-2xl border border-slate-200 text-sm focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all bg-slate-50/50 focus:bg-white"
+              />
+              {keyword && (
+                <button
+                  onClick={() => setKeyword('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            {/* Champ 2 : Lieu / Région / Ville */}
+            <div className="md:col-span-5 relative">
+              <MapPin className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={locationQuery}
+                onChange={(e) => setLocationQuery(e.target.value)}
+                placeholder="Ville, département ou code postal (ex: 69, Lille, Bruxelles...)"
+                className="w-full pl-11 pr-4 py-3 rounded-2xl border border-slate-200 text-sm focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all bg-slate-50/50 focus:bg-white"
+              />
+              {locationQuery && (
+                <button
+                  onClick={() => setLocationQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+          </div>
+
+          {/* Rangée de Sélecteurs / Filtres Spécialisés */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-2 border-t border-slate-100 text-xs">
+            
+            {/* Filtre 1 : Permis */}
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700 flex items-center gap-1">
+                <Truck className="w-3.5 h-3.5 text-orange-500" /> Permis
+              </label>
+              <select
+                value={selectedLicense}
+                onChange={(e) => setSelectedLicense(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white font-medium focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 cursor-pointer"
+              >
+                <option value="ALL">Tous les permis</option>
+                <option value="CE">Permis CE (SPL)</option>
+                <option value="C">Permis C (Poids Lourd)</option>
+                <option value="B">Permis B (VL / Fourgon)</option>
+                <option value="ADR">ADR / Citerne</option>
+              </select>
+            </div>
+
+            {/* Filtre 2 : Type de Contrat */}
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700 flex items-center gap-1">
+                <Briefcase className="w-3.5 h-3.5 text-orange-500" /> Contrat
+              </label>
+              <select
+                value={selectedContract}
+                onChange={(e) => setSelectedContract(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white font-medium focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 cursor-pointer"
+              >
+                <option value="ALL">Tous contrats</option>
+                <option value="CDI">CDI</option>
+                <option value="CDD">CDD</option>
+                <option value="INTERIM">Intérim</option>
+              </select>
+            </div>
+
+            {/* Filtre 3 : Pays */}
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700 flex items-center gap-1">
+                🌍 Pays
+              </label>
+              <select
+                value={selectedCountry}
+                onChange={(e) => setSelectedCountry(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white font-medium focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 cursor-pointer"
+              >
+                <option value="ALL">Tous les pays</option>
+                <option value="FR">France 🇫🇷</option>
+                <option value="BE">Belgique 🇧🇪</option>
+                <option value="LU">Luxembourg 🇱🇺</option>
+                <option value="CH">Suisse 🇨🇭</option>
+              </select>
+            </div>
+
+            {/* Filtre 4 : Spécialité Matériel */}
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700 flex items-center gap-1">
+                📦 Spécialité
+              </label>
+              <select
+                value={selectedSpecialty}
+                onChange={(e) => setSelectedSpecialty(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white font-medium focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 cursor-pointer"
+              >
+                <option value="ALL">Toutes spécialités</option>
+                <option value="TAUTLINER">Tautliner / Bâché</option>
+                <option value="FRIGO">Frigorifique</option>
+                <option value="BENNE">Benne / TP</option>
+                <option value="CITERNE">Citerne / Vrac</option>
+                <option value="PLATEAU">Plateau</option>
+                <option value="MESSAGERIE">Messagerie</option>
+              </select>
+            </div>
+
+            {/* Filtre 5 : Salaire minimum */}
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700 flex items-center gap-1">
+                💶 Rémunération
+              </label>
+              <select
+                value={salaryFilter}
+                onChange={(e) => setSalaryFilter(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white font-medium focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 cursor-pointer"
+              >
+                <option value="ALL">Tous salaires</option>
+                <option value="WITH_SALARY">Salaire renseigné</option>
+                <option value="2200">&gt; 2 200 € / mois</option>
+                <option value="2600">&gt; 2 600 € / mois</option>
+                <option value="3000">&gt; 3 000 € / mois</option>
+              </select>
+            </div>
+
+            {/* Filtre 6 : Tri */}
+            <div className="space-y-1.5">
+              <label className="font-bold text-slate-700 flex items-center gap-1">
+                <ArrowUpDown className="w-3.5 h-3.5 text-orange-500" /> Trier par
+              </label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white font-medium focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 cursor-pointer"
+              >
+                <option value="recent">Plus récentes</option>
+                <option value="salary">Salaire le plus élevé</option>
+              </select>
+            </div>
+
+          </div>
+
+          {/* Barre d'état des résultats & Réinitialisation */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-slate-900">
+                {filteredJobs.length} {filteredJobs.length > 1 ? 'offres trouvées' : 'offre trouvée'}
+              </span>
+              {hasActiveFilters && (
+                <span className="text-slate-400">• avec filtres appliqués</span>
+              )}
+            </div>
+
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="inline-flex items-center gap-1.5 text-orange-600 hover:text-orange-700 font-bold hover:underline"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>Réinitialiser les filtres</span>
+              </button>
+            )}
+          </div>
+
+        </div>
+
+        {/* LISTE DES OFFRES D'EMPLOI */}
+        {filteredJobs.length === 0 ? (
+          <div className="bg-white p-12 sm:p-16 rounded-3xl border border-slate-200 text-center space-y-4 shadow-sm">
+            <div className="w-16 h-16 rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center mx-auto">
+              <Briefcase className="h-8 w-8" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-lg font-black text-slate-900">
+                Aucune offre ne correspond à vos critères
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
+                Essayez d&apos;élargir votre recherche en modifiant le lieu, le type de contrat ou la tranche de salaire.
+              </p>
+            </div>
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-colors shadow-sm"
+              >
+                <span>Effacer tous les filtres</span>
+              </button>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
-            {jobs.map(job => (
-              <div
-                key={job.id}
-                className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
-              >
-                <div className="space-y-3">
-                  <div className="space-y-1">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-orange-50 text-orange-700">
-                      {job.contract_type}
-                    </span>
-                    <h3 className="text-xl font-bold text-slate-900">
-                      {job.title}
-                    </h3>
-                    <p className="text-sm font-semibold text-slate-500">
-                      {job.companies?.name || 'Entreprise Partenaire'}
+            {filteredJobs.map((job) => {
+              const contractBadgeClass = getContractBadge(job.contract_type);
+              const formattedDate = new Date(job.created_at).toLocaleDateString('fr-FR', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+              });
+
+              return (
+                <div
+                  key={job.id}
+                  className="bg-white p-6 sm:p-7 rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 group"
+                >
+                  {/* Détails du poste */}
+                  <div className="space-y-3 flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-black border ${contractBadgeClass}`}
+                      >
+                        {job.contract_type}
+                      </span>
+                      <span className="text-xs font-bold text-slate-500 flex items-center gap-1">
+                        <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                        {job.companies?.name || 'Entreprise Partenaire FretTalent'}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h3 className="text-xl sm:text-2xl font-black text-slate-950 group-hover:text-orange-600 transition-colors">
+                        {job.title}
+                      </h3>
+                    </div>
+
+                    {/* Informations clés : Lieu, Salaire, Date */}
+                    <div className="flex flex-wrap items-center gap-y-2 gap-x-4 text-xs font-medium text-slate-600">
+                      <span className="flex items-center gap-1.5 font-bold text-slate-800 bg-slate-100 px-3 py-1 rounded-xl">
+                        <MapPin className="h-3.5 w-3.5 text-orange-500 shrink-0" />
+                        {job.location}
+                      </span>
+
+                      {job.salary ? (
+                        <span className="flex items-center gap-1.5 font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-3 py-1 rounded-xl">
+                          💶 Rémunération : {job.salary}
+                        </span>
+                      ) : (
+                        <span className="text-slate-400 italic">Salaire selon profil</span>
+                      )}
+
+                      <span className="flex items-center gap-1 text-slate-400">
+                        <Calendar className="h-3.5 w-3.5" /> Publiée le {formattedDate}
+                      </span>
+                    </div>
+
+                    {/* Description courte */}
+                    <p className="text-xs sm:text-sm text-slate-600 line-clamp-2 leading-relaxed max-w-3xl pt-1">
+                      {job.description}
                     </p>
                   </div>
 
-                  <div className="flex flex-wrap gap-4 text-xs text-slate-500">
-                    <span className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4 text-slate-400" />{' '}
-                      {job.location}
-                    </span>
-                    {job.salary && (
-                      <span className="flex items-center gap-1 font-semibold text-slate-700">
-                        💶 Rémunération : {job.salary}
-                      </span>
-                    )}
-                    <span className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4 text-slate-400" /> Publiée le{' '}
-                      {new Date(job.created_at).toLocaleDateString('fr-FR')}
-                    </span>
+                  {/* Bouton de candidature */}
+                  <div className="w-full lg:w-auto shrink-0 pt-2 lg:pt-0">
+                    <Link
+                      href="/register?role=candidate"
+                      className="w-full lg:w-auto inline-flex items-center justify-center px-6 py-3.5 rounded-full text-xs font-black text-white bg-orange-500 hover:bg-orange-600 shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 hover:scale-105 transition-all gap-2"
+                    >
+                      <span>Postuler en direct</span>
+                      <ChevronRight className="h-4 w-4" />
+                    </Link>
                   </div>
-
-                  <p className="text-sm text-slate-600 line-clamp-2 max-w-3xl">
-                    {job.description}
-                  </p>
                 </div>
-
-                <div className="w-full md:w-auto">
-                  <Link
-                    href="/login"
-                    className="w-full md:w-auto inline-flex items-center justify-center px-5 py-3 rounded-2xl text-xs font-bold text-white bg-orange-500 hover:bg-orange-600 shadow-md shadow-orange-500/10 hover:shadow-orange-600/20 transition-all gap-1"
-                  >
-                    Postuler à cette offre
-                    <ChevronRight className="h-4 w-4" />
-                  </Link>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
-        {/* Facebook Community Banner */}
-        <div className="bg-gradient-to-r from-blue-900 to-slate-900 rounded-3xl p-6 sm:p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl border border-blue-800/40">
+        {/* Bannière Communauté Facebook */}
+        <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-blue-950 rounded-3xl p-7 sm:p-9 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl border border-blue-800/40">
           <div className="space-y-2 text-center sm:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold uppercase tracking-wider">
               <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
@@ -136,18 +516,18 @@ export default function PublicJobsList() {
               </svg>
               Alertes Offres Facebook
             </div>
-            <h3 className="text-xl sm:text-2xl font-bold">
-              Ne manquez aucune opportunité de route
+            <h3 className="text-xl sm:text-2xl font-black">
+              Ne manquez aucune nouvelle offre d&apos;emploi
             </h3>
-            <p className="text-sm text-slate-300 max-w-xl">
-              Toutes les nouvelles offres d&apos;emploi et actualités du transport sont également relayées sur notre page Facebook officielle.
+            <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
+              Toutes les nouvelles annonces de transporteurs sont également publiées sur notre page Facebook officielle.
             </p>
           </div>
           <a
             href="https://www.facebook.com/profile.php?id=61593021909293"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-shrink-0 bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold px-6 py-3.5 rounded-xl text-sm transition-all shadow-md flex items-center gap-2 hover:-translate-y-0.5"
+            className="flex-shrink-0 bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold px-6 py-3.5 rounded-full text-xs font-bold transition-all shadow-md flex items-center gap-2 hover:-translate-y-0.5"
           >
             <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
               <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -155,6 +535,7 @@ export default function PublicJobsList() {
             Rejoindre la page Facebook
           </a>
         </div>
+
       </main>
     </div>
   );

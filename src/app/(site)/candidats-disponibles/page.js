@@ -88,14 +88,33 @@ export default function CandidatsDisponiblesPage() {
         const minLat = 41.2;
         const maxLat = 51.8;
 
+        // Dispersion esthétique en rosace pour les candidats partageant le même code postal
+        const postalCounts = {};
+
         const mappedCandidates = data
           .map(c => {
             const key = `${c.country || 'FR'}_${c.postal_code}`;
             const coords = coordsCache[key];
             if (!coords) return null;
 
-            const x = ((coords.lon - minLon) / (maxLon - minLon)) * 100;
-            const y = 100 - ((coords.lat - minLat) / (maxLat - minLat)) * 100;
+            const rawX = ((coords.lon - minLon) / (maxLon - minLon)) * 100;
+            const rawY = 100 - ((coords.lat - minLat) / (maxLat - minLat)) * 100;
+
+            // Décalage en rosace dorée (golden angle) pour éviter que 10+ candidats sur la même ville se chevauchent exactement
+            const idxInGroup = postalCounts[key] || 0;
+            postalCounts[key] = idxInGroup + 1;
+
+            let offsetX = 0;
+            let offsetY = 0;
+            if (idxInGroup > 0) {
+              const angle = idxInGroup * 2.39996; // angle d'or
+              const distance = 0.5 * Math.sqrt(idxInGroup); // micro-dispersion de ~0.5% à 1%
+              offsetX = Math.cos(angle) * distance;
+              offsetY = Math.sin(angle) * distance;
+            }
+
+            const x = Math.max(4, Math.min(96, rawX + offsetX));
+            const y = Math.max(4, Math.min(96, rawY + offsetY));
 
             const docs = c.documents || {};
             const isDocPresent = (k, legacyKey) => !!docs[k] || (legacyKey && !!docs[legacyKey]);
@@ -116,8 +135,8 @@ export default function CandidatsDisponiblesPage() {
               city: c.city || 'Ville non renseignée',
               postalCode: c.postal_code || '',
               country: c.country || 'FR',
-              x: Math.max(4, Math.min(96, x)),
-              y: Math.max(4, Math.min(96, y)),
+              x,
+              y,
               fullVerified,
               licenses: c.licenses || [],
               experience: c.experience_years ? `${c.experience_years} an(s)` : 'Expérimenté',
@@ -253,13 +272,13 @@ export default function CandidatsDisponiblesPage() {
                 />
 
                 {/* Légende en haut de la carte */}
-                <div className="absolute top-4 left-4 bg-slate-950/80 backdrop-blur-md border border-slate-800 text-white text-[11px] font-semibold px-3 py-1.5 rounded-xl flex items-center gap-3">
+                <div className="absolute top-4 left-4 bg-slate-950/80 backdrop-blur-md border border-slate-800 text-white text-[11px] font-semibold px-3 py-1.5 rounded-xl flex items-center gap-3 z-20 pointer-events-none">
                   <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block shadow-[0_0_6px_rgba(52,211,153,0.9)] animate-pulse"></span>
                     100% Vérifié
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-orange-500 inline-block"></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500 inline-block shadow-[0_0_6px_rgba(249,115,22,0.9)]"></span>
                     Chauffeur actif
                   </span>
                 </div>
@@ -276,7 +295,7 @@ export default function CandidatsDisponiblesPage() {
                     const isLeft = candidate.x < 22; // À l'Ouest (Brest...) -> alignement gauche
                     const isRight = candidate.x > 78; // À l'Est (Strasbourg, frontière suisse...) -> alignement droite
 
-                    const verticalPos = isTop ? 'top-full mt-3' : 'bottom-full mb-3';
+                    const verticalPos = isTop ? 'top-full mt-2.5' : 'bottom-full mb-2.5';
                     let horizontalPos = 'left-1/2 -translate-x-1/2';
                     if (isLeft) {
                       horizontalPos = 'left-0 translate-x-0';
@@ -288,29 +307,33 @@ export default function CandidatsDisponiblesPage() {
                       <div
                         key={candidate.id}
                         style={{ left: `${candidate.x}%`, top: `${candidate.y}%` }}
-                        className={`absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all ${
+                        className={`absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer p-2 -m-2 transition-all ${
                           isActive ? 'z-50' : 'z-10'
                         }`}
                         onMouseEnter={() => setHoveredCandidate(candidate)}
                         onMouseLeave={() => setHoveredCandidate(null)}
                         onClick={() => setSelectedCandidate(candidate)}
                       >
-                        {/* Onde radar animée */}
+                        {/* Onde radar animée discrète */}
                         <div
-                          className={`absolute inset-0 rounded-full animate-ping opacity-60 pointer-events-none ${
+                          className={`absolute inset-0 m-auto rounded-full animate-ping opacity-40 pointer-events-none ${
                             candidate.fullVerified ? 'bg-emerald-400' : 'bg-orange-500'
                           }`}
-                          style={{ width: '18px', height: '18px', left: '-5px', top: '-5px' }}
+                          style={{ width: '12px', height: '12px' }}
                         ></div>
 
-                        {/* Pastille principale */}
+                        {/* Pastille principale compacte et lumineuse */}
                         <div
-                          className={`relative rounded-full border-2 transition-transform duration-300 shadow-md ${
+                          className={`relative rounded-full border border-white/90 transition-all duration-300 ${
                             candidate.fullVerified
-                              ? 'bg-emerald-500 border-white text-white'
-                              : 'bg-orange-500 border-white text-white'
-                          } ${isActive ? 'scale-150 ring-4 ring-orange-500/40 z-10' : 'scale-100 hover:scale-125'}`}
-                          style={{ width: '14px', height: '14px' }}
+                              ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]'
+                              : 'bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.8)]'
+                          } ${
+                            isActive
+                              ? 'scale-175 ring-4 ring-orange-500/50 z-10'
+                              : 'scale-100 hover:scale-150'
+                          }`}
+                          style={{ width: '7px', height: '7px' }}
                         ></div>
 
                         {/* Info-bulle flottante au survol */}

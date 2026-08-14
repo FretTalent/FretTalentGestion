@@ -67,8 +67,19 @@ export async function GET(request) {
     const todayCount = todayViews.length;
     const todayUniques = new Set(todayViews.map(v => v.session_id)).size;
 
-    // 2. Répartition par Jour (Journalier)
+    // 2. Répartition par Jour (Journalier avec calendrier continu)
     const dailyMap = {};
+    const numDays = timeframe === '7d' ? 7 : timeframe === '30d' ? 30 : timeframe === 'today' ? 1 : 14;
+
+    if (timeframe !== 'all') {
+      for (let i = numDays - 1; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dayStr = d.toISOString().split('T')[0];
+        dailyMap[dayStr] = { date: dayStr, views: 0, sessions: new Set() };
+      }
+    }
+
     allViews.forEach(v => {
       const day = new Date(v.created_at).toISOString().split('T')[0];
       if (!dailyMap[day]) {
@@ -78,11 +89,13 @@ export async function GET(request) {
       dailyMap[day].sessions.add(v.session_id);
     });
 
-    const dailyStats = Object.values(dailyMap).map(d => ({
-      date: d.date,
-      views: d.views,
-      uniques: d.sessions.size,
-    }));
+    const dailyStats = Object.values(dailyMap)
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .map(d => ({
+        date: d.date,
+        views: d.views,
+        uniques: d.sessions.size,
+      }));
 
     // 3. Pages les plus vues
     const pageMap = {};

@@ -186,7 +186,7 @@ export default function AdminStatsPage() {
 
       {/* Graphique de Fréquentation Journalière */}
       <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div className="flex flex-wrap items-center justify-between border-b border-slate-100 pb-4 gap-2">
           <div>
             <h3 className="font-bold text-slate-900 text-lg flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-orange-500" />
@@ -194,41 +194,88 @@ export default function AdminStatsPage() {
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">Vues totales vs Visiteurs uniques par jour</p>
           </div>
-          <span className="text-xs text-slate-400 font-medium">
-            {dailyStats.length} jour(s) enregistré(s)
-          </span>
+          {(() => {
+            const maxViews = Math.max(...(dailyStats || []).map((d) => d.views), 0);
+            const peakDay = (dailyStats || []).find((d) => d.views === maxViews && maxViews > 0);
+            const totalPeriodViews = (dailyStats || []).reduce((acc, d) => acc + d.views, 0);
+
+            return (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-500 font-semibold hidden sm:inline">
+                  {totalPeriodViews} vues au total
+                </span>
+                {peakDay && (
+                  <span className="bg-orange-50 text-orange-700 px-3 py-1 rounded-full text-xs font-bold border border-orange-200 flex items-center gap-1">
+                    🔥 Record : {peakDay.views} vues ({peakDay.date})
+                  </span>
+                )}
+              </div>
+            );
+          })()}
         </div>
 
-        {dailyStats.length === 0 ? (
-          <div className="py-12 text-center text-slate-400 text-sm">
-            Aucune donnée de visite enregistrée pour cette période.
+        {dailyStats.length === 0 || dailyStats.every((d) => d.views === 0) ? (
+          <div className="py-12 text-center text-slate-400 text-sm space-y-1">
+            <p className="font-semibold text-slate-600">Aucune donnée de visite enregistrée pour cette période.</p>
+            <p className="text-xs">Sélectionnez "30 jours" ou "Tout" pour explorer l'ensemble des données.</p>
           </div>
         ) : (
           <div className="pt-4 pb-2">
-            <div className="h-48 flex items-end gap-2 sm:gap-3 overflow-x-auto pb-2">
+            <div className="h-52 flex items-end gap-2 sm:gap-3 overflow-x-auto pb-2">
               {dailyStats.map((item, idx) => {
                 const maxViews = Math.max(...dailyStats.map((d) => d.views), 1);
-                const heightPercent = Math.max(10, Math.round((item.views / maxViews) * 100));
+                const heightPercent = item.views > 0 ? Math.max(14, Math.round((item.views / maxViews) * 100)) : 0;
+                const isPeak = item.views === maxViews && maxViews > 0;
+
+                // Formater la date en format lisible (ex: "13/08")
+                const parts = item.date.split('-');
+                const formattedDate = parts.length === 3 ? `${parts[2]}/${parts[1]}` : item.date;
 
                 return (
                   <div
                     key={idx}
-                    className="flex-1 min-w-[36px] flex flex-col items-center gap-2 group relative"
+                    className="flex-1 min-w-[36px] flex flex-col items-center justify-end h-full gap-2 group relative"
                   >
-                    {/* Tooltip */}
-                    <div className="absolute -top-12 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[10px] py-1 px-2 rounded-lg pointer-events-none whitespace-nowrap z-10 shadow-lg">
+                    {/* Tooltip au survol */}
+                    <div className="absolute -top-12 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[11px] py-1.5 px-2.5 rounded-lg pointer-events-none whitespace-nowrap z-20 shadow-lg">
                       <div className="font-bold">{item.date}</div>
-                      <div>{item.views} vues ({item.uniques} uniques)</div>
+                      <div>
+                        {item.views} vue{item.views > 1 ? 's' : ''} ({item.uniques} unique{item.uniques > 1 ? 's' : ''})
+                      </div>
                     </div>
 
+                    {/* Nombre de vues au-dessus de la barre */}
+                    {item.views > 0 ? (
+                      <span className={`text-[10px] font-black ${isPeak ? 'text-orange-600' : 'text-slate-700'}`}>
+                        {item.views}
+                      </span>
+                    ) : (
+                      <span className="text-[9px] text-slate-300 font-semibold">0</span>
+                    )}
+
+                    {/* Barre du graphique */}
                     <div className="w-full bg-slate-100 rounded-xl h-full flex items-end overflow-hidden">
-                      <div
-                        style={{ height: `${heightPercent}%` }}
-                        className="w-full bg-gradient-to-t from-orange-500 to-amber-400 rounded-xl group-hover:from-orange-600 group-hover:to-amber-500 transition-all"
-                      />
+                      {item.views > 0 ? (
+                        <div
+                          style={{ height: `${heightPercent}%` }}
+                          className={`w-full rounded-xl transition-all ${
+                            isPeak
+                              ? 'bg-gradient-to-t from-orange-600 to-amber-400 group-hover:from-orange-700 group-hover:to-amber-500'
+                              : 'bg-gradient-to-t from-orange-500 to-amber-300 group-hover:from-orange-600 group-hover:to-amber-400'
+                          }`}
+                        />
+                      ) : (
+                        <div className="w-full h-1.5 bg-slate-200 rounded-full" />
+                      )}
                     </div>
-                    <span className="text-[10px] text-slate-400 font-semibold group-hover:text-slate-900 truncate max-w-full">
-                      {item.date.slice(5)}
+
+                    {/* Date en bas */}
+                    <span
+                      className={`text-[10px] font-semibold truncate max-w-full ${
+                        isPeak ? 'text-orange-600 font-bold' : item.views > 0 ? 'text-slate-700' : 'text-slate-400'
+                      }`}
+                    >
+                      {formattedDate}
                     </span>
                   </div>
                 );

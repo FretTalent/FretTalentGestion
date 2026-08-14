@@ -429,9 +429,11 @@ export default function RecruiterDashboard() {
                   onChange={e => setSelectedCountry(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 bg-white"
                 >
-                  <option value="">France & Belgique</option>
-                  <option value="FR">🇫🇷 France</option>
-                  <option value="BE">🇧🇪 Belgique</option>
+                  <option value="">Tous les pays</option>
+                  <option value="FR">France</option>
+                  <option value="BE">Belgique</option>
+                  <option value="LU">Luxembourg</option>
+                  <option value="CH">Suisse</option>
                 </select>
               </div>
 
@@ -534,8 +536,8 @@ export default function RecruiterDashboard() {
                             <span className="text-xs font-black text-orange-500 uppercase">
                               {isUnlocked ? cand.full_name : 'Chauffeur Anonyme'}
                             </span>
-                            <span className="text-xs">
-                              {cand.country === 'BE' ? '🇧🇪' : cand.country === 'LU' ? '🇱🇺' : cand.country === 'CH' ? '🇨🇭' : '🇫🇷'}
+                            <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                              {cand.country === 'BE' ? 'Belgique' : cand.country === 'LU' ? 'Luxembourg' : cand.country === 'CH' ? 'Suisse' : 'France'}
                             </span>
                           </div>
                           <h4 className="font-bold text-slate-900">
@@ -734,12 +736,12 @@ export default function RecruiterDashboard() {
                       <div className="text-slate-400 font-medium">Pays</div>
                       <div className="font-bold text-slate-900 mt-1">
                         {selectedCandidate.country === 'BE'
-                          ? '🇧🇪 Belgique'
+                          ? 'Belgique'
                           : selectedCandidate.country === 'LU'
-                          ? '🇱🇺 Luxembourg'
+                          ? 'Luxembourg'
                           : selectedCandidate.country === 'CH'
-                          ? '🇨🇭 Suisse'
-                          : '🇫🇷 France'}
+                          ? 'Suisse'
+                          : 'France'}
                       </div>
                     </div>
                   </div>

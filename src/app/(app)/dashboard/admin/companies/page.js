@@ -120,10 +120,10 @@ export default function AdminCompanies() {
             className="px-3 py-2 border border-slate-200 rounded-xl text-sm font-medium bg-slate-50 focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
             <option value="all">Tous les Pays</option>
-            <option value="FR">🇫🇷 France (SIRET)</option>
-            <option value="BE">🇧🇪 Belgique (BCE)</option>
-            <option value="LU">🇱🇺 Luxembourg (RCS/TVA)</option>
-            <option value="CH">🇨🇭 Suisse (IDE)</option>
+            <option value="FR">France (SIRET)</option>
+            <option value="BE">Belgique (BCE)</option>
+            <option value="LU">Luxembourg (RCS/TVA)</option>
+            <option value="CH">Suisse (IDE)</option>
           </select>
 
           <div className="relative flex-1 sm:w-64">
@@ -154,7 +154,7 @@ export default function AdminCompanies() {
               <tr key={company.id} className="border-b border-slate-100">
                 <td className="py-3 px-4">
                   <div className="flex items-center gap-2">
-                    <span>{company.country === 'BE' ? '🇧🇪' : company.country === 'LU' ? '🇱🇺' : company.country === 'CH' ? '🇨🇭' : '🇫🇷'}</span>
+                    <span className="text-xs font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">{company.country || 'FR'}</span>
                     <span className="font-semibold text-slate-900">{company.name || '—'}</span>
                   </div>
                 </td>

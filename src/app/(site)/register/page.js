@@ -349,7 +349,6 @@ function RegisterContent() {
                         : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
                     }`}
                   >
-                    <span className="text-base">{c.flag}</span>
                     <span className="truncate">{c.name}</span>
                   </button>
                 ))}
@@ -447,7 +446,6 @@ function RegisterContent() {
                         : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
                     }`}
                   >
-                    <span className="text-base">{c.flag}</span>
                     <span className="truncate">{c.name}</span>
                   </button>
                 ))}

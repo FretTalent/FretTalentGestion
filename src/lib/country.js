@@ -1,16 +1,16 @@
 /**
  * Configuration et utilitaires des pays supportés par FretTalent :
- * - France (FR 🇫🇷)
- * - Belgique (BE 🇧🇪)
- * - Luxembourg (LU 🇱🇺)
- * - Suisse (CH 🇨🇭)
+ * - France (FR)
+ * - Belgique (BE)
+ * - Luxembourg (LU)
+ * - Suisse (CH)
  */
 
 export const COUNTRIES = {
   FR: {
     code: 'FR',
     name: 'France',
-    flag: '🇫🇷',
+    flag: '',
     idLabel: 'Numéro SIRET',
     idPlaceholder: '14 chiffres (ex: 12345678901234)',
     idExample: '123 456 789 01234',
@@ -23,7 +23,7 @@ export const COUNTRIES = {
   BE: {
     code: 'BE',
     name: 'Belgique',
-    flag: '🇧🇪',
+    flag: '',
     idLabel: 'Numéro BCE',
     idPlaceholder: '10 chiffres (ex: 0123456789 ou 0123.456.789)',
     idExample: '0123.456.789',
@@ -36,7 +36,7 @@ export const COUNTRIES = {
   LU: {
     code: 'LU',
     name: 'Luxembourg',
-    flag: '🇱🇺',
+    flag: '',
     idLabel: 'RCS ou Numéro TVA',
     idPlaceholder: 'RCS (ex: B123456) ou TVA (ex: LU12345678)',
     idExample: 'B123456 / LU12345678',
@@ -49,7 +49,7 @@ export const COUNTRIES = {
   CH: {
     code: 'CH',
     name: 'Suisse',
-    flag: '🇨🇭',
+    flag: '',
     idLabel: 'Numéro IDE / UID',
     idPlaceholder: 'ex: CHE-123.456.789 ou CHE123456789',
     idExample: 'CHE-123.456.789',

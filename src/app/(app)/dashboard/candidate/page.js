@@ -326,10 +326,10 @@ export default function CandidateDashboard() {
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {[
-                    { code: 'FR', label: '🇫🇷 France' },
-                    { code: 'BE', label: '🇧🇪 Belgique' },
-                    { code: 'LU', label: '🇱🇺 Luxembourg' },
-                    { code: 'CH', label: '🇨🇭 Suisse' },
+                    { code: 'FR', label: 'France' },
+                    { code: 'BE', label: 'Belgique' },
+                    { code: 'LU', label: 'Luxembourg' },
+                    { code: 'CH', label: 'Suisse' },
                   ].map(c => (
                     <button
                       key={c.code}

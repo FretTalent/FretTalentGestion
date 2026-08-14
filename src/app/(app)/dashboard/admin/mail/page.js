@@ -79,7 +79,7 @@ Vous êtes chauffeur routier et vous cherchez un poste qui vous correspond vraim
 • Déposez vos documents une seule fois (FIMO, permis, carte chrono)
 • Obtenez le badge "Chauffeur Vérifié ✓" pour vous démarquer
 
-🇫🇷 🇧🇪 Disponible en France et en Belgique
+Disponible en France, Belgique, Luxembourg et Suisse
 
 Ne laissez pas passer les meilleures opportunités. Créez votre profil gratuitement dès aujourd'hui et soyez visible par les recruteurs de votre région.
 

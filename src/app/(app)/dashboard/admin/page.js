@@ -231,7 +231,7 @@ export default function AdminDashboard() {
           </div>
           <div className="flex items-center justify-between text-xs pt-1">
             <span className="text-slate-500 font-medium truncate">
-              🇫🇷 {stats.franceCandidates} | 🇧🇪 {stats.belgiumCandidates} | 🇱🇺 {stats.luxembourgCandidates || 0} | 🇨🇭 {stats.switzerlandCandidates || 0}
+              FR: {stats.franceCandidates} | BE: {stats.belgiumCandidates} | LU: {stats.luxembourgCandidates || 0} | CH: {stats.switzerlandCandidates || 0}
             </span>
             <button
               onClick={() => router.push('/dashboard/admin/candidates')}

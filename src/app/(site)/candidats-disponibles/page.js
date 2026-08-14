@@ -193,12 +193,12 @@ export default function CandidatsDisponiblesPage() {
             </div>
 
             <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
-              <div className="text-2xl sm:text-3xl font-black text-slate-950">🇫🇷 {loading ? '...' : countFR} | 🇧🇪 {loading ? '...' : countBE}</div>
+              <div className="text-xl sm:text-2xl font-black text-slate-950">{loading ? '...' : countFR} <span className="text-xs text-slate-400 font-medium">FR</span> | {loading ? '...' : countBE} <span className="text-xs text-slate-400 font-medium">BE</span></div>
               <div className="text-xs text-slate-500 font-semibold mt-0.5">France & Belgique</div>
             </div>
 
             <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
-              <div className="text-2xl sm:text-3xl font-black text-slate-950">🇱🇺 {loading ? '...' : countLU} | 🇨🇭 {loading ? '...' : countCH}</div>
+              <div className="text-xl sm:text-2xl font-black text-slate-950">{loading ? '...' : countLU} <span className="text-xs text-slate-400 font-medium">LU</span> | {loading ? '...' : countCH} <span className="text-xs text-slate-400 font-medium">CH</span></div>
               <div className="text-xs text-slate-500 font-semibold mt-0.5">Luxembourg & Suisse</div>
             </div>
           </div>
@@ -207,12 +207,12 @@ export default function CandidatsDisponiblesPage() {
         {/* BARRE D'ONGLETS / FILTRES PAYS */}
         <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
           {[
-            { id: 'ALL', label: 'Tous les pays', count: candidates.length, flag: '🌍' },
-            { id: 'FR', label: 'France', count: countFR, flag: '🇫🇷' },
-            { id: 'BE', label: 'Belgique', count: countBE, flag: '🇧🇪' },
-            { id: 'LU', label: 'Luxembourg', count: countLU, flag: '🇱🇺' },
-            { id: 'CH', label: 'Suisse', count: countCH, flag: '🇨🇭' },
-            { id: 'VERIFIED', label: '100% Vérifiés', count: countVerified, flag: '✨' },
+            { id: 'ALL', label: 'Tous les pays', count: candidates.length },
+            { id: 'FR', label: 'France', count: countFR },
+            { id: 'BE', label: 'Belgique', count: countBE },
+            { id: 'LU', label: 'Luxembourg', count: countLU },
+            { id: 'CH', label: 'Suisse', count: countCH },
+            { id: 'VERIFIED', label: '100% Vérifiés', count: countVerified },
           ].map(tab => (
             <button
               key={tab.id}
@@ -223,7 +223,6 @@ export default function CandidatsDisponiblesPage() {
                   : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 hover:border-slate-300'
               }`}
             >
-              <span>{tab.flag}</span>
               <span>{tab.label}</span>
               <span
                 className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
@@ -383,7 +382,9 @@ export default function CandidatsDisponiblesPage() {
                         <div className="flex items-start justify-between gap-3">
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              <span className="text-base">{c.country === 'BE' ? '🇧🇪' : c.country === 'LU' ? '🇱🇺' : c.country === 'CH' ? '🇨🇭' : '🇫🇷'}</span>
+                              <span className="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
+                                {c.country === 'BE' ? 'Belgique' : c.country === 'LU' ? 'Luxembourg' : c.country === 'CH' ? 'Suisse' : 'France'}
+                              </span>
                               <h3 className="font-bold text-sm text-slate-900">
                                 Chauffeur {c.city} ({c.postalCode})
                               </h3>

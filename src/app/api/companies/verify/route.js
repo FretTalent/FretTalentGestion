@@ -36,7 +36,7 @@ export async function POST(req) {
 
     // 2. Vérification par pays
     switch (country) {
-      // 🇫🇷 FRANCE (SIRET)
+      // FRANCE (SIRET)
       case 'FR': {
         const siretDigits = identifier.replace(/\D/g, '');
         try {
@@ -82,7 +82,7 @@ export async function POST(req) {
         }
       }
 
-      // 🇨🇭 SUISSE (IDE / UID via Zefix)
+      // SUISSE (IDE / UID via Zefix)
       case 'CH': {
         const uidDigits = clean.replace(/^CHE/, '').slice(0, 9);
         const formattedUid = `CHE-${uidDigits.slice(0, 3)}.${uidDigits.slice(3, 6)}.${uidDigits.slice(6, 9)}`;
@@ -140,7 +140,7 @@ export async function POST(req) {
         }
       }
 
-      // 🇱🇺 LUXEMBOURG (RCS ou TVA VIES)
+      // LUXEMBOURG (RCS ou TVA VIES)
       case 'LU': {
         if (formatCheck.type === 'TVA_LU') {
           const vatNum = clean.replace(/^LU/, '');
@@ -188,7 +188,7 @@ export async function POST(req) {
         });
       }
 
-      // 🇧🇪 BELGIQUE (BCE)
+      // BELGIQUE (BCE)
       case 'BE': {
         const bceDigits = identifier.replace(/\D/g, '');
         // Vérification checksum modulo 97 de la BCE si applicable

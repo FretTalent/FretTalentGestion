@@ -1,26 +1,39 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable external images (needed for Supabase storage, Stripe webhooks, etc.)
   images: {
-    domains: [
-      'oaidalleapiprodscus.blob.core.windows.net',
-      'supabase.co',
-      'images.ctfassets.net',
-      '*.supabase.co',
+    remotePatterns: [
+      { protocol: 'https', hostname: '**.supabase.co' },
+      { protocol: 'https', hostname: 'supabase.co' },
+      { protocol: 'https', hostname: 'images.ctfassets.net' },
+      { protocol: 'https', hostname: 'oaidalleapiprodscus.blob.core.windows.net' },
     ],
     deviceSizes: [640, 768, 1024, 1280, 1600],
     imageSizes: [16, 32, 48, 64, 96],
   },
-  // Enable React 18 server components by default
-  experimental: {
-    serverActions: true,
-  },
-  // Add API route rewrites if needed later
-  async rewrites() {
+  async redirects() {
     return [
+      // Redirection 301 automatique du .com vers le .fr officiel
       {
-        source: '/api/:path*',
-        destination: '/api/:path*',
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'frettalent.com',
+          },
+        ],
+        destination: 'https://www.frettalent.fr/:path*',
+        permanent: true,
+      },
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'www.frettalent.com',
+          },
+        ],
+        destination: 'https://www.frettalent.fr/:path*',
+        permanent: true,
       },
     ];
   },

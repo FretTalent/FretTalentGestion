@@ -154,11 +154,11 @@ export default function TarifsPage() {
           {/* CARTE 1 : À LA PERFORMANCE (2€) */}
           <div className="bg-white border-2 border-slate-200 rounded-3xl p-8 flex flex-col justify-between hover:border-slate-300 transition-all duration-300 shadow-sm hover:shadow-xl relative card-hover-effect">
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-black text-slate-600 uppercase tracking-wider bg-slate-100 px-3 py-1 rounded-full">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-black text-slate-600 uppercase tracking-wider bg-slate-100 px-3 py-1 rounded-full whitespace-nowrap">
                   Usage Ponctuel
                 </span>
-                <span className="text-xs font-bold text-slate-400">0 € d&apos;abonnement</span>
+                <span className="text-xs font-bold text-slate-400 whitespace-nowrap">0 € d&apos;abonnement</span>
               </div>
 
               <div>
@@ -170,13 +170,18 @@ export default function TarifsPage() {
                 </p>
               </div>
 
-              <div className="flex items-baseline gap-1.5 border-b border-slate-100 pb-6">
-                <span className="text-5xl font-black text-slate-950 tracking-tight">
-                  2 €
-                </span>
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  / contact débloqué
-                </span>
+              <div className="border-b border-slate-100 pb-5">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl sm:text-5xl font-black text-slate-950 tracking-tight whitespace-nowrap">
+                    2&nbsp;€
+                  </span>
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+                    / contact débloqué
+                  </span>
+                </div>
+                <p className="text-[11px] font-semibold text-slate-500 mt-1">
+                  Paiement à l&apos;acte uniquement • Zéro engagement
+                </p>
               </div>
 
               <ul className="space-y-3.5 text-xs text-slate-700">
@@ -224,11 +229,11 @@ export default function TarifsPage() {
             </div>
 
             <div className="space-y-6 pt-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-black text-orange-700 uppercase tracking-wider bg-orange-100 px-3 py-1 rounded-full">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-black text-orange-700 uppercase tracking-wider bg-orange-100 px-3 py-1 rounded-full whitespace-nowrap">
                   Recrutement Illimité
                 </span>
-                <span className="text-xs font-bold text-emerald-600">Rentabilisé dès 20 contacts</span>
+                <span className="text-[11px] font-bold text-emerald-600 whitespace-nowrap">Rentabilisé dès 20 contacts</span>
               </div>
 
               <div>
@@ -240,13 +245,18 @@ export default function TarifsPage() {
                 </p>
               </div>
 
-              <div className="flex items-baseline gap-1.5 border-b border-orange-100 pb-6">
-                <span className="text-5xl font-black text-slate-950 tracking-tight">
-                  39,99 €
-                </span>
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  / mois (sans engagement)
-                </span>
+              <div className="border-b border-orange-100 pb-5">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl sm:text-5xl font-black text-slate-950 tracking-tight whitespace-nowrap">
+                    39,99&nbsp;€
+                  </span>
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+                    / mois
+                  </span>
+                </div>
+                <p className="text-[11px] font-semibold text-orange-600 mt-1">
+                  Sans aucun engagement • Résiliable en 1 clic
+                </p>
               </div>
 
               <ul className="space-y-3.5 text-xs text-slate-800">
@@ -297,11 +307,11 @@ export default function TarifsPage() {
           {/* CARTE 3 : FORFAIT PREMIUM PLUS (54,99€) */}
           <div className="bg-slate-950 text-white rounded-3xl p-8 flex flex-col justify-between shadow-2xl relative border border-slate-800 card-hover-effect">
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-black text-amber-400 uppercase tracking-wider bg-amber-400/15 border border-amber-400/30 px-3 py-1 rounded-full">
-                  Visibilité Maximale VIP
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-black text-amber-400 uppercase tracking-wider bg-amber-400/15 border border-amber-400/30 px-3 py-1 rounded-full whitespace-nowrap">
+                  Visibilité VIP
                 </span>
-                <span className="text-xs font-bold text-slate-400">Marque Employeur</span>
+                <span className="text-xs font-bold text-slate-400 whitespace-nowrap">Marque Employeur</span>
               </div>
 
               <div>
@@ -313,13 +323,18 @@ export default function TarifsPage() {
                 </p>
               </div>
 
-              <div className="flex items-baseline gap-1.5 border-b border-slate-800 pb-6">
-                <span className="text-5xl font-black text-white tracking-tight">
-                  54,99 €
-                </span>
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                  / mois (sans engagement)
-                </span>
+              <div className="border-b border-slate-800 pb-5">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl sm:text-5xl font-black text-white tracking-tight whitespace-nowrap">
+                    54,99&nbsp;€
+                  </span>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">
+                    / mois
+                  </span>
+                </div>
+                <p className="text-[11px] font-semibold text-amber-400/90 mt-1">
+                  Sans aucun engagement • Résiliable en 1 clic
+                </p>
               </div>
 
               <ul className="space-y-3.5 text-xs text-slate-300">

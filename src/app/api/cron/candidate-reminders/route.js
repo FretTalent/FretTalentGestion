@@ -56,15 +56,8 @@ export async function GET(req) {
       const name = candidate.full_name || 'Chauffeur';
 
       if (daysElapsed >= 10) {
-        // J+10 : Dernier avis avant clôture + désactivation du compte
+        // J+10 : Rappel bienveillant pour maximiser les contacts recruteurs (compte maintenu actif)
         await sendCandidateReminderDay10(candidate.email, name);
-        
-        // Marquer le profil comme inactif
-        await supabaseAdmin
-          .from('candidates')
-          .update({ is_active: false })
-          .eq('id', candidate.id);
-
         results.day10_sent.push({ email: candidate.email, days: daysElapsed });
       } else if (daysElapsed >= 4) {
         // J+4 : Deuxième rappel opportunités

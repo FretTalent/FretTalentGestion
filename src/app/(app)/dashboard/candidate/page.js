@@ -426,9 +426,6 @@ export default function CandidateDashboard() {
       {(() => {
         const hasDocs = documents && typeof documents === 'object' && Object.keys(documents).length > 0;
         const docCount = Object.keys(documents || {}).length;
-        const createdAt = candidate?.created_at ? new Date(candidate.created_at) : new Date();
-        const daysElapsed = Math.floor((new Date() - createdAt) / (1000 * 60 * 60 * 24));
-        const daysRemaining = Math.max(1, 10 - daysElapsed);
 
         if (hasDocs && candidate?.validated) {
           return (
@@ -501,10 +498,10 @@ export default function CandidateDashboard() {
             <div className="space-y-3 z-10 max-w-2xl">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-black uppercase tracking-wider text-white">
-                  <Sparkles className="w-3.5 h-3.5" /> Profil complété à 60%
+                  <Sparkles className="w-3.5 h-3.5" /> Profil actif
                 </span>
                 <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-black/20 text-xs font-bold text-orange-100">
-                  <Clock className="w-3 h-3" /> {daysRemaining} jour{daysRemaining > 1 ? 's' : ''} restant{daysRemaining > 1 ? 's' : ''} pour finaliser
+                  <Clock className="w-3 h-3" /> Déposez vos justificatifs quand vous le souhaitez
                 </span>
               </div>
 

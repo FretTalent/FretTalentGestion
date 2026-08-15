@@ -267,7 +267,7 @@ export async function sendCandidateReminderDay4(email, candidateName) {
 }
 
 /**
- * Envoie l'alerte J+10 (dernier avis avant clôture)
+ * Envoie le rappel J+10 (opportunités & validation)
  */
 export async function sendCandidateReminderDay10(email, candidateName) {
   try {
@@ -275,7 +275,7 @@ export async function sendCandidateReminderDay10(email, candidateName) {
     const data = await resend.emails.send({
       from: FROM_EMAIL,
       to: [email],
-      subject: '🔴 Dernier avis avant clôture de votre compte FretTalent',
+      subject: '🚛 Obtenez votre badge Vérifié et soyez contacté par les recruteurs',
       html,
     });
     return { success: true, data };

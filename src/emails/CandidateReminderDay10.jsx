@@ -7,36 +7,36 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.frettalent.com'
 export default function CandidateReminderDay10({ candidateName = 'Chauffeur' }) {
   return (
     <BaseLayout
-      previewText="🔴 Dernier rappel avant clôture de votre compte FretTalent"
-      heading="Dernier avis avant clôture ⚠️"
+      previewText="🚛 Obtenez votre badge Vérifié et recevez des propositions d'embauche"
+      heading="Boostez vos opportunités de recrutement 🚛"
     >
       <Text style={text}>
         Bonjour <strong>{candidateName}</strong>,
       </Text>
 
       <Text style={text}>
-        Vous vous êtes inscrit sur <strong>FretTalent</strong> il y a 10 jours, mais vous n'avez pas encore déposé vos justificatifs de conduite (permis, carte conducteur ou FIMO).
+        Vous êtes inscrit sur <strong>FretTalent</strong>, la plateforme directe de recrutement pour les conducteurs routiers en France, Suisse, Belgique et Luxembourg.
       </Text>
 
       <Section style={card}>
-        <Text style={cardTitle}>🔴 Suppression imminente de votre compte</Text>
+        <Text style={cardTitle}>🛡️ Activez votre badge « Chauffeur 100% Vérifié »</Text>
         <Hr style={hrSmall} />
         <Text style={cardText}>
-          Afin de garantir un réseau 100% qualifié et disponible aux transporteurs en <strong>France, Suisse, Belgique et Luxembourg</strong>, les profils inactifs sans documents sont automatiquement clôturés sous 24h.
+          Les transporteurs recherchent activement des conducteurs qualifiés et contactent en priorité les profils avec justificatifs validés (Permis C/CE, Carte Chrono, FIMO/FCO).
         </Text>
-        <Text style={cardTextDanger}>
-          Si vous cherchez toujours un emploi ou des missions en direct, déposez vos documents dès aujourd'hui pour maintenir votre compte actif.
+        <Text style={cardTextHighlight}>
+          Prenez simplement vos justificatifs en photo avec votre téléphone (1 minute) pour maximiser votre visibilité auprès des recruteurs.
         </Text>
       </Section>
 
       <Section style={btnContainer}>
         <Button style={button} href={`${baseUrl}/dashboard/candidate/documents`}>
-          Maintenir mon profil actif 📸
+          Déposer mes documents 📸
         </Button>
       </Section>
 
       <Text style={footerNote}>
-        Si vous n'êtes plus en recherche d'opportunités, vous pouvez ignorer cet e-mail. Votre profil sera automatiquement supprimé.
+        Votre profil reste actif et consultable. 100% gratuit et sans intermédiaire.
       </Text>
     </BaseLayout>
   );
@@ -50,8 +50,8 @@ const text = {
 };
 
 const card = {
-  backgroundColor: '#fef2f2',
-  border: '1px solid #fecaca',
+  backgroundColor: '#fff7ed',
+  border: '1px solid #fed7aa',
   borderRadius: '16px',
   padding: '20px',
   marginBottom: '24px',
@@ -60,30 +60,30 @@ const card = {
 const cardTitle = {
   fontSize: '15px',
   fontWeight: '800',
-  color: '#dc2626',
+  color: '#c2410c',
   margin: '0 0 10px',
 };
 
 const cardText = {
   fontSize: '14px',
-  color: '#991b1b',
+  color: '#9a3412',
   lineHeight: '22px',
   margin: '0 0 10px',
 };
 
-const cardTextDanger = {
+const cardTextHighlight = {
   fontSize: '13px',
   fontWeight: '600',
-  color: '#b91c1c',
+  color: '#ea580c',
   lineHeight: '20px',
   margin: '0',
-  backgroundColor: '#fee2e2',
+  backgroundColor: '#ffedd5',
   padding: '10px 14px',
   borderRadius: '10px',
 };
 
 const hrSmall = {
-  borderColor: '#fca5a5',
+  borderColor: '#fdba74',
   margin: '8px 0 14px',
 };
 
@@ -94,7 +94,7 @@ const btnContainer = {
 };
 
 const button = {
-  backgroundColor: '#dc2626',
+  backgroundColor: '#f97316',
   borderRadius: '9999px',
   color: '#ffffff',
   fontSize: '15px',
@@ -103,7 +103,7 @@ const button = {
   textAlign: 'center',
   display: 'inline-block',
   padding: '14px 28px',
-  boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)',
+  boxShadow: '0 4px 12px rgba(249, 115, 22, 0.3)',
 };
 
 const footerNote = {
@@ -112,3 +112,4 @@ const footerNote = {
   textAlign: 'center',
   margin: '0',
 };
+

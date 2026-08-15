@@ -552,7 +552,8 @@ export default function RecruiterDashboard() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {filteredCandidates.map(cand => {
-                  const isUnlocked = myUnlocks.includes(cand.id);
+                  const isSubscribed = company?.subscription_plan === 'premium_monthly' || company?.subscription_plan === 'premium_plus_monthly';
+                  const isUnlocked = isSubscribed || myUnlocks.includes(cand.id);
                   const isFavorite = favorites.includes(cand.id);
                   return (
                     <div
@@ -672,7 +673,7 @@ export default function RecruiterDashboard() {
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
                     Coordonnées
                   </span>
-                  {myUnlocks.includes(selectedCandidate.id) ? (
+                  {(company?.subscription_plan === 'premium_monthly' || company?.subscription_plan === 'premium_plus_monthly' || myUnlocks.includes(selectedCandidate.id)) ? (
                     <div className="p-4 bg-green-50/50 border border-green-100 rounded-2xl space-y-2">
                       <div className="text-sm font-bold text-slate-900">
                         {selectedCandidate.full_name}
@@ -726,8 +727,8 @@ export default function RecruiterDashboard() {
                   </div>
                 )}
 
-                {/* Documents (si débloqué) */}
-                {myUnlocks.includes(selectedCandidate.id) &&
+                {/* Documents (si débloqué ou abonné) */}
+                {(company?.subscription_plan === 'premium_monthly' || company?.subscription_plan === 'premium_plus_monthly' || myUnlocks.includes(selectedCandidate.id)) &&
                   selectedCandidate.documents &&
                   Object.keys(selectedCandidate.documents).length > 0 && (
                     <div className="space-y-2">

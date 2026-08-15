@@ -245,6 +245,24 @@ function RegisterContent() {
           console.error('Erreur insertion candidat:', candidateError);
           throw candidateError;
         }
+
+        // Notification Telegram Admin
+        fetch('/api/notify/telegram', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'candidate_registered',
+            data: {
+              candidateName: fullCandidateName,
+              email: email,
+              phone: cleanPhone,
+              city: addressInfo.city,
+              postalCode: addressInfo.postalCode,
+              country: candidateCountry,
+            },
+          }),
+        }).catch(e => console.error('Telegram notification error:', e));
+
         router.push('/dashboard/candidate');
       } else if (role === 'recruiter') {
         const cleanId = companyIdInput.trim();
@@ -264,6 +282,24 @@ function RegisterContent() {
             },
           ]);
         if (companyError) throw companyError;
+
+        // Notification Telegram Admin
+        fetch('/api/notify/telegram', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'company_registered',
+            data: {
+              companyName: companyName,
+              email: email,
+              country: country,
+              identifier: cleanId,
+              city: addressInfo.city,
+              postalCode: addressInfo.postalCode,
+            },
+          }),
+        }).catch(e => console.error('Telegram notification error:', e));
+
         router.push('/dashboard/recruiter');
       }
     } catch (err) {

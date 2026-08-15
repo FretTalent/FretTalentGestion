@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient as createSupabaseServerClient } from '@/lib/supabase-server';
 import { createClient } from '@supabase/supabase-js';
 import { sendSupportNewConversationAdmin, sendSupportNewMessageUser } from '@/lib/email-service';
+import { notifyTelegramNewSupportTicket } from '@/lib/telegram';
 
 function getAdminClient() {
   return createClient(
@@ -265,13 +266,22 @@ export async function POST(req) {
           isNewConversation: true,
         });
       } else {
-        // L'utilisateur a initié la conversation -> Notifier l'administrateur
+        // L'utilisateur a initié la conversation -> Notifier l'administrateur par email & Telegram
         await sendSupportNewConversationAdmin({
           userName: conversationUserName,
           userEmail: conversationUserEmail,
           userRole: conversationUserRole,
           subject: subject.trim(),
           previewMessage: message.trim(),
+        });
+
+        // Notification Telegram Admin
+        await notifyTelegramNewSupportTicket({
+          userName: conversationUserName,
+          userEmail: conversationUserEmail,
+          userRole: conversationUserRole,
+          subject: subject.trim(),
+          messagePreview: message.trim(),
         });
       }
     } catch (mailErr) {

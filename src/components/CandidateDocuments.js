@@ -92,6 +92,48 @@ export default function CandidateDocuments({
       if (dbError) throw dbError;
 
       onUpdate(newDocuments); // Mettre à jour l'état parent
+
+      // Notification Telegram Admin
+      try {
+        const isDocPresent = (k, legacyK) => !!newDocuments[k] || (legacyK && !!newDocuments[legacyK]);
+        const requiredDocs = [
+          isDocPresent('cv'),
+          isDocPresent('permis_recto', 'permis'),
+          isDocPresent('permis_verso', 'permis'),
+          isDocPresent('chrono_recto', 'chrono'),
+          isDocPresent('chrono_verso', 'chrono'),
+          isDocPresent('fimo_recto', 'fimo'),
+          isDocPresent('fimo_verso', 'fimo'),
+        ];
+        const uploadedCount = requiredDocs.filter(Boolean).length;
+        const isComplete = uploadedCount === 7;
+
+        const { data: candInfo } = await supabase
+          .from('candidates')
+          .select('full_name, city, country')
+          .eq('id', candidateId)
+          .maybeSingle();
+
+        fetch('/api/notify/telegram', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'documents_uploaded',
+            data: {
+              candidateName: candInfo?.full_name || 'Candidat',
+              candidateId: candidateId,
+              city: candInfo?.city || '—',
+              country: candInfo?.country || 'FR',
+              uploadedCount,
+              totalRequired: 7,
+              isComplete,
+              docLabel: docType.label,
+            },
+          }),
+        }).catch(err => console.error('Telegram notification error:', err));
+      } catch (notifErr) {
+        console.error('Erreur préparation notification telegram:', notifErr);
+      }
     } catch (err) {
       console.error(err);
       setError(`Erreur lors de l'upload de ${docType.label}: ${err.message}`);

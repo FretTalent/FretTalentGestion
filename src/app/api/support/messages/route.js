@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient as createSupabaseServerClient } from '@/lib/supabase-server';
 import { createClient } from '@supabase/supabase-js';
 import { sendSupportNewMessageUser, sendSupportNewMessageAdmin } from '@/lib/email-service';
+import { notifyTelegramSupportMessage } from '@/lib/telegram';
 
 function getAdminClient() {
   return createClient(
@@ -235,7 +236,7 @@ export async function POST(req) {
         }
       }
     } else {
-      // Si un candidat ou recruteur envoie un message / répond -> Notifier l'admin par email
+      // Si un candidat ou recruteur envoie un message / répond -> Notifier l'admin par email & Telegram
       try {
         await sendSupportNewMessageAdmin({
           userName: conv.user_name || senderName,
@@ -244,8 +245,16 @@ export async function POST(req) {
           subject: conv.subject,
           previewMessage: content.trim(),
         });
+
+        await notifyTelegramSupportMessage({
+          userName: conv.user_name || senderName,
+          userEmail: conv.user_email,
+          userRole: conv.user_role,
+          subject: conv.subject,
+          messagePreview: content.trim(),
+        });
       } catch (mailErr) {
-        console.error('Erreur envoi email support admin:', mailErr);
+        console.error('Erreur envoi email/telegram support admin:', mailErr);
       }
     }
 

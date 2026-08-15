@@ -27,10 +27,15 @@ import {
   Search,
   SlidersHorizontal,
   ExternalLink,
+  Send,
+  Bell,
+  Check,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function AdminDashboard() {
   const router = useRouter();
+  const [testingTelegram, setTestingTelegram] = useState(false);
 
   const [stats, setStats] = useState({
     candidatesCount: 0,
@@ -161,6 +166,32 @@ export default function AdminDashboard() {
     fetchAdminData();
   }, []);
 
+  const handleTestTelegram = async () => {
+    setTestingTelegram(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('/api/admin/telegram/test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.access_token || ''}`,
+        },
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        toast.success('🚀 Test Telegram envoyé ! Vérifiez votre application Telegram.', { duration: 5000 });
+      } else {
+        toast.error(`⚠️ ${data.error || 'Erreur lors du test Telegram'}`, { duration: 6000 });
+      }
+    } catch (err) {
+      console.error('Erreur test telegram:', err);
+      toast.error('Erreur de connexion au serveur.');
+    } finally {
+      setTestingTelegram(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
@@ -195,11 +226,21 @@ export default function AdminDashboard() {
             Centre de Pilotage FretTalent
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 font-medium">
-            Supervision du réseau transporteur, modération des pièces officielles et flux financiers Stripe.
+            Supervision du réseau transporteur, modération des pièces officielles et alertes en direct Telegram.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <button
+            onClick={handleTestTelegram}
+            disabled={testingTelegram}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs border border-blue-200 transition-all cursor-pointer disabled:opacity-50"
+            title="Tester l'envoi d'une alerte sur votre Telegram"
+          >
+            <Send className={`h-3.5 w-3.5 ${testingTelegram ? 'animate-spin' : ''}`} />
+            <span>{testingTelegram ? 'Envoi...' : '🔔 Tester Robot Telegram'}</span>
+          </button>
+
           <button
             onClick={() => router.push('/dashboard/admin/chat')}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs shadow-md shadow-orange-500/20 transition-all cursor-pointer hover:scale-105"
@@ -586,6 +627,80 @@ export default function AdminDashboard() {
           </div>
         </div>
 
+      </div>
+
+      {/* SECTION ROBOT TELEGRAM ALERTES EN DIRECT */}
+      <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-2 bg-blue-500/20 text-blue-400 border border-blue-500/30 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+              <Send className="h-3.5 w-3.5" />
+              <span>Robot Telegram Admin</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-white">
+              Notifications & Alertes Instantanées sur votre Mobile
+            </h2>
+            <p className="text-xs text-slate-400">
+              Recevez les événements clés de la plateforme directement sur votre Telegram sans rafraîchir la page.
+            </p>
+          </div>
+
+          <button
+            onClick={handleTestTelegram}
+            disabled={testingTelegram}
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs transition-all shadow-lg shadow-blue-600/30 cursor-pointer disabled:opacity-50 shrink-0"
+          >
+            <Send className={`h-4 w-4 ${testingTelegram ? 'animate-spin' : ''}`} />
+            <span>{testingTelegram ? 'Envoi du test...' : 'Envoyer un Test Telegram'}</span>
+          </button>
+        </div>
+
+        {/* 5 ÉVÉNEMENTS NOTIFIÉS AUTOMATIQUEMENT */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          
+          <div className="bg-white/5 border border-white/10 p-4 rounded-2xl space-y-1">
+            <div className="text-lg">🚛</div>
+            <p className="font-bold text-xs text-white">Nouvel Inscrit Chauffeur</p>
+            <p className="text-[11px] text-slate-400">Nom, contact, permis, ville & drapeau pays.</p>
+          </div>
+
+          <div className="bg-white/5 border border-white/10 p-4 rounded-2xl space-y-1">
+            <div className="text-lg">🏢</div>
+            <p className="font-bold text-xs text-white">Nouvelle Entreprise</p>
+            <p className="text-[11px] text-slate-400">Raison sociale, SIRET/BCE, e-mail et ville.</p>
+          </div>
+
+          <div className="bg-white/5 border border-white/10 p-4 rounded-2xl space-y-1">
+            <div className="text-lg">📄</div>
+            <p className="font-bold text-xs text-white">Dépôt Dossier Complet</p>
+            <p className="text-[11px] text-slate-400">Alerte dès qu'un chauffeur téléverse ses 7 pièces.</p>
+          </div>
+
+          <div className="bg-white/5 border border-white/10 p-4 rounded-2xl space-y-1">
+            <div className="text-lg">💬</div>
+            <p className="font-bold text-xs text-white">Demande Tchat Support</p>
+            <p className="text-[11px] text-slate-400">Alerte avec aperçu du message et lien direct.</p>
+          </div>
+
+          <div className="bg-white/5 border border-white/10 p-4 rounded-2xl space-y-1">
+            <div className="text-lg">💳</div>
+            <p className="font-bold text-xs text-white">Déblocage & Stripe</p>
+            <p className="text-[11px] text-slate-400">Notification à chaque transaction de 2,00 €.</p>
+          </div>
+
+        </div>
+
+        <div className="bg-white/5 border border-white/10 p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-300">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+            <span>
+              Variables d&apos;environnement requises : <code className="bg-black/40 px-2 py-0.5 rounded text-orange-400 font-mono">TELEGRAM_BOT_TOKEN</code> et <code className="bg-black/40 px-2 py-0.5 rounded text-orange-400 font-mono">TELEGRAM_ADMIN_CHAT_ID</code>.
+            </span>
+          </div>
+          <span className="text-[11px] text-slate-400 shrink-0">
+            Protocole officiel Telegram Bot API
+          </span>
+        </div>
       </div>
 
     </div>

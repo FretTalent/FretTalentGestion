@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { createClient } from '@/lib/supabase-server';
+import { notifyTelegramUnlock } from '@/lib/telegram';
 
 export async function POST(req) {
   try {
@@ -120,6 +121,24 @@ export async function POST(req) {
         );
         // Note : On ne bloque pas le retour car le déblocage est validé en base locale.
       }
+    }
+
+    // 7. Notification Telegram Admin
+    try {
+      const { data: cand } = await supabaseAdmin
+        .from('candidates')
+        .select('full_name, city')
+        .eq('id', candidateId)
+        .maybeSingle();
+
+      await notifyTelegramUnlock({
+        companyName: company.name,
+        candidateName: cand?.full_name || 'Chauffeur',
+        candidateCity: cand?.city || '',
+        amount: 2.0,
+      });
+    } catch (notifErr) {
+      console.error('Erreur notification telegram unlock:', notifErr);
     }
 
     return NextResponse.json({ success: true });

@@ -275,8 +275,9 @@ export async function POST(req) {
           previewMessage: message.trim(),
         });
 
-        // Notification Telegram Admin
+        // Notification Telegram Admin (avec tag ticket pour réponse directe par Telegram)
         await notifyTelegramNewSupportTicket({
+          conversationId: conv.id,
           userName: conversationUserName,
           userEmail: conversationUserEmail,
           userRole: conversationUserRole,

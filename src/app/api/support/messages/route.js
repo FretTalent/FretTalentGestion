@@ -247,6 +247,7 @@ export async function POST(req) {
         });
 
         await notifyTelegramSupportMessage({
+          conversationId: conv.id,
           userName: conv.user_name || senderName,
           userEmail: conv.user_email,
           userRole: conv.user_role,

@@ -11,9 +11,21 @@ import {
 } from 'lucide-react';
 
 export const metadata = {
-  title: 'Recrutement Chauffeurs Routiers France, Belgique, Luxembourg, Suisse (SIRET, BCE, RCS, IDE)',
+  title: 'Recruter Chauffeur SPL & PL en Direct (Sans Intérim) | CVthèque France, Suisse, Belgique, Luxembourg | FretTalent',
   description:
-    'Accédez à notre CVthèque de chauffeurs routiers qualifiés en France, Belgique, Luxembourg et Suisse. Validation SIRET, BCE, RCS/TVA & IDE instantanée, recherche multicritères (permis C/CE, FIMO, ADR).',
+    'Accédez à la CVthèque N°1 de chauffeurs routiers Super Poids Lourd (SPL / Permis CE) et Poids Lourd en France, Suisse, Belgique et Luxembourg. Validation SIRET/BCE/RCS/IDE, contact direct 2€ sans commission d\'intérim.',
+  keywords: [
+    'recruter chauffeur spl',
+    'recrutement chauffeur super poids lourd',
+    'cvtheque chauffeur routier',
+    'trouver chauffeur permis ce',
+    'recrutement transport routier france',
+    'recruter conducteur spl suisse',
+    'chauffeur poids lourd belgique',
+  ],
+  alternates: {
+    canonical: 'https://www.frettalent.fr/entreprises',
+  },
 };
 
 export default function PourLesEntreprises() {

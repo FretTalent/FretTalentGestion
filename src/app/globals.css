@@ -2,7 +2,7 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f172a;
 }
 
 @theme inline {
@@ -14,9 +14,13 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #0f172a;
   }
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -60,6 +64,7 @@ button, input, select, textarea {
   font-size: 0.875rem; /* 14px */
 }
 
+/* Animation Logos Partenaires */
 @keyframes marquee {
   0% {
     transform: translateX(0%);
@@ -73,25 +78,71 @@ button, input, select, textarea {
   display: flex;
   width: max-content;
   animation: marquee 25s linear infinite;
-  gap: 5rem; /* Espace fixe et garanti entre les logos */
+  gap: 5rem;
   padding-right: 5rem;
 }
 
 .partner-logo {
-  height: 3.25rem; /* Hauteur agrandie de 52px */
-  width: 11rem;    /* Largeur agrandie de 176px */
+  height: 3.25rem;
+  width: 11rem;
   object-fit: contain;
   flex-shrink: 0;
   opacity: 0.75;
   transition: all 0.3s ease;
-  /* Rend l'image totalement noire puis la colore en orange FretTalent (#f97316) */
   filter: brightness(0) invert(53%) sepia(93%) saturate(2255%) hue-rotate(352deg) brightness(98%) contrast(97%);
 }
 
 .partner-logo:hover {
   opacity: 1;
-  filter: none; /* Affiche les couleurs d'origine au survol */
+  filter: none;
 }
 
+/* Animations Avancées & Micro-interactions */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
 
+@keyframes float-reverse {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
 
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(249, 115, 22, 0.5);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: float-reverse 5s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+/* Cartes interactives avec effet d'élévation moderne */
+.card-hover-effect {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-hover-effect:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.08);
+}

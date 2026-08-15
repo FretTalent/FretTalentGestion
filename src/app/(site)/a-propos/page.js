@@ -13,9 +13,12 @@ import {
 } from 'lucide-react';
 
 export const metadata = {
-  title: 'À propos de nous - L\'histoire de FretTalent par un Ancien Chauffeur',
+  title: 'À Propos de FretTalent | La Plateforme Conçue par un Ancien Chauffeur Routier',
   description:
-    'Découvrez l\'histoire de FretTalent, fondée par Gabin, ancien chauffeur routier. Une solution née du terrain pour simplifier le recrutement et valoriser les conducteurs.',
+    'Découvrez l\'histoire de FretTalent, créée par Gabin, ancien chauffeur routier SPL. Une solution née du terrain pour moderniser le recrutement et supprimer les intermédiaires dans le transport routier.',
+  alternates: {
+    canonical: 'https://www.frettalent.fr/a-propos',
+  },
 };
 
 export default function APropos() {

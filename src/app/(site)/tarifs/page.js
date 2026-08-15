@@ -15,9 +15,18 @@ import {
 } from 'lucide-react';
 
 export const metadata = {
-  title: 'Tarifs Recrutement Chauffeurs France, Belgique, Luxembourg, Suisse',
+  title: 'Tarifs Recrutement Chauffeur SPL & Transporteurs | FretTalent',
   description:
-    'Tarifs transparents pour recruter des chauffeurs routiers en France, Belgique, Luxembourg et Suisse. À la performance à 2€/contact ou forfaits illimités Pro et Premium.',
+    'Tarifs transparents pour recruter des chauffeurs routiers SPL et PL en France, Suisse, Belgique et Luxembourg : 100% gratuit pour les conducteurs, déblocage direct à 2€/contact sans engagement pour les entreprises.',
+  keywords: [
+    'tarifs recrutement chauffeur spl',
+    'prix embauche chauffeur poids lourd',
+    'cout recrutement transport routier',
+    'cvtheque chauffeur 2 euros',
+  ],
+  alternates: {
+    canonical: 'https://www.frettalent.fr/tarifs',
+  },
 };
 
 export default function Tarifs() {

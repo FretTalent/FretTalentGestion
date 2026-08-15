@@ -12,9 +12,12 @@ import {
 } from 'lucide-react';
 
 export const metadata = {
-  title: 'Comment ça marche ? Recrutement Chauffeurs France, Belgique, Luxembourg, Suisse',
+  title: 'Comment ça marche ? | Recrutement Chauffeur SPL & Transporteurs | FretTalent',
   description:
-    'Découvrez le fonctionnement de FretTalent. Mise en relation directe entre transporteurs et chauffeurs routiers en France, Belgique, Luxembourg et Suisse. Simple, rapide et 100% sécurisé.',
+    'Découvrez le fonctionnement de FretTalent : mise en relation directe entre transporteurs et chauffeurs routiers SPL (Super Poids Lourd) en France, Suisse, Belgique et Luxembourg. Simple, rapide et 100% sécurisé.',
+  alternates: {
+    canonical: 'https://www.frettalent.fr/comment-ca-marche',
+  },
 };
 
 export default function CommentCaMarche() {

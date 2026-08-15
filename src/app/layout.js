@@ -15,22 +15,43 @@ const geistMono = Geist_Mono({
 export const metadata = {
   metadataBase: new URL('https://www.frettalent.fr'),
   title: {
-    default: 'Recrutement Chauffeurs Routiers France, Belgique, Luxembourg, Suisse | FretTalent',
-    template: '%s | FretTalent',
+    default: 'Recrutement Chauffeur SPL & PL en Direct | Emploi Super Poids Lourd France, Suisse, Belgique, Luxembourg | FretTalent',
+    template: '%s | FretTalent - Recrutement Chauffeur SPL',
   },
   description:
-    'Recrutement en direct de chauffeurs routiers (SPL, PL, ADR, Frigo) et transporteurs en France, Belgique, Luxembourg et Suisse. 100% gratuit chauffeurs.',
+    'Recrutement en direct de chauffeurs routiers SPL (Super Poids Lourd - Permis CE), PL (Permis C), ADR, Frigo, Benne et Citerne en France, Suisse, Belgique et Luxembourg. Mise en relation directe sans agence d\'intérim, 100% gratuit pour les conducteurs.',
   keywords: [
-    'recrutement chauffeur routier france',
-    'recrutement chauffeur poids lourd belgique',
-    'chauffeur routier luxembourg',
-    'chauffeur poids lourd suisse',
-    'emploi transport routier',
-    'chauffeur spl suisse luxembourg',
-    'conducteur poids lourd bce siret rcs ide',
-    'emploi benne frigo citerne adr',
+    'recrutement chauffeur spl',
+    'emploi chauffeur super poids lourd',
+    'recrutement chauffeur spl suisse',
+    'emploi chauffeur spl luxembourg',
+    'recrutement chauffeur spl belgique',
+    'emploi conducteur spl france',
+    'chauffeur permis ce cdi',
+    'recrutement chauffeur poids lourd',
+    'chauffeur frigo spl',
+    'conducteur benne tp spl',
+    'chauffeur citerne adr spl',
+    'offre emploi transport routier',
+    'recruter chauffeur spl',
     'fret talent',
+    'frettalent',
   ],
+  authors: [{ name: 'FretTalent', url: 'https://www.frettalent.fr' }],
+  creator: 'FretTalent',
+  publisher: 'FretTalent',
+  category: 'Employment',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   alternates: {
     canonical: 'https://www.frettalent.fr',
     languages: {
@@ -58,9 +79,9 @@ export const metadata = {
     ],
   },
   openGraph: {
-    title: 'Recrutement Chauffeurs Routiers France, Belgique, Luxembourg, Suisse | FretTalent',
+    title: 'Recrutement Chauffeur SPL & PL en Direct | FretTalent',
     description:
-      'Recrutement en direct de chauffeurs routiers (SPL, PL, ADR, Frigo) et transporteurs en France, Belgique, Luxembourg et Suisse. 100% gratuit chauffeurs.',
+      'Recrutement en direct de chauffeurs routiers Super Poids Lourd (SPL / Permis CE) et transporteurs en France, Suisse, Belgique et Luxembourg. Zéro commission, 100% gratuit conducteurs.',
     url: 'https://www.frettalent.fr',
     siteName: 'FretTalent',
     images: [
@@ -68,7 +89,7 @@ export const metadata = {
         url: 'https://www.frettalent.fr/og-image.png?v=3',
         width: 1200,
         height: 630,
-        alt: 'FretTalent - Recrutement Chauffeurs Routiers',
+        alt: 'FretTalent - Recrutement Chauffeur SPL et PL',
       },
     ],
     locale: 'fr_FR',
@@ -76,9 +97,9 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Recrutement Chauffeurs Routiers France, Belgique, Luxembourg, Suisse | FretTalent',
+    title: 'Recrutement Chauffeur SPL & PL en Direct | FretTalent',
     description:
-      'Recrutement en direct de chauffeurs routiers (SPL, PL, ADR, Frigo) et transporteurs en France, Belgique, Luxembourg et Suisse. 100% gratuit chauffeurs.',
+      'Recrutement direct de chauffeurs routiers Super Poids Lourd (SPL / Permis CE) en France, Suisse, Belgique et Luxembourg.',
     images: ['https://www.frettalent.fr/og-image.png?v=3'],
   },
 };
@@ -86,21 +107,48 @@ export const metadata = {
 export default function RootLayout({ children }) {
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'EmploymentAgency',
-    name: 'FretTalent',
-    url: 'https://www.frettalent.fr',
-    logo: 'https://www.frettalent.fr/logo.png',
-    description:
-      'Plateforme de recrutement en direct pour les chauffeurs routiers et transporteurs en France, Belgique, Luxembourg et Suisse.',
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: '7 RUE DE BOIS',
-      addressLocality: 'PARGNY-LES-BOIS',
-      postalCode: '02270',
-      addressCountry: 'FR',
-    },
-    areaServed: ['FR', 'BE', 'LU', 'CH'],
-    priceRange: '€',
+    '@graph': [
+      {
+        '@type': 'EmploymentAgency',
+        '@id': 'https://www.frettalent.fr/#agency',
+        name: 'FretTalent',
+        url: 'https://www.frettalent.fr',
+        logo: 'https://www.frettalent.fr/logo.png',
+        image: 'https://www.frettalent.fr/og-image.png?v=3',
+        description:
+          'Plateforme de recrutement en direct pour les chauffeurs routiers SPL (Super Poids Lourd) et transporteurs en France, Suisse, Belgique et Luxembourg.',
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: '7 RUE DE BOIS',
+          addressLocality: 'PARGNY-LES-BOIS',
+          postalCode: '02270',
+          addressCountry: 'FR',
+        },
+        areaServed: [
+          { '@type': 'Country', name: 'France' },
+          { '@type': 'Country', name: 'Switzerland' },
+          { '@type': 'Country', name: 'Belgium' },
+          { '@type': 'Country', name: 'Luxembourg' },
+        ],
+        priceRange: '€',
+        sameAs: [
+          'https://www.facebook.com/profile.php?id=61593021909293',
+        ],
+      },
+      {
+        '@type': 'WebSite',
+        '@id': 'https://www.frettalent.fr/#website',
+        url: 'https://www.frettalent.fr',
+        name: 'FretTalent',
+        description: 'Recrutement Chauffeur SPL et PL en France, Suisse, Belgique et Luxembourg',
+        publisher: { '@id': 'https://www.frettalent.fr/#agency' },
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: 'https://www.frettalent.fr/offres?keyword={search_term_string}',
+          'query-input': 'required name=search_term_string',
+        },
+      },
+    ],
   };
 
   return (
@@ -117,34 +165,8 @@ export default function RootLayout({ children }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="min-h-full flex flex-col">
-        <Toaster
-          position="top-center"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: '#fff',
-              color: '#334155',
-              fontWeight: '600',
-              borderRadius: '12px',
-              padding: '16px',
-              boxShadow:
-                '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-            },
-            success: {
-              iconTheme: {
-                primary: '#10b981',
-                secondary: '#fff',
-              },
-            },
-            error: {
-              iconTheme: {
-                primary: '#ef4444',
-                secondary: '#fff',
-              },
-            },
-          }}
-        />
+      <body className="min-h-full flex flex-col selection:bg-orange-500 selection:text-white">
+        <Toaster position="top-right" />
         {children}
       </body>
     </html>

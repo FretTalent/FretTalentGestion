@@ -90,13 +90,13 @@ export default function Home() {
                   <div className="relative z-10 w-full max-w-[460px] sm:max-w-[520px] lg:max-w-[580px] flex flex-col items-center animate-in fade-in zoom-in-95 duration-500">
                     
                     {/* Badge flottant supérieur gauche */}
-                    <div className="hidden sm:flex absolute -top-2 -left-4 bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-lg px-3.5 py-1.5 rounded-2xl items-center gap-2 z-20 hover:scale-105 transition-transform">
+                    <div className="hidden sm:flex absolute -top-2 -left-4 bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-lg px-3.5 py-1.5 rounded-2xl items-center gap-2 z-20 hover:scale-105 transition-transform animate-float">
                       <span className="text-orange-500 text-sm">🔒</span>
                       <span className="text-[11px] font-bold text-slate-800">100% Anonyme</span>
                     </div>
 
                     {/* Badge flottant supérieur droit */}
-                    <div className="hidden sm:flex absolute top-6 -right-4 bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-lg px-3.5 py-1.5 rounded-2xl items-center gap-2 z-20 hover:scale-105 transition-transform">
+                    <div className="hidden sm:flex absolute top-6 -right-4 bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-lg px-3.5 py-1.5 rounded-2xl items-center gap-2 z-20 hover:scale-105 transition-transform animate-float-reverse">
                       <span className="text-emerald-500 text-sm">⚡</span>
                       <span className="text-[11px] font-bold text-slate-800">Embauche Directe</span>
                     </div>
@@ -104,12 +104,12 @@ export default function Home() {
                     {/* Image grand format */}
                     <img
                       src="/images/chauffeur-fingers-crossed.png"
-                      alt="Chauffeur routier FretTalent qui croise les doigts pour son recrutement"
+                      alt="Recrutement Chauffeur SPL FretTalent sans agence interim"
                       className="w-full h-auto max-h-[500px] sm:max-h-[580px] object-contain drop-shadow-2xl hover:scale-[1.02] transition-transform duration-300"
                     />
                     
                     {/* Badge flottant principal "Plus besoin de croiser les doigts" */}
-                    <div className="relative -mt-6 sm:-mt-8 bg-white/95 backdrop-blur-md border border-orange-200/80 shadow-2xl px-5 sm:px-6 py-2.5 sm:py-3 rounded-full flex items-center gap-3 whitespace-nowrap z-20 ring-4 ring-orange-500/10">
+                    <div className="relative -mt-6 sm:-mt-8 bg-white/95 backdrop-blur-md border border-orange-200/80 shadow-2xl px-5 sm:px-6 py-2.5 sm:py-3 rounded-full flex items-center gap-3 whitespace-nowrap z-20 ring-4 ring-orange-500/10 animate-float">
                       <span className="flex h-3 w-3 relative">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
@@ -468,6 +468,80 @@ export default function Home() {
                 </div>
               </div>
 
+            </div>
+
+          </div>
+        </section>
+
+        {/* SECTION SEO AVANCÉE : RECRUTEMENT CHAUFFEUR SPL & QUESTIONS FRÉQUENTES */}
+        <section className="py-20 bg-white border-t border-slate-100">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+            
+            <div className="text-center space-y-3">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-50 text-orange-600 text-xs font-bold uppercase tracking-wider border border-orange-100">
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>Guide Recrutement & FAQ Transport</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-black text-slate-950 tracking-tight">
+                Tout savoir sur le recrutement de chauffeurs SPL & PL
+              </h2>
+              <p className="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto">
+                Retrouvez les réponses aux questions clés sur l&apos;embauche directe de conducteurs routiers en France, Suisse, Belgique et Luxembourg.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200/80 space-y-3 card-hover-effect">
+                <h3 className="text-base font-bold text-slate-900 flex items-start gap-2.5">
+                  <span className="text-orange-500 font-black">01.</span>
+                  Comment recruter un chauffeur SPL (Super Poids Lourd) ?
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Sur <strong>FretTalent</strong>, accédez à la carte interactive des conducteurs titulaires du <strong>Permis CE</strong>, <strong>Carte Chrono</strong> et <strong>FIMO/FCO</strong> à jour. Filtrez par département (FR), province (BE) ou canton (CH, LU) et débloquez directement leurs coordonnées pour une embauche sans intermédiaire.
+                </p>
+              </div>
+
+              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200/80 space-y-3 card-hover-effect">
+                <h3 className="text-base font-bold text-slate-900 flex items-start gap-2.5">
+                  <span className="text-orange-500 font-black">02.</span>
+                  Pourquoi recruter sans agence d&apos;intérim transport ?
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Les agences d&apos;intérim traditionnelles prélèvent de lourdes commissions récurrentes sur chaque heure travaillée (taux horaire coefficient 1.8 à 2.2). FretTalent propose un <strong>modèle direct et équitable</strong> : 2€ par contact débloqué ou forfait sans engagement, sans aucun prélèvement sur les salaires.
+                </p>
+              </div>
+
+              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200/80 space-y-3 card-hover-effect">
+                <h3 className="text-base font-bold text-slate-900 flex items-start gap-2.5">
+                  <span className="text-orange-500 font-black">03.</span>
+                  Quelles certifications sont vérifiées sur la plateforme ?
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Notre équipe valide manuellement les <strong>Permis C et CE</strong> (recto/verso), la <strong>Carte Conducteur (Chrono)</strong>, l&apos;attestation <strong>FIMO / FCO Marchandises</strong> et les spécialités <strong>ADR de base, Citerne et Matières Dangereuses</strong> pour garantir des profils 100% opérationnels.
+                </p>
+              </div>
+
+              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200/80 space-y-3 card-hover-effect">
+                <h3 className="text-base font-bold text-slate-900 flex items-start gap-2.5">
+                  <span className="text-orange-500 font-black">04.</span>
+                  Comment fonctionne l&apos;emploi transfrontalier (Suisse, Luxembourg, Belgique) ?
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  FretTalent intègre les spécificités administratives des 4 pays : vérification des entreprises via <strong>SIRET (France)</strong>, <strong>BCE (Belgique)</strong>, <strong>RCS (Luxembourg)</strong> et <strong>IDE (Suisse)</strong>. Les conducteurs transfrontaliers peuvent postuler selon leur mobilité géographique.
+                </p>
+              </div>
+
+            </div>
+
+            <div className="text-center pt-4">
+              <Link
+                href="/register?role=candidate"
+                className="inline-flex items-center justify-center px-8 py-4 rounded-full text-sm font-bold text-white bg-orange-500 hover:bg-orange-600 shadow-xl shadow-orange-500/20 transition-all hover:scale-105"
+              >
+                <span>Rejoindre le réseau FretTalent gratuitement</span>
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
             </div>
 
           </div>

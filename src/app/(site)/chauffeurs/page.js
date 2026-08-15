@@ -11,9 +11,21 @@ import {
 } from 'lucide-react';
 
 export const metadata = {
-  title: 'Emploi Chauffeur Routier France, Belgique, Luxembourg, Suisse (SPL / PL)',
+  title: 'Recrutement Chauffeur SPL & PL (Permis CE / C) | Emploi Transport Routier France, Suisse, Belgique, Luxembourg',
   description:
-    'Inscrivez-vous gratuitement en tant que chauffeur routier en France, Belgique, Luxembourg et Suisse. Valorisez vos permis C/CE, FIMO, ADR, Benne, Frigo, Citerne et soyez contacté directement et anonymement.',
+    'Trouvez votre prochain emploi de Chauffeur Routier SPL (Super Poids Lourd - Permis CE) et PL en France, Suisse, Belgique et Luxembourg. CDI, CDD, Intérim, 100% gratuit avec contact direct sans agence d\'intérim.',
+  keywords: [
+    'recrutement chauffeur spl',
+    'emploi chauffeur super poids lourd',
+    'chauffeur permis ce cdi',
+    'chauffeur routier suisse',
+    'conducteur spl luxembourg',
+    'chauffeur poids lourd belgique',
+    'emploi frigo benne citerne spl',
+  ],
+  alternates: {
+    canonical: 'https://www.frettalent.fr/chauffeurs',
+  },
 };
 
 export default function PourLesChauffeurs() {

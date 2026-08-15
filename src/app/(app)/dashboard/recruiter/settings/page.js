@@ -10,6 +10,7 @@ import {
   CreditCard,
   ShieldAlert,
   CheckCircle2,
+  Lock,
 } from 'lucide-react';
 import AddressAutocomplete from '@/components/AddressAutocomplete';
 import toast from 'react-hot-toast';
@@ -25,12 +26,43 @@ export default function RecruiterSettings() {
   const [company, setCompany] = useState(null);
   const [userEmail, setUserEmail] = useState('');
 
+  // Mot de passe
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [updatingPassword, setUpdatingPassword] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState(null);
+
   // Form states
   const [name, setName] = useState('');
   const [country, setCountry] = useState('FR');
   const [companyId, setCompanyId] = useState('');
   const [addressInfo, setAddressInfo] = useState({ address: '', postalCode: '', city: '' });
   const [subscriptionPlan, setSubscriptionPlan] = useState('pay_per_unlock');
+
+  const handleUpdatePassword = async (e) => {
+    e.preventDefault();
+    setPasswordMessage(null);
+    if (!newPassword || newPassword.length < 6) {
+      setPasswordMessage({ type: 'error', text: 'Le mot de passe doit contenir au moins 6 caractères.' });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage({ type: 'error', text: 'Les deux mots de passe ne correspondent pas.' });
+      return;
+    }
+    setUpdatingPassword(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      setPasswordMessage({ type: 'success', text: 'Mot de passe modifié avec succès !' });
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      setPasswordMessage({ type: 'error', text: err.message || 'Erreur lors du changement de mot de passe.' });
+    } finally {
+      setUpdatingPassword(false);
+    }
+  };
 
   useEffect(() => {
     fetchData();
@@ -367,7 +399,7 @@ export default function RecruiterSettings() {
         {/* Paramètres de compte */}
         <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
           <h2 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
-            <ShieldAlert className="h-5 w-5 text-orange-500" /> Compte & Sécurité
+            <ShieldAlert className="h-5 w-5 text-orange-500" /> Identifiant du compte
           </h2>
 
           <div className="space-y-1">
@@ -380,7 +412,66 @@ export default function RecruiterSettings() {
               value={userEmail}
               className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 text-sm cursor-not-allowed"
             />
-            <p className="text-[10px] text-slate-400 mt-1">L'adresse e-mail ne peut pas être modifiée pour des raisons de sécurité.</p>
+            <p className="text-[10px] text-slate-400 mt-1">L&apos;adresse e-mail ne peut pas être modifiée pour des raisons de sécurité.</p>
+          </div>
+        </div>
+
+        {/* Modification du mot de passe */}
+        <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+          <h2 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+            <Lock className="h-5 w-5 text-orange-500" /> Sécurité & Mot de passe
+          </h2>
+
+          {passwordMessage && (
+            <div
+              className={`p-4 rounded-xl border text-xs font-semibold ${
+                passwordMessage.type === 'success'
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                  : 'bg-red-50 border-red-200 text-red-800'
+              }`}
+            >
+              {passwordMessage.text}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700 uppercase">
+                Nouveau mot de passe
+              </label>
+              <input
+                type="password"
+                placeholder="Minimum 6 caractères"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700 uppercase">
+                Confirmer le mot de passe
+              </label>
+              <input
+                type="password"
+                placeholder="Retapez le nouveau mot de passe"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <button
+              type="button"
+              onClick={handleUpdatePassword}
+              disabled={updatingPassword}
+              className="bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 px-6 rounded-xl text-xs transition-colors flex items-center gap-2 disabled:opacity-50"
+            >
+              <Lock className="h-3.5 w-3.5" />
+              {updatingPassword ? 'Modification en cours...' : 'Modifier mon mot de passe'}
+            </button>
           </div>
         </div>
 

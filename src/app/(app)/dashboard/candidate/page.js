@@ -20,6 +20,7 @@ import {
   ArrowRight,
   CheckCircle2,
   AlertTriangle,
+  Lock,
 } from 'lucide-react';
 import { validatePhoneNumber, validateAddress, COUNTRIES } from '@/lib/country';
 
@@ -39,6 +40,12 @@ export default function CandidateDashboard() {
   const [availability, setAvailability] = useState('immediate');
   const [availabilityDate, setAvailabilityDate] = useState('');
   const [documents, setDocuments] = useState({});
+
+  // Mot de passe
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [updatingPassword, setUpdatingPassword] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState(null);
 
   // Listes multi-sélection
   const [selectedLicenses, setSelectedLicenses] = useState([]);
@@ -275,6 +282,31 @@ export default function CandidateDashboard() {
     }
   };
 
+  const handleUpdatePassword = async (e) => {
+    e.preventDefault();
+    setPasswordMessage(null);
+    if (!newPassword || newPassword.length < 6) {
+      setPasswordMessage({ type: 'error', text: 'Le mot de passe doit contenir au moins 6 caractères.' });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage({ type: 'error', text: 'Les deux mots de passe ne correspondent pas.' });
+      return;
+    }
+    setUpdatingPassword(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      setPasswordMessage({ type: 'success', text: 'Votre mot de passe a été modifié avec succès !' });
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      setPasswordMessage({ type: 'error', text: err.message || 'Erreur lors du changement de mot de passe.' });
+    } finally {
+      setUpdatingPassword(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -295,6 +327,38 @@ export default function CandidateDashboard() {
           }`}
         >
           <p className="text-sm font-semibold text-center">{message.text}</p>
+        </div>
+      )}
+
+      {/* NOTIFICATION IN-APP LORS D'UN DÉBLOCAGE PAR UNE ENTREPRISE */}
+      {unlocks && unlocks.length > 0 && (
+        <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white p-5 sm:p-6 rounded-3xl shadow-lg shadow-orange-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl shrink-0">
+              🎉
+            </div>
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/20 text-[11px] font-black uppercase tracking-wider text-white">
+                <span>Opportunité d&apos;embauche</span>
+                <span>•</span>
+                <span>{unlocks.length} transporteur{unlocks.length > 1 ? 's' : ''} intéressé{unlocks.length > 1 ? 's' : ''}</span>
+              </div>
+              <h3 className="text-base sm:text-lg font-black text-white mt-1">
+                {unlocks[0]?.companies?.name
+                  ? `L'entreprise « ${unlocks[0].companies.name} » a débloqué votre contact !`
+                  : 'Un transporteur partenaire a débloqué votre profil complet !'}
+              </h3>
+              <p className="text-xs text-orange-100 mt-0.5">
+                Tenez-vous prêt à recevoir un appel téléphonique ou un e-mail pour fixer un premier entretien.
+              </p>
+            </div>
+          </div>
+          <div className="shrink-0 bg-white/15 px-4 py-2 rounded-2xl border border-white/20 text-center w-full sm:w-auto">
+            <span className="text-[11px] text-orange-100 font-medium block">Dernier déblocage</span>
+            <span className="text-xs font-black text-white">
+              {new Date(unlocks[0]?.unlocked_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </span>
+          </div>
         </div>
       )}
 
@@ -815,6 +879,64 @@ export default function CandidateDashboard() {
                 ))}
               </div>
             )}
+          </div>
+
+          {/* Sécurité & Mot de passe */}
+          <div className="bg-white p-5 sm:p-6 rounded-[2rem] sm:rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <Lock className="w-4 h-4 text-orange-500" /> Sécurité & Mot de passe
+            </h3>
+            
+            {passwordMessage && (
+              <div
+                className={`p-3 rounded-xl border text-xs font-semibold ${
+                  passwordMessage.type === 'success'
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                    : 'bg-red-50 border-red-200 text-red-800'
+                }`}
+              >
+                {passwordMessage.text}
+              </div>
+            )}
+
+            <form onSubmit={handleUpdatePassword} className="space-y-3">
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-700 uppercase">
+                  Nouveau mot de passe
+                </label>
+                <input
+                  type="password"
+                  required
+                  placeholder="Minimum 6 caractères"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-700 uppercase">
+                  Confirmer le mot de passe
+                </label>
+                <input
+                  type="password"
+                  required
+                  placeholder="Retapez le mot de passe"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={updatingPassword}
+                className="w-full px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>{updatingPassword ? 'Modification...' : 'Modifier mon mot de passe'}</span>
+              </button>
+            </form>
           </div>
 
           {/* Zone Danger : Supprimer le compte */}

@@ -46,6 +46,36 @@ export default function CandidateAdminProfile() {
   const [docLoading, setDocLoading] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [fetchError, setFetchError] = useState(null);
+  const [reminding, setReminding] = useState(false);
+  const [remindMessage, setRemindMessage] = useState(null);
+
+  const handleSendReminder = async () => {
+    if (!candidate?.email) {
+      alert("Ce candidat n'a pas d'adresse e-mail renseignée.");
+      return;
+    }
+    if (!confirm(`Envoyer un e-mail de rappel à ${candidate.email} pour l'inviter à déposer ses documents ?`)) return;
+    setReminding(true);
+    setRemindMessage(null);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(`/api/admin/candidates/${candidateId}/remind`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session?.access_token || ''}`,
+        },
+      });
+      const result = await res.json();
+      if (!res.ok) {
+        throw new Error(result.error || 'Erreur lors de la relance');
+      }
+      setRemindMessage({ type: 'success', text: result.message || 'E-mail de rappel envoyé avec succès !' });
+    } catch (err) {
+      setRemindMessage({ type: 'error', text: err.message });
+    } finally {
+      setReminding(false);
+    }
+  };
 
   useEffect(() => {
     if (candidateId) {
@@ -249,19 +279,46 @@ export default function CandidateAdminProfile() {
             Fiche candidat — ID: {candidate.id?.slice(0, 8)}...
           </p>
         </div>
-        {/* Badge statut global */}
-        {candidate.validated ? (
-          <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-2xl font-bold text-sm">
-            <ShieldCheck className="h-5 w-5" />
-            Profil Vérifié
-          </div>
-        ) : (
-          <div className="flex items-center gap-2 bg-orange-50 border border-orange-200 text-orange-600 px-4 py-2 rounded-2xl font-bold text-sm">
-            <Clock className="h-5 w-5" />
-            En attente de validation
-          </div>
-        )}
+        {/* Actions & Badges */}
+        <div className="flex items-center gap-2">
+          {!allRequiredUploaded && candidate.email && (
+            <button
+              onClick={handleSendReminder}
+              disabled={reminding}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs transition-all shadow-sm disabled:opacity-50"
+            >
+              <Mail className="h-4 w-4" />
+              <span>{reminding ? 'Envoi...' : 'Relancer par e-mail'}</span>
+            </button>
+          )}
+
+          {/* Badge statut global */}
+          {candidate.validated ? (
+            <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-2xl font-bold text-sm">
+              <ShieldCheck className="h-5 w-5" />
+              Profil Vérifié
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 bg-orange-50 border border-orange-200 text-orange-600 px-4 py-2 rounded-2xl font-bold text-sm">
+              <Clock className="h-5 w-5" />
+              En attente de validation
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Message de confirmation ou erreur de relance */}
+      {remindMessage && (
+        <div
+          className={`p-4 rounded-2xl border text-xs font-bold text-center ${
+            remindMessage.type === 'success'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+              : 'bg-red-50 border-red-200 text-red-800'
+          }`}
+        >
+          {remindMessage.text}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Colonne gauche - Infos profil */}

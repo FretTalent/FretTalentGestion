@@ -45,6 +45,9 @@ export default function RecruiterDashboard() {
   // Historique des déblocages effectués
   const [myUnlocks, setMyUnlocks] = useState([]);
 
+  // Onglet de vue active ('all' | 'unlocked' | 'favorites')
+  const [activeViewTab, setActiveViewTab] = useState('all');
+
   // États UI
   const [loading, setLoading] = useState(true);
   const [unlocking, setUnlocking] = useState(false);
@@ -161,6 +164,12 @@ export default function RecruiterDashboard() {
       );
     }
 
+    if (activeViewTab === 'unlocked') {
+      result = result.filter(c => myUnlocks.includes(c.id));
+    } else if (activeViewTab === 'favorites') {
+      result = result.filter(c => favorites.includes(c.id));
+    }
+
     setFilteredCandidates(result);
   }, [
     searchLocation,
@@ -169,6 +178,9 @@ export default function RecruiterDashboard() {
     selectedCountry,
     selectedAvailability,
     selectedSpecialty,
+    activeViewTab,
+    myUnlocks,
+    favorites,
     candidates,
   ]);
 
@@ -477,11 +489,53 @@ export default function RecruiterDashboard() {
             </div>
           </div>
 
+          {/* Onglets de filtrage rapide (Tous, Débloqués, Favoris) */}
+          <div className="flex flex-wrap items-center gap-2 p-1.5 bg-slate-100/80 rounded-2xl border border-slate-200/60">
+            <button
+              onClick={() => setActiveViewTab('all')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                activeViewTab === 'all'
+                  ? 'bg-white text-slate-950 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+              }`}
+            >
+              Tous les chauffeurs ({candidates.length})
+            </button>
+            <button
+              onClick={() => setActiveViewTab('unlocked')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                activeViewTab === 'unlocked'
+                  ? 'bg-orange-500 text-white shadow-sm shadow-orange-500/20'
+                  : 'text-orange-700 bg-orange-100/60 hover:bg-orange-100'
+              }`}
+            >
+              <Unlock className="w-3.5 h-3.5" />
+              <span>Mes déblocages ({myUnlocks.length})</span>
+            </button>
+            <button
+              onClick={() => setActiveViewTab('favorites')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                activeViewTab === 'favorites'
+                  ? 'bg-amber-500 text-white shadow-sm shadow-amber-500/20'
+                  : 'text-amber-800 bg-amber-100/60 hover:bg-amber-100'
+              }`}
+            >
+              <Star className="w-3.5 h-3.5 fill-current" />
+              <span>Favoris ({favorites.length})</span>
+            </button>
+          </div>
+
           {/* Liste des chauffeurs */}
           <div className="space-y-4">
-            <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider">
-              Résultats de la recherche ({filteredCandidates.length})
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider">
+                {activeViewTab === 'unlocked'
+                  ? `Chauffeurs débloqués (${filteredCandidates.length})`
+                  : activeViewTab === 'favorites'
+                  ? `Chauffeurs favoris (${filteredCandidates.length})`
+                  : `Résultats de la recherche (${filteredCandidates.length})`}
+              </h3>
+            </div>
 
             {filteredCandidates.length === 0 ? (
               <div className="bg-white p-8 rounded-3xl border border-slate-200 text-center text-slate-400">

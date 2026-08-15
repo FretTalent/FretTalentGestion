@@ -45,17 +45,16 @@ const navRecruiter = [
   { href: '/dashboard/recruiter/support', icon: MessageSquare, label: 'Support' },
 ];
 const navAdmin = [
+  { section: 'Pilotage' },
   { href: '/dashboard/admin', icon: BarChart3, label: 'Tableau de bord' },
   { href: '/dashboard/admin/stats', icon: TrendingUp, label: 'Statistiques site' },
   { href: '/dashboard/admin/finance', icon: CreditCard, label: 'Finances & Stripe' },
-  {
-    href: '/dashboard/admin/jobs',
-    icon: Briefcase,
-    label: 'Modération annonces',
-  },
+  { section: 'Données & Modération' },
   { href: '/dashboard/admin/candidates', icon: Users, label: 'Candidats' },
   { href: '/dashboard/admin/companies', icon: Building2, label: 'Entreprises' },
-  { href: '/dashboard/admin/chat', icon: MessageSquare, label: 'Tchat' },
+  { href: '/dashboard/admin/jobs', icon: Briefcase, label: 'Modération annonces' },
+  { section: 'Support & Outils' },
+  { href: '/dashboard/admin/chat', icon: MessageSquare, label: 'Tchat Support' },
   { href: '/dashboard/admin/mail', icon: Mail, label: 'Gestion mails' },
 ];
 
@@ -173,8 +172,20 @@ export default function AppLayout({ children }) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-grow px-3 py-4 space-y-1">
-        {navItems.map(item => {
+      <nav className="flex-grow px-3 py-4 space-y-1 overflow-y-auto">
+        {navItems.map((item, index) => {
+          if (item.section) {
+            return (
+              <div
+                key={`sec-${index}`}
+                className="pt-3 pb-1 px-3 text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-2"
+              >
+                <span>{item.section}</span>
+                <span className="flex-1 h-[1px] bg-slate-800" />
+              </div>
+            );
+          }
+
           const Icon = item.icon;
           const isActive = pathname === item.href;
 
@@ -183,14 +194,16 @@ export default function AppLayout({ children }) {
               key={item.href}
               href={item.href}
               onClick={() => setSidebarOpen(false)}
-              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all group ${
+              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all group ${
                 isActive
-                  ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20'
+                  ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/25'
                   : 'text-slate-400 hover:bg-slate-800 hover:text-white'
               }`}
             >
               <Icon
-                className={`h-5 w-5 flex-shrink-0 ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-orange-400'}`}
+                className={`h-4.5 w-4.5 flex-shrink-0 ${
+                  isActive ? 'text-white' : 'text-slate-500 group-hover:text-orange-400'
+                }`}
               />
               <span className="truncate flex-1 min-w-0">{item.label}</span>
               {isActive && (

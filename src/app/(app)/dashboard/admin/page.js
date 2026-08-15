@@ -21,6 +21,12 @@ import {
   ShieldCheck,
   UserCheck,
   MessageSquare,
+  Sparkles,
+  Zap,
+  ArrowUpRight,
+  Search,
+  SlidersHorizontal,
+  ExternalLink,
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -29,6 +35,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({
     candidatesCount: 0,
     pendingCandidatesCount: 0,
+    validatedCandidatesCount: 0,
     companiesCount: 0,
     jobsCount: 0,
     pendingJobsCount: 0,
@@ -36,7 +43,10 @@ export default function AdminDashboard() {
     totalRevenue: 0,
     franceCandidates: 0,
     belgiumCandidates: 0,
+    luxembourgCandidates: 0,
+    switzerlandCandidates: 0,
     supportConvCount: 0,
+    openSupportConvCount: 0,
   });
 
   const [recentCandidates, setRecentCandidates] = useState([]);
@@ -66,7 +76,7 @@ export default function AdminDashboard() {
         return;
       }
 
-      // Fetch candidates
+      // 1. Fetch candidates
       const { data: candidates } = await supabase
         .from('candidates')
         .select('*')
@@ -74,22 +84,23 @@ export default function AdminDashboard() {
 
       const candCount = candidates ? candidates.length : 0;
       const pendingCand = candidates ? candidates.filter(c => !c.validated).length : 0;
+      const valCand = candidates ? candidates.filter(c => c.validated).length : 0;
       const frCand = candidates ? candidates.filter(c => (c.country || 'FR') === 'FR').length : 0;
       const beCand = candidates ? candidates.filter(c => c.country === 'BE').length : 0;
       const luCand = candidates ? candidates.filter(c => c.country === 'LU').length : 0;
       const chCand = candidates ? candidates.filter(c => c.country === 'CH').length : 0;
 
-      // Fetch companies
+      // 2. Fetch companies
       const { count: compCount } = await supabase
         .from('companies')
         .select('*', { count: 'exact', head: true });
 
-      // Fetch jobs
+      // 3. Fetch jobs
       const { data: jobs } = await supabase.from('jobs').select('id, is_approved');
       const totalJobs = jobs ? jobs.length : 0;
       const pendingJ = jobs ? jobs.filter(j => !j.is_approved).length : 0;
 
-      // Fetch unlocks
+      // 4. Fetch unlocks
       const { data: unlocks } = await supabase
         .from('unlocks')
         .select(`
@@ -97,19 +108,33 @@ export default function AdminDashboard() {
           amount_charged,
           created_at,
           companies ( name ),
-          candidates ( full_name )
+          candidates ( full_name, city, country )
         `)
         .order('created_at', { ascending: false })
-        .limit(5);
+        .limit(6);
 
       const uCount = unlocks ? unlocks.length : 0;
       const totalRev = unlocks
         ? unlocks.reduce((acc, curr) => acc + (curr.amount_charged || 0), 0) / 100
         : 0;
 
+      // 5. Fetch support conversations
+      let openSupportCount = 0;
+      try {
+        const { data: convs } = await supabase
+          .from('support_conversations')
+          .select('id, status');
+        if (convs) {
+          openSupportCount = convs.filter(c => c.status === 'open').length;
+        }
+      } catch (e) {
+        console.error('Erreur support_conversations', e);
+      }
+
       setStats({
         candidatesCount: candCount,
         pendingCandidatesCount: pendingCand,
+        validatedCandidatesCount: valCand,
         companiesCount: compCount || 0,
         jobsCount: totalJobs,
         pendingJobsCount: pendingJ,
@@ -119,9 +144,11 @@ export default function AdminDashboard() {
         belgiumCandidates: beCand,
         luxembourgCandidates: luCand,
         switzerlandCandidates: chCand,
+        supportConvCount: openSupportCount,
+        openSupportConvCount: openSupportCount,
       });
 
-      setRecentCandidates(candidates ? candidates.slice(0, 5) : []);
+      setRecentCandidates(candidates ? candidates.slice(0, 6) : []);
       setRecentUnlocks(unlocks || []);
     } catch (err) {
       console.error(err);
@@ -136,61 +163,107 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 gap-3">
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
         <RefreshCw className="h-8 w-8 text-orange-500 animate-spin" />
-        <p className="text-slate-500 text-sm font-medium">Chargement du tableau de bord...</p>
+        <p className="text-slate-600 text-xs font-bold uppercase tracking-wider">
+          Chargement du centre de pilotage...
+        </p>
       </div>
     );
   }
 
-  const hasAlerts = stats.pendingCandidatesCount > 0 || stats.pendingJobsCount > 0;
+  const hasUrgentActions = stats.pendingCandidatesCount > 0 || stats.pendingJobsCount > 0 || stats.openSupportConvCount > 0;
+  const validationRate = stats.candidatesCount > 0 ? Math.round((stats.validatedCandidatesCount / stats.candidatesCount) * 100) : 0;
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      {/* Header with Title & Refresh */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold text-slate-950">Tableau de bord Administrateur</h1>
-          <p className="text-slate-500 text-sm mt-0.5">Vue globale, modération & performances financières</p>
+    <div className="max-w-7xl mx-auto space-y-8 pb-12 font-sans">
+      
+      {/* HEADER DE PILOTAGE */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-sm">
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 bg-slate-900 text-white text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full">
+              <ShieldCheck className="h-3.5 w-3.5 text-orange-400" />
+              Espace Super Admin
+            </span>
+            <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              En direct
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
+            Centre de Pilotage FretTalent
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 font-medium">
+            Supervision du réseau transporteur, modération des pièces officielles et flux financiers Stripe.
+          </p>
         </div>
-        <div className="flex items-center gap-2">
+
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           <button
             onClick={() => router.push('/dashboard/admin/chat')}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs shadow-md shadow-orange-500/20 transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs shadow-md shadow-orange-500/20 transition-all cursor-pointer hover:scale-105"
           >
             <MessageSquare className="h-4 w-4" />
-            <span>Tchat Support {stats.supportConvCount > 0 && `(${stats.supportConvCount})`}</span>
+            <span>Tchat Support</span>
+            {stats.openSupportConvCount > 0 && (
+              <span className="bg-white text-orange-600 px-1.5 py-0.2 rounded-full font-black text-[10px]">
+                {stats.openSupportConvCount}
+              </span>
+            )}
           </button>
+          
           <button
             onClick={fetchAdminData}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl text-xs font-bold transition-all"
           >
             <RefreshCw className="h-4 w-4" />
-            Actualiser
+            <span>Actualiser</span>
           </button>
         </div>
       </div>
 
-      {/* Banner Actions Requises en Attente */}
-      {hasAlerts && (
-        <div className="bg-amber-50 border border-amber-200 rounded-3xl p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      {/* BANNIÈRE ACTIONS PRIORITAIRES EN ATTENTE */}
+      {hasUrgentActions && (
+        <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 border border-amber-300 rounded-3xl p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="flex items-start gap-4">
-            <div className="bg-amber-500 text-white p-3 rounded-2xl shrink-0">
+            <div className="bg-gradient-to-br from-amber-500 to-orange-500 text-white p-3 rounded-2xl shrink-0 shadow-md">
               <AlertTriangle className="h-6 w-6" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-amber-900">Modération en attente !</h3>
-              <p className="text-sm text-amber-700 mt-0.5">
-                {stats.pendingCandidatesCount > 0 && `${stats.pendingCandidatesCount} candidat(s) à valider administrativement. `}
-                {stats.pendingJobsCount > 0 && `${stats.pendingJobsCount} annonce(s) d'emploi en attente d'approbation.`}
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-black text-amber-950">
+                  Actions Prioritaires en Attente
+                </h3>
+                <span className="bg-amber-200 text-amber-900 text-[10px] font-black px-2 py-0.5 rounded-full">
+                  {stats.pendingCandidatesCount + stats.pendingJobsCount + stats.openSupportConvCount} tâche(s)
+                </span>
+              </div>
+              <p className="text-xs text-amber-800 mt-1 leading-relaxed">
+                {stats.pendingCandidatesCount > 0 && (
+                  <span className="mr-3 font-semibold">
+                    • <strong>{stats.pendingCandidatesCount}</strong> dossier(s) chauffeur à vérifier
+                  </span>
+                )}
+                {stats.pendingJobsCount > 0 && (
+                  <span className="mr-3 font-semibold">
+                    • <strong>{stats.pendingJobsCount}</strong> offre(s) d&apos;emploi à approuver
+                  </span>
+                )}
+                {stats.openSupportConvCount > 0 && (
+                  <span className="font-semibold">
+                    • <strong>{stats.openSupportConvCount}</strong> ticket(s) support ouvert(s)
+                  </span>
+                )}
               </p>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2 shrink-0">
+
+          <div className="flex flex-wrap items-center gap-2 shrink-0 w-full md:w-auto">
             {stats.pendingCandidatesCount > 0 && (
               <button
-                onClick={() => router.push('/dashboard/admin/candidates')}
-                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors"
+                onClick={() => router.push('/dashboard/admin/candidates?status=pending')}
+                className="flex-1 md:flex-initial px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-2xl shadow-sm transition-all"
               >
                 Valider candidats ({stats.pendingCandidatesCount})
               </button>
@@ -198,216 +271,323 @@ export default function AdminDashboard() {
             {stats.pendingJobsCount > 0 && (
               <button
                 onClick={() => router.push('/dashboard/admin/jobs')}
-                className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors"
+                className="flex-1 md:flex-initial px-4 py-2.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-2xl shadow-sm transition-all"
               >
                 Modérer annonces ({stats.pendingJobsCount})
+              </button>
+            )}
+            {stats.openSupportConvCount > 0 && (
+              <button
+                onClick={() => router.push('/dashboard/admin/chat')}
+                className="flex-1 md:flex-initial px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-2xl shadow-sm transition-all"
+              >
+                Tchat ({stats.openSupportConvCount})
               </button>
             )}
           </div>
         </div>
       )}
 
-      {/* KPIs Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5">
-        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-2 hover:border-orange-200 transition-colors">
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-            Visites Site
-          </div>
-          <div className="text-2xl font-black text-slate-950 flex items-center justify-between">
-            Trafic
-            <div className="bg-orange-50 p-2 rounded-2xl">
-              <TrendingUp className="h-5 w-5 text-orange-500" />
+      {/* GRILLE DES 6 KPIS MAJEURS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        
+        {/* KPI 1 : TRAFIC */}
+        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs space-y-3 hover:border-orange-300 transition-all card-hover-effect">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <span>Visites Site</span>
+            <div className="bg-orange-50 p-2 rounded-xl text-orange-500">
+              <TrendingUp className="h-4 w-4" />
             </div>
           </div>
-          <div className="flex items-center justify-between text-xs pt-1">
-            <span className="text-slate-500 font-medium">Temps réel</span>
-            <button
-              onClick={() => router.push('/dashboard/admin/stats')}
-              className="text-orange-500 hover:underline font-bold flex items-center gap-0.5"
-            >
-              Stats <ChevronRight className="h-3 w-3" />
-            </button>
+          <div className="text-2xl font-black text-slate-950">
+            Temps Réel
           </div>
+          <button
+            onClick={() => router.push('/dashboard/admin/stats')}
+            className="w-full flex items-center justify-between text-xs font-bold text-orange-600 pt-1 border-t border-slate-100 hover:underline"
+          >
+            <span>Voir analytics</span>
+            <ChevronRight className="h-3.5 w-3.5" />
+          </button>
         </div>
 
-        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-2 hover:border-orange-200 transition-colors">
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-            Chauffeurs
-          </div>
-          <div className="text-2xl font-black text-slate-950 flex items-center justify-between">
-            {stats.candidatesCount}
-            <div className="bg-orange-50 p-2 rounded-2xl">
-              <Truck className="h-5 w-5 text-orange-500" />
+        {/* KPI 2 : CHAUFFEURS */}
+        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs space-y-3 hover:border-orange-300 transition-all card-hover-effect">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <span>Chauffeurs</span>
+            <div className="bg-orange-50 p-2 rounded-xl text-orange-500">
+              <Truck className="h-4 w-4" />
             </div>
           </div>
-          <div className="flex items-center justify-between text-xs pt-1">
-            <span className="text-slate-500 font-medium truncate">
-              FR: {stats.franceCandidates} | BE: {stats.belgiumCandidates}
-            </span>
-            <button
-              onClick={() => router.push('/dashboard/admin/candidates')}
-              className="text-orange-500 hover:underline font-bold flex items-center gap-0.5 flex-shrink-0 ml-1"
-            >
-              Gérer <ChevronRight className="h-3 w-3" />
-            </button>
+          <div>
+            <div className="text-2xl font-black text-slate-950">{stats.candidatesCount}</div>
+            <div className="text-[10px] font-semibold text-slate-400 mt-0.5">
+              🇫🇷 {stats.franceCandidates} • 🇧🇪 {stats.belgiumCandidates} • 🇨🇭 {stats.switzerlandCandidates} • 🇱🇺 {stats.luxembourgCandidates}
+            </div>
           </div>
+          <button
+            onClick={() => router.push('/dashboard/admin/candidates')}
+            className="w-full flex items-center justify-between text-xs font-bold text-orange-600 pt-1 border-t border-slate-100 hover:underline"
+          >
+            <span>Gérer ({stats.pendingCandidatesCount} att.)</span>
+            <ChevronRight className="h-3.5 w-3.5" />
+          </button>
         </div>
 
-        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-2 hover:border-blue-200 transition-colors">
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-            Entreprises
-          </div>
-          <div className="text-2xl font-black text-slate-950 flex items-center justify-between">
-            {stats.companiesCount}
-            <div className="bg-blue-50 p-2 rounded-2xl">
-              <Building2 className="h-5 w-5 text-blue-500" />
+        {/* KPI 3 : ENTREPRISES */}
+        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs space-y-3 hover:border-blue-300 transition-all card-hover-effect">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <span>Entreprises</span>
+            <div className="bg-blue-50 p-2 rounded-xl text-blue-600">
+              <Building2 className="h-4 w-4" />
             </div>
           </div>
-          <div className="flex items-center justify-between text-xs pt-1">
-            <span className="text-slate-500 font-medium">Recruteurs</span>
-            <button
-              onClick={() => router.push('/dashboard/admin/companies')}
-              className="text-blue-600 hover:underline font-bold flex items-center gap-0.5"
-            >
-              Gérer <ChevronRight className="h-3 w-3" />
-            </button>
-          </div>
+          <div className="text-2xl font-black text-slate-950">{stats.companiesCount}</div>
+          <button
+            onClick={() => router.push('/dashboard/admin/companies')}
+            className="w-full flex items-center justify-between text-xs font-bold text-blue-600 pt-1 border-t border-slate-100 hover:underline"
+          >
+            <span>Voir entreprises</span>
+            <ChevronRight className="h-3.5 w-3.5" />
+          </button>
         </div>
 
-        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-2 hover:border-emerald-200 transition-colors">
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-            Déblocages
-          </div>
-          <div className="text-2xl font-black text-slate-950 flex items-center justify-between">
-            {stats.unlocksCount}
-            <div className="bg-emerald-50 p-2 rounded-2xl">
-              <Key className="h-5 w-5 text-emerald-600" />
+        {/* KPI 4 : OFFRES D'EMPLOI */}
+        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs space-y-3 hover:border-amber-300 transition-all card-hover-effect">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <span>Offres d&apos;Emploi</span>
+            <div className="bg-amber-50 p-2 rounded-xl text-amber-600">
+              <Briefcase className="h-4 w-4" />
             </div>
           </div>
-          <div className="flex items-center justify-between text-xs pt-1">
-            <span className="text-emerald-600 font-medium">2€ / contact</span>
-            <button
-              onClick={() => router.push('/dashboard/admin/finance')}
-              className="text-emerald-600 hover:underline font-bold flex items-center gap-0.5"
-            >
-              Finances <ChevronRight className="h-3 w-3" />
-            </button>
+          <div>
+            <div className="text-2xl font-black text-slate-950">{stats.jobsCount}</div>
+            <div className="text-[10px] font-bold text-amber-600 mt-0.5">
+              {stats.pendingJobsCount > 0 ? `${stats.pendingJobsCount} à modérer` : 'Toutes validées'}
+            </div>
           </div>
+          <button
+            onClick={() => router.push('/dashboard/admin/jobs')}
+            className="w-full flex items-center justify-between text-xs font-bold text-amber-600 pt-1 border-t border-slate-100 hover:underline"
+          >
+            <span>Modérer annonces</span>
+            <ChevronRight className="h-3.5 w-3.5" />
+          </button>
         </div>
 
-        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-2 hover:border-purple-200 transition-colors">
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-            Chiffre d'Affaires
-          </div>
-          <div className="text-2xl font-black text-slate-950 flex items-center justify-between">
-            {stats.totalRevenue.toFixed(2)} €
-            <div className="bg-purple-50 p-2 rounded-2xl">
-              <TrendingUp className="h-5 w-5 text-purple-600" />
+        {/* KPI 5 : DÉBLOCAGES */}
+        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs space-y-3 hover:border-emerald-300 transition-all card-hover-effect">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <span>Déblocages</span>
+            <div className="bg-emerald-50 p-2 rounded-xl text-emerald-600">
+              <Key className="h-4 w-4" />
             </div>
           </div>
-          <div className="flex items-center justify-between text-xs pt-1">
-            <span className="text-slate-500 font-medium">Stripe Total</span>
-            <button
-              onClick={() => router.push('/dashboard/admin/finance')}
-              className="text-purple-600 hover:underline font-bold flex items-center gap-0.5"
-            >
-              Détails <ChevronRight className="h-3 w-3" />
-            </button>
-          </div>
+          <div className="text-2xl font-black text-emerald-700">{stats.unlocksCount}</div>
+          <button
+            onClick={() => router.push('/dashboard/admin/finance')}
+            className="w-full flex items-center justify-between text-xs font-bold text-emerald-600 pt-1 border-t border-slate-100 hover:underline"
+          >
+            <span>Finances</span>
+            <ChevronRight className="h-3.5 w-3.5" />
+          </button>
         </div>
 
-        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-2 hover:border-orange-300 transition-colors">
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-            Tchat Support
-          </div>
-          <div className="text-2xl font-black text-slate-950 flex items-center justify-between">
-            {stats.supportConvCount}
-            <div className="bg-orange-50 p-2 rounded-2xl">
-              <MessageSquare className="h-5 w-5 text-orange-600" />
+        {/* KPI 6 : CHIFFRE D'AFFAIRES */}
+        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs space-y-3 hover:border-purple-300 transition-all card-hover-effect">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <span>Revenus Stripe</span>
+            <div className="bg-purple-50 p-2 rounded-xl text-purple-600">
+              <CreditCard className="h-4 w-4" />
             </div>
           </div>
-          <div className="flex items-center justify-between text-xs pt-1">
-            <span className="text-orange-600 font-medium">En cours</span>
-            <button
-              onClick={() => router.push('/dashboard/admin/chat')}
-              className="text-orange-600 hover:underline font-bold flex items-center gap-0.5"
-            >
-              Tchat <ChevronRight className="h-3 w-3" />
-            </button>
+          <div className="text-2xl font-black text-slate-950">
+            {stats.totalRevenue.toFixed(2)}&nbsp;€
           </div>
+          <button
+            onClick={() => router.push('/dashboard/admin/finance')}
+            className="w-full flex items-center justify-between text-xs font-bold text-purple-600 pt-1 border-t border-slate-100 hover:underline"
+          >
+            <span>Détails Stripe</span>
+            <ChevronRight className="h-3.5 w-3.5" />
+          </button>
         </div>
+
       </div>
 
-      {/* Grid Live Feeds & Quick Access */}
+      {/* 4 HUBS DE GESTION RAPIDE */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <div
+          onClick={() => router.push('/dashboard/admin/candidates')}
+          className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-2xs hover:border-orange-400 hover:shadow-md transition-all cursor-pointer group card-hover-effect"
+        >
+          <div className="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <Truck className="h-6 w-6" />
+          </div>
+          <h3 className="font-black text-slate-950 text-base flex items-center justify-between">
+            <span>Gestion Chauffeurs</span>
+            <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-orange-500 transition-colors" />
+          </h3>
+          <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+            Vérifier les pièces d&apos;identité, permis C/CE, cartes chronotachygraphe et relancer par e-mail en 1 clic.
+          </p>
+        </div>
+
+        <div
+          onClick={() => router.push('/dashboard/admin/companies')}
+          className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-2xs hover:border-blue-400 hover:shadow-md transition-all cursor-pointer group card-hover-effect"
+        >
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <Building2 className="h-6 w-6" />
+          </div>
+          <h3 className="font-black text-slate-950 text-base flex items-center justify-between">
+            <span>Gestion Entreprises</span>
+            <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-blue-500 transition-colors" />
+          </h3>
+          <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+            Contrôle légal SIRET / BCE / RCS / IDE, suivi des déblocages effectués et gestion des forfaits.
+          </p>
+        </div>
+
+        <div
+          onClick={() => router.push('/dashboard/admin/jobs')}
+          className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-2xs hover:border-amber-400 hover:shadow-md transition-all cursor-pointer group card-hover-effect"
+        >
+          <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <Briefcase className="h-6 w-6" />
+          </div>
+          <h3 className="font-black text-slate-950 text-base flex items-center justify-between">
+            <span>Modération Offres</span>
+            <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-amber-500 transition-colors" />
+          </h3>
+          <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+            Validation des fiches de poste, salaires et conditions avant publication sur l&apos;espace public.
+          </p>
+        </div>
+
+        <div
+          onClick={() => router.push('/dashboard/admin/chat')}
+          className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-2xs hover:border-purple-400 hover:shadow-md transition-all cursor-pointer group card-hover-effect"
+        >
+          <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <MessageSquare className="h-6 w-6" />
+          </div>
+          <h3 className="font-black text-slate-950 text-base flex items-center justify-between">
+            <span>Support & Tchat</span>
+            <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-purple-500 transition-colors" />
+          </h3>
+          <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+            Réponse en direct aux questions des candidats et entreprises, résolution de tickets d&apos;assistance.
+          </p>
+        </div>
+
+      </div>
+
+      {/* FEEDS D'ACTIVITÉ EN TEMPS RÉEL (2 COLONNES) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Registered Candidates */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+        
+        {/* DERNIERS CHAUFFEURS INSCRITS */}
+        <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
               <Truck className="h-5 w-5 text-orange-500" />
-              <h3 className="font-bold text-slate-900 text-base">Derniers Chauffeurs Inscrits</h3>
+              <h3 className="font-black text-slate-950 text-base">Derniers Chauffeurs Inscrits</h3>
             </div>
             <button
               onClick={() => router.push('/dashboard/admin/candidates')}
-              className="text-xs text-orange-500 hover:underline font-semibold"
+              className="text-xs text-orange-600 hover:underline font-bold"
             >
-              Tout voir
+              Voir tous ({stats.candidatesCount}) →
             </button>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {recentCandidates.length === 0 ? (
-              <p className="text-xs text-slate-400">Aucun candidat pour le moment.</p>
+              <p className="text-xs text-slate-400 py-4 text-center">Aucun candidat enregistré.</p>
             ) : (
-              recentCandidates.map(c => (
-                <div key={c.id} className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
-                  <div>
-                    <p className="font-bold text-slate-900">{c.full_name || 'Nom non spécifié'}</p>
-                    <p className="text-slate-500">{c.city || 'Ville non spécifiée'} • {(c.job_preferences || []).join(', ')}</p>
+              recentCandidates.map(c => {
+                const countryFlag = c.country === 'BE' ? '🇧🇪' : c.country === 'LU' ? '🇱🇺' : c.country === 'CH' ? '🇨🇭' : '🇫🇷';
+                return (
+                  <div
+                    key={c.id}
+                    onClick={() => router.push(`/dashboard/admin/candidates/${c.id}`)}
+                    className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 hover:bg-orange-50/50 border border-slate-100 hover:border-orange-200 transition-all cursor-pointer text-xs"
+                  >
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-1.5">
+                        <span>{countryFlag}</span>
+                        <p className="font-black text-slate-900">{c.full_name || 'Chauffeur anonyme'}</p>
+                      </div>
+                      <p className="text-slate-500 text-[11px]">
+                        {c.city || 'Ville non renseignée'} ({c.postal_code || ''}) • {c.licenses?.join(', ') || 'Permis C/CE'}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`px-2.5 py-1 rounded-full font-bold text-[10px] ${
+                          c.validated
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                            : 'bg-amber-100 text-amber-800 border border-amber-200'
+                        }`}
+                      >
+                        {c.validated ? 'Validé ✅' : 'À valider ⚠️'}
+                      </span>
+                      <ChevronRight className="h-4 w-4 text-slate-400" />
+                    </div>
                   </div>
-                  <span className={`px-2.5 py-1 rounded-full font-semibold text-[11px] ${c.validated ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                    {c.validated ? 'Validé' : 'En attente'}
-                  </span>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>
 
-        {/* Recent Unlock Transactions */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+        {/* DERNIÈRES TRANSACTIONS STRIPE */}
+        <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
               <CreditCard className="h-5 w-5 text-emerald-600" />
-              <h3 className="font-bold text-slate-900 text-base">Dernières Transactions Stripe</h3>
+              <h3 className="font-black text-slate-950 text-base">Dernières Transactions Stripe</h3>
             </div>
             <button
               onClick={() => router.push('/dashboard/admin/finance')}
-              className="text-xs text-emerald-600 hover:underline font-semibold"
+              className="text-xs text-emerald-700 hover:underline font-bold"
             >
-              Voir finances
+              Voir finances →
             </button>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {recentUnlocks.length === 0 ? (
-              <p className="text-xs text-slate-400">Aucune transaction récente.</p>
+              <p className="text-xs text-slate-400 py-4 text-center">Aucune transaction enregistrée.</p>
             ) : (
               recentUnlocks.map(u => (
-                <div key={u.id} className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
-                  <div>
-                    <p className="font-bold text-slate-900">{u.companies?.name || 'Entreprise'}</p>
-                    <p className="text-slate-500">Candidat: {u.candidates?.full_name || 'Débloqué'}</p>
+                <div
+                  key={u.id}
+                  className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-100 text-xs"
+                >
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-1.5">
+                      <Building2 className="h-3.5 w-3.5 text-blue-500" />
+                      <p className="font-black text-slate-900">{u.companies?.name || 'Entreprise de transport'}</p>
+                    </div>
+                    <p className="text-slate-500 text-[11px]">
+                      Contact débloqué : <strong className="text-slate-700">{u.candidates?.full_name || 'Chauffeur'}</strong> ({u.candidates?.city || ''})
+                    </p>
                   </div>
-                  <span className="font-black text-slate-950 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-lg border border-emerald-200">
-                    +{((u.amount_charged || 0) / 100).toFixed(2)} €
+
+                  <span className="font-black text-emerald-700 bg-emerald-100 px-3 py-1 rounded-xl border border-emerald-200">
+                    +{((u.amount_charged || 200) / 100).toFixed(2)}&nbsp;€
                   </span>
                 </div>
               ))
             )}
           </div>
         </div>
+
       </div>
+
     </div>
   );
 }

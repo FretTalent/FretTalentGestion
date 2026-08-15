@@ -14,6 +14,9 @@ import {
   RefreshCw,
   Filter,
   UserCheck,
+  Lock,
+  Sparkles,
+  Zap,
 } from 'lucide-react';
 
 export default function RecruiterDashboard() {
@@ -243,9 +246,46 @@ export default function RecruiterDashboard() {
     }
   };
 
+  const handleGoToStripe = async (planToBuy = 'premium_monthly') => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const res = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ plan: planToBuy }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        router.push('/dashboard/recruiter/settings');
+      }
+    } catch {
+      router.push('/dashboard/recruiter/settings');
+    }
+  };
+
   // Publier une offre d'emploi
   const handleCreateJob = async e => {
     e.preventDefault();
+
+    const isSubscribed =
+      company?.subscription_plan === 'premium_monthly' ||
+      company?.subscription_plan === 'premium_plus_monthly';
+
+    if (!isSubscribed) {
+      setMessage({
+        type: 'error',
+        text: "La publication d'offres d'emploi nécessite un Forfait Illimité Pro actif (39,99€/mois).",
+      });
+      return;
+    }
+
     if (!newJobTitle || !newJobLocation || !newJobDesc) {
       setMessage({
         type: 'error',
@@ -655,148 +695,203 @@ export default function RecruiterDashboard() {
         </div>
       ) : (
         <div className="space-y-8">
-          {/* Formulaire de dépôt d'offre */}
-          <div>
-            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                💼 Déposer une offre d'emploi
-              </h2>
-
-              <form onSubmit={handleCreateJob} className="space-y-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 uppercase">
-                    Intitulé du poste *
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="ex: Chauffeur SPL de nuit (F/H)"
-                    value={newJobTitle}
-                    onChange={e => setNewJobTitle(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                    required
-                  />
+          {/* Formulaire de dépôt d'offre ou Bannière de souscription si non abonné */}
+          {!(company?.subscription_plan === 'premium_monthly' || company?.subscription_plan === 'premium_plus_monthly') ? (
+            <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 text-white p-8 rounded-3xl border border-slate-800 shadow-xl space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-orange-500/20 text-orange-400 rounded-2xl border border-orange-500/30">
+                  <Lock className="h-6 w-6" />
                 </div>
+                <div>
+                  <span className="text-xs font-black text-orange-400 uppercase tracking-wider">
+                    Fonctionnalité Réservée aux Abonnés
+                  </span>
+                  <h2 className="text-xl sm:text-2xl font-black text-white mt-0.5">
+                    Publication d'Offres d'Emploi Illimitée
+                  </h2>
+                </div>
+              </div>
 
-                <div className="grid grid-cols-2 gap-4">
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
+                Vous utilisez actuellement la formule <strong>À la performance</strong> (déblocage au contact à 2€). Pour diffuser vos offres d'emploi sur FretTalent, être visible par des milliers de chauffeurs routiers et débloquer tous les profils en illimité, activez le <strong>Forfait Illimité Pro</strong>.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                <div className="bg-white/5 border border-white/10 p-4 rounded-2xl space-y-1">
+                  <div className="text-xs font-bold text-orange-400">🚀 Annonces illimitées</div>
+                  <div className="text-[11px] text-slate-400">Diffusion continue sur toute la France, Suisse, Belgique et Luxembourg.</div>
+                </div>
+                <div className="bg-white/5 border border-white/10 p-4 rounded-2xl space-y-1">
+                  <div className="text-xs font-bold text-emerald-400">🔓 100% Chauffeurs Débloqués</div>
+                  <div className="text-[11px] text-slate-400">Téléphones, emails et justificatifs en téléchargement direct (0€ supplémentaire).</div>
+                </div>
+                <div className="bg-white/5 border border-white/10 p-4 rounded-2xl space-y-1">
+                  <div className="text-xs font-bold text-blue-400">⚡ Sans engagement</div>
+                  <div className="text-[11px] text-slate-400">39,99 € / mois, résiliable en 1 clic sans frais ni préavis.</div>
+                </div>
+              </div>
+
+              <div className="pt-2 flex flex-col sm:flex-row items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => handleGoToStripe('premium_monthly')}
+                  className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white font-black py-3.5 px-8 rounded-2xl text-xs transition-all shadow-xl shadow-orange-500/25 flex items-center justify-center gap-2 cursor-pointer hover:scale-105"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  <span>Activer le Forfait Illimité Pro (39,99 € / mois)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push('/dashboard/recruiter/settings')}
+                  className="text-xs text-slate-400 hover:text-white font-bold transition-colors cursor-pointer"
+                >
+                  Voir tous les forfaits et options ➔
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  💼 Déposer une offre d'emploi
+                </h2>
+
+                <form onSubmit={handleCreateJob} className="space-y-4">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-700 uppercase">
-                      Contrat *
-                    </label>
-                    <select
-                      value={newJobContract}
-                      onChange={e => setNewJobContract(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 bg-white"
-                    >
-                      <option value="CDI">CDI</option>
-                      <option value="CDD">CDD</option>
-                      <option value="Intérim">Intérim</option>
-                      <option value="Indépendant">Indépendant</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700 uppercase">
-                      Localisation *
+                      Intitulé du poste *
                     </label>
                     <input
                       type="text"
-                      placeholder="ex: Lyon (69)"
-                      value={newJobLocation}
-                      onChange={e => setNewJobLocation(e.target.value)}
+                      placeholder="ex: Chauffeur SPL de nuit (F/H)"
+                      value={newJobTitle}
+                      onChange={e => setNewJobTitle(e.target.value)}
                       className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                       required
                     />
                   </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700 uppercase">
-                      Permis (Optionnel)
-                    </label>
-                    <select
-                      value={newJobLicense}
-                      onChange={e => setNewJobLicense(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 bg-white"
-                    >
-                      <option value="">Non spécifié</option>
-                      <option value="B">Permis B</option>
-                      <option value="C">Permis C</option>
-                      <option value="CE">Permis CE</option>
-                    </select>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700 uppercase">
-                      Habilitation (Optionnel)
-                    </label>
-                    <select
-                      value={newJobCert}
-                      onChange={e => setNewJobCert(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 bg-white"
-                    >
-                      <option value="">Non spécifié</option>
-                      <option value="FIMO">FIMO</option>
-                      <option value="FCO">FCO</option>
-                      <option value="ADR de base">ADR de base</option>
-                      <option value="Carte Chrono">Carte Chrono</option>
-                    </select>
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700 uppercase">
+                        Contrat *
+                      </label>
+                      <select
+                        value={newJobContract}
+                        onChange={e => setNewJobContract(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 bg-white"
+                      >
+                        <option value="CDI">CDI</option>
+                        <option value="CDD">CDD</option>
+                        <option value="Intérim">Intérim</option>
+                        <option value="Indépendant">Indépendant</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700 uppercase">
+                        Localisation *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="ex: Lyon (69)"
+                        value={newJobLocation}
+                        onChange={e => setNewJobLocation(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700 uppercase">
+                        Permis (Optionnel)
+                      </label>
+                      <select
+                        value={newJobLicense}
+                        onChange={e => setNewJobLicense(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 bg-white"
+                      >
+                        <option value="">Non spécifié</option>
+                        <option value="B">Permis B</option>
+                        <option value="C">Permis C</option>
+                        <option value="CE">Permis CE</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700 uppercase">
+                        Habilitation (Optionnel)
+                      </label>
+                      <select
+                        value={newJobCert}
+                        onChange={e => setNewJobCert(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 bg-white"
+                      >
+                        <option value="">Non spécifié</option>
+                        <option value="FIMO">FIMO</option>
+                        <option value="FCO">FCO</option>
+                        <option value="ADR de base">ADR de base</option>
+                        <option value="Carte Chrono">Carte Chrono</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700 uppercase">
+                        Expérience (Optionnel)
+                      </label>
+                      <select
+                        value={newJobExp}
+                        onChange={e => setNewJobExp(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 bg-white"
+                      >
+                        <option value="">Non spécifié</option>
+                        <option value="Débutant accepté">Débutant accepté</option>
+                        <option value="1 à 3 ans">1 à 3 ans</option>
+                        <option value="+3 ans">+3 ans</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700 uppercase">
+                        Salaire mensuel (Optionnel)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="ex: 2800 € brut"
+                        value={newJobSalary}
+                        onChange={e => setNewJobSalary(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-700 uppercase">
-                      Expérience (Optionnel)
+                      Description du poste *
                     </label>
-                    <select
-                      value={newJobExp}
-                      onChange={e => setNewJobExp(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 bg-white"
-                    >
-                      <option value="">Non spécifié</option>
-                      <option value="Débutant accepté">Débutant accepté</option>
-                      <option value="1 à 3 ans">1 à 3 ans</option>
-                      <option value="+3 ans">+3 ans</option>
-                    </select>
+                    <textarea
+                      placeholder="Décrivez les horaires, le matériel, le type de trajets et les compétences recherchées..."
+                      rows={5}
+                      value={newJobDesc}
+                      onChange={e => setNewJobDesc(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 resize-none"
+                      required
+                    ></textarea>
                   </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700 uppercase">
-                      Salaire mensuel (Optionnel)
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="ex: 2800 € brut"
-                      value={newJobSalary}
-                      onChange={e => setNewJobSalary(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                    />
-                  </div>
-                </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 uppercase">
-                    Description du poste *
-                  </label>
-                  <textarea
-                    placeholder="Décrivez les horaires, le matériel, le type de trajets et les compétences recherchées..."
-                    rows={5}
-                    value={newJobDesc}
-                    onChange={e => setNewJobDesc(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 resize-none"
-                    required
-                  ></textarea>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={jobPosting}
-                  className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-2"
-                >
-                  {jobPosting ? 'Envoi...' : 'Soumettre à la modération'}
-                </button>
-              </form>
+                  <button
+                    type="submit"
+                    disabled={jobPosting}
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    {jobPosting ? 'Envoi...' : 'Soumettre à la modération'}
+                  </button>
+                </form>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Historique des offres déposées */}
           <div className="space-y-6">

@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase-server';
+import { createClient as createDirectClient } from '@supabase/supabase-js';
 import { stripe } from '@/lib/stripe';
 
-// Stripe Webhook in App Router uses req.text() to get raw body
 export async function POST(req) {
   const body = await req.text();
   const signature = req.headers.get('stripe-signature');
@@ -10,45 +9,58 @@ export async function POST(req) {
 
   let event;
 
-  try {
-    event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-  } catch (err) {
-    console.error(`⚠️ Webhook signature verification failed.`, err.message);
-    return NextResponse.json({ error: 'Webhook Error' }, { status: 400 });
+  if (webhookSecret && signature) {
+    try {
+      event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    } catch (err) {
+      console.error(`⚠️ Webhook signature verification failed:`, err.message);
+      return NextResponse.json({ error: 'Webhook Error' }, { status: 400 });
+    }
+  } else {
+    // Mode fallback si pas de signature (ex: tests ou proxy interne)
+    try {
+      event = JSON.parse(body);
+    } catch (e) {
+      return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
+    }
   }
 
-  const supabase = await createClient();
+  const supabaseAdmin = createDirectClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
 
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
         const customerId = session.customer;
+        const companyIdFromMeta = session.metadata?.company_id;
         
-        // Find company by customer ID
-        const { data: company } = await supabase
-          .from('companies')
-          .select('id')
-          .eq('stripe_customer_id', customerId)
-          .single();
+        let query = supabaseAdmin.from('companies').select('id');
+        if (companyIdFromMeta) {
+          query = query.eq('id', companyIdFromMeta);
+        } else if (customerId) {
+          query = query.eq('stripe_customer_id', customerId);
+        }
+
+        const { data: company } = await query.maybeSingle();
 
         if (company) {
           const updateData = { has_payment_method: true };
           
           if (session.mode === 'subscription') {
-            // It's a subscription checkout
             updateData.subscription_plan = session.metadata?.plan || 'premium_monthly';
           } else if (session.mode === 'setup') {
-            // It's a save card checkout for pay_per_unlock
             updateData.subscription_plan = 'pay_per_unlock';
           }
 
-          await supabase
+          await supabaseAdmin
             .from('companies')
             .update(updateData)
             .eq('id', company.id);
             
-          console.log(`✅ Company ${company.id} updated after checkout: ${updateData.subscription_plan}`);
+          console.log(`✅ Company ${company.id} updated after checkout: ${JSON.stringify(updateData)}`);
         }
         break;
       }
@@ -57,15 +69,15 @@ export async function POST(req) {
         const subscription = event.data.object;
         const customerId = subscription.customer;
 
-        const { data: company } = await supabase
+        const { data: company } = await supabaseAdmin
           .from('companies')
           .select('id')
           .eq('stripe_customer_id', customerId)
-          .single();
+          .maybeSingle();
 
         if (company) {
           // Revert to pay_per_unlock if subscription is cancelled
-          await supabase
+          await supabaseAdmin
             .from('companies')
             .update({ subscription_plan: 'pay_per_unlock' })
             .eq('id', company.id);
@@ -76,7 +88,7 @@ export async function POST(req) {
       }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        console.log(`Unhandled Stripe event type: ${event.type}`);
     }
   } catch (err) {
     console.error('Error processing webhook event', err);

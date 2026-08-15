@@ -160,7 +160,7 @@ export default function RecruiterSettings() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token}`
         },
-        body: JSON.stringify({ planId: subscriptionPlan }),
+        body: JSON.stringify({ plan: subscriptionPlan }),
       });
 
       const data = await res.json();
@@ -171,6 +171,31 @@ export default function RecruiterSettings() {
       }
     } catch (err) {
       toast.error(err.message || 'Erreur lors de la connexion à Stripe');
+      setSaving(false);
+    }
+  };
+
+  const handleOpenCustomerPortal = async () => {
+    try {
+      setSaving(true);
+      const { data: { session } } = await supabase.auth.getSession();
+
+      const res = await fetch('/api/stripe/create-portal-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+      });
+
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error(data.error || 'Impossible d\'ouvrir le portail de facturation');
+      }
+    } catch (err) {
+      toast.error(err.message || 'Erreur portail Stripe');
       setSaving(false);
     }
   };
@@ -366,15 +391,50 @@ export default function RecruiterSettings() {
           </div>
 
           <div className="pt-4 border-t border-slate-100">
-            <h3 className="text-sm font-bold text-slate-900 mb-3">Moyen de paiement</h3>
-            {company?.has_payment_method && company?.subscription_plan === subscriptionPlan ? (
-              <div className="flex items-center gap-3 bg-green-50 text-green-700 p-4 rounded-xl border border-green-200">
-                <CheckCircle2 className="h-5 w-5" />
-                <span className="text-sm font-medium">
-                  {company.subscription_plan === 'pay_per_unlock' 
-                    ? 'Carte bancaire enregistrée (Prêt pour le paiement à l\'acte)' 
-                    : 'Abonnement actif'}
-                </span>
+            <h3 className="text-sm font-bold text-slate-900 mb-3">Moyen de paiement & Facturation</h3>
+            {company?.has_payment_method ? (
+              <div className="space-y-3">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-emerald-50 text-emerald-800 p-4 rounded-2xl border border-emerald-200">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+                    <div>
+                      <p className="text-sm font-bold">
+                        {company.subscription_plan === 'pay_per_unlock'
+                          ? 'Carte bancaire validée (Paiement à l\'acte 2€ actif)'
+                          : company.subscription_plan === 'premium_plus_monthly'
+                          ? 'Forfait Premium Plus actif (54,99€ / mois)'
+                          : 'Forfait Illimité Pro actif (39,99€ / mois)'}
+                      </p>
+                      <p className="text-xs text-emerald-700">
+                        {company.subscription_plan === 'pay_per_unlock'
+                          ? 'Déblocages facturés 2€/contact sans abonnement'
+                          : 'Déblocages illimités et publication d\'offres incluses'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleOpenCustomerPortal}
+                    disabled={saving}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 font-bold rounded-xl text-xs shadow-xs transition-all cursor-pointer whitespace-nowrap"
+                  >
+                    <CreditCard className="h-4 w-4 text-slate-600" />
+                    <span>Factures & Résiliation (Stripe)</span>
+                  </button>
+                </div>
+
+                {company.subscription_plan !== subscriptionPlan && (
+                  <button
+                    type="button"
+                    onClick={handleStripeCheckout}
+                    disabled={saving}
+                    className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 px-5 rounded-xl text-xs transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+                  >
+                    <CreditCard className="h-4 w-4" />
+                    {saving ? 'Redirection Stripe...' : `Changer vers le ${subscriptionPlan === 'pay_per_unlock' ? 'Paiement à l\'acte' : subscriptionPlan === 'premium_plus_monthly' ? 'Forfait Premium Plus (54,99€)' : 'Forfait Pro (39,99€)'}`}
+                  </button>
+                )}
               </div>
             ) : (
               <div className="space-y-3">
@@ -386,7 +446,7 @@ export default function RecruiterSettings() {
                   type="button"
                   onClick={handleStripeCheckout}
                   disabled={saving}
-                  className="bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2"
+                  className="bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 px-5 rounded-xl text-xs transition-colors flex items-center gap-2 cursor-pointer shadow-sm"
                 >
                   <CreditCard className="h-4 w-4" />
                   {saving ? 'Redirection Stripe...' : (subscriptionPlan === 'pay_per_unlock' ? 'Enregistrer ma carte via Stripe' : 'S\'abonner via Stripe')}

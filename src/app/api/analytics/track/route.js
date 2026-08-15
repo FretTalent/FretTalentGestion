@@ -1,20 +1,40 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
-function parseReferrerDomain(referrer) {
-  if (!referrer || referrer === '') return 'Direct / Aucun';
+function parseReferrer(referrer) {
+  if (!referrer || referrer === '') {
+    return { domain: 'Direct / Notoriété', channel: 'direct' };
+  }
+
   try {
     const url = new URL(referrer);
-    let host = url.hostname.replace(/^www\./, '');
-    if (host.includes('google')) return 'Google';
-    if (host.includes('bing')) return 'Bing';
-    if (host.includes('linkedin')) return 'LinkedIn';
-    if (host.includes('facebook') || host.includes('fb.')) return 'Facebook';
-    if (host.includes('instagram')) return 'Instagram';
-    if (host.includes('t.co') || host.includes('twitter') || host.includes('x.com')) return 'Twitter / X';
-    return host;
+    let host = url.hostname.replace(/^www\./, '').toLowerCase();
+
+    // Moteurs de recherche (SEO Organique)
+    if (host.includes('google')) return { domain: 'Google (SEO)', channel: 'organic' };
+    if (host.includes('bing')) return { domain: 'Bing (SEO)', channel: 'organic' };
+    if (host.includes('yahoo')) return { domain: 'Yahoo', channel: 'organic' };
+    if (host.includes('duckduckgo')) return { domain: 'DuckDuckGo', channel: 'organic' };
+    if (host.includes('qwant')) return { domain: 'Qwant', channel: 'organic' };
+    if (host.includes('ecosia')) return { domain: 'Ecosia', channel: 'organic' };
+
+    // Réseaux Sociaux
+    if (host.includes('linkedin')) return { domain: 'LinkedIn', channel: 'social' };
+    if (host.includes('facebook') || host.includes('fb.')) return { domain: 'Facebook', channel: 'social' };
+    if (host.includes('instagram')) return { domain: 'Instagram', channel: 'social' };
+    if (host.includes('t.co') || host.includes('twitter') || host.includes('x.com')) return { domain: 'X / Twitter', channel: 'social' };
+    if (host.includes('tiktok')) return { domain: 'TikTok', channel: 'social' };
+    if (host.includes('whatsapp')) return { domain: 'WhatsApp', channel: 'social' };
+    if (host.includes('t.me') || host.includes('telegram')) return { domain: 'Telegram', channel: 'social' };
+
+    // Sites d'emploi / Transport
+    if (host.includes('indeed')) return { domain: 'Indeed', channel: 'jobboard' };
+    if (host.includes('leboncoin')) return { domain: 'Leboncoin', channel: 'referral' };
+    if (host.includes('francetravail') || host.includes('pole-emploi')) return { domain: 'France Travail', channel: 'referral' };
+
+    return { domain: host, channel: 'referral' };
   } catch (e) {
-    return 'Direct / Autre';
+    return { domain: 'Direct / Autre', channel: 'direct' };
   }
 }
 
@@ -45,7 +65,7 @@ export async function POST(request) {
     }
 
     const userAgent = request.headers.get('user-agent') || '';
-    const referrerDomain = parseReferrerDomain(referrer);
+    const { domain: referrerDomain } = parseReferrer(referrer);
     const deviceType = detectDevice(userAgent);
 
     // Tenter d'associer un user_id si une session auth existe

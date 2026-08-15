@@ -32,45 +32,97 @@ export async function GET(request) {
     const timeframe = searchParams.get('timeframe') || '7d'; // 'today', '7d', '30d', 'all'
 
     let startDate = new Date();
+    let prevStartDate = new Date();
+    let numDays = 7;
+
     if (timeframe === 'today') {
       startDate.setHours(0, 0, 0, 0);
+      prevStartDate.setDate(prevStartDate.getDate() - 1);
+      prevStartDate.setHours(0, 0, 0, 0);
+      numDays = 1;
     } else if (timeframe === '7d') {
+      numDays = 7;
       startDate.setDate(startDate.getDate() - 7);
+      prevStartDate.setDate(prevStartDate.getDate() - 14);
     } else if (timeframe === '30d') {
+      numDays = 30;
       startDate.setDate(startDate.getDate() - 30);
+      prevStartDate.setDate(prevStartDate.getDate() - 60);
     } else {
       startDate = new Date(0); // all
+      prevStartDate = new Date(0);
+      numDays = 30;
     }
 
-    // Récupération des vues de page avec supabaseAdmin
-    const { data: views, error: viewsError } = await supabaseAdmin
-      .from('page_views')
-      .select('*')
-      .gte('created_at', startDate.toISOString())
-      .order('created_at', { ascending: true });
+    // 1. Récupération des vues de la période sélectionnée et de la période précédente (pour calcul de progression)
+    const [
+      { data: currentViews, error: viewsError },
+      { data: prevViews },
+      { data: periodCandidates },
+      { data: periodCompanies },
+    ] = await Promise.all([
+      supabaseAdmin
+        .from('page_views')
+        .select('*')
+        .gte('created_at', startDate.toISOString())
+        .order('created_at', { ascending: true }),
+      timeframe !== 'all'
+        ? supabaseAdmin
+            .from('page_views')
+            .select('id, session_id, created_at')
+            .gte('created_at', prevStartDate.toISOString())
+            .lt('created_at', startDate.toISOString())
+        : Promise.resolve({ data: [] }),
+      supabaseAdmin
+        .from('candidates')
+        .select('id, created_at, country')
+        .gte('created_at', startDate.toISOString()),
+      supabaseAdmin
+        .from('companies')
+        .select('id, created_at, country')
+        .gte('created_at', startDate.toISOString()),
+    ]);
 
     if (viewsError) {
       console.error('Error fetching page views:', viewsError);
       return NextResponse.json({ error: viewsError.message }, { status: 500 });
     }
 
-    const allViews = views || [];
+    const allViews = currentViews || [];
+    const previousPeriodViews = prevViews || [];
 
-    // 1. Calcul KPIs Globaux
+    // 2. Calcul KPIs Globaux & Croissance vs Période N-1
     const totalViews = allViews.length;
-    const uniqueSessions = new Set(allViews.map(v => v.session_id)).size;
+    const prevTotalViews = previousPeriodViews.length;
+    const viewsGrowth = prevTotalViews > 0
+      ? Math.round(((totalViews - prevTotalViews) / prevTotalViews) * 100)
+      : totalViews > 0 ? 100 : 0;
 
-    // Calcul vues aujourd'hui
+    const uniqueSessions = new Set(allViews.map(v => v.session_id)).size;
+    const prevUniqueSessions = new Set(previousPeriodViews.map(v => v.session_id)).size;
+    const sessionsGrowth = prevUniqueSessions > 0
+      ? Math.round(((uniqueSessions - prevUniqueSessions) / prevUniqueSessions) * 100)
+      : uniqueSessions > 0 ? 100 : 0;
+
+    // Vues aujourd'hui
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const todayViews = allViews.filter(v => new Date(v.created_at) >= todayStart);
     const todayCount = todayViews.length;
     const todayUniques = new Set(todayViews.map(v => v.session_id)).size;
 
-    // 2. Répartition par Jour (Journalier avec calendrier continu)
-    const dailyMap = {};
-    const numDays = timeframe === '7d' ? 7 : timeframe === '30d' ? 30 : timeframe === 'today' ? 1 : 14;
+    // Taux de rebond estimé (sessions avec 1 seule page vue)
+    const sessionViewsCount = {};
+    allViews.forEach(v => {
+      sessionViewsCount[v.session_id] = (sessionViewsCount[v.session_id] || 0) + 1;
+    });
+    const singlePageSessions = Object.values(sessionViewsCount).filter(cnt => cnt === 1).length;
+    const estimatedBounceRate = uniqueSessions > 0
+      ? Math.round((singlePageSessions / uniqueSessions) * 100)
+      : 0;
 
+    // 3. Répartition Journalière (Daily Stats)
+    const dailyMap = {};
     if (timeframe !== 'all') {
       for (let i = numDays - 1; i >= 0; i--) {
         const d = new Date();
@@ -97,26 +149,88 @@ export async function GET(request) {
         uniques: d.sessions.size,
       }));
 
-    // 3. Pages les plus vues
+    // 4. Canaux d'Acquisition & SEO (Recherche Google, Direct, Réseaux sociaux, etc.)
+    const channelStats = {
+      organic: { label: 'Recherche Google / SEO', count: 0, color: '#10b981', icon: 'Search' },
+      direct: { label: 'Trafic Direct / Notoriété', count: 0, color: '#6366f1', icon: 'Globe' },
+      social: { label: 'Réseaux Sociaux (LinkedIn, etc.)', count: 0, color: '#0ea5e9', icon: 'Share2' },
+      referral: { label: 'Sites Référents & Partenaires', count: 0, color: '#f59e0b', icon: 'ExternalLink' },
+    };
+
+    const searchEnginesMap = {};
+
+    allViews.forEach(v => {
+      const ref = (v.referrer_domain || '').toLowerCase();
+      if (ref.includes('google') || ref.includes('bing') || ref.includes('yahoo') || ref.includes('duckduckgo') || ref.includes('qwant') || ref.includes('ecosia') || ref.includes('seo')) {
+        channelStats.organic.count += 1;
+        const seName = ref.includes('google') ? 'Google' : ref.includes('bing') ? 'Bing' : 'Autre Moteur';
+        searchEnginesMap[seName] = (searchEnginesMap[seName] || 0) + 1;
+      } else if (ref.includes('linkedin') || ref.includes('facebook') || ref.includes('instagram') || ref.includes('twitter') || ref.includes('x.com') || ref.includes('tiktok') || ref.includes('telegram') || ref.includes('whatsapp')) {
+        channelStats.social.count += 1;
+      } else if (ref.includes('direct') || !ref || ref === 'direct / aucun' || ref === 'direct / autre') {
+        channelStats.direct.count += 1;
+      } else {
+        channelStats.referral.count += 1;
+      }
+    });
+
+    // 5. Entonnoir de Conversion (Funnel)
+    const highIntentSessions = new Set();
+    const registerSessions = new Set();
+
+    allViews.forEach(v => {
+      const p = (v.path || '').toLowerCase();
+      if (p.includes('/tarifs') || p.includes('/candidats-disponibles') || p.includes('/offres') || p.includes('/comment-ca-marche') || p.includes('/chauffeurs') || p.includes('/entreprises')) {
+        highIntentSessions.add(v.session_id);
+      }
+      if (p.includes('/register') || p.includes('/login')) {
+        registerSessions.add(v.session_id);
+      }
+    });
+
+    const newSignupsCount = (periodCandidates?.length || 0) + (periodCompanies?.length || 0);
+
+    const funnel = {
+      step1_visitors: uniqueSessions,
+      step2_intent: highIntentSessions.size,
+      step3_register: registerSessions.size,
+      step4_signed_up: newSignupsCount,
+      intentRate: uniqueSessions > 0 ? Math.round((highIntentSessions.size / uniqueSessions) * 100) : 0,
+      registerRate: uniqueSessions > 0 ? Math.round((registerSessions.size / uniqueSessions) * 100) : 0,
+      overallConversionRate: uniqueSessions > 0 ? ((newSignupsCount / uniqueSessions) * 100).toFixed(1) : '0.0',
+    };
+
+    // 6. Pages les plus vues & Landing Pages SEO
     const pageMap = {};
     allViews.forEach(v => {
       const p = v.path || '/';
       if (!pageMap[p]) {
-        pageMap[p] = { path: p, title: v.page_title || p, views: 0, sessions: new Set() };
+        pageMap[p] = { path: p, title: v.page_title || p, views: 0, sessions: new Set(), organicViews: 0 };
       }
       pageMap[p].views += 1;
       pageMap[p].sessions.add(v.session_id);
+      const ref = (v.referrer_domain || '').toLowerCase();
+      if (ref.includes('google') || ref.includes('bing') || ref.includes('seo')) {
+        pageMap[p].organicViews += 1;
+      }
     });
 
     const topPages = Object.values(pageMap)
-      .map(p => ({ path: p.path, title: p.title, views: p.views, uniques: p.sessions.size }))
+      .map(p => ({
+        path: p.path,
+        title: p.title,
+        views: p.views,
+        uniques: p.sessions.size,
+        organicViews: p.organicViews,
+        organicPct: p.views > 0 ? Math.round((p.organicViews / p.views) * 100) : 0,
+      }))
       .sort((a, b) => b.views - a.views)
       .slice(0, 15);
 
-    // 4. Provenance des clics (Référents / Sources)
+    // 7. Provenance Référents
     const referrerMap = {};
     allViews.forEach(v => {
-      const ref = v.referrer_domain || 'Direct / Aucun';
+      const ref = v.referrer_domain || 'Direct / Notoriété';
       if (!referrerMap[ref]) {
         referrerMap[ref] = { domain: ref, count: 0 };
       }
@@ -127,7 +241,7 @@ export async function GET(request) {
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
 
-    // 5. Répartition Appareils
+    // 8. Répartition Appareils
     const deviceMap = { desktop: 0, mobile: 0, tablet: 0 };
     allViews.forEach(v => {
       const dev = v.device_type || 'desktop';
@@ -138,26 +252,42 @@ export async function GET(request) {
       }
     });
 
-    // 6. Distribution Horaire (Heures de pointe)
+    // 9. Distribution Horaire
     const hourlyMap = Array(24).fill(0);
     allViews.forEach(v => {
       const hour = new Date(v.created_at).getHours();
       hourlyMap[hour] += 1;
     });
 
+    // 10. Répartition Géographique (France, Belgique, Suisse, Luxembourg)
+    const geoBreakdown = {
+      france: { name: 'France', flag: '🇫🇷', candidatesCount: (periodCandidates || []).filter(c => c.country === 'FR').length },
+      belgium: { name: 'Belgique', flag: '🇧🇪', candidatesCount: (periodCandidates || []).filter(c => c.country === 'BE').length },
+      switzerland: { name: 'Suisse', flag: '🇨🇭', candidatesCount: (periodCandidates || []).filter(c => c.country === 'CH').length },
+      luxembourg: { name: 'Luxembourg', flag: '🇱🇺', candidatesCount: (periodCandidates || []).filter(c => c.country === 'LU').length },
+    };
+
     return NextResponse.json({
       timeframe,
       kpis: {
         totalViews,
+        viewsGrowth,
         uniqueSessions,
+        sessionsGrowth,
         todayCount,
         todayUniques,
+        estimatedBounceRate,
+        pagesPerSession: uniqueSessions > 0 ? (totalViews / uniqueSessions).toFixed(1) : '1.0',
       },
+      channels: channelStats,
+      searchEngines: searchEnginesMap,
+      funnel,
       dailyStats,
       topPages,
       topReferrers,
       devices: deviceMap,
       hourlyDistribution: hourlyMap,
+      geoBreakdown,
     });
   } catch (err) {
     console.error('Stats API error:', err);

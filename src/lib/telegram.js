@@ -11,13 +11,16 @@ function getAdminClient() {
   );
 }
 
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8965208658:AAFHr8KYT6Z7oX4-iBzcA-bWAMCFsGIUkcY';
+const ADMIN_CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID || '8376439336';
+
 export async function sendTelegramMessage(htmlMessage, options = {}) {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = options.chatId || process.env.TELEGRAM_ADMIN_CHAT_ID;
+  const token = BOT_TOKEN;
+  const chatId = options.chatId || ADMIN_CHAT_ID;
 
   if (!token || !chatId) {
     console.warn('[Telegram] Token ou Chat ID manquant.');
-    return { success: false, reason: 'Variables d\'environnement non configurées' };
+    return { success: false, reason: 'Variables non configurées' };
   }
 
   try {
@@ -56,7 +59,7 @@ export async function sendTelegramMessage(htmlMessage, options = {}) {
 }
 
 export async function answerTelegramCallbackQuery(callbackQueryId, text = '', showAlert = false) {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const token = BOT_TOKEN;
   if (!token) return;
 
   try {
@@ -75,7 +78,7 @@ export async function answerTelegramCallbackQuery(callbackQueryId, text = '', sh
 }
 
 export async function editTelegramMessageText(chatId, messageId, newHtmlText, replyMarkup = null) {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const token = BOT_TOKEN;
   if (!token) return;
 
   try {

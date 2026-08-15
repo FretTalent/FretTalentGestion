@@ -18,7 +18,7 @@ function getAdminClient() {
 export async function POST(req) {
   try {
     const update = await req.json();
-    const adminChatId = String(process.env.TELEGRAM_ADMIN_CHAT_ID || '');
+    const adminChatId = String(process.env.TELEGRAM_ADMIN_CHAT_ID || '8376439336');
 
     // 1. GESTION DES CALLBACK QUERIES (Clics sur boutons Inline)
     if (update.callback_query) {

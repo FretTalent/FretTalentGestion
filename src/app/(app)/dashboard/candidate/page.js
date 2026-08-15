@@ -65,6 +65,11 @@ export default function CandidateDashboard() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [message, setMessage] = useState(null);
 
+  // Modal bloquante de date de naissance pour les comptes non complétés
+  const [modalBirthDate, setModalBirthDate] = useState('');
+  const [modalSaving, setModalSaving] = useState(false);
+  const [modalError, setModalError] = useState(null);
+
   const licensesOptions = ['B', 'C', 'CE', 'PL', 'SPL'];
   const certificationsOptions = [
     'FIMO',
@@ -316,6 +321,49 @@ export default function CandidateDashboard() {
       setPasswordMessage({ type: 'error', text: err.message || 'Erreur lors du changement de mot de passe.' });
     } finally {
       setUpdatingPassword(false);
+    }
+  };
+
+  // Enregistrer la date de naissance depuis la modal bloquante
+  const handleSaveModalBirthDate = async e => {
+    e.preventDefault();
+    setModalError(null);
+    if (!modalBirthDate) {
+      setModalError('Veuillez renseigner votre date de naissance.');
+      return;
+    }
+    const age = calculateAge(modalBirthDate);
+    if (age === null || age < 18) {
+      setModalError('Vous devez avoir au moins 18 ans pour exercer le métier de conducteur routier.');
+      return;
+    }
+    if (age > 99) {
+      setModalError('Veuillez saisir une date de naissance valide.');
+      return;
+    }
+
+    setModalSaving(true);
+    try {
+      const { error } = await supabase
+        .from('candidates')
+        .update({
+          birth_date: modalBirthDate,
+          updated_at: new Date(),
+        })
+        .eq('id', profile?.id || candidate?.id);
+
+      if (error) throw error;
+
+      setCandidate(prev => ({ ...prev, birth_date: modalBirthDate }));
+      setBirthDate(modalBirthDate);
+      setMessage({
+        type: 'success',
+        text: 'Date de naissance enregistrée et validée avec succès !',
+      });
+    } catch (err) {
+      setModalError(err.message || "Erreur lors de l'enregistrement.");
+    } finally {
+      setModalSaving(false);
     }
   };
 
@@ -1002,6 +1050,86 @@ export default function CandidateDashboard() {
           </div>
         </div>
       </div>
+
+      {/* MODAL BLOQUANTE DATE DE NAISSANCE POUR TOUT CANDIDAT SANS DATE */}
+      {!loading && candidate && !candidate.birth_date && (
+        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-orange-200/60 relative animate-in fade-in zoom-in-95 duration-200">
+            <div className="w-14 h-14 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center mb-5 mx-auto shadow-inner">
+              <Sparkles className="w-7 h-7" />
+            </div>
+
+            <div className="text-center space-y-2 mb-6">
+              <span className="inline-block px-3 py-1 bg-orange-100 text-orange-800 text-[11px] font-black uppercase tracking-wider rounded-full">
+                Mise à jour obligatoire
+              </span>
+              <h2 className="text-xl font-black text-slate-900">
+                Renseignez votre Date de Naissance
+              </h2>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Pour que votre profil et votre tranche d&apos;âge apparaissent correctement auprès des transporteurs recruteurs, veuillez indiquer votre véritable date de naissance.
+              </p>
+            </div>
+
+            <form onSubmit={handleSaveModalBirthDate} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 uppercase flex items-center justify-between">
+                  <span>Votre Date de Naissance *</span>
+                  <span className="text-[10px] text-slate-400 font-normal">
+                    {modalBirthDate && calculateAge(modalBirthDate) ? `Âge : ${calculateAge(modalBirthDate)} ans` : 'Min. 18 ans'}
+                  </span>
+                </label>
+                <input
+                  type="date"
+                  required
+                  value={modalBirthDate}
+                  onChange={e => setModalBirthDate(e.target.value)}
+                  max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white"
+                />
+              </div>
+
+              {modalBirthDate && calculateAge(modalBirthDate) && (
+                <div className="p-3 bg-orange-50/80 border border-orange-200 rounded-xl flex items-center justify-between text-xs">
+                  <span className="text-orange-800 font-medium">Âge affiché aux recruteurs :</span>
+                  <span className="font-black text-orange-950 bg-white px-2 py-0.5 rounded-md border border-orange-200">
+                    {calculateAge(modalBirthDate)} ans
+                  </span>
+                </div>
+              )}
+
+              {modalError && (
+                <p className="text-xs text-red-600 font-bold bg-red-50 p-2.5 rounded-xl border border-red-100 text-center">
+                  {modalError}
+                </p>
+              )}
+
+              <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl text-[11px] text-slate-500 flex items-center gap-2">
+                <Lock className="w-4 h-4 text-slate-400 shrink-0" />
+                <span>Cette donnée est protégée et sera définitivement verrouillée après validation.</span>
+              </div>
+
+              <button
+                type="submit"
+                disabled={modalSaving || !modalBirthDate}
+                className="w-full py-3.5 px-6 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-orange-500 hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/25 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02]"
+              >
+                {modalSaving ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Enregistrement...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Valider et débloquer mon espace</span>
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

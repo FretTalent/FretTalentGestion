@@ -17,9 +17,9 @@ import {
   User,
   Calendar,
   Truck,
-  Badge,
   Clock,
 } from 'lucide-react';
+import { calculateAge } from '@/lib/country';
 
 const DOCUMENT_TYPES = [
   { key: 'cv', label: 'CV', required: true },
@@ -359,6 +359,14 @@ export default function CandidateAdminProfile() {
               </div>
               <div className="flex items-center gap-3 text-sm">
                 <Calendar className="h-4 w-4 text-slate-400 flex-shrink-0" />
+                <span className="text-slate-700">
+                  {candidate.birth_date
+                    ? `Né le ${new Date(candidate.birth_date).toLocaleDateString('fr-FR')} (${calculateAge(candidate.birth_date)} ans)`
+                    : 'Âge non renseigné'}
+                </span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <Clock className="h-4 w-4 text-slate-400 flex-shrink-0" />
                 <span className="text-slate-700">
                   Inscrit le{' '}
                   {candidate.created_at

@@ -27,6 +27,7 @@ import {
   Check,
   X,
 } from 'lucide-react';
+import { calculateAge } from '@/lib/country';
 
 export default function CandidatsDisponiblesPage() {
   const [candidates, setCandidates] = useState([]);
@@ -147,6 +148,7 @@ export default function CandidatsDisponiblesPage() {
               certifications: c.certifications || [],
               jobPreferences: c.job_preferences || [],
               experience: c.experience_years ? `${c.experience_years} an(s)` : 'Expérimenté',
+              birthDate: c.birth_date,
               availability: c.availability || 'Disponible',
               radius: c.mobility_radius ? `${c.mobility_radius} km` : '50 km',
               adr: c.adr_basic || c.adr_tanker,
@@ -530,6 +532,11 @@ export default function CandidatsDisponiblesPage() {
                             </div>
 
                             <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-600 pt-1">
+                              {c.birthDate && calculateAge(c.birthDate) && (
+                                <span className="bg-slate-100 text-slate-800 font-extrabold px-2 py-0.5 rounded-md text-[11px]">
+                                  {calculateAge(c.birthDate)} ans
+                                </span>
+                              )}
                               <span className="bg-orange-50 text-orange-700 border border-orange-200 px-2 py-0.5 rounded-md font-bold text-[11px]">
                                 {c.licenses?.length > 0 ? c.licenses.join(', ') : 'Permis C/CE'}
                               </span>

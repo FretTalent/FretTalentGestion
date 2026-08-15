@@ -23,6 +23,7 @@ import {
   MapPin,
   ExternalLink,
 } from 'lucide-react';
+import { calculateAge } from '@/lib/country';
 
 function AdminCandidatesContent() {
   const router = useRouter();
@@ -468,9 +469,16 @@ function AdminCandidatesContent() {
                             {candidate.full_name?.charAt(0)?.toUpperCase() || '?'}
                           </div>
                           <div>
-                            <p className="font-black text-slate-900 text-sm">
-                              {candidate.full_name || 'Nom non spécifié'}
-                            </p>
+                            <div className="flex items-center gap-2">
+                              <p className="font-black text-slate-900 text-sm">
+                                {candidate.full_name || 'Nom non spécifié'}
+                              </p>
+                              {candidate.birth_date && calculateAge(candidate.birth_date) && (
+                                <span className="bg-slate-100 text-slate-700 font-bold px-1.5 py-0.5 rounded text-[10px]">
+                                  {calculateAge(candidate.birth_date)} ans
+                                </span>
+                              )}
+                            </div>
                             <p className="text-[11px] text-slate-400">
                               Inscrit le {candidate.created_at ? new Date(candidate.created_at).toLocaleDateString('fr-FR') : '—'}
                             </p>

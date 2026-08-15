@@ -20,6 +20,7 @@ import {
   X,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { calculateAge } from '@/lib/country';
 
 export default function RecruiterDashboard() {
   const router = useRouter();
@@ -599,11 +600,18 @@ export default function RecruiterDashboard() {
                             {cand.city || '—'}{' '}
                             {cand.postal_code ? `(${cand.postal_code})` : ''}
                           </h4>
-                          <p className="text-xs text-slate-500">
-                            {cand.experience_years
-                              ? `${cand.experience_years} an${cand.experience_years > 1 ? 's' : ''} d'expérience`
-                              : 'Expérience non renseignée'}
-                          </p>
+                          <div className="flex items-center gap-2 text-xs text-slate-500 mt-1 flex-wrap">
+                            {cand.birth_date && calculateAge(cand.birth_date) && (
+                              <span className="font-extrabold text-slate-800 bg-slate-100 px-2 py-0.5 rounded text-[11px]">
+                                {calculateAge(cand.birth_date)} ans
+                              </span>
+                            )}
+                            <span>
+                              {cand.experience_years
+                                ? `${cand.experience_years} an${cand.experience_years > 1 ? 's' : ''} d'expérience`
+                                : 'Expérience non renseignée'}
+                            </span>
+                          </div>
                           {cand.availability === 'immediate' && (
                             <span className="inline-block mt-1 text-[10px] font-bold text-green-600 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">
                               Disponible immédiatement
@@ -769,6 +777,14 @@ export default function RecruiterDashboard() {
                   </span>
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div className="bg-slate-50 p-3 rounded-xl">
+                      <div className="text-slate-400 font-medium">Âge</div>
+                      <div className="font-bold text-slate-900 mt-1">
+                        {selectedCandidate.birth_date && calculateAge(selectedCandidate.birth_date)
+                          ? `${calculateAge(selectedCandidate.birth_date)} ans`
+                          : '—'}
+                      </div>
+                    </div>
+                    <div className="bg-slate-50 p-3 rounded-xl">
                       <div className="text-slate-400 font-medium">Expérience</div>
                       <div className="font-bold text-slate-900 mt-1">
                         {selectedCandidate.experience_years ?? '—'} an
@@ -797,6 +813,12 @@ export default function RecruiterDashboard() {
                           : selectedCandidate.country === 'CH'
                           ? 'Suisse'
                           : 'France'}
+                      </div>
+                    </div>
+                    <div className="bg-slate-50 p-3 rounded-xl">
+                      <div className="text-slate-400 font-medium">Localisation</div>
+                      <div className="font-bold text-slate-900 mt-1 truncate">
+                        {selectedCandidate.city || '—'} ({selectedCandidate.postal_code || '—'})
                       </div>
                     </div>
                   </div>

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { Truck, AlertCircle, ShieldAlert, CheckCircle2, Loader2, Building2 } from 'lucide-react';
 import AddressAutocomplete from '@/components/AddressAutocomplete';
-import { COUNTRIES, COUNTRY_LIST, detectCountryFromId, validateCompanyIdFormat, formatCompanyIdentifier, validatePhoneNumber, validateAddress } from '@/lib/country';
+import { COUNTRIES, COUNTRY_LIST, detectCountryFromId, validateCompanyIdFormat, formatCompanyIdentifier, validatePhoneNumber, validateAddress, calculateAge } from '@/lib/country';
 
 function RegisterContent() {
   const router = useRouter();
@@ -25,6 +25,7 @@ function RegisterContent() {
   const [candidateCountry, setCandidateCountry] = useState('FR'); // 'FR' | 'BE' | 'LU' | 'CH'
   const [lastName, setLastName] = useState('');
   const [firstName, setFirstName] = useState('');
+  const [birthDate, setBirthDate] = useState('');
   const [phone, setPhone] = useState('');
   const [phoneFeedback, setPhoneFeedback] = useState(null); // { valid: boolean, message: string }
   
@@ -182,6 +183,22 @@ function RegisterContent() {
         return;
       }
 
+      if (!birthDate) {
+        setError('Veuillez renseigner votre date de naissance.');
+        return;
+      }
+
+      const age = calculateAge(birthDate);
+      if (age === null || age < 18) {
+        setError('Vous devez avoir au moins 18 ans pour vous inscrire en tant que conducteur routier.');
+        return;
+      }
+
+      if (age > 99) {
+        setError('Veuillez vérifier votre date de naissance.');
+        return;
+      }
+
       // Validation stricte du numéro de téléphone réel
       const phoneCheck = validatePhoneNumber(phone, candidateCountry);
       if (!phoneCheck.valid) {
@@ -234,6 +251,7 @@ function RegisterContent() {
               full_name: fullCandidateName,
               email: email,
               phone: cleanPhone,
+              birth_date: birthDate,
               postal_code: addressInfo.postalCode,
               city: addressInfo.city,
               address: addressInfo.address || '',
@@ -256,6 +274,7 @@ function RegisterContent() {
               candidateName: fullCandidateName,
               email: email,
               phone: cleanPhone,
+              age: calculateAge(birthDate) ? `${calculateAge(birthDate)} ans` : 'Non renseigné',
               city: addressInfo.city,
               postalCode: addressInfo.postalCode,
               country: candidateCountry,
@@ -459,37 +478,56 @@ function RegisterContent() {
               </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700 uppercase flex items-center justify-between">
-                <span>Numéro de téléphone réel *</span>
-                <span className="text-[10px] text-slate-400 font-normal">Obligatoire pour les recruteurs</span>
-              </label>
-              <div className="relative">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 uppercase flex items-center justify-between">
+                  <span>Date de naissance *</span>
+                  <span className="text-[10px] text-slate-400 font-normal">
+                    {birthDate && calculateAge(birthDate) ? `${calculateAge(birthDate)} ans` : 'Min. 18 ans'}
+                  </span>
+                </label>
                 <input
-                  type="tel"
+                  type="date"
                   required
-                  value={phone}
-                  onChange={e => handlePhoneChange(e.target.value)}
-                  placeholder={COUNTRIES[candidateCountry]?.phonePrefix ? `${COUNTRIES[candidateCountry].phonePrefix} 6 12 34 56 78` : '06 12 34 56 78'}
-                  className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 transition-all ${
-                    phoneFeedback && phoneFeedback.valid === true
-                      ? 'border-green-500 bg-green-50/20 focus:ring-green-500/20 focus:border-green-500 text-slate-900'
-                      : phoneFeedback && phoneFeedback.valid === false
-                      ? 'border-red-400 bg-red-50/20 focus:ring-red-500/20 focus:border-red-500 text-slate-900'
-                      : 'border-slate-200 focus:ring-orange-500/20 focus:border-orange-500 text-slate-900'
-                  }`}
+                  max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
+                  value={birthDate}
+                  onChange={e => setBirthDate(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all bg-white"
                 />
-                {phoneFeedback && phoneFeedback.valid === true && (
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500">
-                    <CheckCircle2 className="w-5 h-5" />
-                  </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 uppercase flex items-center justify-between">
+                  <span>Téléphone réel *</span>
+                  <span className="text-[10px] text-slate-400 font-normal">Recrutement</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="tel"
+                    required
+                    value={phone}
+                    onChange={e => handlePhoneChange(e.target.value)}
+                    placeholder={COUNTRIES[candidateCountry]?.phonePrefix ? `${COUNTRIES[candidateCountry].phonePrefix} 6 12 34 56 78` : '06 12 34 56 78'}
+                    className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 transition-all ${
+                      phoneFeedback && phoneFeedback.valid === true
+                        ? 'border-green-500 bg-green-50/20 focus:ring-green-500/20 focus:border-green-500 text-slate-900'
+                        : phoneFeedback && phoneFeedback.valid === false
+                        ? 'border-red-400 bg-red-50/20 focus:ring-red-500/20 focus:border-red-500 text-slate-900'
+                        : 'border-slate-200 focus:ring-orange-500/20 focus:border-orange-500 text-slate-900'
+                    }`}
+                  />
+                  {phoneFeedback && phoneFeedback.valid === true && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500">
+                      <CheckCircle2 className="w-5 h-5" />
+                    </div>
+                  )}
+                </div>
+                {phoneFeedback && phoneFeedback.valid === false && (
+                  <p className="text-[11px] font-semibold text-red-500 mt-1">
+                    {phoneFeedback.message}
+                  </p>
                 )}
               </div>
-              {phoneFeedback && phoneFeedback.valid === false && (
-                <p className="text-[11px] font-semibold text-red-500 mt-1">
-                  {phoneFeedback.message}
-                </p>
-              )}
             </div>
             
             <div className="space-y-1">

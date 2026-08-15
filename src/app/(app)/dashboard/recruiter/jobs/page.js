@@ -18,6 +18,7 @@ import {
   Sparkles,
   Zap,
 } from 'lucide-react';
+import { calculateAge } from '@/lib/country';
 
 export default function RecruiterDashboard() {
   const router = useRouter();
@@ -504,9 +505,16 @@ export default function RecruiterDashboard() {
                             <h4 className="font-bold text-slate-900">
                               {cand.city} ({cand.postal_code})
                             </h4>
-                            <p className="text-xs text-slate-500">
-                              {cand.experience_years} ans d'expérience
-                            </p>
+                            <div className="flex items-center gap-2 text-xs text-slate-500 mt-1 flex-wrap">
+                              {cand.birth_date && calculateAge(cand.birth_date) && (
+                                <span className="font-extrabold text-slate-800 bg-slate-100 px-2 py-0.5 rounded text-[11px]">
+                                  {calculateAge(cand.birth_date)} ans
+                                </span>
+                              )}
+                              <span>
+                                {cand.experience_years} ans d'expérience
+                              </span>
+                            </div>
                           </div>
                           <span
                             className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
@@ -593,46 +601,66 @@ export default function RecruiterDashboard() {
                     )}
                   </div>
 
-                  {/* Profil pro */}
-                  <div className="space-y-2">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-                      Informations professionnelles
-                    </span>
-                    <div className="grid grid-cols-2 gap-3 text-xs">
-                      <div className="bg-slate-50 p-3 rounded-xl">
-                        <div className="text-slate-400 font-medium">
-                          Expérience
+                    {/* Profil pro */}
+                    <div className="space-y-2">
+                      <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+                        Informations professionnelles
+                      </span>
+                      <div className="grid grid-cols-2 gap-3 text-xs">
+                        <div className="bg-slate-50 p-3 rounded-xl">
+                          <div className="text-slate-400 font-medium">Âge</div>
+                          <div className="font-bold text-slate-900 mt-1">
+                            {selectedCandidate.birth_date && calculateAge(selectedCandidate.birth_date)
+                              ? `${calculateAge(selectedCandidate.birth_date)} ans`
+                              : '—'}
+                          </div>
                         </div>
-                        <div className="font-bold text-slate-900 mt-1">
-                          {selectedCandidate.experience_years} ans
+                        <div className="bg-slate-50 p-3 rounded-xl">
+                          <div className="text-slate-400 font-medium">
+                            Expérience
+                          </div>
+                          <div className="font-bold text-slate-900 mt-1">
+                            {selectedCandidate.experience_years} ans
+                          </div>
                         </div>
-                      </div>
-                      <div className="bg-slate-50 p-3 rounded-xl">
-                        <div className="text-slate-400 font-medium">
-                          Disponibilité
+                        <div className="bg-slate-50 p-3 rounded-xl">
+                          <div className="text-slate-400 font-medium">
+                            Disponibilité
+                          </div>
+                          <div className="font-bold text-slate-900 mt-1 uppercase">
+                            {selectedCandidate.availability}
+                          </div>
                         </div>
-                        <div className="font-bold text-slate-900 mt-1 uppercase">
-                          {selectedCandidate.availability}
+                        <div className="bg-slate-50 p-3 rounded-xl">
+                          <div className="text-slate-400 font-medium">
+                            Zone de mobilité
+                          </div>
+                          <div className="font-bold text-slate-900 mt-1">
+                            {selectedCandidate.mobility_radius} km
+                          </div>
                         </div>
-                      </div>
-                      <div className="bg-slate-50 p-3 rounded-xl">
-                        <div className="text-slate-400 font-medium">
-                          Zone de mobilité
+                        <div className="bg-slate-50 p-3 rounded-xl">
+                          <div className="text-slate-400 font-medium">
+                            Localisation
+                          </div>
+                          <div className="font-bold text-slate-900 mt-1">
+                            {selectedCandidate.city}
+                          </div>
                         </div>
-                        <div className="font-bold text-slate-900 mt-1">
-                          {selectedCandidate.mobility_radius} km
-                        </div>
-                      </div>
-                      <div className="bg-slate-50 p-3 rounded-xl">
-                        <div className="text-slate-400 font-medium">
-                          Localisation
-                        </div>
-                        <div className="font-bold text-slate-900 mt-1">
-                          {selectedCandidate.city}
+                        <div className="bg-slate-50 p-3 rounded-xl">
+                          <div className="text-slate-400 font-medium">Pays</div>
+                          <div className="font-bold text-slate-900 mt-1">
+                            {selectedCandidate.country === 'BE'
+                              ? 'Belgique'
+                              : selectedCandidate.country === 'LU'
+                              ? 'Luxembourg'
+                              : selectedCandidate.country === 'CH'
+                              ? 'Suisse'
+                              : 'France'}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
 
                   {/* Permis et habilitations */}
                   <div className="space-y-4">

@@ -384,4 +384,20 @@ export function formatCompanyIdentifier(countryCode, rawId) {
   }
 }
 
-
+/**
+ * Calcule l'âge en années révolues à partir d'une date de naissance (YYYY-MM-DD)
+ * @param {string | Date} birthDate
+ * @returns {number | null}
+ */
+export function calculateAge(birthDate) {
+  if (!birthDate) return null;
+  const birth = new Date(birthDate);
+  if (isNaN(birth.getTime())) return null;
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age >= 0 && age < 120 ? age : null;
+}

@@ -94,14 +94,14 @@ export default function AdminDashboard() {
         return;
       }
 
-      // 1. Fetch candidates
-      const { data: candidates } = await supabase
+      // 1. Fetch candidates with exact count
+      const { count: candTotal, data: candidates } = await supabase
         .from('candidates')
-        .select('*')
+        .select('*', { count: 'exact' })
         .order('created_at', { ascending: false });
 
       const candList = candidates || [];
-      const candCount = candList.length;
+      const candCount = candTotal ?? candList.length;
       const pendingCand = candList.filter(c => !c.validated).length;
       const valCand = candList.filter(c => c.validated).length;
       const frCand = candList.filter(c => (c.country || 'FR') === 'FR').length;
@@ -123,21 +123,25 @@ export default function AdminDashboard() {
       const totalJobs = jobs ? jobs.length : 0;
       const pendingJ = jobs ? jobs.filter(j => !j.is_approved) : [];
 
-      // 4. Fetch unlocks
-      const { data: unlocks } = await supabase
+      // 4. Fetch unlocks with exact count & timestamp fallback
+      const { count: unlockTotal, data: unlocks } = await supabase
         .from('unlocks')
         .select(`
           id,
           amount_charged,
           created_at,
+          unlocked_at,
           stripe_payment_intent_id,
           companies ( name ),
           candidates ( full_name, city, country )
-        `)
+        `, { count: 'exact' })
         .order('created_at', { ascending: false })
-        .limit(20);
+        .limit(50);
 
-      const uList = unlocks || [];
+      const uList = (unlocks || []).map(u => ({
+        ...u,
+        created_at: u.created_at || u.unlocked_at,
+      }));
       const totalRev = uList.reduce((acc, curr) => acc + (curr.amount_charged || 0), 0) / 100;
 
       // 5. Fetch support conversations
@@ -160,7 +164,7 @@ export default function AdminDashboard() {
         companiesCount: compCount || 0,
         jobsCount: totalJobs,
         pendingJobsCount: pendingJ.length,
-        unlocksCount: uList.length,
+        unlocksCount: unlockTotal ?? uList.length,
         totalRevenue: totalRev,
         franceCandidates: frCand,
         belgiumCandidates: beCand,

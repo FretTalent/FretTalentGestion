@@ -68,7 +68,7 @@ export default function AdminDashboard() {
   const [pendingJobsList, setPendingJobsList] = useState([]);
   const [recentUnlocks, setRecentUnlocks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filterTimeframe, setFilterTimeframe] = useState('YTD'); // '7D' | '30D' | 'YTD'
+  const [filterTimeframe, setFilterTimeframe] = useState('Année'); // '7 Jours' | '30 Jours' | 'Année'
   const [searchQuery, setSearchQuery] = useState('');
 
   const fetchAdminData = async () => {
@@ -265,7 +265,7 @@ export default function AdminDashboard() {
     }
   };
 
-  // Calculations for Power BI visual widgets
+  // Calculations for visual widgets
   const validationRate = stats.candidatesCount > 0
     ? Math.round((stats.validatedCandidatesCount / stats.candidatesCount) * 100)
     : 0;
@@ -307,7 +307,7 @@ export default function AdminDashboard() {
       <div className="flex flex-col items-center justify-center min-h-[450px] gap-3 bg-slate-100/60 rounded-xl p-8">
         <RefreshCw className="h-8 w-8 text-slate-700 animate-spin" />
         <p className="text-slate-600 text-xs font-bold uppercase tracking-wider">
-          Chargement du Cockpit BI FretTalent...
+          Chargement du Centre de Pilotage FretTalent...
         </p>
       </div>
     );
@@ -316,20 +316,20 @@ export default function AdminDashboard() {
   return (
     <div className="max-w-[1600px] mx-auto space-y-4 pb-12 font-sans bg-slate-100/70 p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm">
       
-      {/* 1. POWER BI TOP APP BAR */}
+      {/* 1. EN-TÊTE SUPÉRIEURE DE PILOTAGE */}
       <div className="bg-slate-950 text-white px-4 py-2.5 rounded-xl flex flex-wrap items-center justify-between gap-3 shadow-md">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center font-black text-[11px] text-white">
-              BI
+              FT
             </div>
             <span className="font-bold text-xs text-slate-200">
-              FretTalent Workspace
+              Espace de Pilotage FretTalent
             </span>
           </div>
           <span className="text-slate-600 text-xs hidden sm:inline">|</span>
           <span className="text-xs text-slate-300 font-medium truncate max-w-[280px] sm:max-w-none">
-            Executive Transport & Logistics Overview
+            Direction Générale Transport & Logistique
           </span>
           <span className="inline-flex items-center gap-1 bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -337,16 +337,16 @@ export default function AdminDashboard() {
           </span>
         </div>
 
-        {/* Quick Toolbar */}
+        {/* Barre d'outils rapides */}
         <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={handleTestTelegram}
             disabled={testingTelegram}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors disabled:opacity-50"
-            title="Tester le bot Telegram"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors disabled:opacity-50 cursor-pointer"
+            title="Tester l'alerte sur votre robot Telegram"
           >
             <Send className={`h-3 w-3 ${testingTelegram ? 'animate-spin' : ''}`} />
-            <span className="hidden md:inline">Robot Telegram</span>
+            <span className="hidden md:inline">Alerte Telegram</span>
           </button>
 
           <Link
@@ -354,7 +354,7 @@ export default function AdminDashboard() {
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition-colors"
           >
             <MessageSquare className="h-3 w-3" />
-            <span>Support</span>
+            <span>Support Client</span>
             {stats.openSupportConvCount > 0 && (
               <span className="bg-white text-orange-700 px-1.5 py-0.2 rounded-full font-black text-[10px]">
                 {stats.openSupportConvCount}
@@ -364,7 +364,7 @@ export default function AdminDashboard() {
 
           <button
             onClick={fetchAdminData}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors cursor-pointer"
             title="Actualiser les données"
           >
             <RefreshCw className="h-3 w-3" />
@@ -373,7 +373,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* 2. SUB-HEADER / PROMPT QUESTION BAR */}
+      {/* 2. BANDEAU DE CONTEXTE */}
       <div className="bg-white px-4 py-2 rounded-xl border border-slate-200/80 flex items-center justify-between gap-3 text-xs shadow-2xs">
         <div className="flex items-center gap-2 flex-1 text-slate-400">
           <HelpCircle className="h-4 w-4 text-slate-400 shrink-0" />
@@ -382,32 +382,36 @@ export default function AdminDashboard() {
           </span>
         </div>
         <div className="flex items-center gap-1 shrink-0">
-          {['7D', '30D', 'YTD'].map(period => (
+          {[
+            { key: '7 Jours', label: '7 Jours' },
+            { key: '30 Jours', label: '30 Jours' },
+            { key: 'Année', label: 'Année' },
+          ].map(period => (
             <button
-              key={period}
-              onClick={() => setFilterTimeframe(period)}
-              className={`px-2.5 py-1 rounded text-[11px] font-bold transition-colors ${
-                filterTimeframe === period
+              key={period.key}
+              onClick={() => setFilterTimeframe(period.key)}
+              className={`px-2.5 py-1 rounded text-[11px] font-bold transition-colors cursor-pointer ${
+                filterTimeframe === period.key
                   ? 'bg-slate-900 text-white'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
-              {period}
+              {period.label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* 3. MODULAR DATA TILES GRID (POWER BI STYLE) */}
+      {/* 3. GRILLE DE TUILES MODULAIRES */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         
-        {/* === LEFT COLUMN: BIG KPI SCORECARDS (3 COLS) === */}
+        {/* === COLONNE GAUCHE : SCORECARDS KPIS (3 COLS) === */}
         <div className="lg:col-span-3 space-y-4">
           
-          {/* KPI 1: Volume Chauffeurs */}
+          {/* KPI 1 : Volume Chauffeurs */}
           <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow">
             <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-              <span>Total Drivers Volume</span>
+              <span>Volume Total Chauffeurs</span>
               <span className="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded font-mono">
                 {filterTimeframe}
               </span>
@@ -423,10 +427,10 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* KPI 2: Chiffre d'Affaires & Stripe */}
+          {/* KPI 2 : Chiffre d'Affaires & Stripe */}
           <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow">
             <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-              <span>Total Revenue & Unlocks</span>
+              <span>Chiffre d'Affaires & Déblocages</span>
               <CreditCard className="h-4 w-4 text-emerald-600" />
             </div>
             <div className="text-4xl sm:text-5xl font-black text-slate-950 mt-3 tracking-tight">
@@ -440,10 +444,10 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* KPI 3: Entreprises Partenaires */}
+          {/* KPI 3 : Entreprises Partenaires */}
           <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow">
             <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-              <span>Carrier Accounts</span>
+              <span>Comptes Entreprises</span>
               <Building2 className="h-4 w-4 text-blue-600" />
             </div>
             <div className="text-4xl sm:text-5xl font-black text-slate-950 mt-3 tracking-tight">
@@ -457,55 +461,55 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* KPI 4: Compliance & Sentiment Index */}
+          {/* KPI 4 : Indice de Conformité */}
           <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow">
             <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-              <span>Compliance Index</span>
-              <span className="text-xs text-emerald-600 font-bold">● High</span>
+              <span>Indice de Conformité Pièces</span>
+              <span className="text-xs text-emerald-600 font-bold">● Élevé</span>
             </div>
             <div className="text-4xl sm:text-5xl font-black text-slate-950 mt-3 tracking-tight">
               {validationRate}
               <span className="text-xl text-slate-400 font-normal"> / 100</span>
             </div>
             <p className="text-[11px] text-slate-400 font-medium mt-2">
-              Indice de complétude des pièces officielles (Permis, Chrono, FIMO).
+              Taux de contrôle et complétude des justificatifs officiels (Permis, Chrono, FIMO).
             </p>
           </div>
 
         </div>
 
-        {/* === CENTER & RIGHT TILES: VISUALIZATIONS & MATRICES (9 COLS) === */}
+        {/* === TUILES CENTRALES & DROITE : VISUALISATIONS (9 COLS) === */}
         <div className="lg:col-span-9 space-y-4">
           
-          {/* ROW 1: TREND LINE + HORIZONTAL BAR CHART */}
+          {/* LIGNE 1 : TENDANCES + HISTOGRAMME PAR MÉTIER */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
             
-            {/* TILE 1: TREND CURVE (7 COLS) */}
+            {/* TUILE 1 : COURBE D'ÉVOLUTION (7 COLS) */}
             <div className="md:col-span-7 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
-                  <span>Growth & Acquisition Trend</span>
-                  <span className="text-slate-400 font-mono">12 Months Rolling</span>
+                  <span>Tendances de Croissance & Activité</span>
+                  <span className="text-slate-400 font-mono">12 Derniers Mois</span>
                 </div>
                 <div className="flex items-center gap-4 text-xs font-semibold text-slate-600 mb-4">
                   <span className="flex items-center gap-1.5">
                     <span className="w-3 h-1 bg-teal-500 rounded" /> Inscriptions Chauffeurs
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-1 bg-slate-700 rounded" /> Visites Entreprises
+                    <span className="w-3 h-1 bg-slate-700 rounded" /> Recherches Entreprises
                   </span>
                 </div>
               </div>
 
-              {/* Clean SVG Trend Curve */}
+              {/* Courbe SVG épurée */}
               <div className="h-44 w-full relative flex items-end">
                 <svg viewBox="0 0 500 150" className="w-full h-full overflow-visible">
-                  {/* Grid lines */}
+                  {/* Lignes de repère */}
                   <line x1="0" y1="30" x2="500" y2="30" stroke="#f1f5f9" strokeWidth="1" />
                   <line x1="0" y1="75" x2="500" y2="75" stroke="#f1f5f9" strokeWidth="1" />
                   <line x1="0" y1="120" x2="500" y2="120" stroke="#f1f5f9" strokeWidth="1" />
 
-                  {/* Curve 1: Inscriptions (Teal) */}
+                  {/* Courbe 1 : Inscriptions (Teal) */}
                   <path
                     d="M 10 110 Q 70 95, 120 70 T 230 85 T 340 40 T 430 30 T 490 20"
                     fill="none"
@@ -513,7 +517,7 @@ export default function AdminDashboard() {
                     strokeWidth="3"
                     strokeLinecap="round"
                   />
-                  {/* Curve 2: Visits (Dark Slate) */}
+                  {/* Courbe 2 : Visites (Ardoise) */}
                   <path
                     d="M 10 130 Q 70 120, 120 110 T 230 100 T 340 70 T 430 55 T 490 45"
                     fill="none"
@@ -521,13 +525,13 @@ export default function AdminDashboard() {
                     strokeWidth="2"
                     strokeDasharray="4 4"
                   />
-                  {/* Interactive Dot */}
+                  {/* Points interactifs */}
                   <circle cx="490" cy="20" r="4" fill="#0d9488" />
                   <circle cx="490" cy="45" r="3.5" fill="#334155" />
                 </svg>
               </div>
 
-              {/* X Axis Months */}
+              {/* Axe X Mois */}
               <div className="flex justify-between text-[10px] text-slate-400 font-mono pt-2 border-t border-slate-100">
                 <span>Jan</span>
                 <span>Mar</span>
@@ -539,16 +543,16 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* TILE 2: HORIZONTAL BAR CHART BY TRANSPORT CATEGORY (5 COLS) */}
+            {/* TUILE 2 : HISTOGRAMME HORIZONTAL PAR SPÉCIALITÉ (5 COLS) */}
             <div className="md:col-span-5 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-3">
-                  <span>Drivers by Category</span>
-                  <span className="text-[10px] text-slate-400">Headcount</span>
+                  <span>Chauffeurs par Spécialité</span>
+                  <span className="text-[10px] text-slate-400">Effectif</span>
                 </div>
               </div>
 
-              {/* Horizontal Bars */}
+              {/* Barres horizontales */}
               <div className="space-y-2.5">
                 {[
                   { label: 'SPL / Permis CE', val: specialityCounts.SPL, color: 'bg-teal-600' },
@@ -577,25 +581,25 @@ export default function AdminDashboard() {
               </div>
 
               <div className="pt-2 text-[10px] text-slate-400 font-mono text-right">
-                Unit breakdown based on active profiles
+                Répartition calculée sur les profils actifs
               </div>
             </div>
 
           </div>
 
-          {/* ROW 2: GEOGRAPHIC TREEMAP + ACTION QUEUE (POWER BI MATRIX) */}
+          {/* LIGNE 2 : RÉPARTITION GÉOGRAPHIQUE + FILE DE MODÉRATION 1-CLIC */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
             
-            {/* TILE 3: GEOGRAPHIC TREEMAP (5 COLS) */}
+            {/* TUILE 3 : TREEMAP GÉOGRAPHIQUE (5 COLS) */}
             <div className="md:col-span-5 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
               <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-3">
-                <span>Geographic Market Distribution</span>
-                <span className="text-[10px] text-slate-400">4 Countries</span>
+                <span>Répartition Géographique du Réseau</span>
+                <span className="text-[10px] text-slate-400">4 Pays</span>
               </div>
 
-              {/* Power BI Treemap layout */}
+              {/* Disposition Treemap */}
               <div className="grid grid-cols-2 gap-2 h-44">
-                {/* France Tile (Large Teal) */}
+                {/* Tuile France */}
                 <div className="bg-teal-700 text-white p-3 rounded-lg flex flex-col justify-between shadow-2xs">
                   <div>
                     <span className="text-base">🇫🇷</span>
@@ -604,7 +608,7 @@ export default function AdminDashboard() {
                   <div className="text-2xl font-black">{stats.franceCandidates}</div>
                 </div>
 
-                {/* Right Stack: Belgique + Luxembourg & Suisse */}
+                {/* Tuiles Belgique + Luxembourg & Suisse */}
                 <div className="grid grid-rows-2 gap-2">
                   <div className="bg-rose-500 text-white p-2.5 rounded-lg flex items-center justify-between shadow-2xs">
                     <div>
@@ -616,7 +620,7 @@ export default function AdminDashboard() {
 
                   <div className="grid grid-cols-2 gap-2">
                     <div className="bg-amber-500 text-white p-2 rounded-lg flex flex-col justify-between">
-                      <span className="text-xs">🇱🇺 Lux</span>
+                      <span className="text-xs">🇱🇺 Luxembourg</span>
                       <span className="text-sm font-black">{stats.luxembourgCandidates}</span>
                     </div>
                     <div className="bg-slate-800 text-white p-2 rounded-lg flex flex-col justify-between">
@@ -635,11 +639,11 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* TILE 4: OPERATIONAL QUEUE (7 COLS) */}
+            {/* TUILE 4 : FILE DE MODÉRATION PRIORITAIRE (7 COLS) */}
             <div className="md:col-span-7 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
-                  <span>Priority Action Queue (1-Click Validation)</span>
+                  <span>File de Modération Prioritaire (Validation 1-Clic)</span>
                   <span className="text-[10px] font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full">
                     {pendingCandidatesQueue.length} dossier(s) en attente
                   </span>
@@ -675,12 +679,12 @@ export default function AdminDashboard() {
                             href={`/dashboard/admin/candidates/${cand.id}`}
                             className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-bold transition-colors"
                           >
-                            Voir
+                            Voir Fiche
                           </Link>
                           <button
                             onClick={() => handleQuickValidateCandidate(cand.id, cand.full_name)}
                             disabled={actionLoading === cand.id}
-                            className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[11px] font-bold transition-colors disabled:opacity-50 flex items-center gap-1 shadow-2xs"
+                            className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[11px] font-bold transition-colors disabled:opacity-50 flex items-center gap-1 shadow-2xs cursor-pointer"
                           >
                             {actionLoading === cand.id ? (
                               <RefreshCw className="h-3 w-3 animate-spin" />
@@ -720,16 +724,16 @@ export default function AdminDashboard() {
 
       </div>
 
-      {/* 4. REAL-TIME STRIPE ACTIVITY & MODERATION TABLE (BOTTOM POWER BI EXPANDED LEDGER) */}
+      {/* 4. FLUX DES TRANSACTIONS STRIPE EN DIRECT */}
       <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                Live Transaction & Unlock Feed
+                Flux en Direct des Déblocages & Paiements Stripe
               </span>
               <span className="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-0.5 rounded-full">
-                Stripe Live
+                Stripe En Direct
               </span>
             </div>
             <h3 className="font-black text-slate-900 text-base mt-0.5">
@@ -756,8 +760,8 @@ export default function AdminDashboard() {
                   <th className="py-2.5 px-3">Date</th>
                   <th className="py-2.5 px-3">Entreprise Transporteur</th>
                   <th className="py-2.5 px-3">Chauffeur Débloqué</th>
-                  <th className="py-2.5 px-3">Montant TTC</th>
-                  <th className="py-2.5 px-3">Stripe Reference</th>
+                  <th className="py-2.5 px-3">Montant Net TTC</th>
+                  <th className="py-2.5 px-3">Référence Stripe</th>
                   <th className="py-2.5 px-3 text-right">Statut</th>
                 </tr>
               </thead>

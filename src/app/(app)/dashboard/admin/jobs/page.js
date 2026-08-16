@@ -165,7 +165,7 @@ export default function AdminJobs() {
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-              Job Postings Moderation Matrix
+              Matrice de Modération des Offres
             </span>
             <span className="bg-slate-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-full font-mono">
               {jobs.length} annonces

@@ -133,10 +133,10 @@ export default function AdminFinance() {
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-              Stripe Financial Ledger & Cashflow
+              Grand Livre Comptable & Trésorerie Stripe
             </span>
             <span className="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-0.5 rounded-full">
-              Stripe Live
+              Stripe En Direct
             </span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-950 mt-1">
@@ -154,7 +154,7 @@ export default function AdminFinance() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold transition-colors shadow-2xs cursor-pointer"
           >
-            <span>Stripe Dashboard</span>
+            <span>Console Stripe</span>
             <ExternalLink className="h-3.5 w-3.5 opacity-70" />
           </a>
 
@@ -187,7 +187,7 @@ export default function AdminFinance() {
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">MRR Récurrent VIP (39,99€)</span>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Revenus Récurrents VIP (39,99 €)</span>
           <div className="text-2xl sm:text-3xl font-black text-purple-700 mt-1 font-mono">
             {estimatedMRR.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
           </div>
@@ -203,7 +203,7 @@ export default function AdminFinance() {
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Volume d'Affaires</span>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Volume Global Encaissé</span>
           <div className="text-2xl sm:text-3xl font-black text-emerald-700 mt-1 font-mono">
             {totalGrossRevenue.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
           </div>

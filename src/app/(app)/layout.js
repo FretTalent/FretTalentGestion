@@ -136,7 +136,7 @@ export default function AppLayout({ children }) {
 
   const roleLabel =
     role === 'admin'
-      ? 'Super Admin'
+      ? 'Administrateur'
       : role === 'recruiter'
         ? 'Recruteur'
         : 'Chauffeur';
@@ -156,7 +156,7 @@ export default function AppLayout({ children }) {
           <img src="/logo.png" alt="FretTalent" className="h-8 md:h-9 w-auto object-contain brightness-0 invert" />
           {role === 'admin' && (
             <span className="text-[10px] font-black uppercase tracking-wider bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded border border-orange-500/30">
-              Console
+              Administration
             </span>
           )}
         </Link>

@@ -119,7 +119,7 @@ export default function AdminCompanies() {
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-              Carrier & Corporate Directory
+              Annuaire des Entreprises & Transporteurs
             </span>
             <span className="bg-slate-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-full font-mono">
               {companies.length} comptes
@@ -159,15 +159,15 @@ export default function AdminCompanies() {
           <div className="text-2xl font-black text-slate-900 mt-1">{companies.length}</div>
         </div>
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Abonnés VIP Pro (39,99€)</span>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Abonnés VIP Pro (39,99 €)</span>
           <div className="text-2xl font-black text-purple-700 mt-1">{vipCount}</div>
         </div>
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Pay-per-unlock (2€)</span>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Paiement à l'Acte (2 €)</span>
           <div className="text-2xl font-black text-slate-900 mt-1">{companies.length - vipCount}</div>
         </div>
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Transfrontaliers (BE/LU/CH)</span>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Transfrontaliers (BE / LU / CH)</span>
           <div className="text-2xl font-black text-teal-700 mt-1">
             {companies.filter(c => c.country && c.country !== 'FR').length}
           </div>
@@ -207,7 +207,7 @@ export default function AdminCompanies() {
           >
             <option value="all">💳 Toutes Formules</option>
             <option value="premium_monthly">⭐ Pro Illimité (39,99 €)</option>
-            <option value="pay_per_unlock">⚡ Pay-per-unlock (2 €)</option>
+            <option value="pay_per_unlock">⚡ Paiement à l'acte (2 €)</option>
           </select>
         </div>
       </div>
@@ -221,7 +221,7 @@ export default function AdminCompanies() {
                 <th className="py-3 px-4">Entreprise & Pays</th>
                 <th className="py-3 px-4">Contact</th>
                 <th className="py-3 px-4">Identifiant Légal</th>
-                <th className="py-3 px-4">Formule Stripe</th>
+                <th className="py-3 px-4">Formule d'Abonnement</th>
                 <th className="py-3 px-4">Inscrit le</th>
                 <th className="py-3 px-4 text-center">Action</th>
               </tr>

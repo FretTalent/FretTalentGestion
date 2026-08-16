@@ -93,7 +93,7 @@ export default function CandidateDocuments({
 
       onUpdate(newDocuments); // Mettre à jour l'état parent
 
-      // Notification Telegram Admin
+      // Notification Telegram Admin UNIQUEMENT quand le dossier est 100% complet
       try {
         const isDocPresent = (k, legacyK) => !!newDocuments[k] || (legacyK && !!newDocuments[legacyK]);
         const requiredDocs = [
@@ -108,29 +108,32 @@ export default function CandidateDocuments({
         const uploadedCount = requiredDocs.filter(Boolean).length;
         const isComplete = uploadedCount === 7;
 
-        const { data: candInfo } = await supabase
-          .from('candidates')
-          .select('full_name, city, country')
-          .eq('id', candidateId)
-          .maybeSingle();
+        // On ne notifie Telegram QUE si le dossier vient d'atteindre 100% de complétion
+        if (isComplete) {
+          const { data: candInfo } = await supabase
+            .from('candidates')
+            .select('full_name, city, country')
+            .eq('id', candidateId)
+            .maybeSingle();
 
-        fetch('/api/notify/telegram', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: 'documents_uploaded',
-            data: {
-              candidateName: candInfo?.full_name || 'Candidat',
-              candidateId: candidateId,
-              city: candInfo?.city || '—',
-              country: candInfo?.country || 'FR',
-              uploadedCount,
-              totalRequired: 7,
-              isComplete,
-              docLabel: docType.label,
-            },
-          }),
-        }).catch(err => console.error('Telegram notification error:', err));
+          fetch('/api/notify/telegram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'documents_uploaded',
+              data: {
+                candidateName: candInfo?.full_name || 'Candidat',
+                candidateId: candidateId,
+                city: candInfo?.city || '—',
+                country: candInfo?.country || 'FR',
+                uploadedCount: 7,
+                totalRequired: 7,
+                isComplete: true,
+                docLabel: docType.label,
+              },
+            }),
+          }).catch(err => console.error('Telegram notification error:', err));
+        }
       } catch (notifErr) {
         console.error('Erreur préparation notification telegram:', notifErr);
       }

@@ -181,53 +181,43 @@ export async function notifyTelegramNewCompany({
 }
 
 /**
- * 3. Alerte : Dépôt de documents avec boutons d'action rapide (Valider en 1 clic !)
+ * 3. Alerte : Dossier de documents 100% complet avec boutons d'action rapide (Valider en 1 clic !)
  */
 export async function notifyTelegramDocumentsUploaded({
   candidateName,
   candidateId,
   city,
   country = 'FR',
-  uploadedCount,
+  uploadedCount = 7,
   totalRequired = 7,
-  isComplete = false,
-  docLabel = '',
 }) {
   const flag = country === 'BE' ? '🇧🇪' : country === 'LU' ? '🇱🇺' : country === 'CH' ? '🇨🇭' : '🇫🇷';
-  const statusEmoji = isComplete ? '✅ <b>DOSSIER 100% COMPLET !</b>' : '📄 <b>Nouveau document déposé</b>';
 
   const message = `
-${statusEmoji}
+🎉 <b>DOSSIER CHAUFFEUR 100% COMPLET !</b> 🛡️
 ━━━━━━━━━━━━━━━━━━
 👤 <b>Chauffeur :</b> ${escapeHtml(candidateName || 'Candidat')}
 📍 <b>Ville :</b> ${escapeHtml(city || '—')} ${flag}
-📎 <b>Document :</b> ${escapeHtml(docLabel || 'Justificatif')}
-📊 <b>Progression :</b> ${uploadedCount}/${totalRequired} pièces officielles ${isComplete ? '🎉' : ''}
+📑 <b>Pièces déposées :</b> ${uploadedCount}/${totalRequired} justificatifs conformes
 ⏱ <b>Date :</b> ${new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}
 
-${isComplete ? '👉 <i>Le dossier est complet et prêt pour certification !</i>\n' : ''}
+👉 <i>Tous les justificatifs de conduite (Permis, Chrono, FIMO) ont été déposés. Le profil est prêt à être certifié !</i>
 `.trim();
 
   const inline_keyboard = [];
 
   if (candidateId) {
-    if (isComplete) {
-      inline_keyboard.push([
-        {
-          text: '🛡️ Valider le Chauffeur (1 Clic)',
-          callback_data: `validate_cand:${candidateId}`,
-        },
-      ]);
-    }
+    inline_keyboard.push([
+      {
+        text: '🛡️ Valider le Chauffeur (1 Clic)',
+        callback_data: `validate_cand:${candidateId}`,
+      },
+    ]);
 
     inline_keyboard.push([
       {
-        text: '📂 Consulter le Dossier',
+        text: '📂 Consulter le Dossier Complet',
         url: `https://www.frettalent.fr/dashboard/admin/candidates/${candidateId}`,
-      },
-      {
-        text: '📧 Relancer Pièces',
-        callback_data: `remind_docs:${candidateId}`,
       },
     ]);
   }

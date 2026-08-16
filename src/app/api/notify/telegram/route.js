@@ -30,7 +30,12 @@ export async function POST(req) {
         break;
 
       case 'documents_uploaded':
-        result = await notifyTelegramDocumentsUploaded(data || {});
+        // Notifier Telegram UNIQUEMENT lorsque le dossier est 100% complet (7/7 pièces)
+        if (data?.isComplete) {
+          result = await notifyTelegramDocumentsUploaded(data || {});
+        } else {
+          result = { skipped: true, reason: 'Dossier non complet' };
+        }
         break;
 
       case 'support_ticket_created':

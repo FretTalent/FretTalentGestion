@@ -659,6 +659,40 @@ export default function AdminChatPage() {
                 <div ref={messagesEndRef} />
               </div>
 
+              {/* Barre de Réponses Types 1-Clic */}
+              <div className="px-3.5 py-2 bg-slate-50 border-t border-slate-200/80 flex items-center gap-1.5 overflow-x-auto text-[11px]">
+                <span className="font-bold text-slate-400 text-[10px] uppercase shrink-0 mr-1">
+                  ⚡ Réponses Rapides :
+                </span>
+                {[
+                  {
+                    label: '📑 Pièces manquantes',
+                    text: 'Bonjour, afin de certifier votre profil avec le badge 100% Vérifié, merci de déposer vos justificatifs officiels (Permis de conduire, Carte Chrono, FIMO/FCO) dans votre espace Mes Documents.',
+                  },
+                  {
+                    label: '🔓 Déblocage & Contact',
+                    text: 'Bonjour, dès confirmation du paiement ou avec votre abonnement Pro Illimité, vous bénéficiez d\'un accès immédiat aux coordonnées complètes et documents officiels du chauffeur.',
+                  },
+                  {
+                    label: '💳 Facturation Stripe',
+                    text: 'Bonjour, vos factures et reçus de paiement sont disponibles et téléchargeables à tout moment depuis votre tableau de bord ou l\'espace de facturation Stripe.',
+                  },
+                  {
+                    label: '🛡️ Profil 100% Validé',
+                    text: 'Bonjour, nous venons de contrôler vos documents. Votre profil est désormais 100% Validé et bénéficie d\'une visibilité prioritaire auprès de toutes les entreprises partenaires.',
+                  },
+                ].map((canned, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setNewMessage(canned.text)}
+                    className="px-2.5 py-1 bg-white hover:bg-slate-200 border border-slate-200 rounded-md font-semibold text-slate-700 whitespace-nowrap transition-colors shadow-2xs cursor-pointer"
+                  >
+                    {canned.label}
+                  </button>
+                ))}
+              </div>
+
               {/* Zone de saisie Admin */}
               <form
                 onSubmit={handleSendMessage}
@@ -670,12 +704,12 @@ export default function AdminChatPage() {
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Répondre en direct au client..."
                   disabled={sending}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 disabled:opacity-50"
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 disabled:opacity-50 font-medium"
                 />
                 <button
                   type="submit"
                   disabled={!newMessage.trim() || sending}
-                  className="px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 disabled:opacity-40 text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-sm shrink-0"
+                  className="px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 disabled:opacity-40 text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-sm shrink-0 cursor-pointer"
                 >
                   {sending ? (
                     <RefreshCw className="w-4 h-4 animate-spin" />

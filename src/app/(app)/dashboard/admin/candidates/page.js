@@ -32,6 +32,7 @@ function AdminCandidatesContent() {
 
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCountry, setFilterCountry] = useState('all'); // 'all' | 'FR' | 'BE' | 'LU' | 'CH'
   const [filterPreference, setFilterPreference] = useState('all');
@@ -95,6 +96,31 @@ function AdminCandidatesContent() {
   useEffect(() => {
     fetchCandidates();
   }, []);
+
+  const handleQuickValidate = async (candidateId, name) => {
+    setActionLoading(candidateId);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(`/api/candidates/${candidateId}/validate`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session?.access_token || ''}`,
+        },
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Erreur de validation');
+
+      setCandidates(prev =>
+        prev.map(c => (c.id === candidateId ? { ...c, validated: true } : c))
+      );
+      toast.success(`✅ ${name || 'Chauffeur'} validé et certifié 100% Vérifié !`);
+    } catch (err) {
+      toast.error(err.message || 'Erreur lors de la validation');
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
   // Helper pour calculer les documents d'un candidat
   const getCandidateDocStats = candidate => {
@@ -547,13 +573,30 @@ function AdminCandidatesContent() {
 
                       {/* ACTION */}
                       <td className="py-4 px-5 text-center">
-                        <button
-                          onClick={() => router.push(`/dashboard/admin/candidates/${candidate.id}`)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-orange-500 text-white rounded-xl text-xs font-bold transition-all shadow-2xs"
-                        >
-                          <Eye className="h-3.5 w-3.5" />
-                          <span>Dossier</span>
-                        </button>
+                        <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            onClick={() => router.push(`/dashboard/admin/candidates/${candidate.id}`)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                          >
+                            <Eye className="h-3.5 w-3.5" />
+                            <span>Dossier</span>
+                          </button>
+                          {!candidate.validated && (
+                            <button
+                              onClick={() => handleQuickValidate(candidate.id, candidate.full_name)}
+                              disabled={actionLoading === candidate.id}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all shadow-2xs disabled:opacity-50 cursor-pointer"
+                              title="Valider immédiatement ce profil chauffeur"
+                            >
+                              {actionLoading === candidate.id ? (
+                                <RefreshCw className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <ShieldCheck className="h-3 w-3" />
+                              )}
+                              <span>Valider</span>
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );

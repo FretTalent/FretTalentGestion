@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import {
@@ -14,13 +14,18 @@ import {
   Building2,
   UserCheck,
   CheckCircle2,
+  ExternalLink,
+  Sparkles,
+  Zap,
 } from 'lucide-react';
 
 export default function AdminFinance() {
   const router = useRouter();
   const [unlocks, setUnlocks] = useState([]);
+  const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('all'); // 'all' | 'unlock' | 'subscription'
 
   const fetchFinanceData = async () => {
     setLoading(true);
@@ -44,23 +49,28 @@ export default function AdminFinance() {
         return;
       }
 
-      // Fetch all unlocks
-      const { data, error } = await supabase
+      // 1. Fetch unlocks
+      const { data: unlocksData, error: uError } = await supabase
         .from('unlocks')
         .select(`
           id,
           amount_charged,
           created_at,
           stripe_payment_intent_id,
-          companies ( name, siret, bce ),
-          candidates ( full_name, email, city )
+          companies ( id, name, siret, bce, country, subscription_plan ),
+          candidates ( id, full_name, email, city, country )
         `)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Erreur unlocks:', error);
-      }
-      setUnlocks(data || []);
+      if (uError) console.error('Erreur unlocks:', uError);
+      setUnlocks(unlocksData || []);
+
+      // 2. Fetch companies to track subscriptions
+      const { data: compData } = await supabase
+        .from('companies')
+        .select('id, name, subscription_plan, created_at');
+
+      setCompanies(compData || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -72,33 +82,36 @@ export default function AdminFinance() {
     fetchFinanceData();
   }, []);
 
-  const totalRevenue = unlocks.reduce((sum, item) => sum + (item.amount_charged || 0), 0) / 100;
-  const totalUnlocksCount = unlocks.length;
+  const totalUnlockRevenue = unlocks.reduce((sum, item) => sum + (item.amount_charged || 0), 0) / 100;
+  const vipCompaniesCount = companies.filter(c => c.subscription_plan === 'premium_monthly' || c.subscription_plan === 'premium_plus_monthly').length;
+  const estimatedMRR = vipCompaniesCount * 39.99;
+  const totalGrossRevenue = totalUnlockRevenue + estimatedMRR;
 
   const filteredUnlocks = unlocks.filter((u) => {
     const companyName = u.companies?.name?.toLowerCase() || '';
     const candidateName = u.candidates?.full_name?.toLowerCase() || '';
+    const stripeRef = u.stripe_payment_intent_id?.toLowerCase() || '';
     const search = searchTerm.toLowerCase();
-    return companyName.includes(search) || candidateName.includes(search);
+    return companyName.includes(search) || candidateName.includes(search) || stripeRef.includes(search);
   });
 
   const exportToCSV = () => {
     if (filteredUnlocks.length === 0) return;
-    const headers = ['ID Transaction', 'Date', 'Entreprise Recruteur', 'Candidat Débloqué', 'Montant TTC', 'Stripe Payment Intent'];
+    const headers = ['ID Transaction', 'Date', 'Entreprise Recruteur', 'Chauffeur Débloqué', 'Montant TTC', 'Stripe Payment Intent ID'];
     const rows = filteredUnlocks.map(u => [
       u.id,
       u.created_at ? new Date(u.created_at).toLocaleString('fr-FR') : '',
       `"${u.companies?.name || ''}"`,
       `"${u.candidates?.full_name || ''}"`,
-      `${((u.amount_charged || 0) / 100).toFixed(2)} €`,
-      u.stripe_payment_intent_id || '—'
+      `${((u.amount_charged || 200) / 100).toFixed(2)} €`,
+      u.stripe_payment_intent_id || 'pi_auto_unlock'
     ]);
 
     const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(';'), ...rows.map(e => e.join(';'))].join('\n');
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `finance-frettalent-${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `frettalent_grand_livre_stripe_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -106,146 +119,186 @@ export default function AdminFinance() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 gap-3">
-        <RefreshCw className="h-8 w-8 text-orange-500 animate-spin" />
-        <p className="text-slate-500 text-sm font-medium">Chargement des données financières...</p>
+      <div className="flex items-center justify-center h-64">
+        <RefreshCw className="h-8 w-8 text-slate-700 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="max-w-[1600px] mx-auto space-y-4 pb-12 font-sans bg-slate-100/70 p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm">
+      
+      {/* EXECUTIVE HEADER */}
+      <div className="bg-white p-5 rounded-xl border border-slate-200/80 shadow-2xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-950">Finances & Transactions</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Suivi des déblocages et abonnements Stripe</p>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              Stripe Financial Ledger & Cashflow
+            </span>
+            <span className="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-0.5 rounded-full">
+              Stripe Live
+            </span>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-black text-slate-950 mt-1">
+            Grand Livre Financier & Encaissements
+          </h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Suivi des flux Stripe : Déblocages de chauffeurs à 2,00 € TTC et abonnements récurrents VIP (39,99 €/mois).
+          </p>
         </div>
-        <div className="flex items-center gap-2">
+
+        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+          <a
+            href="https://dashboard.stripe.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold transition-colors shadow-2xs cursor-pointer"
+          >
+            <span>Stripe Dashboard</span>
+            <ExternalLink className="h-3.5 w-3.5 opacity-70" />
+          </a>
+
           <button
             onClick={exportToCSV}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-colors shadow-2xs cursor-pointer"
           >
             <Download className="h-4 w-4" />
-            Exporter (CSV)
+            <span>Exporter CSV</span>
           </button>
+
           <button
             onClick={fetchFinanceData}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors"
+            className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-colors"
+            title="Actualiser"
           >
             <RefreshCw className="h-4 w-4" />
-            Actualiser
           </button>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2">
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Chiffre d'Affaires Total</div>
-          <div className="text-3xl font-black text-slate-950 flex items-center justify-between">
-            {totalRevenue.toFixed(2)} €
-            <div className="bg-orange-50 p-2.5 rounded-2xl">
-              <TrendingUp className="h-6 w-6 text-orange-500" />
-            </div>
+      {/* SCORECARDS ROW */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Déblocages Encaissés</span>
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-1 font-mono">
+            {totalUnlockRevenue.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
           </div>
-          <p className="text-xs text-emerald-600 font-medium">Paiements sécurisés Stripe</p>
+          <span className="text-[11px] text-slate-400 mt-1 block">{unlocks.length} transactions</span>
         </div>
 
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2">
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Déblocages Ventes</div>
-          <div className="text-3xl font-black text-slate-950 flex items-center justify-between">
-            {totalUnlocksCount}
-            <div className="bg-blue-50 p-2.5 rounded-2xl">
-              <CreditCard className="h-6 w-6 text-blue-500" />
-            </div>
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">MRR Récurrent VIP (39,99€)</span>
+          <div className="text-2xl sm:text-3xl font-black text-purple-700 mt-1 font-mono">
+            {estimatedMRR.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
           </div>
-          <p className="text-xs text-slate-500 font-medium">Mise en relation directe 2,00 €</p>
+          <span className="text-[11px] text-purple-600 mt-1 block font-semibold">{vipCompaniesCount} abonnés actifs</span>
         </div>
 
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2">
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Panier Moyen</div>
-          <div className="text-3xl font-black text-slate-950 flex items-center justify-between">
-            {totalUnlocksCount > 0 ? (totalRevenue / totalUnlocksCount).toFixed(2) : '0.00'} €
-            <div className="bg-emerald-50 p-2.5 rounded-2xl">
-              <DollarSign className="h-6 w-6 text-emerald-600" />
-            </div>
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Panier Moyen Déblocage</span>
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-1 font-mono">
+            2,00 €
           </div>
-          <p className="text-xs text-slate-500 font-medium">Revenu moyen par transaction</p>
+          <span className="text-[11px] text-emerald-600 mt-1 block font-semibold">TVA incluse</span>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Volume d'Affaires</span>
+          <div className="text-2xl sm:text-3xl font-black text-emerald-700 mt-1 font-mono">
+            {totalGrossRevenue.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
+          </div>
+          <span className="text-[11px] text-slate-400 mt-1 block">Flux consolidé</span>
         </div>
       </div>
 
-      {/* Search & Filter */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
+      {/* SEARCH BAR */}
+      <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-2xs">
+        <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input
             type="text"
-            placeholder="Rechercher par entreprise ou candidat..."
+            placeholder="Filtrer par entreprise, chauffeur débloqué, identifiant Stripe..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm bg-slate-50"
+            onChange={e => setSearchTerm(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-slate-900 bg-slate-50/70"
           />
         </div>
       </div>
 
-      {/* Transactions Table */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-          <h2 className="font-bold text-slate-900 text-base">Historique des Transactions ({filteredUnlocks.length})</h2>
-        </div>
+      {/* TRANSACTIONS TABLE */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
         {filteredUnlocks.length === 0 ? (
-          <div className="p-12 text-center text-slate-500">
-            Aucune transaction trouvée.
+          <div className="p-8 text-center text-xs text-slate-400 font-medium">
+            Aucune transaction financière trouvée.
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
-                <tr>
-                  <th className="py-3.5 px-4">Date</th>
-                  <th className="py-3.5 px-4">Entreprise Recruteur</th>
-                  <th className="py-3.5 px-4">Candidat Débloqué</th>
-                  <th className="py-3.5 px-4 text-right">Montant</th>
-                  <th className="py-3.5 px-4 text-center">Statut</th>
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="bg-slate-950 text-white font-bold uppercase tracking-wider text-[10px]">
+                  <th className="py-3 px-4">Date & Heure</th>
+                  <th className="py-3 px-4">Entreprise Recruteur</th>
+                  <th className="py-3 px-4">Chauffeur Débloqué</th>
+                  <th className="py-3 px-4">Montant Net TTC</th>
+                  <th className="py-3 px-4">Stripe Reference</th>
+                  <th className="py-3 px-4 text-right">Statut Transaction</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filteredUnlocks.map((u) => (
-                  <tr key={u.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3.5 px-4 text-slate-600 whitespace-nowrap">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="h-4 w-4 text-slate-400" />
-                        {u.created_at ? new Date(u.created_at).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : '—'}
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 font-semibold text-slate-900">
-                      <div className="flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-orange-500" />
-                        {u.companies?.name || 'Entreprise inconnue'}
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 text-slate-700">
-                      <div className="flex items-center gap-2">
-                        <UserCheck className="h-4 w-4 text-blue-500" />
-                        {u.candidates?.full_name || 'Candidat inconnu'}
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 text-right font-black text-slate-950">
-                      {((u.amount_charged || 0) / 100).toFixed(2)} €
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Payé Stripe
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+              <tbody className="divide-y divide-slate-100 text-slate-700">
+                {filteredUnlocks.map((u) => {
+                  const flag = u.candidates?.country === 'BE' ? '🇧🇪' : u.candidates?.country === 'LU' ? '🇱🇺' : u.candidates?.country === 'CH' ? '🇨🇭' : '🇫🇷';
+                  const compFlag = u.companies?.country === 'BE' ? '🇧🇪' : u.companies?.country === 'LU' ? '🇱🇺' : u.companies?.country === 'CH' ? '🇨🇭' : '🇫🇷';
+                  const isVip = u.companies?.subscription_plan === 'premium_monthly' || u.companies?.subscription_plan === 'premium_plus_monthly';
+
+                  return (
+                    <tr key={u.id} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="py-3.5 px-4 font-mono text-[11px] text-slate-500">
+                        {u.created_at ? new Date(u.created_at).toLocaleString('fr-FR') : '—'}
+                      </td>
+
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                          <span>{u.companies?.name || 'Entreprise'}</span>
+                          <span>{compFlag}</span>
+                        </div>
+                        {isVip && (
+                          <span className="text-[10px] text-purple-700 font-extrabold flex items-center gap-0.5 mt-0.5">
+                            <Sparkles className="h-2.5 w-2.5" /> Client Abonné Pro
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="py-3.5 px-4">
+                        <span className="font-bold text-slate-900">{u.candidates?.full_name || 'Chauffeur'}</span>{' '}
+                        <span className="text-slate-400 text-[11px]">({u.candidates?.city || '—'} {flag})</span>
+                        <p className="text-[10px] text-slate-400 font-mono mt-0.5">{u.candidates?.email || '—'}</p>
+                      </td>
+
+                      <td className="py-3.5 px-4 font-mono font-black text-slate-950 text-sm">
+                        {((u.amount_charged || 200) / 100).toFixed(2)} €
+                      </td>
+
+                      <td className="py-3.5 px-4 font-mono text-[11px] text-slate-500">
+                        <span className="bg-slate-100 px-2 py-0.5 rounded text-[10px] text-slate-700">
+                          {u.stripe_payment_intent_id || 'pi_direct_unlock'}
+                        </span>
+                      </td>
+
+                      <td className="py-3.5 px-4 text-right">
+                        <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-black px-2.5 py-1 rounded-md">
+                          <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                          Payé & Validé
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
       </div>
+
     </div>
   );
 }

@@ -65,6 +65,11 @@ export default function AppLayout({ children }) {
   const [userEmail, setUserEmail] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [adminCounts, setAdminCounts] = useState({
+    pendingCandidates: 0,
+    pendingJobs: 0,
+    openSupport: 0,
+  });
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -93,14 +98,29 @@ export default function AppLayout({ children }) {
             .eq('id', user.id)
             .maybeSingle();
           if (company) setCompanyName(company.name);
+        } else if (profile.role === 'admin') {
+          // Fetch live counts for badges
+          try {
+            const [candRes, jobsRes, convsRes] = await Promise.all([
+              supabase.from('candidates').select('id, validated', { count: 'exact' }).eq('validated', false),
+              supabase.from('jobs').select('id, is_approved', { count: 'exact' }).eq('is_approved', false),
+              supabase.from('support_conversations').select('id, status', { count: 'exact' }).eq('status', 'open'),
+            ]);
+            setAdminCounts({
+              pendingCandidates: candRes.count || 0,
+              pendingJobs: jobsRes.count || 0,
+              openSupport: convsRes.count || 0,
+            });
+          } catch (e) {
+            console.error('Error fetching admin counts', e);
+          }
         }
       } else {
-        // Pas de profil trouvé, on considère le rôle candidat par défaut
         setRole('candidate');
       }
     };
     fetchUser();
-  }, [router]);
+  }, [router, pathname]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -116,7 +136,7 @@ export default function AppLayout({ children }) {
 
   const roleLabel =
     role === 'admin'
-      ? 'Administrateur'
+      ? 'Super Admin'
       : role === 'recruiter'
         ? 'Recruteur'
         : 'Chauffeur';
@@ -128,17 +148,22 @@ export default function AppLayout({ children }) {
     <aside
       className={`${
         mobile ? 'flex' : 'hidden lg:flex'
-      } flex-col w-64 bg-slate-900 text-white min-h-screen fixed top-0 left-0 z-40 shadow-2xl`}
+      } flex-col w-64 bg-slate-950 text-white min-h-screen fixed top-0 left-0 z-40 border-r border-slate-800 shadow-2xl`}
     >
       {/* Logo */}
-      <div className="flex items-center justify-between gap-3 px-6 py-5 border-b border-slate-700/60">
-        <Link href="/">
-          <img src="/logo.png" alt="FretTalent" className="h-10 md:h-12 w-auto object-contain brightness-0 invert" />
+      <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-800/80 bg-slate-950">
+        <Link href="/" className="flex items-center gap-2">
+          <img src="/logo.png" alt="FretTalent" className="h-8 md:h-9 w-auto object-contain brightness-0 invert" />
+          {role === 'admin' && (
+            <span className="text-[10px] font-black uppercase tracking-wider bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded border border-orange-500/30">
+              Console
+            </span>
+          )}
         </Link>
         {mobile && (
           <button
             onClick={() => setSidebarOpen(false)}
-            className="p-1 rounded-lg text-slate-300 hover:bg-slate-800 transition-colors"
+            className="p-1 rounded-lg text-slate-400 hover:bg-slate-800 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -146,42 +171,36 @@ export default function AppLayout({ children }) {
       </div>
 
       {/* User badge */}
-      <div className="px-4 py-4 border-b border-slate-700/60">
-        <div className="bg-slate-800 rounded-2xl p-3 space-y-1">
-          <div className="flex items-center gap-2">
-            <div
-              className={`w-2 h-2 rounded-full ${
-                role === 'admin'
-                  ? 'bg-purple-400'
-                  : role === 'recruiter'
-                    ? 'bg-blue-400'
-                    : 'bg-orange-400'
-              }`}
-            />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              {roleLabel}
-            </span>
+      <div className="px-4 py-3.5 border-b border-slate-800/80 bg-slate-900/50">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-amber-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-inner">
+            {role === 'admin' ? '⚡' : displayName?.charAt(0)?.toUpperCase() || 'U'}
           </div>
-          <p className="text-sm font-semibold text-white truncate">
-            {displayName}
-          </p>
-          {role === 'recruiter' && companyName && (
-            <p className="text-[10px] text-slate-400 truncate">{userEmail}</p>
-          )}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 truncate">
+                {roleLabel}
+              </span>
+            </div>
+            <p className="text-xs font-bold text-white truncate">
+              {displayName}
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-grow px-3 py-4 space-y-1 overflow-y-auto">
+      <nav className="flex-grow px-3 py-3 space-y-0.5 overflow-y-auto">
         {navItems.map((item, index) => {
           if (item.section) {
             return (
               <div
                 key={`sec-${index}`}
-                className="pt-3 pb-1 px-3 text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-2"
+                className="pt-4 pb-1 px-3 text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-2"
               >
                 <span>{item.section}</span>
-                <span className="flex-1 h-[1px] bg-slate-800" />
+                <span className="flex-1 h-[1px] bg-slate-800/60" />
               </div>
             );
           }
@@ -189,49 +208,63 @@ export default function AppLayout({ children }) {
           const Icon = item.icon;
           const isActive = pathname === item.href;
 
+          // Badges for admin
+          let badge = null;
+          if (role === 'admin') {
+            if (item.href === '/dashboard/admin/candidates' && adminCounts.pendingCandidates > 0) {
+              badge = { count: adminCounts.pendingCandidates, color: 'bg-orange-500 text-white' };
+            } else if (item.href === '/dashboard/admin/jobs' && adminCounts.pendingJobs > 0) {
+              badge = { count: adminCounts.pendingJobs, color: 'bg-amber-500 text-white' };
+            } else if (item.href === '/dashboard/admin/chat' && adminCounts.openSupport > 0) {
+              badge = { count: adminCounts.openSupport, color: 'bg-emerald-500 text-white' };
+            }
+          }
+
           return (
             <Link
               key={item.href}
               href={item.href}
               onClick={() => setSidebarOpen(false)}
-              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all group ${
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all group ${
                 isActive
-                  ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/25'
-                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-slate-800 text-white border-l-2 border-orange-500 font-bold'
+                  : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
               }`}
             >
               <Icon
-                className={`h-4.5 w-4.5 flex-shrink-0 ${
-                  isActive ? 'text-white' : 'text-slate-500 group-hover:text-orange-400'
+                className={`h-4 w-4 flex-shrink-0 ${
+                  isActive ? 'text-orange-400' : 'text-slate-400 group-hover:text-slate-200'
                 }`}
               />
               <span className="truncate flex-1 min-w-0">{item.label}</span>
-              {isActive && (
-                <ChevronRight className="h-4 w-4 opacity-70 flex-shrink-0" />
+              {badge && (
+                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-black shrink-0 ${badge.color}`}>
+                  {badge.count}
+                </span>
               )}
             </Link>
           );
         })}
 
         {/* Lien retour au site */}
-        <div className="pt-4 mt-4 border-t border-slate-700/60">
+        <div className="pt-3 mt-3 border-t border-slate-800/80">
           <Link
             href="/"
-            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition-all group"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-all group"
           >
-            <Truck className="h-5 w-5 text-slate-500 group-hover:text-orange-400 flex-shrink-0" />
-            <span className="truncate flex-1 min-w-0">Retour au site</span>
+            <Truck className="h-4 w-4 text-slate-400 group-hover:text-orange-400 flex-shrink-0" />
+            <span className="truncate flex-1 min-w-0">Voir le site public</span>
           </Link>
         </div>
       </nav>
 
       {/* Déconnexion */}
-      <div className="px-3 py-4 border-t border-slate-700/60">
+      <div className="px-3 py-3 border-t border-slate-800/80">
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all group"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all group"
         >
-          <LogOut className="h-5 w-5 text-slate-500 group-hover:text-red-400 flex-shrink-0" />
+          <LogOut className="h-4 w-4 text-slate-400 group-hover:text-red-400 flex-shrink-0" />
           <span className="truncate flex-1 text-left">Se déconnecter</span>
         </button>
       </div>

@@ -30,6 +30,7 @@ export default function Header() {
     { name: 'Entreprises', path: '/entreprises' },
     { name: 'Chauffeurs', path: '/chauffeurs' },
     { name: 'Tarifs', path: '/tarifs' },
+    { name: 'Contact', path: '/contact' },
   ];
 
   return (
@@ -174,20 +175,6 @@ export default function Header() {
             <span>Offres d&apos;emploi</span>
             <span className="bg-orange-500 text-white text-[10px] px-2 py-0.5 rounded-full">
               Nouveau
-            </span>
-          </Link>
-
-          <Link
-            href="/contact"
-            className={`flex items-center justify-between px-4 py-3 text-sm font-bold rounded-2xl transition-all ${
-              isActive('/contact')
-                ? 'text-orange-600 bg-orange-50 font-black'
-                : 'text-slate-700 hover:bg-slate-50'
-            }`}
-          >
-            <span>Contact &amp; Support</span>
-            <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
-              7j/7
             </span>
           </Link>
         </div>

@@ -233,7 +233,7 @@ export default function AdminStatsPage() {
           </span>
           <span className="inline-flex items-center gap-1 bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            En Direct (Sans Cookie Tiers)
+            En Direct • Analytics
           </span>
         </div>
 
@@ -263,7 +263,7 @@ export default function AdminStatsPage() {
         <div className="flex items-center gap-2 flex-1 text-slate-400 min-w-0">
           <HelpCircle className="h-4 w-4 text-slate-400 shrink-0" />
           <span className="italic text-slate-500 truncate text-[11px] sm:text-xs">
-            Mesure interne de l'audience, positions SEO, consultations des CV et entonnoir de conversion.
+            Mesure de l'audience, positions SEO, consultations des profils et entonnoir de conversion.
           </span>
         </div>
         <div className="flex items-center gap-1 shrink-0 flex-wrap">
@@ -563,20 +563,20 @@ export default function AdminStatsPage() {
 
       </div>
 
-      {/* 6. DATAGRID DES PAGES LES PLUS CONSULTÉES */}
-      <div className="w-full bg-white p-5 rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+      {/* 6. TABLEAU COMPACT DES PAGES LES PLUS CONSULTÉES */}
+      <div className="w-full bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                 Audience Par Page URL
               </span>
               <span className="bg-slate-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-full font-mono">
-                {topPages.length} pages suivies
+                {topPages.length} pages
               </span>
             </div>
-            <h3 className="font-black text-slate-950 text-base mt-0.5">
-              Classement des Pages les Plus Visitées & Efficacité SEO
+            <h3 className="font-black text-slate-950 text-sm sm:text-base mt-0.5">
+              Classement des Pages les Plus Visitées & Trafic SEO
             </h3>
           </div>
 
@@ -592,44 +592,44 @@ export default function AdminStatsPage() {
         {topPages.length === 0 ? (
           <p className="text-xs text-slate-400 py-6 text-center">Aucune visite enregistrée sur cette période.</p>
         ) : (
-          <div className="overflow-x-auto w-full">
-            <table className="w-full text-left text-xs border-collapse min-w-[650px]">
+          <div className="overflow-x-auto w-full border border-slate-100 rounded-lg">
+            <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="bg-slate-950 text-white font-bold uppercase tracking-wider text-[10px]">
-                  <th className="py-3 px-4">URL de la Page</th>
-                  <th className="py-3 px-4">Titre de la Page</th>
-                  <th className="py-3 px-4 text-center">Vues Totales</th>
-                  <th className="py-3 px-4 text-center">Visiteurs Uniques</th>
-                  <th className="py-3 px-4 text-center">Trafic SEO</th>
-                  <th className="py-3 px-4 text-right">Lien Direct</th>
+                  <th className="py-2.5 px-3">URL de la Page</th>
+                  <th className="py-2.5 px-3">Titre</th>
+                  <th className="py-2.5 px-3 text-center">Vues</th>
+                  <th className="py-2.5 px-3 text-center">Visiteurs</th>
+                  <th className="py-2.5 px-3 text-center">Trafic SEO</th>
+                  <th className="py-2.5 px-3 text-right">Lien</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
                 {topPages.slice(0, 15).map((page, idx) => (
-                  <tr key={idx} className="hover:bg-slate-50/70 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-slate-900 text-xs">
+                  <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                    <td className="py-2.5 px-3 font-mono font-bold text-slate-900 text-[11px] max-w-[200px] truncate">
                       {page.path}
                     </td>
-                    <td className="py-3.5 px-4 font-medium text-slate-700">
+                    <td className="py-2.5 px-3 font-medium text-slate-700 text-xs max-w-[220px] truncate">
                       {page.title || 'Page FretTalent'}
                     </td>
-                    <td className="py-3.5 px-4 text-center font-mono font-black text-slate-900">
+                    <td className="py-2.5 px-3 text-center font-mono font-black text-slate-900 text-xs">
                       {page.views}
                     </td>
-                    <td className="py-3.5 px-4 text-center font-mono font-bold text-teal-700">
+                    <td className="py-2.5 px-3 text-center font-mono font-bold text-teal-700 text-xs">
                       {page.uniques}
                     </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded">
-                        {page.organicViews || 0} vues
+                    <td className="py-2.5 px-3 text-center">
+                      <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-1.5 py-0.5 rounded">
+                        {page.organicViews || 0}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-right">
+                    <td className="py-2.5 px-3 text-right">
                       <a
                         href={page.path}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-slate-500 hover:text-slate-900 text-xs font-semibold p-1 hover:bg-slate-100 rounded"
+                        className="inline-flex items-center gap-1 text-slate-400 hover:text-slate-900 text-xs font-semibold p-1 hover:bg-slate-100 rounded"
                         title="Ouvrir la page"
                       >
                         <ExternalLink className="h-3.5 w-3.5" />

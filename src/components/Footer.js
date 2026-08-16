@@ -25,17 +25,29 @@ export default function Footer() {
               Le premier réseau de recrutement en direct pour les <strong>chauffeurs routiers (PL, SPL)</strong> et entreprises de transport en <strong>France, Belgique, Luxembourg et Suisse</strong>.
             </p>
 
-            <div className="flex items-center gap-3 pt-1">
+            <div className="flex items-center gap-2.5 pt-1 flex-wrap">
+              <a
+                href="https://t.me/Frettalent"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-[#229ED9] text-slate-300 hover:text-white transition-all duration-200 text-xs font-bold border border-slate-800 hover:border-transparent group shadow-sm"
+              >
+                <svg className="w-3.5 h-3.5 fill-current text-[#229ED9] group-hover:text-white transition-colors" viewBox="0 0 24 24">
+                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161c-.18.847-1.077 4.708-1.564 6.782-.206.879-.537 1.173-.858 1.202-.699.064-1.23-.462-1.907-.905-.884-.578-1.383-.938-2.241-1.503-.993-.654-.35-1.014.217-1.602.148-.153 2.723-2.496 2.773-2.708.006-.027.012-.127-.048-.18-.06-.054-.148-.035-.212-.021-.09.02-1.528.971-4.312 2.851-.408.281-.778.419-1.109.412-.365-.008-1.068-.207-1.591-.377-.642-.208-1.152-.319-1.108-.673.023-.184.278-.373.766-.567 3.003-1.307 5.006-2.17 6.009-2.589 2.864-1.196 3.458-1.404 3.847-1.41.085-.001.277.021.401.122.105.085.134.199.148.279.014.079.03.261.016.402z"/>
+                </svg>
+                <span>Telegram @Frettalent</span>
+              </a>
+
               <a
                 href="https://www.facebook.com/profile.php?id=61593021909293"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-[#1877F2] text-slate-300 hover:text-white transition-all duration-200 text-xs font-bold border border-slate-800 hover:border-transparent group shadow-sm"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-[#1877F2] text-slate-300 hover:text-white transition-all duration-200 text-xs font-bold border border-slate-800 hover:border-transparent group shadow-sm"
               >
                 <svg className="w-3.5 h-3.5 fill-current text-[#1877F2] group-hover:text-white transition-colors" viewBox="0 0 24 24">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                 </svg>
-                <span>Page Facebook officielle</span>
+                <span>Facebook</span>
               </a>
             </div>
           </div>
@@ -109,6 +121,17 @@ export default function Footer() {
               <li>
                 <Link href="/faq" className="hover:text-white transition-colors">
                   Foire Aux Questions (FAQ)
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center gap-1.5 text-orange-400 hover:text-orange-300 font-bold transition-colors"
+                >
+                  <span>Contact & Support</span>
+                  <span className="bg-orange-500/20 text-orange-400 text-[10px] font-extrabold px-1.5 py-0.2 rounded-full border border-orange-500/30">
+                    7j/7
+                  </span>
                 </Link>
               </li>
               <li>

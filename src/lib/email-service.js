@@ -11,6 +11,8 @@ import SupportNewConversationAdmin from '../emails/SupportNewConversationAdmin';
 import CandidateReminderDay1 from '../emails/CandidateReminderDay1';
 import CandidateReminderDay4 from '../emails/CandidateReminderDay4';
 import CandidateReminderDay10 from '../emails/CandidateReminderDay10';
+import ContactFormAdmin from '../emails/ContactFormAdmin';
+import ContactFormConfirmationUser from '../emails/ContactFormConfirmationUser';
 
 const FROM_EMAIL = 'FretTalent <support@frettalent.fr>';
 const ADMIN_EMAIL = 'support@frettalent.fr'; // A envoyer aux admins de FretTalent
@@ -284,4 +286,68 @@ export async function sendCandidateReminderDay10(email, candidateName) {
     return { success: false, error };
   }
 }
+
+/**
+ * Envoie le message du formulaire de contact à support@frettalent.fr
+ * et envoie un accusé de réception automatique au demandeur
+ */
+export async function sendContactFormEmails({
+  name,
+  email,
+  phone,
+  role,
+  subject,
+  message,
+}) {
+  const results = { adminEmail: null, userEmail: null };
+
+  // 1. Email vers l'équipe FretTalent (support@frettalent.fr)
+  try {
+    const adminHtml = await render(
+      <ContactFormAdmin
+        name={name}
+        email={email}
+        phone={phone}
+        role={role}
+        subject={subject}
+        message={message}
+      />
+    );
+
+    results.adminEmail = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [ADMIN_EMAIL],
+      replyTo: email,
+      subject: `📬 Nouveau contact [${role === 'recruiter' ? 'Entreprise' : role === 'candidate' ? 'Chauffeur' : 'Autre'}] : ${subject}`,
+      html: adminHtml,
+    });
+  } catch (err) {
+    console.error('Erreur envoi email contact admin:', err);
+    results.adminEmail = { error: err.message };
+  }
+
+  // 2. Accusé de réception automatique envoyé au demandeur
+  try {
+    const userHtml = await render(
+      <ContactFormConfirmationUser
+        name={name}
+        subject={subject}
+        message={message}
+      />
+    );
+
+    results.userEmail = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [email],
+      subject: `Confirmation de réception de votre message — FretTalent`,
+      html: userHtml,
+    });
+  } catch (err) {
+    console.error('Erreur envoi email contact confirmation utilisateur:', err);
+    results.userEmail = { error: err.message };
+  }
+
+  return results;
+}
+
 

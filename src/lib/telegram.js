@@ -488,6 +488,58 @@ Toutes les commandes interactives sont actives :
   return sendTelegramMessage(message, { reply_markup });
 }
 
+/**
+ * Envoie une alerte Telegram instantanée à l'admin lors d'une soumission de formulaire de contact
+ */
+export async function sendTelegramContactNotification({
+  name,
+  email,
+  phone,
+  role,
+  subject,
+  message,
+}) {
+  const roleEmoji = role === 'recruiter' ? '🏢' : role === 'candidate' ? '🚚' : '🤝';
+  const roleLabel =
+    role === 'recruiter'
+      ? 'Entreprise / Transporteur'
+      : role === 'candidate'
+      ? 'Chauffeur / Candidat'
+      : 'Partenaire / Autre';
+
+  const telegramMsg = `📬 <b>NOUVEAU MESSAGE DE CONTACT SUR FRETTALENT</b>
+━━━━━━━━━━━━━━━━━━━━
+👤 <b>De :</b> ${escapeHtml(name)} (${roleEmoji} <i>${roleLabel}</i>)
+✉️ <b>Email :</b> <code>${escapeHtml(email)}</code>
+📞 <b>Téléphone :</b> <code>${escapeHtml(phone || 'Non renseigné')}</code>
+🎯 <b>Sujet :</b> <b>${escapeHtml(subject)}</b>
+
+💬 <b>Message :</b>
+<i>"${escapeHtml(truncate(message, 400))}"</i>
+━━━━━━━━━━━━━━━━━━━━
+📅 <i>Reçu le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</i>`;
+
+  const inlineKeyboard = [
+    [
+      { text: '✉️ Répondre par Email', url: `mailto:${email}?subject=Re: ${encodeURIComponent(subject)}` },
+    ],
+  ];
+
+  if (phone) {
+    const cleanPhone = phone.replace(/[^0-9+]/g, '');
+    inlineKeyboard[0].push({ text: '📞 Appeler', url: `tel:${cleanPhone}` });
+  }
+
+  inlineKeyboard.push([
+    { text: '🌐 Espace Admin FretTalent', url: 'https://www.frettalent.fr/dashboard/admin' },
+  ]);
+
+  return sendTelegramMessage(telegramMsg, {
+    reply_markup: { inline_keyboard: inlineKeyboard },
+  });
+}
+
+
 function escapeHtml(text) {
   if (!text) return '';
   return String(text)

@@ -176,6 +176,20 @@ export default function Header() {
               Nouveau
             </span>
           </Link>
+
+          <Link
+            href="/contact"
+            className={`flex items-center justify-between px-4 py-3 text-sm font-bold rounded-2xl transition-all ${
+              isActive('/contact')
+                ? 'text-orange-600 bg-orange-50 font-black'
+                : 'text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            <span>Contact &amp; Support</span>
+            <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+              7j/7
+            </span>
+          </Link>
         </div>
 
         <div className="p-5 border-t border-slate-100 space-y-2.5 bg-white">

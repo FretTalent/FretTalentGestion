@@ -24,14 +24,79 @@ export async function POST(req) {
     if (update.callback_query) {
       const cb = update.callback_query;
       const fromId = String(cb.from?.id || '');
+      const data = cb.data || '';
 
-      // Sécurité : Seul l'admin enregistré peut cliquer sur les boutons de modération
+      // A. Callbacks Publics (Visiteurs / Candidats / Entreprises)
+      if (data.startsWith('pub_')) {
+        await answerTelegramCallbackQuery(cb.id);
+        const chatId = cb.message?.chat?.id || fromId;
+
+        if (data === 'pub_carrier') {
+          const text = `🏢 <b>ESPACE TRANSPORTEURS & ENTREPRISES</b>\n━━━━━━━━━━━━━━━━━━━━\nFretTalent est la plateforme N°1 dédiée 100% au recrutement de chauffeurs routiers (C, CE, SPL, FIMO, Chrono, ADR).\n\n💰 <b>Nos Offres :</b>\n• <b>Paiement à l'acte :</b> 2,00 € TTC par chauffeur débloqué (sans engagement)\n• <b>Abonnement Pro :</b> 39,99 € HT/mois (déblocages illimités & diffusion d'offres prioritaires)\n\n👉 <i>Vous souhaitez être rappelé ou recruter immédiatement ? Envoyez votre message ici ou visitez notre site :</i>`;
+          await sendTelegramMessage(text, {
+            chatId,
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: '🌐 Découvrir les Chauffeurs', url: 'https://www.frettalent.fr/entreprises' }],
+                [{ text: '💬 Écrire à un Conseiller', callback_data: 'pub_human' }],
+                [{ text: '⬅️ Menu Principal', callback_data: 'pub_menu' }],
+              ],
+            },
+          });
+          return NextResponse.json({ ok: true });
+        }
+
+        if (data === 'pub_driver') {
+          const text = `🚚 <b>ESPACE CHAUFFEURS ROUTIERS</b>\n━━━━━━━━━━━━━━━━━━━━\nL'inscription est <b>100% GRATUITE</b> pour tous les chauffeurs !\n\n🛡️ <b>Obtenez le badge "Chauffeur Vérifié ✓" :</b>\n1. Créez votre profil en 2 minutes\n2. Déposez vos pièces : Permis C/CE, FIMO/FCO, Carte Conducteur Chrono\n3. Soyez contacté en direct par les transporteurs de votre région sans intermédiaire !\n\n👉 <i>Créez votre compte gratuitement dès maintenant :</i>`;
+          await sendTelegramMessage(text, {
+            chatId,
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: '📝 Créer mon Profil Gratuit', url: 'https://www.frettalent.fr/register' }],
+                [{ text: '💬 Écrire au Support', callback_data: 'pub_human' }],
+                [{ text: '⬅️ Menu Principal', callback_data: 'pub_menu' }],
+              ],
+            },
+          });
+          return NextResponse.json({ ok: true });
+        }
+
+        if (data === 'pub_tarifs') {
+          const text = `💰 <b>TARIFS TRANSPARENTS FRETTALENT</b>\n━━━━━━━━━━━━━━━━━━━━\n• <b>Chauffeurs :</b> 100% Gratuit à vie\n• <b>Entreprises (À l'acte) :</b> 2,00 € TTC / contact débloqué\n• <b>Entreprises (Pro Illimité) :</b> 39,99 € HT / mois\n\n👉 <i>Économisez plus de 90% par rapport aux agences d'intérim et cabinets de recrutement !</i>`;
+          await sendTelegramMessage(text, {
+            chatId,
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: '💳 Voir la Grille Tarifaire', url: 'https://www.frettalent.fr/tarifs' }],
+                [{ text: '💬 Poser une Question', callback_data: 'pub_human' }],
+                [{ text: '⬅️ Menu Principal', callback_data: 'pub_menu' }],
+              ],
+            },
+          });
+          return NextResponse.json({ ok: true });
+        }
+
+        if (data === 'pub_human' || data === 'pub_menu') {
+          if (data === 'pub_human') {
+            await sendTelegramMessage(
+              `✍️ <b>Écrivez votre message ci-dessous :</b>\n\nPosez votre question ou détaillez votre besoin. Notre équipe support recevra directement votre message et vous répondra dans les plus brefs délais !`,
+              { chatId }
+            );
+          } else {
+            await sendPublicWelcomeMenu(chatId);
+          }
+          return NextResponse.json({ ok: true });
+        }
+
+        return NextResponse.json({ ok: true });
+      }
+
+      // B. Sécurité Admin pour les actions d'administration
       if (adminChatId && fromId !== adminChatId) {
         await answerTelegramCallbackQuery(cb.id, '⛔ Action non autorisée.', true);
         return NextResponse.json({ ok: true });
       }
 
-      const data = cb.data || '';
       const supabaseAdmin = getAdminClient();
 
       // Action 1: Valider un chauffeur en 1 clic
@@ -151,13 +216,35 @@ export async function POST(req) {
       const fromId = String(msg.from?.id || '');
       const chatId = msg.chat?.id;
       const text = (msg.text || '').trim();
+      const fromName = `${msg.from?.first_name || ''} ${msg.from?.last_name || ''}`.trim() || 'Visiteur';
+      const fromUsername = msg.from?.username;
 
-      // Sécurité : Seul l'admin enregistré peut interagir avec le bot
+      // SI C'EST UN VISITEUR PUBLIC (Non-Admin)
       if (adminChatId && fromId !== adminChatId) {
+        if (text === '/start' || text === '/help' || !text) {
+          await sendPublicWelcomeMenu(chatId, fromName);
+          return NextResponse.json({ ok: true });
+        }
+
+        // Accusé de réception au visiteur
         await sendTelegramMessage(
-          '⛔ <b>Accès restreint.</b> Ce robot est réservé à l\'administrateur de FretTalent.',
+          `✅ <b>Message bien reçu, ${fromName} !</b>\n\nUn conseiller de l'équipe FretTalent analyse votre demande et vous répondra dans les plus brefs délais.\n\nVous pouvez également nous contacter par e-mail à : support@frettalent.fr ou visiter https://www.frettalent.fr`,
           { chatId }
         );
+
+        // Alerte transmise à l'Admin
+        const adminAlert = `📬 <b>NOUVEAU MESSAGE REÇU SUR @Frettalent</b>\n━━━━━━━━━━━━━━━━━━━━\n👤 <b>De :</b> ${fromName} ${fromUsername ? '(@' + fromUsername + ')' : ''} [ID: <code>${fromId}</code>]\n💬 <b>Message :</b>\n<i>"${text}"</i>\n━━━━━━━━━━━━━━━━━━━━\n📅 <i>${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</i>`;
+
+        const keyboard = [];
+        if (fromUsername) {
+          keyboard.push([{ text: `💬 Répondre à @${fromUsername}`, url: `https://t.me/${fromUsername}` }]);
+        }
+
+        await sendTelegramMessage(adminAlert, {
+          chatId: adminChatId,
+          reply_markup: keyboard.length > 0 ? { inline_keyboard: keyboard } : undefined,
+        });
+
         return NextResponse.json({ ok: true });
       }
 
@@ -528,3 +615,33 @@ async function handleVentesCommand(chatId) {
 
   await sendTelegramMessage(message.trim(), { chatId, reply_markup });
 }
+
+// 7. MENU D'ACCUEIL PUBLIC ROBOT QUALIFICATION
+async function sendPublicWelcomeMenu(chatId, userName = 'Visiteur') {
+  const welcomeText = `🚛 <b>BIENVENUE SUR L'ASSISTANCE OFFICIELLE FRETTALENT !</b>
+━━━━━━━━━━━━━━━━━━━━
+Bonjour <b>${userName}</b>, je suis le robot assistant intelligent de FretTalent.
+
+Comment pouvons-nous vous aider aujourd'hui ? Cliquez sur l'une des options ci-dessous pour une réponse instantanée :`;
+
+  const reply_markup = {
+    inline_keyboard: [
+      [
+        { text: '🏢 Je suis un Transporteur / Entreprise', callback_data: 'pub_carrier' },
+      ],
+      [
+        { text: '🚚 Je suis un Chauffeur Routier', callback_data: 'pub_driver' },
+      ],
+      [
+        { text: '💰 Tarifs (2€ / 39,99€)', callback_data: 'pub_tarifs' },
+        { text: '💬 Parler à un Humain', callback_data: 'pub_human' },
+      ],
+      [
+        { text: '🌐 Visiter le Site Web', url: 'https://www.frettalent.fr' },
+      ],
+    ],
+  };
+
+  await sendTelegramMessage(welcomeText, { chatId, reply_markup });
+}
+

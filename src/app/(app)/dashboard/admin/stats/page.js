@@ -114,27 +114,36 @@ export default function AdminStatsPage() {
     geoBreakdown = {},
   } = statsData || {};
 
+  // Données normalisées
+  const totalViews = kpis.totalViews ?? kpis.pageViews ?? 0;
+  const viewsGrowth = kpis.viewsGrowth ?? kpis.pageViewsGrowth ?? 0;
+  const uniqueVisitors = kpis.uniqueSessions ?? kpis.uniqueVisitors ?? 0;
+  const sessionsGrowth = kpis.sessionsGrowth ?? 0;
+  const organicViews = channels.organic?.count ?? 0;
+  const organicRate = totalViews > 0 ? Math.round((organicViews / totalViews) * 100) : (kpis.organicRate ?? 0);
+  const conversionRate = funnel.overallConversionRate ?? kpis.conversionRate ?? '0.0';
+
   const totalDeviceCount = (devices.desktop || 0) + (devices.mobile || 0) + (devices.tablet || 0) || 1;
   const desktopPct = Math.round(((devices.desktop || 0) / totalDeviceCount) * 100);
   const mobilePct = Math.round(((devices.mobile || 0) / totalDeviceCount) * 100);
 
   // SVG Chart path calculation for daily stats
   const chartPoints = useMemo(() => {
-    if (!dailyStats || dailyStats.length === 0) return { pathViews: '', pathUniques: '', points: [] };
-    const maxVal = Math.max(...dailyStats.map(d => Math.max(d.views || 0, d.uniques || 0)), 10);
+    if (!dailyStats || dailyStats.length === 0) return { pathViews: '', pathUniques: '', pointsViews: [], pointsUniques: [] };
+    const maxVal = Math.max(...dailyStats.map(d => Math.max(d.views || 0, d.uniques || 0)), 5);
     const width = 500;
     const height = 140;
     const step = dailyStats.length > 1 ? width / (dailyStats.length - 1) : width;
 
     const pointsViews = dailyStats.map((d, i) => {
       const x = i * step;
-      const y = height - ((d.views || 0) / maxVal) * (height - 20) - 10;
+      const y = height - ((d.views || 0) / maxVal) * (height - 30) - 15;
       return { x, y, date: d.date, val: d.views };
     });
 
     const pointsUniques = dailyStats.map((d, i) => {
       const x = i * step;
-      const y = height - ((d.uniques || 0) / maxVal) * (height - 20) - 10;
+      const y = height - ((d.uniques || 0) / maxVal) * (height - 30) - 15;
       return { x, y, date: d.date, val: d.uniques };
     });
 
@@ -157,12 +166,18 @@ export default function AdminStatsPage() {
     };
   }, [dailyStats]);
 
+  // Répartition par pays
+  const franceCount = geoBreakdown.france?.candidatesCount ?? 0;
+  const belgiumCount = geoBreakdown.belgium?.candidatesCount ?? 0;
+  const luxembourgCount = geoBreakdown.luxembourg?.candidatesCount ?? 0;
+  const switzerlandCount = geoBreakdown.switzerland?.candidatesCount ?? 0;
+
   if (loading && !statsData) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[450px] gap-3 bg-slate-100/60 rounded-xl p-8">
         <RefreshCw className="h-8 w-8 text-slate-700 animate-spin" />
         <p className="text-slate-600 text-xs font-bold uppercase tracking-wider">
-          Calcul des statistiques d'audience et SEO en cours...
+          Mise à jour des statistiques en temps réel...
         </p>
       </div>
     );
@@ -262,14 +277,14 @@ export default function AdminStatsPage() {
               <Eye className="h-4 w-4 text-teal-600" />
             </div>
             <div className="text-4xl sm:text-5xl font-black text-slate-950 mt-3 tracking-tight font-mono">
-              {(kpis.pageViews || 0).toLocaleString('fr-FR')}
+              {totalViews.toLocaleString('fr-FR')}
             </div>
             <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
               <span>Progression vs N-1 :</span>
               <span className={`font-bold font-mono px-2 py-0.5 rounded text-[11px] ${
-                (kpis.pageViewsGrowth || 0) >= 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
+                viewsGrowth >= 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
               }`}>
-                {(kpis.pageViewsGrowth || 0) >= 0 ? '+' : ''}{kpis.pageViewsGrowth || 0}%
+                {viewsGrowth >= 0 ? '+' : ''}{viewsGrowth}%
               </span>
             </div>
           </div>
@@ -281,12 +296,12 @@ export default function AdminStatsPage() {
               <Users className="h-4 w-4 text-blue-600" />
             </div>
             <div className="text-4xl sm:text-5xl font-black text-slate-950 mt-3 tracking-tight font-mono">
-              {(kpis.uniqueVisitors || 0).toLocaleString('fr-FR')}
+              {uniqueVisitors.toLocaleString('fr-FR')}
             </div>
             <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-              <span>Nouveaux utilisateurs :</span>
+              <span>Sessions actives :</span>
               <span className="font-extrabold text-blue-700 bg-blue-50 px-2 py-0.5 rounded text-[11px]">
-                {kpis.uniqueVisitors || 0} profils
+                {uniqueVisitors} profils
               </span>
             </div>
           </div>
@@ -298,12 +313,12 @@ export default function AdminStatsPage() {
               <Globe className="h-4 w-4 text-emerald-600" />
             </div>
             <div className="text-4xl sm:text-5xl font-black text-slate-950 mt-3 tracking-tight font-mono">
-              {kpis.organicRate || 0}%
+              {organicRate}%
             </div>
             <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
               <span>Moteurs Google & Bing :</span>
               <span className="font-bold text-slate-900">
-                {(kpis.organicViews || 0).toLocaleString('fr-FR')} vues
+                {organicViews.toLocaleString('fr-FR')} vues
               </span>
             </div>
           </div>
@@ -315,7 +330,7 @@ export default function AdminStatsPage() {
               <Target className="h-4 w-4 text-orange-500" />
             </div>
             <div className="text-4xl sm:text-5xl font-black text-slate-950 mt-3 tracking-tight font-mono">
-              {kpis.conversionRate || 0}%
+              {conversionRate}%
             </div>
             <p className="text-[11px] text-slate-400 font-medium mt-2">
               Ratio des visiteurs qui finalisent une inscription ou un déblocage.
@@ -408,7 +423,6 @@ export default function AdminStatsPage() {
                   { label: 'Accès Direct & Favoris', val: channels.direct?.count || 0, color: 'bg-teal-500' },
                   { label: 'Réseaux Sociaux (LinkedIn/FB)', val: channels.social?.count || 0, color: 'bg-teal-400' },
                   { label: 'Sites Référents & Partenaires', val: channels.referral?.count || 0, color: 'bg-teal-300' },
-                  { label: 'Campagnes & E-mails', val: channels.campaign?.count || 0, color: 'bg-slate-400' },
                 ].map((item, idx) => {
                   const maxChannel = Math.max(...Object.values(channels).map(c => c.count || 0), 1);
                   const pct = Math.max(10, Math.round((item.val / maxChannel) * 100));
@@ -444,16 +458,16 @@ export default function AdminStatsPage() {
               <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-3">
                 <span>Entonnoir de Conversion Recrutement</span>
                 <span className="text-[10px] font-bold bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">
-                  Tunnel Recruteur
+                  Tunnel de Conversion
                 </span>
               </div>
 
               <div className="space-y-2.5">
                 {[
-                  { step: '1. Visite Page d\'Accueil', count: funnel.visitors || 0, pct: '100%', color: 'bg-slate-900' },
-                  { step: '2. Recherche Chauffeurs / Offres', count: funnel.browsed || 0, pct: '62%', color: 'bg-teal-700' },
-                  { step: '3. Consultation Fiche Chauffeur', count: funnel.viewedProfiles || 0, pct: '38%', color: 'bg-teal-500' },
-                  { step: '4. Déblocage de Contact (2€ / Pro)', count: funnel.unlocked || 0, pct: `${kpis.conversionRate || 0}%`, color: 'bg-emerald-600' },
+                  { step: '1. Visiteurs Uniques', count: funnel.step1_visitors ?? uniqueVisitors, pct: '100%', color: 'bg-slate-900' },
+                  { step: '2. Intention & Navigation Active', count: funnel.step2_intent ?? 0, pct: `${funnel.intentRate || 0}%`, color: 'bg-teal-700' },
+                  { step: '3. Consultation Inscription / Login', count: funnel.step3_register ?? 0, pct: `${funnel.registerRate || 0}%`, color: 'bg-teal-500' },
+                  { step: '4. Inscriptions & Déblocages Confirmés', count: funnel.step4_signed_up ?? 0, pct: `${conversionRate}%`, color: 'bg-emerald-600' },
                 ].map((st, idx) => (
                   <div key={idx} className="bg-slate-50 p-2.5 rounded-lg border border-slate-100 flex items-center justify-between gap-3 text-xs">
                     <div>
@@ -496,19 +510,19 @@ export default function AdminStatsPage() {
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="bg-teal-50 border border-teal-200 p-2.5 rounded-lg flex items-center justify-between">
                     <span className="font-bold text-teal-950">🇫🇷 France</span>
-                    <span className="font-mono font-black text-teal-700">{geoBreakdown.FR || '78%'}</span>
+                    <span className="font-mono font-black text-teal-700">{franceCount} chauffeurs</span>
                   </div>
                   <div className="bg-rose-50 border border-rose-200 p-2.5 rounded-lg flex items-center justify-between">
                     <span className="font-bold text-rose-950">🇧🇪 Belgique</span>
-                    <span className="font-mono font-black text-rose-700">{geoBreakdown.BE || '14%'}</span>
+                    <span className="font-mono font-black text-rose-700">{belgiumCount} chauffeurs</span>
                   </div>
                   <div className="bg-amber-50 border border-amber-200 p-2.5 rounded-lg flex items-center justify-between">
                     <span className="font-bold text-amber-950">🇱🇺 Luxembourg</span>
-                    <span className="font-mono font-black text-amber-700">{geoBreakdown.LU || '5%'}</span>
+                    <span className="font-mono font-black text-amber-700">{luxembourgCount} chauffeurs</span>
                   </div>
                   <div className="bg-slate-100 border border-slate-200 p-2.5 rounded-lg flex items-center justify-between">
                     <span className="font-bold text-slate-950">🇨🇭 Suisse</span>
-                    <span className="font-mono font-black text-slate-700">{geoBreakdown.CH || '3%'}</span>
+                    <span className="font-mono font-black text-slate-700">{switzerlandCount} chauffeurs</span>
                   </div>
                 </div>
               </div>

@@ -30,53 +30,35 @@ import ConfirmModal from '@/components/ConfirmModal';
 
 const TEMPLATES = {
   prospection_transporteur: {
-    name: '⚡ Conquête Transporteurs (Offre Choc)',
+    name: '⚡ Conquête Transporteurs (Pitch Court)',
     emoji: '🚛',
     badge: 'Acquisition B2B',
     badgeColor: 'bg-emerald-100 text-emerald-800',
-    description: 'Pitch percutant, comparatif agences/intérim et offre 2€ / 39,99€ (100% Chauffeurs)',
+    category: 'recruiter',
+    description: 'Pitch rapide (15s) : stop aux camions à l\'arrêt, niche 100% chauffeurs & tarifs 2€ / 39,99€',
     icon: Truck,
     iconColor: 'text-emerald-600',
     iconBg: 'bg-emerald-50',
     type: 'promo',
-    subject: '🚛 Marre des camions à l\'arrêt et des frais d\'intérim exorbitants ? — FretTalent',
-    title: 'La 1ère Plateforme 100% Dédiée au Recrutement de Chauffeurs Routiers',
-    message: `Bonjour Madame, Monsieur,
+    subject: '🚛 Marre des camions à l\'arrêt et des frais d\'intérim ? — FretTalent',
+    title: 'Recrutez vos chauffeurs routiers sans intermédiaire',
+    message: `Bonjour,
 
-En tant que dirigeant ou responsable d'exploitation dans le transport routier, vous le savez : un camion immobilisé dans votre cour par manque de chauffeur vous coûte entre 500 € et 1 000 € par jour.
+Un camion immobilisé vous coûte entre 500 € et 1 000 € par jour. Pourquoi continuer à payer des marges de +50% aux agences d'intérim ?
 
-Pourtant, les solutions traditionnelles de recrutement sont devenues inadaptées et hors de prix :
-❌ Agences d'intérim : des marges de +40% à +60% sur chaque heure travaillée (800 € à 1 500 €/mois de surcoût par conducteur).
-❌ Jobboards généralistes (Indeed, etc.) : des centaines de candidatures hors sujet sans permis ni FIMO.
-❌ Cabinets de recrutement : des honoraires de 1 500 € à 3 000 € par embauche.
+FretTalent est la plateforme N°1 dédiée 100% au recrutement de chauffeurs routiers :
 
-───────────────────────────────
-🎯 LA SOLUTION FRETTALENT : 100% NICHE TRANSPORT
-───────────────────────────────
-FretTalent est la plateforme N°1 créée exclusivement pour connecter directement les transporteurs avec des chauffeurs routiers qualifiés et immédiatement disponibles.
+✅ Chauffeurs Qualifiés : Permis C, CE, SPL, FIMO/FCO, Carte Chrono, ADR, Frigo, Bâché, Benne TP, Messagerie.
+✅ Profils 100% Contrôlés : Justificatifs et permis vérifiés par nos équipes avant validation.
+✅ Réseau 4 Pays : France 🇫🇷, Belgique 🇧🇪, Luxembourg 🇱🇺, Suisse 🇨🇭.
+✅ Tarifs Imbattables : 2,00 € TTC par chauffeur débloqué OU 39,99 €/mois en illimité (économisez 90% sur vos coûts RH).
 
-✅ 100% SPÉCIALISÉ TRANSPORT : Permis C, CE, SPL, FIMO / FCO, Carte Conducteur Chronotachygraphe, ADR Citerne/Base, Bâché, Frigo, Benne TP, Citerne, Messagerie.
-✅ PROFILS 100% CONTRÔLÉS : Tous les justificatifs officiels sont vérifiés par nos équipes avant validation (badge "Chauffeur Vérifié ✓").
-✅ RÉSEAU 4 PAYS : Accédez à des conducteurs qualifiés en France 🇫🇷, Belgique 🇧🇪, Luxembourg 🇱🇺 et Suisse 🇨🇭.
-✅ SANS INTERMÉDIAIRE : Vous accédez directement au numéro de téléphone, à l'e-mail et aux documents complets du chauffeur.
-
-───────────────────────────────
-💰 UNE TARIFICATION TRANSPARENTE ET IMBATTABLE
-───────────────────────────────
-Fini les commissions cachées et les abonnements contraignants :
-
-🔹 OPTION 1 : PAIEMENT À L'ACTE — Seulement 2,00 € TTC par contact débloqué. Zéro engagement, vous ne payez que les profils qui vous intéressent.
-🔹 OPTION 2 : ABONNEMENT PRO ILLIMITÉ — 39,99 € HT / mois pour débloquer tous les chauffeurs de la plateforme en illimité et publier vos offres d'emploi en priorité.
-
-👉 Économisez jusqu'à 90% sur vos coûts de recrutement dès aujourd'hui !
-
-Consultez dès maintenant les chauffeurs disponibles dans votre région et contactez vos futurs conducteurs en quelques clics.
+Accédez directement aux coordonnées et CV des conducteurs disponibles dès aujourd'hui :
 
 Cordialement,
 L'équipe FretTalent
-Service Recrutement & Partenariats Transport
-🌐 www.frettalent.fr | ✉️ support@frettalent.fr`,
-    ctaText: "Découvrir les Chauffeurs Disponibles",
+www.frettalent.fr | support@frettalent.fr`,
+    ctaText: "Voir les Chauffeurs Disponibles",
     ctaLink: 'https://www.frettalent.fr/entreprises',
   },
 
@@ -85,6 +67,7 @@ Service Recrutement & Partenariats Transport
     emoji: '🏢',
     badge: 'Entreprises',
     badgeColor: 'bg-blue-100 text-blue-700',
+    category: 'recruiter',
     description: 'Présentez FretTalent aux entreprises de transport',
     icon: Building2,
     iconColor: 'text-blue-600',
@@ -94,17 +77,13 @@ Service Recrutement & Partenariats Transport
     title: 'La solution N°1 pour recruter vos chauffeurs routiers',
     message: `Bonjour,
 
-Vous êtes à la recherche de chauffeurs qualifiés en France, Belgique, Luxembourg ou Suisse ? FretTalent est la plateforme de recrutement dédiée au transport routier qui vous connecte directement avec des profils vérifiés et disponibles.
+Vous cherchez des chauffeurs qualifiés en France, Belgique, Luxembourg ou Suisse ? FretTalent est la plateforme dédiée qui vous connecte en direct avec des profils vérifiés et disponibles.
 
-✅ Accès immédiat à des centaines de chauffeurs certifiés
-✅ Profils vérifiés avec documents contrôlés (FIMO, permis, carte chrono)
-✅ Réseau 4 pays — France, Belgique, Luxembourg et Suisse
-✅ Gain de temps : filtrez par spécialité, permis, disponibilité
-✅ Tarification simple et transparente
+✅ Accès immédiat à des centaines de chauffeurs certifiés (Permis, FIMO, Carte Chrono)
+✅ Réseau 4 pays : France, Belgique, Luxembourg et Suisse
+✅ Tarifs simples : 2,00 € par déblocage ou 39,99 €/mois en illimité
 
-Plus besoin d'agences intermédiaires. Recrutez directement les meilleurs talents du transport.
-
-Essayez FretTalent dès aujourd'hui et publiez votre première offre.
+Plus besoin d'agences intermédiaires coûteuses. Recrutez directement vos talents.
 
 Cordialement,
 L'équipe FretTalent`,
@@ -112,45 +91,115 @@ L'équipe FretTalent`,
     ctaLink: 'https://www.frettalent.fr/entreprises',
   },
 
+  nouveaux_chauffeurs: {
+    name: '🚛 Nouveaux Chauffeurs Dispos',
+    emoji: '🚛',
+    badge: 'Entreprises',
+    badgeColor: 'bg-blue-100 text-blue-700',
+    category: 'recruiter',
+    description: 'Informez les entreprises de nouveaux profils disponibles dans leur région',
+    icon: Truck,
+    iconColor: 'text-blue-600',
+    iconBg: 'bg-blue-50',
+    type: 'update',
+    subject: '🚛 De nouveaux chauffeurs qualifiés sont disponibles sur FretTalent !',
+    title: 'Découvrez les nouveaux profils disponibles',
+    message: `Bonjour,
+
+De nouveaux chauffeurs routiers qualifiés et vérifiés viennent de s'inscrire sur FretTalent dans votre région.
+
+Connectez-vous pour consulter leurs profils et entrer en contact avec eux en direct !
+
+L'équipe FretTalent`,
+    ctaText: 'Voir les Chauffeurs',
+    ctaLink: 'https://www.frettalent.fr/chauffeurs',
+  },
+
+  offre_speciale: {
+    name: '🎉 Offre Spéciale Recrutement',
+    emoji: '🎉',
+    badge: 'Promo B2B',
+    badgeColor: 'bg-pink-100 text-pink-700',
+    category: 'recruiter',
+    description: 'Envoyez une offre promotionnelle aux entreprises',
+    icon: Tag,
+    iconColor: 'text-pink-600',
+    iconBg: 'bg-pink-50',
+    type: 'promo',
+    subject: '🎁 Offre exclusive sur vos recrutements de chauffeurs — FretTalent',
+    title: 'Profitez de notre offre Pro Illimité',
+    message: `Bonjour,
+
+Pour une durée limitée, profitez de notre abonnement Pro Illimité à 39,99 €/mois pour recruter vos chauffeurs sans limite et publier vos annonces en priorité.
+
+Ne manquez pas cette occasion de trouver les meilleurs chauffeurs au meilleur tarif.
+
+À très vite sur FretTalent !`,
+    ctaText: "Voir l'Offre",
+    ctaLink: 'https://www.frettalent.fr/tarifs',
+  },
+
   invitation_candidat: {
-    name: '📨 Invitation Candidat',
+    name: '📨 Invitation Chauffeur',
     emoji: '📨',
     badge: 'Candidats',
     badgeColor: 'bg-orange-100 text-orange-700',
-    description: 'Invitez un chauffeur à rejoindre FretTalent',
+    category: 'candidate',
+    description: 'Invitez un chauffeur à rejoindre FretTalent gratuitement',
     icon: UserPlus,
     iconColor: 'text-orange-600',
     iconBg: 'bg-orange-50',
     type: 'custom',
     subject: '🚛 Rejoignez FretTalent — Trouvez votre prochain emploi de chauffeur',
-    title: 'Votre prochain emploi de chauffeur routier vous attend',
+    title: 'Votre prochain poste de chauffeur routier vous attend',
     message: `Bonjour,
 
-Vous êtes chauffeur routier et vous cherchez un poste qui vous correspond vraiment ? FretTalent est la plateforme de recrutement transport N°1 en France et en Belgique, créée spécialement pour les professionnels comme vous.
+Vous êtes chauffeur routier ? FretTalent est la plateforme dédiée qui vous connecte directement avec des centaines d'entreprises de transport qui recrutent en France et en Belgique.
 
-🎯 Pourquoi rejoindre FretTalent ?
-• Accès à des offres d'emploi exclusives dans le transport
-• Visibilité directe auprès de centaines d'entreprises de transport
-• Inscription gratuite — aucun frais pour les chauffeurs
-• Créez votre profil en 5 minutes
-• Déposez vos documents une seule fois (FIMO, permis, carte chrono)
-• Obtenez le badge "Chauffeur Vérifié ✓" pour vous démarquer
+🎯 Pourquoi s'inscrire ?
+• Inscription 100% gratuite pour les chauffeurs
+• Profil créé en 5 minutes
+• Déposez vos pièces (Permis, FIMO, Carte Chrono) et obtenez le badge "Vérifié ✓"
+• Soyez contacté en direct par les recruteurs de votre région
 
-Disponible en France, Belgique, Luxembourg et Suisse
-
-Ne laissez pas passer les meilleures opportunités. Créez votre profil gratuitement dès aujourd'hui et soyez visible par les recruteurs de votre région.
-
-À très vite sur FretTalent !
-L'équipe FretTalent`,
+À très vite sur FretTalent !`,
     ctaText: "Créer mon profil gratuitement",
     ctaLink: 'https://www.frettalent.fr/register',
   },
 
+  documents_manquants: {
+    name: '⚠️ Relance Pièces Manquantes',
+    emoji: '⚠️',
+    badge: 'Candidats',
+    badgeColor: 'bg-yellow-100 text-yellow-700',
+    category: 'candidate',
+    description: 'Relancez les chauffeurs ayant des pièces incomplètes',
+    icon: FileText,
+    iconColor: 'text-yellow-600',
+    iconBg: 'bg-yellow-50',
+    type: 'custom',
+    subject: '⚠️ Action requise : Complétez vos documents sur FretTalent',
+    title: 'Faites certifier votre profil chauffeur',
+    message: `Bonjour,
+
+Il manque certains justificatifs obligatoires sur votre profil FretTalent (Permis, FIMO, Carte Chrono).
+
+Votre profil sera visible en priorité par les recruteurs dès que vos pièces seront validées.
+
+Merci de vous connecter pour ajouter vos documents au plus vite.
+
+Cordialement,
+L'équipe FretTalent`,
+    ctaText: 'Mettre à jour mon profil',
+    ctaLink: 'https://www.frettalent.fr/dashboard/candidate',
+  },
+
   nouveautes: {
-    name: '🚀 Mise à jour / Nouveauté',
+    name: '🚀 Mise à Jour / Nouveauté',
     emoji: '🚀',
-    badge: 'Info',
+    badge: 'Annonce',
     badgeColor: 'bg-purple-100 text-purple-700',
+    category: 'general',
     description: 'Annoncez une nouveauté ou mise à jour de la plateforme',
     icon: Sparkles,
     iconColor: 'text-purple-600',
@@ -160,7 +209,7 @@ L'équipe FretTalent`,
     title: 'De nouvelles fonctionnalités sont en ligne !',
     message: `Bonjour,
 
-Nous sommes ravis de vous annoncer que de nouvelles fonctionnalités ont été ajoutées sur FretTalent pour améliorer votre expérience.
+Nous sommes ravis de vous annoncer que de nouvelles fonctionnalités ont été ajoutées sur FretTalent pour simplifier votre expérience.
 
 Connectez-vous dès maintenant pour les découvrir !
 
@@ -169,83 +218,12 @@ L'équipe FretTalent`,
     ctaLink: 'https://www.frettalent.fr/login',
   },
 
-  offre_speciale: {
-    name: '🎉 Promotion / Offre spéciale',
-    emoji: '🎉',
-    badge: 'Promo',
-    badgeColor: 'bg-pink-100 text-pink-700',
-    description: 'Envoyez une offre promotionnelle à vos utilisateurs',
-    icon: Tag,
-    iconColor: 'text-pink-600',
-    iconBg: 'bg-pink-50',
-    type: 'promo',
-    subject: '🎁 Offre exceptionnelle sur FretTalent',
-    title: 'Profitez de notre offre limitée !',
-    message: `Bonjour,
-
-Pour une durée limitée, profitez d'une offre exclusive sur vos prochains recrutements avec FretTalent.
-
-Ne manquez pas cette occasion de trouver les meilleurs chauffeurs au meilleur prix.
-
-À très vite sur FretTalent !`,
-    ctaText: "Voir l'offre",
-    ctaLink: 'https://www.frettalent.fr/tarifs',
-  },
-
-  documents_manquants: {
-    name: '⚠️ Documents manquants (Candidat)',
-    emoji: '⚠️',
-    badge: 'Candidats',
-    badgeColor: 'bg-yellow-100 text-yellow-700',
-    description: 'Relancez les candidats avec des documents incomplets',
-    icon: FileText,
-    iconColor: 'text-yellow-600',
-    iconBg: 'bg-yellow-50',
-    type: 'custom',
-    subject: '⚠️ Action requise : Documents manquants sur votre profil FretTalent',
-    title: 'Complétez votre profil pour être visible',
-    message: `Bonjour,
-
-Nous avons remarqué qu'il manque certains documents obligatoires sur votre profil FretTalent (Permis, FIMO, Carte Chronotachygraphe, etc.).
-
-Votre profil n'est pas encore visible par les recruteurs tant que ces documents ne sont pas déposés.
-
-Merci de vous connecter et de télécharger les documents manquants au plus vite pour ne rater aucune opportunité d'emploi.
-
-Cordialement,
-L'équipe FretTalent`,
-    ctaText: 'Mettre à jour mon profil',
-    ctaLink: 'https://www.frettalent.fr/dashboard/candidate',
-  },
-
-  nouveaux_chauffeurs: {
-    name: '🚛 Nouveaux chauffeurs disponibles (Entreprise)',
-    emoji: '🚛',
-    badge: 'Entreprises',
-    badgeColor: 'bg-blue-100 text-blue-700',
-    description: 'Informez les entreprises de nouveaux profils disponibles',
-    icon: Truck,
-    iconColor: 'text-blue-600',
-    iconBg: 'bg-blue-50',
-    type: 'update',
-    subject: '🚛 De nouveaux chauffeurs qualifiés sont disponibles sur FretTalent !',
-    title: 'Découvrez les nouveaux talents disponibles',
-    message: `Bonjour,
-
-De nouveaux chauffeurs qualifiés viennent de s'inscrire sur FretTalent dans votre région.
-
-Connectez-vous dès maintenant pour consulter leurs profils et entrer en contact avec eux avant vos concurrents !
-
-L'équipe FretTalent`,
-    ctaText: 'Voir les chauffeurs',
-    ctaLink: 'https://www.frettalent.fr/chauffeurs',
-  },
-
   custom: {
-    name: '📝 Message personnalisé',
+    name: '📝 Message Libre Personnalisé',
     emoji: '📝',
     badge: 'Libre',
     badgeColor: 'bg-slate-100 text-slate-600',
+    category: 'general',
     description: 'Rédigez un message entièrement personnalisé',
     icon: Mail,
     iconColor: 'text-slate-600',
@@ -272,6 +250,7 @@ export default function AdminMail() {
   const [totalCandidateCount, setTotalCandidateCount] = useState(0);
   const [totalCompanyCount, setTotalCompanyCount] = useState(0);
 
+  const [templateCategory, setTemplateCategory] = useState('recruiter'); // 'recruiter' | 'candidate' | 'general' | 'all'
   const [selectedTemplateKey, setSelectedTemplateKey] = useState('prospection_transporteur');
   const [type, setType] = useState('promo');
   const [subject, setSubject] = useState(TEMPLATES.prospection_transporteur.subject);
@@ -562,44 +541,104 @@ export default function AdminMail() {
         </div>
       )}
 
-      {/* 4. CHOIX DU MODÈLE D'E-MAIL (7 CARTES HAUTE DENSITÉ) */}
+      {/* 4. CHOIX DU MODÈLE D'E-MAIL (SÉLECTEUR CATÉGORISÉ & ERGONOMIQUE) */}
       <div className="w-full bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-3 min-w-0">
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-            Étape 1 : Choisir un Modèle Pré-Rédigé
-          </span>
-          <span className="text-[10px] text-slate-400 font-mono">Modèle actif : {selectedTpl?.name}</span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div>
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+              Étape 1 : Choisir un Modèle d&apos;E-mail
+            </span>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Sélectionnez une catégorie ou choisissez directement dans la liste
+            </p>
+          </div>
+
+          {/* Sélecteur Déroulant Rapide 1-Clic */}
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-bold text-slate-500 shrink-0 hidden sm:inline">Modèle :</span>
+            <select
+              value={selectedTemplateKey}
+              onChange={(e) => handleTemplateSelect(e.target.value)}
+              className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900/10 cursor-pointer max-w-[280px] sm:max-w-none truncate"
+            >
+              <optgroup label="🏢 Entreprises & Transporteurs">
+                <option value="prospection_transporteur">⚡ Conquête Transporteurs (Pitch Court)</option>
+                <option value="promo_entreprise">🏢 Présentation Standard Entreprise</option>
+                <option value="nouveaux_chauffeurs">🚛 Nouveaux Chauffeurs Disponibles</option>
+                <option value="offre_speciale">🎉 Offre Spéciale Recrutement</option>
+              </optgroup>
+              <optgroup label="🚚 Chauffeurs & Candidats">
+                <option value="invitation_candidat">📨 Invitation Chauffeur</option>
+                <option value="documents_manquants">⚠️ Relance Pièces Manquantes</option>
+              </optgroup>
+              <optgroup label="📢 Annonces & Libre">
+                <option value="nouveautes">🚀 Mise à Jour / Nouveauté</option>
+                <option value="custom">📝 Message Libre Personnalisé</option>
+              </optgroup>
+            </select>
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
-          {Object.entries(TEMPLATES).map(([key, tpl]) => {
-            const Icon = tpl.icon;
-            const isSelected = selectedTemplateKey === key;
-            return (
-              <button
-                key={key}
-                type="button"
-                onClick={() => handleTemplateSelect(key)}
-                className={`text-left p-2.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
-                  isSelected
-                    ? 'border-slate-900 bg-slate-900 text-white shadow-sm ring-1 ring-slate-900/10'
-                    : 'border-slate-200 bg-slate-50/50 hover:bg-white hover:border-slate-300 text-slate-800'
-                }`}
-              >
-                <div className="flex items-center justify-between gap-1 mb-2">
-                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs ${isSelected ? 'bg-white/20 text-white' : tpl.iconBg}`}>
-                    <Icon className={`h-3.5 w-3.5 ${isSelected ? 'text-white' : tpl.iconColor}`} />
+        {/* Onglets de Catégories de Modèles */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+          {[
+            { id: 'recruiter', label: '🏢 Entreprises & Transporteurs (4)' },
+            { id: 'candidate', label: '🚚 Chauffeurs & Candidats (2)' },
+            { id: 'general', label: '📢 Annonces & Libre (2)' },
+            { id: 'all', label: '📋 Tous les Modèles (8)' },
+          ].map((cat) => (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => setTemplateCategory(cat.id)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                templateCategory === cat.id
+                  ? 'bg-slate-900 text-white shadow-2xs'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Grille spacieuse des modèles de la catégorie active */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+          {Object.entries(TEMPLATES)
+            .filter(([_, tpl]) => templateCategory === 'all' || tpl.category === templateCategory)
+            .map(([key, tpl]) => {
+              const Icon = tpl.icon;
+              const isSelected = selectedTemplateKey === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => handleTemplateSelect(key)}
+                  className={`text-left p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+                    isSelected
+                      ? 'border-slate-900 bg-slate-900 text-white shadow-md ring-2 ring-slate-900/10'
+                      : 'border-slate-200 bg-slate-50/60 hover:bg-white hover:border-slate-300 text-slate-800'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-1 mb-2">
+                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs ${isSelected ? 'bg-white/20 text-white' : tpl.iconBg}`}>
+                        <Icon className={`h-4 w-4 ${isSelected ? 'text-white' : tpl.iconColor}`} />
+                      </div>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${isSelected ? 'bg-white/20 text-white' : tpl.badgeColor}`}>
+                        {tpl.badge}
+                      </span>
+                    </div>
+                    <p className="text-xs font-bold leading-tight mb-1">
+                      {tpl.name}
+                    </p>
+                    <p className={`text-[11px] leading-snug line-clamp-2 ${isSelected ? 'text-slate-300' : 'text-slate-500'}`}>
+                      {tpl.description}
+                    </p>
                   </div>
-                  <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${isSelected ? 'bg-white/20 text-white' : tpl.badgeColor}`}>
-                    {tpl.badge}
-                  </span>
-                </div>
-                <p className="text-[11px] font-bold leading-tight truncate">
-                  {tpl.name.replace(/^[^\s]+\s/, '')}
-                </p>
-              </button>
-            );
-          })}
+                </button>
+              );
+            })}
         </div>
       </div>
 

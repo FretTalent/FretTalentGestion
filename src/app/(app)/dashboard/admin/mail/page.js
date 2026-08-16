@@ -29,6 +29,57 @@ import toast from 'react-hot-toast';
 import ConfirmModal from '@/components/ConfirmModal';
 
 const TEMPLATES = {
+  prospection_transporteur: {
+    name: '⚡ Conquête Transporteurs (Offre Choc)',
+    emoji: '🚛',
+    badge: 'Acquisition B2B',
+    badgeColor: 'bg-emerald-100 text-emerald-800',
+    description: 'Pitch percutant, comparatif agences/intérim et offre 2€ / 39,99€ (100% Chauffeurs)',
+    icon: Truck,
+    iconColor: 'text-emerald-600',
+    iconBg: 'bg-emerald-50',
+    type: 'promo',
+    subject: '🚛 Marre des camions à l\'arrêt et des frais d\'intérim exorbitants ? — FretTalent',
+    title: 'La 1ère Plateforme 100% Dédiée au Recrutement de Chauffeurs Routiers',
+    message: `Bonjour Madame, Monsieur,
+
+En tant que dirigeant ou responsable d'exploitation dans le transport routier, vous le savez : un camion immobilisé dans votre cour par manque de chauffeur vous coûte entre 500 € et 1 000 € par jour.
+
+Pourtant, les solutions traditionnelles de recrutement sont devenues inadaptées et hors de prix :
+❌ Agences d'intérim : des marges de +40% à +60% sur chaque heure travaillée (800 € à 1 500 €/mois de surcoût par conducteur).
+❌ Jobboards généralistes (Indeed, etc.) : des centaines de candidatures hors sujet sans permis ni FIMO.
+❌ Cabinets de recrutement : des honoraires de 1 500 € à 3 000 € par embauche.
+
+───────────────────────────────
+🎯 LA SOLUTION FRETTALENT : 100% NICHE TRANSPORT
+───────────────────────────────
+FretTalent est la plateforme N°1 créée exclusivement pour connecter directement les transporteurs avec des chauffeurs routiers qualifiés et immédiatement disponibles.
+
+✅ 100% SPÉCIALISÉ TRANSPORT : Permis C, CE, SPL, FIMO / FCO, Carte Conducteur Chronotachygraphe, ADR Citerne/Base, Bâché, Frigo, Benne TP, Citerne, Messagerie.
+✅ PROFILS 100% CONTRÔLÉS : Tous les justificatifs officiels sont vérifiés par nos équipes avant validation (badge "Chauffeur Vérifié ✓").
+✅ RÉSEAU 4 PAYS : Accédez à des conducteurs qualifiés en France 🇫🇷, Belgique 🇧🇪, Luxembourg 🇱🇺 et Suisse 🇨🇭.
+✅ SANS INTERMÉDIAIRE : Vous accédez directement au numéro de téléphone, à l'e-mail et aux documents complets du chauffeur.
+
+───────────────────────────────
+💰 UNE TARIFICATION TRANSPARENTE ET IMBATTABLE
+───────────────────────────────
+Fini les commissions cachées et les abonnements contraignants :
+
+🔹 OPTION 1 : PAIEMENT À L'ACTE — Seulement 2,00 € TTC par contact débloqué. Zéro engagement, vous ne payez que les profils qui vous intéressent.
+🔹 OPTION 2 : ABONNEMENT PRO ILLIMITÉ — 39,99 € HT / mois pour débloquer tous les chauffeurs de la plateforme en illimité et publier vos offres d'emploi en priorité.
+
+👉 Économisez jusqu'à 90% sur vos coûts de recrutement dès aujourd'hui !
+
+Consultez dès maintenant les chauffeurs disponibles dans votre région et contactez vos futurs conducteurs en quelques clics.
+
+Cordialement,
+L'équipe FretTalent
+Service Recrutement & Partenariats Transport
+🌐 www.frettalent.fr | ✉️ support@frettalent.fr`,
+    ctaText: "Découvrir les Chauffeurs Disponibles",
+    ctaLink: 'https://www.frettalent.fr/entreprises',
+  },
+
   promo_entreprise: {
     name: '🏢 Promotion Entreprise',
     emoji: '🏢',
@@ -221,13 +272,13 @@ export default function AdminMail() {
   const [totalCandidateCount, setTotalCandidateCount] = useState(0);
   const [totalCompanyCount, setTotalCompanyCount] = useState(0);
 
-  const [selectedTemplateKey, setSelectedTemplateKey] = useState('promo_entreprise');
+  const [selectedTemplateKey, setSelectedTemplateKey] = useState('prospection_transporteur');
   const [type, setType] = useState('promo');
-  const [subject, setSubject] = useState(TEMPLATES.promo_entreprise.subject);
-  const [title, setTitle] = useState(TEMPLATES.promo_entreprise.title);
-  const [message, setMessage] = useState(TEMPLATES.promo_entreprise.message);
-  const [ctaText, setCtaText] = useState(TEMPLATES.promo_entreprise.ctaText);
-  const [ctaLink, setCtaLink] = useState(TEMPLATES.promo_entreprise.ctaLink);
+  const [subject, setSubject] = useState(TEMPLATES.prospection_transporteur.subject);
+  const [title, setTitle] = useState(TEMPLATES.prospection_transporteur.title);
+  const [message, setMessage] = useState(TEMPLATES.prospection_transporteur.message);
+  const [ctaText, setCtaText] = useState(TEMPLATES.prospection_transporteur.ctaText);
+  const [ctaLink, setCtaLink] = useState(TEMPLATES.prospection_transporteur.ctaLink);
 
   const [confirmModal, setConfirmModal] = useState({ isOpen: false });
   const [loading, setLoading] = useState(false);
@@ -520,7 +571,7 @@ export default function AdminMail() {
           <span className="text-[10px] text-slate-400 font-mono">Modèle actif : {selectedTpl?.name}</span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
           {Object.entries(TEMPLATES).map(([key, tpl]) => {
             const Icon = tpl.icon;
             const isSelected = selectedTemplateKey === key;

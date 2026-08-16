@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import {
   Send,
@@ -18,6 +18,12 @@ import {
   Tag,
   Eye,
   ChevronRight,
+  HelpCircle,
+  Search,
+  Check,
+  X,
+  ExternalLink,
+  ShieldCheck,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ConfirmModal from '@/components/ConfirmModal';
@@ -203,21 +209,75 @@ L'équipe FretTalent`,
 };
 
 export default function AdminMail() {
-  const [target, setTarget] = useState('specific');
+  const [target, setTarget] = useState('specific'); // 'all_candidates' | 'all_companies' | 'specific'
   const [specificEmails, setSpecificEmails] = useState('');
+  const [selectedUser, setSelectedUser] = useState(null);
 
-  const [selectedTemplateKey, setSelectedTemplateKey] = useState('custom');
-  const [type, setType] = useState('custom');
-  const [subject, setSubject] = useState('');
-  const [title, setTitle] = useState('');
-  const [message, setMessage] = useState('');
-  const [ctaText, setCtaText] = useState('');
-  const [ctaLink, setCtaLink] = useState('');
-  const [showPreview, setShowPreview] = useState(false);
+  // Annuaire chauffeurs & entreprises pour sélection 1-clic
+  const [usersList, setUsersList] = useState([]);
+  const [userSearchQuery, setUserSearchQuery] = useState('');
+  const [userRoleFilter, setUserRoleFilter] = useState('all'); // 'all' | 'candidate' | 'recruiter'
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [totalCandidateCount, setTotalCandidateCount] = useState(0);
+  const [totalCompanyCount, setTotalCompanyCount] = useState(0);
+
+  const [selectedTemplateKey, setSelectedTemplateKey] = useState('promo_entreprise');
+  const [type, setType] = useState('promo');
+  const [subject, setSubject] = useState(TEMPLATES.promo_entreprise.subject);
+  const [title, setTitle] = useState(TEMPLATES.promo_entreprise.title);
+  const [message, setMessage] = useState(TEMPLATES.promo_entreprise.message);
+  const [ctaText, setCtaText] = useState(TEMPLATES.promo_entreprise.ctaText);
+  const [ctaLink, setCtaLink] = useState(TEMPLATES.promo_entreprise.ctaLink);
 
   const [confirmModal, setConfirmModal] = useState({ isOpen: false });
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState(null);
+
+  // Charger les statistiques et utilisateurs pour la sélection
+  const fetchDirectoryUsers = async () => {
+    setLoadingUsers(true);
+    try {
+      const { data: candidates } = await supabase
+        .from('candidates')
+        .select('id, full_name, email, country, city')
+        .limit(200);
+
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, email, company_name, role')
+        .limit(200);
+
+      const candidateList = (candidates || []).filter(c => c.email).map(c => ({
+        id: c.id,
+        name: c.full_name || 'Chauffeur',
+        email: c.email,
+        role: 'candidate',
+        city: c.city || 'France',
+        country: c.country || 'FR',
+      }));
+
+      const recruiterProfiles = (profiles || []).filter(p => p.role === 'recruiter' && p.email).map(p => ({
+        id: p.id,
+        name: p.company_name || 'Entreprise',
+        email: p.email,
+        role: 'recruiter',
+        city: '',
+        country: 'FR',
+      }));
+
+      setTotalCandidateCount(candidateList.length);
+      setTotalCompanyCount(recruiterProfiles.length);
+      setUsersList([...candidateList, ...recruiterProfiles]);
+    } catch (err) {
+      console.error('Erreur chargement utilisateurs:', err);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDirectoryUsers();
+  }, []);
 
   const handleTemplateSelect = (key) => {
     setSelectedTemplateKey(key);
@@ -232,7 +292,14 @@ export default function AdminMail() {
     }
   };
 
-  const requestSend = e => {
+  const handleSelectUserFromPicker = (user) => {
+    setSelectedUser(user);
+    setTarget('specific');
+    setSpecificEmails(user.email);
+    toast.success(`Destinataire sélectionné : ${user.name} (${user.email})`);
+  };
+
+  const requestSend = (e) => {
     e.preventDefault();
     if (!subject || !title || !message) {
       toast.error('Veuillez remplir au minimum le sujet, le titre et le message.');
@@ -267,9 +334,9 @@ export default function AdminMail() {
       if (!res.ok) throw new Error(data.error || "Erreur lors de l'envoi");
 
       toast.success(`E-mail envoyé avec succès ! (${data.count} destinataires)`);
-      setStatus({ type: 'success', message: `✅ E-mail envoyé avec succès à ${data.count} destinataire(s)` });
+      setStatus({ type: 'success', message: `✅ ${data.message || `E-mail envoyé avec succès à ${data.count} destinataire(s)`}` });
 
-      if (target === 'specific') setSpecificEmails('');
+      if (target === 'specific' && !selectedUser) setSpecificEmails('');
     } catch (err) {
       toast.error(err.message || "Erreur lors de l'envoi de l'e-mail");
       setStatus({ type: 'error', message: err.message || "Erreur lors de l'envoi de l'e-mail" });
@@ -278,41 +345,182 @@ export default function AdminMail() {
     }
   };
 
+  const filteredUsers = usersList.filter(u => {
+    if (userRoleFilter === 'candidate' && u.role !== 'candidate') return false;
+    if (userRoleFilter === 'recruiter' && u.role !== 'recruiter') return false;
+    if (userSearchQuery.trim()) {
+      const q = userSearchQuery.toLowerCase();
+      return (
+        (u.name || '').toLowerCase().includes(q) ||
+        (u.email || '').toLowerCase().includes(q) ||
+        (u.city || '').toLowerCase().includes(q)
+      );
+    }
+    return true;
+  });
+
   const selectedTpl = TEMPLATES[selectedTemplateKey];
 
-  const targetLabel =
-    target === 'all_candidates' ? 'tous les candidats'
-    : target === 'all_companies' ? 'toutes les entreprises'
-    : 'les adresses spécifiées';
-
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-extrabold text-slate-950 flex items-center gap-2">
-            <Mail className="h-6 w-6 text-orange-500" />
-            Gestion des E-mails
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Créez et envoyez des campagnes d&apos;e-mail à vos utilisateurs
-          </p>
+    <div className="w-full max-w-full space-y-4 pb-12 font-sans bg-slate-100/70 p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm overflow-hidden box-border">
+      
+      {/* 1. EN-TÊTE SUPÉRIEURE DE PILOTAGE MESSAGERIE & MAILING */}
+      <div className="w-full bg-slate-950 text-white px-4 py-2.5 rounded-xl flex flex-wrap items-center justify-between gap-3 shadow-md min-w-0">
+        <div className="flex items-center gap-3 flex-wrap min-w-0">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center font-black text-[11px] text-white">
+              EM
+            </div>
+            <span className="font-bold text-xs text-slate-200">
+              Centre de Messagerie & Campagnes E-mails
+            </span>
+          </div>
+          <span className="text-slate-600 text-xs hidden sm:inline">|</span>
+          <span className="text-xs text-slate-300 font-medium truncate max-w-[280px] sm:max-w-none">
+            Diffusion Officielle & Relances Automatisées
+          </span>
+          <span className="inline-flex items-center gap-1 bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            Expéditeur : support@frettalent.fr
+          </span>
         </div>
-        <button
-          onClick={() => setShowPreview(!showPreview)}
-          className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors"
-        >
-          <Eye className="h-4 w-4" />
-          {showPreview ? 'Masquer aperçu' : 'Aperçu e-mail'}
-        </button>
+
+        {/* Action Rapide */}
+        <div className="flex items-center gap-2 flex-wrap shrink-0">
+          <button
+            onClick={fetchDirectoryUsers}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors cursor-pointer"
+            title="Actualiser les contacts"
+          >
+            <RefreshCw className={`h-3 w-3 ${loadingUsers ? 'animate-spin' : ''}`} />
+            <span className="hidden sm:inline">Actualiser contacts</span>
+          </button>
+        </div>
       </div>
 
-      {/* Template Cards */}
-      <div>
-        <h2 className="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">
-          Choisir un modèle
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {/* 2. BANDEAU DE CONTEXTE */}
+      <div className="w-full bg-white px-4 py-2 rounded-xl border border-slate-200/80 flex items-center justify-between gap-3 text-xs shadow-2xs min-w-0">
+        <div className="flex items-center gap-2 flex-1 text-slate-400 min-w-0">
+          <HelpCircle className="h-4 w-4 text-slate-400 shrink-0" />
+          <span className="italic text-slate-500 truncate text-[11px] sm:text-xs">
+            Envoi d'e-mails sécurisés avec rendu HTML professionnel certifié DKIM / SPF (support@frettalent.fr).
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0 text-slate-500 font-mono text-[11px]">
+          <strong>{usersList.length}</strong> contacts répertoriés
+        </div>
+      </div>
+
+      {/* 3. HERO SCORECARDS KPI (4 COLONNES ÉQUILIBRÉES) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 w-full min-w-0">
+        
+        {/* KPI 1 : Chauffeurs Joignables */}
+        <div
+          onClick={() => {
+            setTarget('all_candidates');
+            setSelectedUser(null);
+          }}
+          className={`p-4 sm:p-5 rounded-xl border transition-all cursor-pointer min-w-0 ${
+            target === 'all_candidates'
+              ? 'bg-orange-500 text-white border-orange-600 shadow-md ring-2 ring-orange-500/20'
+              : 'bg-white text-slate-900 border-slate-200 shadow-2xs hover:border-orange-300'
+          }`}
+        >
+          <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider opacity-80">
+            <span className="truncate">Chauffeurs Joignables</span>
+            <Users className="h-4 w-4 shrink-0 ml-1" />
+          </div>
+          <div className="text-3xl sm:text-4xl font-black mt-2 tracking-tight font-mono">
+            {totalCandidateCount}
+          </div>
+          <div className="mt-2.5 pt-2.5 border-t border-current/10 flex items-center justify-between text-xs opacity-80">
+            <span className="text-[11px]">Candidats conducteurs</span>
+            <span className="font-bold text-[10px]">1 Clic</span>
+          </div>
+        </div>
+
+        {/* KPI 2 : Entreprises Joignables */}
+        <div
+          onClick={() => {
+            setTarget('all_companies');
+            setSelectedUser(null);
+          }}
+          className={`p-4 sm:p-5 rounded-xl border transition-all cursor-pointer min-w-0 ${
+            target === 'all_companies'
+              ? 'bg-blue-600 text-white border-blue-700 shadow-md ring-2 ring-blue-600/20'
+              : 'bg-white text-slate-900 border-slate-200 shadow-2xs hover:border-blue-300'
+          }`}
+        >
+          <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-blue-600">
+            <span className="truncate">Entreprises Joignables</span>
+            <Building2 className="h-4 w-4 shrink-0 ml-1" />
+          </div>
+          <div className="text-3xl sm:text-4xl font-black text-blue-600 mt-2 tracking-tight font-mono">
+            {totalCompanyCount}
+          </div>
+          <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span className="text-[11px]">Transporteurs inscrits</span>
+            <span className="font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded text-[10px]">
+              1 Clic
+            </span>
+          </div>
+        </div>
+
+        {/* KPI 3 : Modèles Prêts */}
+        <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow min-w-0">
+          <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
+            <span className="truncate">Modèles Pré-rédigés</span>
+            <Sparkles className="h-4 w-4 text-purple-600 shrink-0 ml-1" />
+          </div>
+          <div className="text-3xl sm:text-4xl font-black text-slate-950 mt-2 tracking-tight font-mono">
+            {Object.keys(TEMPLATES).length}
+          </div>
+          <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span className="text-[11px]">Thèmes & Campagnes</span>
+            <span className="font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded text-[10px]">
+              Prêts
+            </span>
+          </div>
+        </div>
+
+        {/* KPI 4 : Délivrabilité */}
+        <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow min-w-0">
+          <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
+            <span className="truncate">Serveur d'Envoi</span>
+            <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0 ml-1" />
+          </div>
+          <div className="text-2xl sm:text-3xl font-black text-slate-950 mt-2 tracking-tight font-mono truncate">
+            100% DKIM
+          </div>
+          <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span className="text-[11px]">Anti-Spam Garanti :</span>
+            <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded text-[10px]">
+              Certifié
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      {status && (
+        <div className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 ${
+          status.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-rose-50 border-rose-200 text-rose-800'
+        }`}>
+          {status.type === 'success' ? <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" /> : <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />}
+          <span>{status.message}</span>
+        </div>
+      )}
+
+      {/* 4. CHOIX DU MODÈLE D'E-MAIL (7 CARTES HAUTE DENSITÉ) */}
+      <div className="w-full bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-3 min-w-0">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            Étape 1 : Choisir un Modèle Pré-Rédigé
+          </span>
+          <span className="text-[10px] text-slate-400 font-mono">Modèle actif : {selectedTpl?.name}</span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2">
           {Object.entries(TEMPLATES).map(([key, tpl]) => {
             const Icon = tpl.icon;
             const isSelected = selectedTemplateKey === key;
@@ -321,277 +529,369 @@ export default function AdminMail() {
                 key={key}
                 type="button"
                 onClick={() => handleTemplateSelect(key)}
-                className={`relative text-left p-4 rounded-2xl border-2 transition-all duration-200 group ${
+                className={`text-left p-2.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
                   isSelected
-                    ? 'border-orange-500 bg-orange-50 shadow-md shadow-orange-500/10'
-                    : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm'
+                    ? 'border-slate-900 bg-slate-900 text-white shadow-sm ring-1 ring-slate-900/10'
+                    : 'border-slate-200 bg-slate-50/50 hover:bg-white hover:border-slate-300 text-slate-800'
                 }`}
               >
-                {isSelected && (
-                  <div className="absolute top-2 right-2 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
-                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
+                <div className="flex items-center justify-between gap-1 mb-2">
+                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs ${isSelected ? 'bg-white/20 text-white' : tpl.iconBg}`}>
+                    <Icon className={`h-3.5 w-3.5 ${isSelected ? 'text-white' : tpl.iconColor}`} />
                   </div>
-                )}
-                <div className={`w-9 h-9 rounded-xl ${tpl.iconBg} flex items-center justify-center mb-3`}>
-                  <Icon className={`h-5 w-5 ${tpl.iconColor}`} />
+                  <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${isSelected ? 'bg-white/20 text-white' : tpl.badgeColor}`}>
+                    {tpl.badge}
+                  </span>
                 </div>
-                <p className="text-xs font-bold text-slate-900 leading-tight mb-1">{tpl.name}</p>
-                <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full ${tpl.badgeColor}`}>
-                  {tpl.badge}
-                </span>
+                <p className="text-[11px] font-bold leading-tight truncate">
+                  {tpl.name.replace(/^[^\s]+\s/, '')}
+                </p>
               </button>
             );
           })}
         </div>
       </div>
 
-      <form onSubmit={requestSend} className="space-y-6">
-        {/* Destinataires */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-          <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-            <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-black">1</span>
-            Destinataires
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {[
-              { value: 'all_candidates', icon: Users, label: 'Tous les Candidats', color: 'orange' },
-              { value: 'all_companies', icon: Building2, label: 'Toutes les Entreprises', color: 'blue' },
-              { value: 'specific', icon: Mail, label: 'Adresses spécifiques', color: 'slate' },
-            ].map(opt => {
-              const Icon = opt.icon;
-              const isActive = target === opt.value;
-              return (
-                <label
-                  key={opt.value}
-                  className={`cursor-pointer border-2 p-4 rounded-xl flex items-center gap-3 transition-all ${
-                    isActive
-                      ? 'border-orange-500 bg-orange-50'
-                      : 'border-slate-200 hover:border-slate-300 bg-white'
-                  }`}
-                >
+      {/* 5. ÉDITEUR D'E-MAIL & SÉLECTEUR DE DESTINATAIRES (GRILLE 12 COLS) */}
+      <form onSubmit={requestSend} className="grid grid-cols-1 lg:grid-cols-12 gap-4 w-full min-w-0">
+        
+        {/* COLONNE GAUCHE : DESTINATAIRE & CONTENU (7 COLS) */}
+        <div className="lg:col-span-7 space-y-4 min-w-0">
+          
+          {/* CARTE DESTINATAIRES */}
+          <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-3.5 min-w-0">
+            <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <span>Étape 2 : Destinataires</span>
+              <span className="text-[10px] text-slate-400">Ciblage précis ou en masse</span>
+            </div>
+
+            {/* Sélecteur de mode d'envoi */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              {[
+                { value: 'all_candidates', label: '🚚 Tous les Chauffeurs', desc: `${totalCandidateCount} conducteurs` },
+                { value: 'all_companies', label: '🏢 Toutes les Entreprises', desc: `${totalCompanyCount} transporteurs` },
+                { value: 'specific', label: '🎯 Contact Spécifique', desc: 'Choix dans la liste ou saisie' },
+              ].map(opt => {
+                const isActive = target === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => {
+                      setTarget(opt.value);
+                      if (opt.value !== 'specific') setSelectedUser(null);
+                    }}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                      isActive
+                        ? 'border-slate-900 bg-slate-900 text-white shadow-xs'
+                        : 'border-slate-200 bg-slate-50/60 hover:bg-white text-slate-800'
+                    }`}
+                  >
+                    <p className="text-xs font-bold">{opt.label}</p>
+                    <p className={`text-[10px] mt-0.5 ${isActive ? 'text-slate-300' : 'text-slate-400'}`}>{opt.desc}</p>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Annuaire de recherche si Contact Spécifique */}
+            {target === 'specific' && (
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                  <span>Choisir un chauffeur ou une entreprise dans l'annuaire :</span>
+                  <div className="flex items-center gap-1 text-[10px]">
+                    {['all', 'candidate', 'recruiter'].map((role) => (
+                      <button
+                        key={role}
+                        type="button"
+                        onClick={() => setUserRoleFilter(role)}
+                        className={`px-2 py-0.5 rounded font-bold transition-colors cursor-pointer ${
+                          userRoleFilter === role ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 border border-slate-200'
+                        }`}
+                      >
+                        {role === 'all' ? 'Tous' : role === 'candidate' ? 'Chauffeurs' : 'Entreprises'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Champ de recherche dans l'annuaire */}
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
-                    type="radio"
-                    name="target"
-                    value={opt.value}
-                    checked={isActive}
-                    onChange={() => setTarget(opt.value)}
-                    className="text-orange-600 focus:ring-orange-500 accent-orange-500"
+                    type="text"
+                    value={userSearchQuery}
+                    onChange={(e) => setUserSearchQuery(e.target.value)}
+                    placeholder="Tapez un nom, prénom, entreprise ou e-mail..."
+                    className="w-full pl-8 pr-3 py-1.5 bg-white rounded-lg border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-slate-900/10 font-medium"
                   />
-                  <Icon className={`h-5 w-5 ${isActive ? 'text-orange-500' : 'text-slate-400'}`} />
-                  <span className="text-sm font-bold text-slate-700">{opt.label}</span>
-                </label>
-              );
-            })}
+                </div>
+
+                {/* Liste rapide sélectionnable */}
+                <div className="max-h-36 overflow-y-auto border border-slate-200 rounded-lg p-1 space-y-1 bg-white">
+                  {loadingUsers ? (
+                    <div className="p-3 text-center text-xs text-slate-400">Chargement de l'annuaire...</div>
+                  ) : filteredUsers.length === 0 ? (
+                    <div className="p-3 text-center text-xs text-slate-400">Aucun contact trouvé.</div>
+                  ) : (
+                    filteredUsers.slice(0, 30).map((u) => {
+                      const isSelected = selectedUser?.id === u.id || specificEmails === u.email;
+                      return (
+                        <div
+                          key={u.id}
+                          onClick={() => handleSelectUserFromPicker(u)}
+                          className={`p-2 rounded-md cursor-pointer flex items-center justify-between text-xs transition-colors ${
+                            isSelected
+                              ? 'bg-slate-900 text-white font-bold'
+                              : 'hover:bg-slate-50 text-slate-700'
+                          }`}
+                        >
+                          <div className="truncate min-w-0 pr-2">
+                            <span className="font-bold">{u.name}</span>
+                            <span className={`text-[11px] ml-1.5 ${isSelected ? 'text-slate-300' : 'text-slate-400'}`}>
+                              ({u.email})
+                            </span>
+                          </div>
+                          <span
+                            className={`text-[9px] px-1.5 py-0.2 rounded shrink-0 font-bold ${
+                              isSelected
+                                ? 'bg-white/20 text-white'
+                                : u.role === 'candidate'
+                                ? 'bg-orange-100 text-orange-700'
+                                : 'bg-blue-100 text-blue-700'
+                            }`}
+                          >
+                            {u.role === 'candidate' ? 'Chauffeur' : 'Entreprise'}
+                          </span>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                {/* Champ E-mail manuel ou pré-rempli */}
+                <div className="pt-1">
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Adresse(s) e-mail finale(s) (ou plusieurs séparées par des virgules) :
+                  </label>
+                  <input
+                    type="text"
+                    value={specificEmails}
+                    onChange={(e) => {
+                      setSpecificEmails(e.target.value);
+                      setSelectedUser(null);
+                    }}
+                    placeholder="chauffeur@email.fr, transport@societe.com"
+                    required={target === 'specific'}
+                    className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:ring-2 focus:ring-slate-900/10"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
-          {target === 'specific' && (
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-2">
-                Adresses e-mail (séparées par des virgules)
-              </label>
-              <input
-                type="text"
-                value={specificEmails}
-                onChange={e => setSpecificEmails(e.target.value)}
-                placeholder="contact@entreprise.fr, chauffeur@mail.com"
-                required={target === 'specific'}
-                className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-              />
+          {/* CARTE CONTENU DE L'E-MAIL */}
+          <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-3 min-w-0">
+            <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <span>Étape 3 : Rédiger le Message</span>
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                className="px-2 py-1 rounded bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 cursor-pointer"
+              >
+                <option value="promo">🟣 Thème Promo / Recrutement</option>
+                <option value="update">🔵 Thème Nouveauté / Info</option>
+                <option value="custom">🟠 Thème Classique FretTalent</option>
+              </select>
             </div>
-          )}
-        </div>
 
-        {/* Contenu */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-          <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-            <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-black">2</span>
-            Contenu de l&apos;e-mail
-          </h3>
-
-          {selectedTpl && selectedTpl.description && (
-            <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
-              <span className="text-xl">{selectedTpl.emoji}</span>
+            <div className="space-y-3">
               <div>
-                <p className="text-xs font-bold text-slate-700">{selectedTpl.name}</p>
-                <p className="text-xs text-slate-500">{selectedTpl.description}</p>
-              </div>
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              {/* Design */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-2">
-                  Design de l&apos;e-mail
-                </label>
-                <select
-                  value={type}
-                  onChange={e => setType(e.target.value)}
-                  className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white"
-                >
-                  <option value="update">🔵 Bleu — Nouveauté / Info</option>
-                  <option value="promo">🟣 Violet — Promotion / Offre</option>
-                  <option value="custom">🟠 Orange — Message classique</option>
-                </select>
-              </div>
-
-              {/* Sujet */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-2">
-                  Objet de l&apos;e-mail
+                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Objet de l&apos;e-mail (Sujet visible dans la boîte) *
                 </label>
                 <input
                   type="text"
+                  required
                   value={subject}
-                  onChange={e => setSubject(e.target.value)}
-                  required
-                  placeholder="Ex : Trouvez vos chauffeurs avec FretTalent"
-                  className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  onChange={(e) => setSubject(e.target.value)}
+                  placeholder="Ex : 🚛 Opportunités d'emploi chauffeur en direct"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10"
                 />
               </div>
 
-              {/* Titre */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-2">
-                  Titre principal (H1)
+                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Titre d&apos;en-tête (Grand titre dans l&apos;e-mail) *
                 </label>
                 <input
                   type="text"
-                  value={title}
-                  onChange={e => setTitle(e.target.value)}
                   required
-                  placeholder="Ex : La solution N°1 pour recruter vos chauffeurs"
-                  className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Ex : Vos prochains recrutements facilités"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10"
                 />
               </div>
 
-              {/* CTA */}
-              <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Corps du Message *
+                </label>
+                <textarea
+                  required
+                  rows={8}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Rédigez votre message ici..."
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-slate-900/10 font-normal font-sans"
+                />
+              </div>
+
+              {/* Bouton d'Action (CTA) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-2">
-                    Texte bouton (optionnel)
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Texte du Bouton d&apos;action
                   </label>
                   <input
                     type="text"
                     value={ctaText}
-                    onChange={e => setCtaText(e.target.value)}
-                    placeholder="Ex : Découvrir FretTalent"
-                    className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    onChange={(e) => setCtaText(e.target.value)}
+                    placeholder="Ex : Se connecter / Voir l'offre"
+                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-slate-900/10"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-2">
-                    Lien bouton (URL)
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Lien Web du Bouton
                   </label>
                   <input
                     type="url"
                     value={ctaLink}
-                    onChange={e => setCtaLink(e.target.value)}
-                    placeholder="https://frettalent.fr/..."
-                    className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    onChange={(e) => setCtaLink(e.target.value)}
+                    placeholder="https://www.frettalent.fr/..."
+                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:ring-2 focus:ring-slate-900/10"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Message */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-2">
-                Corps du message
-              </label>
-              <textarea
-                value={message}
-                onChange={e => setMessage(e.target.value)}
-                required
-                rows={14}
-                placeholder="Rédigez votre message ici. Les retours à la ligne seront conservés dans l'e-mail."
-                className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none font-mono"
-              />
-              <p className="text-xs text-slate-400 mt-1">{message.length} caractères</p>
+            {/* Bouton d'envoi final */}
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[11px] text-slate-400">
+                Notification automatique certifiée anti-spam.
+              </span>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-2 transition-all shadow-md cursor-pointer"
+              >
+                {loading ? (
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>
+                    <span>Envoyer la Campagne</span>
+                    <Send className="h-3.5 w-3.5" />
+                  </>
+                )}
+              </button>
             </div>
           </div>
+
         </div>
 
-        {/* Aperçu */}
-        {showPreview && title && message && (
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-            <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-              <Eye className="h-4 w-4 text-orange-500" />
-              Aperçu de l&apos;e-mail
-            </h3>
-            <div className="border border-slate-200 rounded-xl overflow-hidden max-w-2xl mx-auto">
-              {/* Email header */}
-              <div className={`p-6 text-center ${type === 'update' ? 'bg-blue-600' : type === 'promo' ? 'bg-purple-600' : 'bg-orange-500'}`}>
-                <p className="text-white font-black text-xl tracking-tight">Fret<span className="text-white/80">Talent</span></p>
+        {/* COLONNE DROITE : APERÇU EN DIRECT (5 COLS) */}
+        <div className="lg:col-span-5 space-y-4 min-w-0">
+          <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-3 min-w-0">
+            <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <span>Aperçu en Direct</span>
+              <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold font-mono">
+                Boîte de Réception
+              </span>
+            </div>
+
+            {/* Simulation d'e-mail client */}
+            <div className="border border-slate-200 rounded-xl overflow-hidden shadow-2xs bg-slate-50">
+              
+              {/* En-tête client mail */}
+              <div className="bg-slate-900 text-white p-3 text-xs space-y-1">
+                <div className="flex items-center justify-between text-[10px] text-slate-300">
+                  <span>De : <strong>FretTalent</strong> &lt;support@frettalent.fr&gt;</span>
+                  <span className="font-mono">À l'instant</span>
+                </div>
+                <div className="text-xs font-bold truncate">
+                  {subject || 'Sans objet'}
+                </div>
               </div>
-              <div className="p-8 bg-white">
-                <h2 className="text-2xl font-black text-slate-900 mb-4">{title}</h2>
-                <div className="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap">{message}</div>
-                {ctaText && ctaLink && (
-                  <div className="mt-6 text-center">
-                    <span className={`inline-block px-6 py-3 rounded-xl font-bold text-sm text-white ${type === 'update' ? 'bg-blue-600' : type === 'promo' ? 'bg-purple-600' : 'bg-orange-500'}`}>
-                      {ctaText} →
+
+              {/* Corps de l'email */}
+              <div className="p-4 sm:p-5 bg-white space-y-4 text-xs">
+                
+                {/* Logo & Titre */}
+                <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+                  <div className="w-7 h-7 rounded-lg bg-orange-500 text-white flex items-center justify-center font-black text-xs">
+                    FT
+                  </div>
+                  <div>
+                    <span className="font-extrabold text-slate-900 text-sm tracking-tight">
+                      Fret<span className="text-orange-500">Talent</span>
+                    </span>
+                    <p className="text-[10px] text-slate-400 font-medium">Plateforme N°1 Recrutement Transport</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h4 className="font-black text-slate-950 text-sm leading-tight">
+                    {title || 'Titre de votre e-mail'}
+                  </h4>
+                  <div className="text-slate-700 text-xs leading-relaxed whitespace-pre-wrap font-sans">
+                    {message || 'Le corps de votre message apparaîtra ici...'}
+                  </div>
+                </div>
+
+                {ctaText && (
+                  <div className="pt-2 text-center">
+                    <span className={`inline-block px-5 py-2.5 rounded-xl font-bold text-white text-xs shadow-sm ${
+                      type === 'promo' ? 'bg-purple-600' : type === 'update' ? 'bg-blue-600' : 'bg-orange-500'
+                    }`}>
+                      {ctaText}
                     </span>
                   </div>
                 )}
-              </div>
-              <div className="p-4 bg-slate-50 border-t border-slate-200 text-center">
-                <p className="text-xs text-slate-400">FretTalent — Réseau N°1 du Recrutement Transport (France, Belgique, Luxembourg, Suisse)</p>
+
+                <div className="pt-4 border-t border-slate-100 text-[10px] text-slate-400 text-center space-y-0.5">
+                  <p>© {new Date().getFullYear()} FretTalent. Tous droits réservés.</p>
+                  <p>France • Belgique • Luxembourg • Suisse</p>
+                </div>
+
               </div>
             </div>
-          </div>
-        )}
 
-        {/* Envoi */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex-1 w-full">
-              {status && (
-                <div className={`flex items-center gap-3 p-4 rounded-xl text-sm font-bold ${status.type === 'success' ? 'bg-green-50 border border-green-200 text-green-700' : 'bg-red-50 border border-red-200 text-red-700'}`}>
-                  {status.type === 'success' ? (
-                    <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-                  ) : (
-                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                  )}
-                  {status.message}
-                </div>
-              )}
-              {!status && (
-                <div className="text-sm text-slate-500">
-                  Destinataire : <strong className="text-slate-800">{targetLabel}</strong>
-                  {subject && <> · Sujet : <strong className="text-slate-800">&ldquo;{subject.slice(0, 50)}{subject.length > 50 ? '…' : ''}&rdquo;</strong></>}
-                </div>
-              )}
+            <div className="text-[10px] text-slate-400 text-center pt-1">
+              Rendu responsive optimisé pour smartphones, tablettes et ordinateurs.
             </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full md:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-8 py-3.5 rounded-xl font-bold transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-md shadow-orange-500/20"
-            >
-              {loading ? (
-                <RefreshCw className="w-5 h-5 animate-spin" />
-              ) : (
-                <Send className="w-5 h-5" />
-              )}
-              {loading ? 'Envoi en cours...' : 'Envoyer la campagne'}
-            </button>
           </div>
         </div>
+
       </form>
 
+      {/* Modal de Confirmation d'envoi */}
       <ConfirmModal
         isOpen={confirmModal.isOpen}
-        title="Confirmation d'envoi"
-        message={`Êtes-vous sûr de vouloir envoyer cet e-mail à ${targetLabel} ?`}
+        title="Confirmer l'envoi de l'e-mail ?"
+        message={`Êtes-vous sûr de vouloir envoyer cet e-mail à : ${
+          target === 'all_candidates' ? `tous les candidats chauffeurs (${totalCandidateCount})` :
+          target === 'all_companies' ? `toutes les entreprises transporteurs (${totalCompanyCount})` :
+          `« ${specificEmails} »`
+        } ?`}
+        confirmText="Envoyer immédiatement"
+        cancelText="Annuler"
+        variant="primary"
         onConfirm={executeSendMail}
         onCancel={() => setConfirmModal({ isOpen: false })}
-        variant="warning"
-        confirmText="Oui, envoyer"
       />
+
     </div>
   );
 }

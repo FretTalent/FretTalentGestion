@@ -112,13 +112,13 @@ export default function AdminStatsPage() {
     topReferrers = [],
     devices = {},
     geoBreakdown = {},
+    hourlyDistribution = [],
   } = statsData || {};
 
   // Données normalisées
   const totalViews = kpis.totalViews ?? kpis.pageViews ?? 0;
   const viewsGrowth = kpis.viewsGrowth ?? kpis.pageViewsGrowth ?? 0;
   const uniqueVisitors = kpis.uniqueSessions ?? kpis.uniqueVisitors ?? 0;
-  const sessionsGrowth = kpis.sessionsGrowth ?? 0;
   const organicViews = channels.organic?.count ?? 0;
   const organicRate = totalViews > 0 ? Math.round((organicViews / totalViews) * 100) : (kpis.organicRate ?? 0);
   const conversionRate = funnel.overallConversionRate ?? kpis.conversionRate ?? '0.0';
@@ -127,12 +127,51 @@ export default function AdminStatsPage() {
   const desktopPct = Math.round(((devices.desktop || 0) / totalDeviceCount) * 100);
   const mobilePct = Math.round(((devices.mobile || 0) / totalDeviceCount) * 100);
 
-  // SVG Chart path calculation for daily stats
+  // SVG Chart path calculation for hourly (today) vs daily stats (7d, 30d, all)
   const chartPoints = useMemo(() => {
-    if (!dailyStats || dailyStats.length === 0) return { pathViews: '', pathUniques: '', pointsViews: [], pointsUniques: [] };
-    const maxVal = Math.max(...dailyStats.map(d => Math.max(d.views || 0, d.uniques || 0)), 5);
+    const isToday = timeframe === 'today';
     const width = 500;
     const height = 140;
+
+    const makePath = (pts) => {
+      if (!pts || pts.length === 0) return '';
+      if (pts.length === 1) return `M 0 ${pts[0].y} L ${width} ${pts[0].y}`;
+      return pts.reduce((acc, p, i, a) => {
+        if (i === 0) return `M ${p.x} ${p.y}`;
+        const prev = a[i - 1];
+        const cp1x = prev.x + (p.x - prev.x) / 2;
+        return `${acc} C ${cp1x} ${prev.y}, ${cp1x} ${p.y}, ${p.x} ${p.y}`;
+      }, '');
+    };
+
+    if (isToday) {
+      const hours = Array.isArray(hourlyDistribution) && hourlyDistribution.length === 24
+        ? hourlyDistribution
+        : Array(24).fill(0);
+      const maxVal = Math.max(...hours, 5);
+      const step = width / 23;
+
+      const pointsViews = hours.map((count, hour) => {
+        const x = hour * step;
+        const y = height - (count / maxVal) * (height - 30) - 15;
+        return { x, y, label: `${hour}h`, val: count };
+      });
+
+      return {
+        pathViews: makePath(pointsViews),
+        pathUniques: '',
+        pointsViews,
+        pointsUniques: [],
+        labels: ['00h', '04h', '08h', '12h', '16h', '20h', '23h'],
+        maxVal,
+      };
+    }
+
+    if (!dailyStats || dailyStats.length === 0) {
+      return { pathViews: '', pathUniques: '', pointsViews: [], pointsUniques: [], labels: [], maxVal: 5 };
+    }
+
+    const maxVal = Math.max(...dailyStats.map(d => Math.max(d.views || 0, d.uniques || 0)), 5);
     const step = dailyStats.length > 1 ? width / (dailyStats.length - 1) : width;
 
     const pointsViews = dailyStats.map((d, i) => {
@@ -147,24 +186,15 @@ export default function AdminStatsPage() {
       return { x, y, date: d.date, val: d.uniques };
     });
 
-    const makePath = (pts) => {
-      if (pts.length === 0) return '';
-      return pts.reduce((acc, p, i, a) => {
-        if (i === 0) return `M ${p.x} ${p.y}`;
-        const prev = a[i - 1];
-        const cp1x = prev.x + (p.x - prev.x) / 2;
-        return `${acc} C ${cp1x} ${prev.y}, ${cp1x} ${p.y}, ${p.x} ${p.y}`;
-      }, '');
-    };
-
     return {
       pathViews: makePath(pointsViews),
       pathUniques: makePath(pointsUniques),
       pointsViews,
       pointsUniques,
+      labels: dailyStats.slice(-7).map(d => d.date?.slice(5) || ''),
       maxVal,
     };
-  }, [dailyStats]);
+  }, [timeframe, dailyStats, hourlyDistribution]);
 
   // Répartition par pays
   const franceCount = geoBreakdown.france?.candidatesCount ?? 0;
@@ -184,11 +214,11 @@ export default function AdminStatsPage() {
   }
 
   return (
-    <div className="max-w-[1600px] mx-auto space-y-4 pb-12 font-sans bg-slate-100/70 p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm">
+    <div className="w-full max-w-[1600px] mx-auto space-y-4 pb-12 font-sans bg-slate-100/70 p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       
       {/* 1. EN-TÊTE SUPÉRIEURE DE PILOTAGE ANALYTICS */}
-      <div className="bg-slate-950 text-white px-4 py-2.5 rounded-xl flex flex-wrap items-center justify-between gap-3 shadow-md">
-        <div className="flex items-center gap-3 flex-wrap">
+      <div className="w-full bg-slate-950 text-white px-4 py-2.5 rounded-xl flex flex-wrap items-center justify-between gap-3 shadow-md min-w-0">
+        <div className="flex items-center gap-3 flex-wrap min-w-0">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center font-black text-[11px] text-white">
               ST
@@ -208,7 +238,7 @@ export default function AdminStatsPage() {
         </div>
 
         {/* Barre d'outils rapides */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap shrink-0">
           <button
             onClick={handleExportCSV}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors shadow-2xs cursor-pointer"
@@ -229,14 +259,14 @@ export default function AdminStatsPage() {
       </div>
 
       {/* 2. BANDEAU DE CONTEXTE & SÉLECTEUR DE PÉRIODE */}
-      <div className="bg-white px-4 py-2 rounded-xl border border-slate-200/80 flex items-center justify-between gap-3 text-xs shadow-2xs">
-        <div className="flex items-center gap-2 flex-1 text-slate-400">
+      <div className="w-full bg-white px-4 py-2 rounded-xl border border-slate-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-2xs min-w-0">
+        <div className="flex items-center gap-2 flex-1 text-slate-400 min-w-0">
           <HelpCircle className="h-4 w-4 text-slate-400 shrink-0" />
           <span className="italic text-slate-500 truncate text-[11px] sm:text-xs">
             Mesure interne de l'audience, positions SEO, consultations des CV et entonnoir de conversion.
           </span>
         </div>
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-1 shrink-0 flex-wrap">
           {[
             { id: 'today', label: "Aujourd'hui" },
             { id: '7d', label: '7 Jours' },
@@ -265,13 +295,13 @@ export default function AdminStatsPage() {
       )}
 
       {/* 3. GRILLE MODULAIRE ANALYTICS (STYLE POWER BI) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 w-full min-w-0">
         
         {/* === COLONNE GAUCHE : HERO KPIS SCORECARDS (3 COLS) === */}
-        <div className="lg:col-span-3 space-y-4">
+        <div className="lg:col-span-3 min-w-0 space-y-4">
           
           {/* KPI 1 : Pages Vues Totales */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow">
+          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow min-w-0">
             <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
               <span>Pages Vues Totales</span>
               <Eye className="h-4 w-4 text-teal-600" />
@@ -290,7 +320,7 @@ export default function AdminStatsPage() {
           </div>
 
           {/* KPI 2 : Visiteurs Uniques */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow">
+          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow min-w-0">
             <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
               <span>Visiteurs Uniques</span>
               <Users className="h-4 w-4 text-blue-600" />
@@ -307,7 +337,7 @@ export default function AdminStatsPage() {
           </div>
 
           {/* KPI 3 : Trafic Organique SEO */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow">
+          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow min-w-0">
             <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
               <span>Part du Trafic SEO</span>
               <Globe className="h-4 w-4 text-emerald-600" />
@@ -324,7 +354,7 @@ export default function AdminStatsPage() {
           </div>
 
           {/* KPI 4 : Taux de Conversion */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow">
+          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow min-w-0">
             <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
               <span>Taux de Transformation</span>
               <Target className="h-4 w-4 text-orange-500" />
@@ -340,31 +370,33 @@ export default function AdminStatsPage() {
         </div>
 
         {/* === TUILES CENTRALES & DROITE : VISUALISATIONS (9 COLS) === */}
-        <div className="lg:col-span-9 space-y-4">
+        <div className="lg:col-span-9 min-w-0 space-y-4">
           
           {/* LIGNE 1 : COURBE TEMPORELLE + HISTOGRAMME DES CANAUX */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 w-full min-w-0">
             
             {/* TUILE 1 : COURBE D'ÉVOLUTION TEMPORELLE (7 COLS) */}
-            <div className="md:col-span-7 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
+            <div className="md:col-span-7 min-w-0 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between overflow-hidden">
               <div>
                 <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
-                  <span>Évolution Quotidienne du Trafic</span>
-                  <span className="text-slate-400 font-mono">Vues vs Visiteurs</span>
+                  <span>{timeframe === 'today' ? "Activité Heure par Heure (Aujourd'hui)" : 'Évolution Quotidienne du Trafic'}</span>
+                  <span className="text-slate-400 font-mono">{timeframe === 'today' ? '24 Heures' : 'Vues vs Visiteurs'}</span>
                 </div>
                 <div className="flex items-center gap-4 text-xs font-semibold text-slate-600 mb-4">
                   <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-1 bg-teal-500 rounded" /> Pages Vues
+                    <span className="w-3 h-1 bg-teal-500 rounded" /> {timeframe === 'today' ? 'Vues / Heure' : 'Pages Vues'}
                   </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-1 bg-slate-700 rounded" /> Visiteurs Uniques
-                  </span>
+                  {timeframe !== 'today' && (
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-3 h-1 bg-slate-700 rounded" /> Visiteurs Uniques
+                    </span>
+                  )}
                 </div>
               </div>
 
               {/* Courbe SVG dynamique */}
-              <div className="h-44 w-full relative flex items-end">
-                <svg viewBox="0 0 500 150" className="w-full h-full overflow-visible">
+              <div className="h-44 w-full relative flex items-end overflow-hidden">
+                <svg viewBox="0 0 500 150" className="w-full h-full" preserveAspectRatio="none">
                   {/* Lignes de repère */}
                   <line x1="0" y1="20" x2="500" y2="20" stroke="#f1f5f9" strokeWidth="1" />
                   <line x1="0" y1="70" x2="500" y2="70" stroke="#f1f5f9" strokeWidth="1" />
@@ -394,21 +426,21 @@ export default function AdminStatsPage() {
 
                   {/* Points */}
                   {chartPoints.pointsViews?.map((pt, idx) => (
-                    <circle key={`v-${idx}`} cx={pt.x} cy={pt.y} r="3.5" fill="#0d9488" />
+                    <circle key={`v-${idx}`} cx={pt.x} cy={pt.y} r="3" fill="#0d9488" />
                   ))}
                 </svg>
               </div>
 
-              {/* Axe X Dates */}
-              <div className="flex justify-between text-[10px] text-slate-400 font-mono pt-2 border-t border-slate-100">
-                {dailyStats.slice(-7).map((d, i) => (
-                  <span key={i}>{d.date?.slice(5)}</span>
+              {/* Axe X Labels */}
+              <div className="flex justify-between text-[10px] text-slate-400 font-mono pt-2 border-t border-slate-100 overflow-x-hidden">
+                {chartPoints.labels?.map((lbl, i) => (
+                  <span key={i}>{lbl}</span>
                 ))}
               </div>
             </div>
 
             {/* TUILE 2 : CANAUX D'ACQUISITION (5 COLS) */}
-            <div className="md:col-span-5 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
+            <div className="md:col-span-5 min-w-0 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between overflow-hidden">
               <div>
                 <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-3">
                   <span>Canaux d'Acquisition</span>
@@ -425,12 +457,12 @@ export default function AdminStatsPage() {
                   { label: 'Sites Référents & Partenaires', val: channels.referral?.count || 0, color: 'bg-teal-300' },
                 ].map((item, idx) => {
                   const maxChannel = Math.max(...Object.values(channels).map(c => c.count || 0), 1);
-                  const pct = Math.max(10, Math.round((item.val / maxChannel) * 100));
+                  const pct = Math.max(8, Math.round((item.val / maxChannel) * 100));
                   return (
-                    <div key={idx} className="space-y-1">
+                    <div key={idx} className="space-y-1 min-w-0">
                       <div className="flex justify-between text-xs">
-                        <span className="font-semibold text-slate-700 text-[11px]">{item.label}</span>
-                        <span className="font-mono text-slate-900 font-bold text-[11px]">{item.val}</span>
+                        <span className="font-semibold text-slate-700 text-[11px] truncate">{item.label}</span>
+                        <span className="font-mono text-slate-900 font-bold text-[11px] shrink-0">{item.val}</span>
                       </div>
                       <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                         <div
@@ -444,37 +476,37 @@ export default function AdminStatsPage() {
               </div>
 
               <div className="pt-2 text-[10px] text-slate-400 font-mono text-right">
-                Répartition des sources de trafic qualifié
+                Sources de trafic qualifié
               </div>
             </div>
 
           </div>
 
           {/* LIGNE 2 : ENTONNOIR DE CONVERSION + RÉPARTITION APPAREILS & PAYS */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 w-full min-w-0">
             
             {/* TUILE 3 : ENTONNOIR DE CONVERSION (6 COLS) */}
-            <div className="md:col-span-6 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="md:col-span-6 min-w-0 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
               <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-3">
-                <span>Entonnoir de Conversion Recrutement</span>
-                <span className="text-[10px] font-bold bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">
-                  Tunnel de Conversion
+                <span>Entonnoir de Conversion</span>
+                <span className="text-[10px] font-bold bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full shrink-0">
+                  Tunnel Recrutement
                 </span>
               </div>
 
               <div className="space-y-2.5">
                 {[
                   { step: '1. Visiteurs Uniques', count: funnel.step1_visitors ?? uniqueVisitors, pct: '100%', color: 'bg-slate-900' },
-                  { step: '2. Intention & Navigation Active', count: funnel.step2_intent ?? 0, pct: `${funnel.intentRate || 0}%`, color: 'bg-teal-700' },
-                  { step: '3. Consultation Inscription / Login', count: funnel.step3_register ?? 0, pct: `${funnel.registerRate || 0}%`, color: 'bg-teal-500' },
-                  { step: '4. Inscriptions & Déblocages Confirmés', count: funnel.step4_signed_up ?? 0, pct: `${conversionRate}%`, color: 'bg-emerald-600' },
+                  { step: '2. Intention & Navigation', count: funnel.step2_intent ?? 0, pct: `${funnel.intentRate || 0}%`, color: 'bg-teal-700' },
+                  { step: '3. Inscription / Connexion', count: funnel.step3_register ?? 0, pct: `${funnel.registerRate || 0}%`, color: 'bg-teal-500' },
+                  { step: '4. Inscriptions & Déblocages', count: funnel.step4_signed_up ?? 0, pct: `${conversionRate}%`, color: 'bg-emerald-600' },
                 ].map((st, idx) => (
-                  <div key={idx} className="bg-slate-50 p-2.5 rounded-lg border border-slate-100 flex items-center justify-between gap-3 text-xs">
-                    <div>
-                      <span className="font-bold text-slate-900 text-[11px] block">{st.step}</span>
-                      <span className="text-[10px] text-slate-400 font-mono">{st.count} actions enregistrées</span>
+                  <div key={idx} className="bg-slate-50 p-2.5 rounded-lg border border-slate-100 flex items-center justify-between gap-3 text-xs min-w-0">
+                    <div className="min-w-0">
+                      <span className="font-bold text-slate-900 text-[11px] block truncate">{st.step}</span>
+                      <span className="text-[10px] text-slate-400 font-mono">{st.count} actions</span>
                     </div>
-                    <span className={`text-white font-mono font-black text-[11px] px-2 py-0.5 rounded ${st.color}`}>
+                    <span className={`text-white font-mono font-black text-[11px] px-2 py-0.5 rounded shrink-0 ${st.color}`}>
                       {st.pct}
                     </span>
                   </div>
@@ -483,21 +515,21 @@ export default function AdminStatsPage() {
             </div>
 
             {/* TUILE 4 : APPAREILS & PAYS (6 COLS) */}
-            <div className="md:col-span-6 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
+            <div className="md:col-span-6 min-w-0 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between overflow-hidden">
               <div>
                 <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-3">
-                  <span>Répartition Appareils & Pays</span>
+                  <span>Appareils & Pays</span>
                   <span className="text-[10px] text-slate-400">Desktop vs Mobile</span>
                 </div>
 
                 {/* Barre de répartition Appareils */}
                 <div className="space-y-1.5 mb-4">
                   <div className="flex justify-between text-xs font-semibold text-slate-700">
-                    <span className="flex items-center gap-1">
-                      <Monitor className="h-3.5 w-3.5 text-teal-600" /> Ordinateur ({desktopPct}%)
+                    <span className="flex items-center gap-1 text-[11px]">
+                      <Monitor className="h-3.5 w-3.5 text-teal-600 shrink-0" /> PC ({desktopPct}%)
                     </span>
-                    <span className="flex items-center gap-1">
-                      <Smartphone className="h-3.5 w-3.5 text-slate-600" /> Mobile ({mobilePct}%)
+                    <span className="flex items-center gap-1 text-[11px]">
+                      <Smartphone className="h-3.5 w-3.5 text-slate-600 shrink-0" /> Mobile ({mobilePct}%)
                     </span>
                   </div>
                   <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden flex">
@@ -509,26 +541,26 @@ export default function AdminStatsPage() {
                 {/* Grille Pays */}
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="bg-teal-50 border border-teal-200 p-2.5 rounded-lg flex items-center justify-between">
-                    <span className="font-bold text-teal-950">🇫🇷 France</span>
-                    <span className="font-mono font-black text-teal-700">{franceCount} chauffeurs</span>
+                    <span className="font-bold text-teal-950 truncate">🇫🇷 France</span>
+                    <span className="font-mono font-black text-teal-700 shrink-0 ml-1">{franceCount}</span>
                   </div>
                   <div className="bg-rose-50 border border-rose-200 p-2.5 rounded-lg flex items-center justify-between">
-                    <span className="font-bold text-rose-950">🇧🇪 Belgique</span>
-                    <span className="font-mono font-black text-rose-700">{belgiumCount} chauffeurs</span>
+                    <span className="font-bold text-rose-950 truncate">🇧🇪 Belgique</span>
+                    <span className="font-mono font-black text-rose-700 shrink-0 ml-1">{belgiumCount}</span>
                   </div>
                   <div className="bg-amber-50 border border-amber-200 p-2.5 rounded-lg flex items-center justify-between">
-                    <span className="font-bold text-amber-950">🇱🇺 Luxembourg</span>
-                    <span className="font-mono font-black text-amber-700">{luxembourgCount} chauffeurs</span>
+                    <span className="font-bold text-amber-950 truncate">🇱🇺 Luxembourg</span>
+                    <span className="font-mono font-black text-amber-700 shrink-0 ml-1">{luxembourgCount}</span>
                   </div>
                   <div className="bg-slate-100 border border-slate-200 p-2.5 rounded-lg flex items-center justify-between">
-                    <span className="font-bold text-slate-950">🇨🇭 Suisse</span>
-                    <span className="font-mono font-black text-slate-700">{switzerlandCount} chauffeurs</span>
+                    <span className="font-bold text-slate-950 truncate">🇨🇭 Suisse</span>
+                    <span className="font-mono font-black text-slate-700 shrink-0 ml-1">{switzerlandCount}</span>
                   </div>
                 </div>
               </div>
 
               <div className="pt-2 text-[10px] text-slate-400 font-mono text-right">
-                Mesure géographique sans collecte de données personnelles
+                Statistiques anonymisées RGPD
               </div>
             </div>
 
@@ -539,7 +571,7 @@ export default function AdminStatsPage() {
       </div>
 
       {/* 4. DATAGRID DES PAGES LES PLUS CONSULTÉES */}
-      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
+      <div className="w-full bg-white p-5 rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
             <div className="flex items-center gap-2">
@@ -567,8 +599,8 @@ export default function AdminStatsPage() {
         {topPages.length === 0 ? (
           <p className="text-xs text-slate-400 py-6 text-center">Aucune visite enregistrée sur cette période.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-left text-xs border-collapse min-w-[650px]">
               <thead>
                 <tr className="bg-slate-950 text-white font-bold uppercase tracking-wider text-[10px]">
                   <th className="py-3 px-4">URL de la Page</th>

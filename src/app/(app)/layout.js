@@ -292,7 +292,7 @@ export default function AppLayout({ children }) {
       )}
 
       {/* Main content */}
-      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
+      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen min-w-0 max-w-full overflow-x-hidden">
         {/* Top bar mobile */}
         <header className="lg:hidden sticky top-0 z-20 bg-white border-b border-slate-200 px-4 py-3 flex items-center gap-3 shadow-sm">
           <button
@@ -325,7 +325,7 @@ export default function AppLayout({ children }) {
         </header>
 
         {/* Page content */}
-        <main className="flex-grow p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="flex-grow p-3 sm:p-5 lg:p-6 min-w-0 max-w-full overflow-x-hidden">{children}</main>
       </div>
 
       <Suspense fallback={null}>

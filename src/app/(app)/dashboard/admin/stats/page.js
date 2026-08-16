@@ -214,7 +214,7 @@ export default function AdminStatsPage() {
   }
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto space-y-4 pb-12 font-sans bg-slate-100/70 p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="w-full max-w-full space-y-4 pb-12 font-sans bg-slate-100/70 p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm overflow-hidden box-border">
       
       {/* 1. EN-TÊTE SUPÉRIEURE DE PILOTAGE ANALYTICS */}
       <div className="w-full bg-slate-950 text-white px-4 py-2.5 rounded-xl flex flex-wrap items-center justify-between gap-3 shadow-md min-w-0">
@@ -294,283 +294,276 @@ export default function AdminStatsPage() {
         </div>
       )}
 
-      {/* 3. GRILLE MODULAIRE ANALYTICS (STYLE POWER BI) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 w-full min-w-0">
+      {/* 3. HERO KPIS EN BANDEAU SUPÉRIEUR (4 COLONNES ÉQUILIBRÉES) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 w-full min-w-0">
         
-        {/* === COLONNE GAUCHE : HERO KPIS SCORECARDS (3 COLS) === */}
-        <div className="lg:col-span-3 min-w-0 space-y-4">
-          
-          {/* KPI 1 : Pages Vues Totales */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow min-w-0">
-            <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-              <span>Pages Vues Totales</span>
-              <Eye className="h-4 w-4 text-teal-600" />
-            </div>
-            <div className="text-4xl sm:text-5xl font-black text-slate-950 mt-3 tracking-tight font-mono">
-              {totalViews.toLocaleString('fr-FR')}
-            </div>
-            <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-              <span>Progression vs N-1 :</span>
-              <span className={`font-bold font-mono px-2 py-0.5 rounded text-[11px] ${
-                viewsGrowth >= 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
-              }`}>
-                {viewsGrowth >= 0 ? '+' : ''}{viewsGrowth}%
-              </span>
-            </div>
+        {/* KPI 1 : Pages Vues Totales */}
+        <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow min-w-0">
+          <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
+            <span className="truncate">Pages Vues Totales</span>
+            <Eye className="h-4 w-4 text-teal-600 shrink-0 ml-1" />
           </div>
-
-          {/* KPI 2 : Visiteurs Uniques */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow min-w-0">
-            <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-              <span>Visiteurs Uniques</span>
-              <Users className="h-4 w-4 text-blue-600" />
-            </div>
-            <div className="text-4xl sm:text-5xl font-black text-slate-950 mt-3 tracking-tight font-mono">
-              {uniqueVisitors.toLocaleString('fr-FR')}
-            </div>
-            <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-              <span>Sessions actives :</span>
-              <span className="font-extrabold text-blue-700 bg-blue-50 px-2 py-0.5 rounded text-[11px]">
-                {uniqueVisitors} profils
-              </span>
-            </div>
+          <div className="text-3xl sm:text-4xl font-black text-slate-950 mt-2 tracking-tight font-mono">
+            {totalViews.toLocaleString('fr-FR')}
           </div>
-
-          {/* KPI 3 : Trafic Organique SEO */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow min-w-0">
-            <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-              <span>Part du Trafic SEO</span>
-              <Globe className="h-4 w-4 text-emerald-600" />
-            </div>
-            <div className="text-4xl sm:text-5xl font-black text-slate-950 mt-3 tracking-tight font-mono">
-              {organicRate}%
-            </div>
-            <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-              <span>Moteurs Google & Bing :</span>
-              <span className="font-bold text-slate-900">
-                {organicViews.toLocaleString('fr-FR')} vues
-              </span>
-            </div>
+          <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span className="text-[11px]">Progression N-1 :</span>
+            <span className={`font-bold font-mono px-1.5 py-0.5 rounded text-[10px] ${
+              viewsGrowth >= 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
+            }`}>
+              {viewsGrowth >= 0 ? '+' : ''}{viewsGrowth}%
+            </span>
           </div>
-
-          {/* KPI 4 : Taux de Conversion */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow min-w-0">
-            <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-              <span>Taux de Transformation</span>
-              <Target className="h-4 w-4 text-orange-500" />
-            </div>
-            <div className="text-4xl sm:text-5xl font-black text-slate-950 mt-3 tracking-tight font-mono">
-              {conversionRate}%
-            </div>
-            <p className="text-[11px] text-slate-400 font-medium mt-2">
-              Ratio des visiteurs qui finalisent une inscription ou un déblocage.
-            </p>
-          </div>
-
         </div>
 
-        {/* === TUILES CENTRALES & DROITE : VISUALISATIONS (9 COLS) === */}
-        <div className="lg:col-span-9 min-w-0 space-y-4">
-          
-          {/* LIGNE 1 : COURBE TEMPORELLE + HISTOGRAMME DES CANAUX */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 w-full min-w-0">
-            
-            {/* TUILE 1 : COURBE D'ÉVOLUTION TEMPORELLE (7 COLS) */}
-            <div className="md:col-span-7 min-w-0 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between overflow-hidden">
-              <div>
-                <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
-                  <span>{timeframe === 'today' ? "Activité Heure par Heure (Aujourd'hui)" : 'Évolution Quotidienne du Trafic'}</span>
-                  <span className="text-slate-400 font-mono">{timeframe === 'today' ? '24 Heures' : 'Vues vs Visiteurs'}</span>
-                </div>
-                <div className="flex items-center gap-4 text-xs font-semibold text-slate-600 mb-4">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-1 bg-teal-500 rounded" /> {timeframe === 'today' ? 'Vues / Heure' : 'Pages Vues'}
-                  </span>
-                  {timeframe !== 'today' && (
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-3 h-1 bg-slate-700 rounded" /> Visiteurs Uniques
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Courbe SVG dynamique */}
-              <div className="h-44 w-full relative flex items-end overflow-hidden">
-                <svg viewBox="0 0 500 150" className="w-full h-full" preserveAspectRatio="none">
-                  {/* Lignes de repère */}
-                  <line x1="0" y1="20" x2="500" y2="20" stroke="#f1f5f9" strokeWidth="1" />
-                  <line x1="0" y1="70" x2="500" y2="70" stroke="#f1f5f9" strokeWidth="1" />
-                  <line x1="0" y1="120" x2="500" y2="120" stroke="#f1f5f9" strokeWidth="1" />
-
-                  {/* Courbe Pages Vues */}
-                  {chartPoints.pathViews && (
-                    <path
-                      d={chartPoints.pathViews}
-                      fill="none"
-                      stroke="#0d9488"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                    />
-                  )}
-
-                  {/* Courbe Visiteurs Uniques */}
-                  {chartPoints.pathUniques && (
-                    <path
-                      d={chartPoints.pathUniques}
-                      fill="none"
-                      stroke="#334155"
-                      strokeWidth="2"
-                      strokeDasharray="4 4"
-                    />
-                  )}
-
-                  {/* Points */}
-                  {chartPoints.pointsViews?.map((pt, idx) => (
-                    <circle key={`v-${idx}`} cx={pt.x} cy={pt.y} r="3" fill="#0d9488" />
-                  ))}
-                </svg>
-              </div>
-
-              {/* Axe X Labels */}
-              <div className="flex justify-between text-[10px] text-slate-400 font-mono pt-2 border-t border-slate-100 overflow-x-hidden">
-                {chartPoints.labels?.map((lbl, i) => (
-                  <span key={i}>{lbl}</span>
-                ))}
-              </div>
-            </div>
-
-            {/* TUILE 2 : CANAUX D'ACQUISITION (5 COLS) */}
-            <div className="md:col-span-5 min-w-0 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between overflow-hidden">
-              <div>
-                <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-3">
-                  <span>Canaux d'Acquisition</span>
-                  <span className="text-[10px] text-slate-400">Volume</span>
-                </div>
-              </div>
-
-              {/* Barres horizontales des canaux */}
-              <div className="space-y-2.5">
-                {[
-                  { label: 'SEO Google & Moteurs', val: channels.organic?.count || 0, color: 'bg-teal-600' },
-                  { label: 'Accès Direct & Favoris', val: channels.direct?.count || 0, color: 'bg-teal-500' },
-                  { label: 'Réseaux Sociaux (LinkedIn/FB)', val: channels.social?.count || 0, color: 'bg-teal-400' },
-                  { label: 'Sites Référents & Partenaires', val: channels.referral?.count || 0, color: 'bg-teal-300' },
-                ].map((item, idx) => {
-                  const maxChannel = Math.max(...Object.values(channels).map(c => c.count || 0), 1);
-                  const pct = Math.max(8, Math.round((item.val / maxChannel) * 100));
-                  return (
-                    <div key={idx} className="space-y-1 min-w-0">
-                      <div className="flex justify-between text-xs">
-                        <span className="font-semibold text-slate-700 text-[11px] truncate">{item.label}</span>
-                        <span className="font-mono text-slate-900 font-bold text-[11px] shrink-0">{item.val}</span>
-                      </div>
-                      <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full ${item.color} rounded-full transition-all duration-500`}
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="pt-2 text-[10px] text-slate-400 font-mono text-right">
-                Sources de trafic qualifié
-              </div>
-            </div>
-
+        {/* KPI 2 : Visiteurs Uniques */}
+        <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow min-w-0">
+          <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
+            <span className="truncate">Visiteurs Uniques</span>
+            <Users className="h-4 w-4 text-blue-600 shrink-0 ml-1" />
           </div>
-
-          {/* LIGNE 2 : ENTONNOIR DE CONVERSION + RÉPARTITION APPAREILS & PAYS */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 w-full min-w-0">
-            
-            {/* TUILE 3 : ENTONNOIR DE CONVERSION (6 COLS) */}
-            <div className="md:col-span-6 min-w-0 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
-              <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-3">
-                <span>Entonnoir de Conversion</span>
-                <span className="text-[10px] font-bold bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full shrink-0">
-                  Tunnel Recrutement
-                </span>
-              </div>
-
-              <div className="space-y-2.5">
-                {[
-                  { step: '1. Visiteurs Uniques', count: funnel.step1_visitors ?? uniqueVisitors, pct: '100%', color: 'bg-slate-900' },
-                  { step: '2. Intention & Navigation', count: funnel.step2_intent ?? 0, pct: `${funnel.intentRate || 0}%`, color: 'bg-teal-700' },
-                  { step: '3. Inscription / Connexion', count: funnel.step3_register ?? 0, pct: `${funnel.registerRate || 0}%`, color: 'bg-teal-500' },
-                  { step: '4. Inscriptions & Déblocages', count: funnel.step4_signed_up ?? 0, pct: `${conversionRate}%`, color: 'bg-emerald-600' },
-                ].map((st, idx) => (
-                  <div key={idx} className="bg-slate-50 p-2.5 rounded-lg border border-slate-100 flex items-center justify-between gap-3 text-xs min-w-0">
-                    <div className="min-w-0">
-                      <span className="font-bold text-slate-900 text-[11px] block truncate">{st.step}</span>
-                      <span className="text-[10px] text-slate-400 font-mono">{st.count} actions</span>
-                    </div>
-                    <span className={`text-white font-mono font-black text-[11px] px-2 py-0.5 rounded shrink-0 ${st.color}`}>
-                      {st.pct}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* TUILE 4 : APPAREILS & PAYS (6 COLS) */}
-            <div className="md:col-span-6 min-w-0 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between overflow-hidden">
-              <div>
-                <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-3">
-                  <span>Appareils & Pays</span>
-                  <span className="text-[10px] text-slate-400">Desktop vs Mobile</span>
-                </div>
-
-                {/* Barre de répartition Appareils */}
-                <div className="space-y-1.5 mb-4">
-                  <div className="flex justify-between text-xs font-semibold text-slate-700">
-                    <span className="flex items-center gap-1 text-[11px]">
-                      <Monitor className="h-3.5 w-3.5 text-teal-600 shrink-0" /> PC ({desktopPct}%)
-                    </span>
-                    <span className="flex items-center gap-1 text-[11px]">
-                      <Smartphone className="h-3.5 w-3.5 text-slate-600 shrink-0" /> Mobile ({mobilePct}%)
-                    </span>
-                  </div>
-                  <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden flex">
-                    <div className="bg-teal-600 h-full" style={{ width: `${desktopPct}%` }} />
-                    <div className="bg-slate-700 h-full" style={{ width: `${mobilePct}%` }} />
-                  </div>
-                </div>
-
-                {/* Grille Pays */}
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="bg-teal-50 border border-teal-200 p-2.5 rounded-lg flex items-center justify-between">
-                    <span className="font-bold text-teal-950 truncate">🇫🇷 France</span>
-                    <span className="font-mono font-black text-teal-700 shrink-0 ml-1">{franceCount}</span>
-                  </div>
-                  <div className="bg-rose-50 border border-rose-200 p-2.5 rounded-lg flex items-center justify-between">
-                    <span className="font-bold text-rose-950 truncate">🇧🇪 Belgique</span>
-                    <span className="font-mono font-black text-rose-700 shrink-0 ml-1">{belgiumCount}</span>
-                  </div>
-                  <div className="bg-amber-50 border border-amber-200 p-2.5 rounded-lg flex items-center justify-between">
-                    <span className="font-bold text-amber-950 truncate">🇱🇺 Luxembourg</span>
-                    <span className="font-mono font-black text-amber-700 shrink-0 ml-1">{luxembourgCount}</span>
-                  </div>
-                  <div className="bg-slate-100 border border-slate-200 p-2.5 rounded-lg flex items-center justify-between">
-                    <span className="font-bold text-slate-950 truncate">🇨🇭 Suisse</span>
-                    <span className="font-mono font-black text-slate-700 shrink-0 ml-1">{switzerlandCount}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-2 text-[10px] text-slate-400 font-mono text-right">
-                Statistiques anonymisées RGPD
-              </div>
-            </div>
-
+          <div className="text-3xl sm:text-4xl font-black text-slate-950 mt-2 tracking-tight font-mono">
+            {uniqueVisitors.toLocaleString('fr-FR')}
           </div>
+          <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span className="text-[11px]">Sessions :</span>
+            <span className="font-extrabold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded text-[10px]">
+              {uniqueVisitors} profils
+            </span>
+          </div>
+        </div>
 
+        {/* KPI 3 : Trafic Organique SEO */}
+        <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow min-w-0">
+          <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
+            <span className="truncate">Part du Trafic SEO</span>
+            <Globe className="h-4 w-4 text-emerald-600 shrink-0 ml-1" />
+          </div>
+          <div className="text-3xl sm:text-4xl font-black text-slate-950 mt-2 tracking-tight font-mono">
+            {organicRate}%
+          </div>
+          <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span className="text-[11px]">Moteurs :</span>
+            <span className="font-bold text-slate-900 text-[11px]">
+              {organicViews.toLocaleString('fr-FR')} vues
+            </span>
+          </div>
+        </div>
+
+        {/* KPI 4 : Taux de Conversion */}
+        <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow min-w-0">
+          <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
+            <span className="truncate">Taux Conversion</span>
+            <Target className="h-4 w-4 text-orange-500 shrink-0 ml-1" />
+          </div>
+          <div className="text-3xl sm:text-4xl font-black text-slate-950 mt-2 tracking-tight font-mono">
+            {conversionRate}%
+          </div>
+          <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span className="text-[11px]">Statut :</span>
+            <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded text-[10px]">
+              ● Actif
+            </span>
+          </div>
         </div>
 
       </div>
 
-      {/* 4. DATAGRID DES PAGES LES PLUS CONSULTÉES */}
+      {/* 4. LIGNE DU MILIEU : COURBE D'ÉVOLUTION + CANAUX D'ACQUISITION */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 w-full min-w-0">
+        
+        {/* TUILE 1 : COURBE TEMPORELLE (7 COLS) */}
+        <div className="lg:col-span-7 min-w-0 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between overflow-hidden">
+          <div>
+            <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+              <span>{timeframe === 'today' ? "Activité Heure par Heure (Aujourd'hui)" : 'Évolution Quotidienne du Trafic'}</span>
+              <span className="text-slate-400 font-mono">{timeframe === 'today' ? '24 Heures' : 'Vues vs Visiteurs'}</span>
+            </div>
+            <div className="flex items-center gap-4 text-xs font-semibold text-slate-600 mb-4">
+              <span className="flex items-center gap-1.5">
+                <span className="w-3 h-1 bg-teal-500 rounded" /> {timeframe === 'today' ? 'Vues / Heure' : 'Pages Vues'}
+              </span>
+              {timeframe !== 'today' && (
+                <span className="flex items-center gap-1.5">
+                  <span className="w-3 h-1 bg-slate-700 rounded" /> Visiteurs Uniques
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Courbe SVG dynamique */}
+          <div className="h-44 w-full relative flex items-end overflow-hidden">
+            <svg viewBox="0 0 500 150" className="w-full h-full" preserveAspectRatio="none">
+              {/* Lignes de repère */}
+              <line x1="0" y1="20" x2="500" y2="20" stroke="#f1f5f9" strokeWidth="1" />
+              <line x1="0" y1="70" x2="500" y2="70" stroke="#f1f5f9" strokeWidth="1" />
+              <line x1="0" y1="120" x2="500" y2="120" stroke="#f1f5f9" strokeWidth="1" />
+
+              {/* Courbe Pages Vues */}
+              {chartPoints.pathViews && (
+                <path
+                  d={chartPoints.pathViews}
+                  fill="none"
+                  stroke="#0d9488"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+              )}
+
+              {/* Courbe Visiteurs Uniques */}
+              {chartPoints.pathUniques && (
+                <path
+                  d={chartPoints.pathUniques}
+                  fill="none"
+                  stroke="#334155"
+                  strokeWidth="2"
+                  strokeDasharray="4 4"
+                />
+              )}
+
+              {/* Points */}
+              {chartPoints.pointsViews?.map((pt, idx) => (
+                <circle key={`v-${idx}`} cx={pt.x} cy={pt.y} r="3" fill="#0d9488" />
+              ))}
+            </svg>
+          </div>
+
+          {/* Axe X Labels */}
+          <div className="flex justify-between text-[10px] text-slate-400 font-mono pt-2 border-t border-slate-100 overflow-x-hidden">
+            {chartPoints.labels?.map((lbl, i) => (
+              <span key={i}>{lbl}</span>
+            ))}
+          </div>
+        </div>
+
+        {/* TUILE 2 : CANAUX D'ACQUISITION (5 COLS) */}
+        <div className="lg:col-span-5 min-w-0 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between overflow-hidden">
+          <div>
+            <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-3">
+              <span>Canaux d'Acquisition</span>
+              <span className="text-[10px] text-slate-400">Volume</span>
+            </div>
+          </div>
+
+          {/* Barres horizontales des canaux */}
+          <div className="space-y-2.5">
+            {[
+              { label: 'SEO Google & Moteurs', val: channels.organic?.count || 0, color: 'bg-teal-600' },
+              { label: 'Accès Direct & Favoris', val: channels.direct?.count || 0, color: 'bg-teal-500' },
+              { label: 'Réseaux Sociaux (LinkedIn/FB)', val: channels.social?.count || 0, color: 'bg-teal-400' },
+              { label: 'Sites Référents & Partenaires', val: channels.referral?.count || 0, color: 'bg-teal-300' },
+            ].map((item, idx) => {
+              const maxChannel = Math.max(...Object.values(channels).map(c => c.count || 0), 1);
+              const pct = Math.max(8, Math.round((item.val / maxChannel) * 100));
+              return (
+                <div key={idx} className="space-y-1 min-w-0">
+                  <div className="flex justify-between text-xs">
+                    <span className="font-semibold text-slate-700 text-[11px] truncate">{item.label}</span>
+                    <span className="font-mono text-slate-900 font-bold text-[11px] shrink-0">{item.val}</span>
+                  </div>
+                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full ${item.color} rounded-full transition-all duration-500`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="pt-2 text-[10px] text-slate-400 font-mono text-right">
+            Sources de trafic qualifié
+          </div>
+        </div>
+
+      </div>
+
+      {/* 5. LIGNE INFÉRIEURE : ENTONNOIR DE CONVERSION + RÉPARTITION APPAREILS & PAYS */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full min-w-0">
+        
+        {/* TUILE 3 : ENTONNOIR DE CONVERSION */}
+        <div className="min-w-0 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+          <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-3">
+            <span>Entonnoir de Conversion</span>
+            <span className="text-[10px] font-bold bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full shrink-0">
+              Tunnel Recrutement
+            </span>
+          </div>
+
+          <div className="space-y-2.5">
+            {[
+              { step: '1. Visiteurs Uniques', count: funnel.step1_visitors ?? uniqueVisitors, pct: '100%', color: 'bg-slate-900' },
+              { step: '2. Intention & Navigation', count: funnel.step2_intent ?? 0, pct: `${funnel.intentRate || 0}%`, color: 'bg-teal-700' },
+              { step: '3. Inscription / Connexion', count: funnel.step3_register ?? 0, pct: `${funnel.registerRate || 0}%`, color: 'bg-teal-500' },
+              { step: '4. Inscriptions & Déblocages', count: funnel.step4_signed_up ?? 0, pct: `${conversionRate}%`, color: 'bg-emerald-600' },
+            ].map((st, idx) => (
+              <div key={idx} className="bg-slate-50 p-2.5 rounded-lg border border-slate-100 flex items-center justify-between gap-3 text-xs min-w-0">
+                <div className="min-w-0">
+                  <span className="font-bold text-slate-900 text-[11px] block truncate">{st.step}</span>
+                  <span className="text-[10px] text-slate-400 font-mono">{st.count} actions</span>
+                </div>
+                <span className={`text-white font-mono font-black text-[11px] px-2 py-0.5 rounded shrink-0 ${st.color}`}>
+                  {st.pct}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* TUILE 4 : APPAREILS & PAYS */}
+        <div className="min-w-0 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between overflow-hidden">
+          <div>
+            <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-3">
+              <span>Appareils & Pays</span>
+              <span className="text-[10px] text-slate-400">Desktop vs Mobile</span>
+            </div>
+
+            {/* Barre de répartition Appareils */}
+            <div className="space-y-1.5 mb-4">
+              <div className="flex justify-between text-xs font-semibold text-slate-700">
+                <span className="flex items-center gap-1 text-[11px]">
+                  <Monitor className="h-3.5 w-3.5 text-teal-600 shrink-0" /> PC ({desktopPct}%)
+                </span>
+                <span className="flex items-center gap-1 text-[11px]">
+                  <Smartphone className="h-3.5 w-3.5 text-slate-600 shrink-0" /> Mobile ({mobilePct}%)
+                </span>
+              </div>
+              <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden flex">
+                <div className="bg-teal-600 h-full" style={{ width: `${desktopPct}%` }} />
+                <div className="bg-slate-700 h-full" style={{ width: `${mobilePct}%` }} />
+              </div>
+            </div>
+
+            {/* Grille Pays */}
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-teal-50 border border-teal-200 p-2.5 rounded-lg flex items-center justify-between">
+                <span className="font-bold text-teal-950 truncate">🇫🇷 France</span>
+                <span className="font-mono font-black text-teal-700 shrink-0 ml-1">{franceCount}</span>
+              </div>
+              <div className="bg-rose-50 border border-rose-200 p-2.5 rounded-lg flex items-center justify-between">
+                <span className="font-bold text-rose-950 truncate">🇧🇪 Belgique</span>
+                <span className="font-mono font-black text-rose-700 shrink-0 ml-1">{belgiumCount}</span>
+              </div>
+              <div className="bg-amber-50 border border-amber-200 p-2.5 rounded-lg flex items-center justify-between">
+                <span className="font-bold text-amber-950 truncate">🇱🇺 Luxembourg</span>
+                <span className="font-mono font-black text-amber-700 shrink-0 ml-1">{luxembourgCount}</span>
+              </div>
+              <div className="bg-slate-100 border border-slate-200 p-2.5 rounded-lg flex items-center justify-between">
+                <span className="font-bold text-slate-950 truncate">🇨🇭 Suisse</span>
+                <span className="font-mono font-black text-slate-700 shrink-0 ml-1">{switzerlandCount}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-2 text-[10px] text-slate-400 font-mono text-right">
+            Statistiques anonymisées RGPD
+          </div>
+        </div>
+
+      </div>
+
+      {/* 6. DATAGRID DES PAGES LES PLUS CONSULTÉES */}
       <div className="w-full bg-white p-5 rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>

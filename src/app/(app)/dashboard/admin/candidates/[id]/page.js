@@ -275,7 +275,7 @@ export default function CandidateAdminProfile() {
     setShowConfirm(false);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const response = await fetch(`/api/candidates/${params.id}/validate`, {
+      const response = await fetch(`/api/candidates/${candidateId}/validate`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -317,7 +317,7 @@ export default function CandidateAdminProfile() {
           const { error } = await supabase
             .from('candidates')
             .update({ validated: false, validated_at: null })
-            .eq('id', params.id);
+            .eq('id', candidateId);
           if (error) throw error;
           setCandidate(prev => ({ ...prev, validated: false, validated_at: null }));
           toast.success('Validation révoquée avec succès.');
@@ -458,19 +458,6 @@ export default function CandidateAdminProfile() {
           )}
         </div>
       </div>
-
-      {/* Message de confirmation ou erreur de relance */}
-      {remindMessage && (
-        <div
-          className={`p-4 rounded-2xl border text-xs font-bold text-center ${
-            remindMessage.type === 'success'
-              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-              : 'bg-red-50 border-red-200 text-red-800'
-          }`}
-        >
-          {remindMessage.text}
-        </div>
-      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Colonne gauche - Infos profil */}

@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { sendCandidateReminderDay1 } from '@/lib/email-service';
 
-export async function POST(req, { params }) {
+export async function POST(req, context) {
   try {
-    const candidateId = params?.id;
+    const resolvedParams = context?.params ? await context.params : {};
+    const candidateId = resolvedParams.id;
     if (!candidateId) {
       return NextResponse.json({ error: 'ID candidat manquant' }, { status: 400 });
     }

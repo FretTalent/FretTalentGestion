@@ -18,6 +18,8 @@ import {
   Calendar,
   Truck,
   Clock,
+  Bell,
+  Send,
 } from 'lucide-react';
 import { calculateAge } from '@/lib/country';
 
@@ -69,6 +71,11 @@ export default function CandidateAdminProfile() {
       if (!res.ok) {
         throw new Error(result.error || 'Erreur lors de la relance');
       }
+      setCandidate(prev => ({
+        ...prev,
+        reminders_count: result.reminders_count ?? ((prev?.reminders_count || 0) + 1),
+        last_reminded_at: result.last_reminded_at || new Date().toISOString(),
+      }));
       setRemindMessage({ type: 'success', text: result.message || 'E-mail de rappel envoyé avec succès !' });
     } catch (err) {
       setRemindMessage({ type: 'error', text: err.message });
@@ -281,11 +288,28 @@ export default function CandidateAdminProfile() {
         </div>
         {/* Actions & Badges */}
         <div className="flex items-center gap-2">
+          {/* Badge Compteur Relances */}
+          <div
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-2xl font-bold text-xs border ${
+              (candidate.reminders_count || 0) > 0
+                ? 'bg-amber-50 border-amber-200 text-amber-800 shadow-2xs'
+                : 'bg-slate-50 border-slate-200 text-slate-600'
+            }`}
+            title={
+              candidate.last_reminded_at
+                ? `Dernière relance le ${new Date(candidate.last_reminded_at).toLocaleString('fr-FR')}`
+                : 'Aucune relance effectuée'
+            }
+          >
+            <Bell className={`h-3.5 w-3.5 ${(candidate.reminders_count || 0) > 0 ? 'text-amber-600' : 'text-slate-400'}`} />
+            <span>{(candidate.reminders_count || 0)} relance{(candidate.reminders_count || 0) > 1 ? 's' : ''}</span>
+          </div>
+
           {!allRequiredUploaded && candidate.email && (
             <button
               onClick={handleSendReminder}
               disabled={reminding}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs transition-all shadow-sm disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs transition-all shadow-sm disabled:opacity-50 cursor-pointer"
             >
               <Mail className="h-4 w-4" />
               <span>{reminding ? 'Envoi...' : 'Relancer par e-mail'}</span>
@@ -384,6 +408,39 @@ export default function CandidateAdminProfile() {
                   </span>
                 </div>
               )}
+
+              {/* Suivi des relances candidat */}
+              <div className="border-t border-slate-100 pt-3 mt-3 bg-slate-50/80 p-3 rounded-2xl space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-600 font-bold flex items-center gap-1.5">
+                    <Bell className="h-3.5 w-3.5 text-orange-500" />
+                    Relances e-mail :
+                  </span>
+                  <span className={`font-black px-2 py-0.5 rounded-full text-[11px] ${
+                    (candidate.reminders_count || 0) > 0
+                      ? 'bg-orange-100 text-orange-800 border border-orange-200'
+                      : 'bg-slate-200 text-slate-700'
+                  }`}>
+                    {(candidate.reminders_count || 0)} relance{(candidate.reminders_count || 0) > 1 ? 's' : ''}
+                  </span>
+                </div>
+                {candidate.last_reminded_at ? (
+                  <p className="text-[10px] text-slate-500 flex items-center gap-1">
+                    <Clock className="h-3 w-3 text-slate-400 shrink-0" />
+                    Dernière : {new Date(candidate.last_reminded_at).toLocaleString('fr-FR', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </p>
+                ) : (
+                  <p className="text-[10px] text-slate-400 italic">
+                    Aucune relance envoyée
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
@@ -529,6 +586,52 @@ export default function CandidateAdminProfile() {
                 />
               </div>
             </div>
+
+            {/* Alerte Documents Manquants & Relances */}
+            {!allRequiredUploaded && (
+              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200/80 text-amber-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="p-1.5 rounded-lg bg-amber-200 text-amber-900 flex items-center justify-center">
+                      <Clock className="h-4 w-4" />
+                    </span>
+                    <p className="text-xs font-extrabold text-amber-950">
+                      {7 - uploadedRequiredCount} pièce{7 - uploadedRequiredCount > 1 ? 's' : ''} obligatoire{7 - uploadedRequiredCount > 1 ? 's' : ''} manquante{7 - uploadedRequiredCount > 1 ? 's' : ''}
+                    </p>
+                  </div>
+                  <p className="text-[11px] text-amber-800">
+                    {(candidate.reminders_count || 0) === 0 ? (
+                      <span className="italic">Aucune relance par e-mail n'a été effectuée pour ce candidat.</span>
+                    ) : (
+                      <>
+                        <strong>{(candidate.reminders_count || 0)} relance{(candidate.reminders_count || 0) > 1 ? 's' : ''} e-mail envoyée{(candidate.reminders_count || 0) > 1 ? 's' : ''}</strong>
+                        {candidate.last_reminded_at && (
+                          <span className="text-amber-700">
+                            {' '}(dernière le {new Date(candidate.last_reminded_at).toLocaleString('fr-FR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })})
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </p>
+                </div>
+                {candidate.email && (
+                  <button
+                    onClick={handleSendReminder}
+                    disabled={reminding}
+                    className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold text-xs transition-all shadow-sm shadow-orange-500/20 disabled:opacity-50 cursor-pointer"
+                  >
+                    <Mail className="h-3.5 w-3.5" />
+                    <span>{reminding ? 'Envoi...' : 'Envoyer une relance'}</span>
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Liste des documents */}
             <div className="space-y-3">

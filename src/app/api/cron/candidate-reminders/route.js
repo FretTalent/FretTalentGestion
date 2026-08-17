@@ -55,18 +55,32 @@ export async function GET(req) {
 
       const name = candidate.full_name || 'Chauffeur';
 
+      let sent = false;
       if (daysElapsed >= 10) {
         // J+10 : Rappel bienveillant pour maximiser les contacts recruteurs (compte maintenu actif)
         await sendCandidateReminderDay10(candidate.email, name);
         results.day10_sent.push({ email: candidate.email, days: daysElapsed });
+        sent = true;
       } else if (daysElapsed >= 4) {
         // J+4 : Deuxième rappel opportunités
         await sendCandidateReminderDay4(candidate.email, name);
         results.day4_sent.push({ email: candidate.email, days: daysElapsed });
+        sent = true;
       } else if (daysElapsed >= 1) {
         // J+1 : Premier rappel bienveillant
         await sendCandidateReminderDay1(candidate.email, name);
         results.day1_sent.push({ email: candidate.email, days: daysElapsed });
+        sent = true;
+      }
+
+      if (sent) {
+        await supabaseAdmin
+          .from('candidates')
+          .update({
+            reminders_count: (candidate.reminders_count || 0) + 1,
+            last_reminded_at: new Date().toISOString(),
+          })
+          .eq('id', candidate.id);
       }
     }
 

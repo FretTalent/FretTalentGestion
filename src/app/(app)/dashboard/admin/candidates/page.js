@@ -618,9 +618,23 @@ function AdminCandidatesContent() {
                               style={{ width: `${progressPct}%` }}
                             />
                           </div>
-                          <span className="text-[10px] font-bold text-slate-600 font-mono">
-                            {docStats.uploadedCount}/{docStats.total} docs
-                          </span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-[10px] font-bold text-slate-600 font-mono">
+                              {docStats.uploadedCount}/{docStats.total} docs
+                            </span>
+                            {(candidate.reminders_count || 0) > 0 && (
+                              <span
+                                title={
+                                  candidate.last_reminded_at
+                                    ? `Dernière relance le ${new Date(candidate.last_reminded_at).toLocaleString('fr-FR')}`
+                                    : `${candidate.reminders_count} relance(s)`
+                                }
+                                className="bg-amber-100 text-amber-900 border border-amber-200 text-[9px] font-extrabold px-1.5 py-0.2 rounded-full"
+                              >
+                                🔔 {candidate.reminders_count}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </td>
 

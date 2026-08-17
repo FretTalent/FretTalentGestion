@@ -48,7 +48,7 @@ export async function POST(req, context) {
     // Récupérer le candidat
     const { data: candidate, error: candError } = await supabaseAdmin
       .from('candidates')
-      .select('id, full_name, email')
+      .select('id, full_name, email, reminders_count, last_reminded_at')
       .eq('id', candidateId)
       .single();
 
@@ -67,9 +67,23 @@ export async function POST(req, context) {
       return NextResponse.json({ error: "Erreur lors de l'envoi de l'e-mail" }, { status: 500 });
     }
 
+    const newRemindersCount = (candidate.reminders_count || 0) + 1;
+    const newLastRemindedAt = new Date().toISOString();
+
+    // Enregistrer l'incrémentation du nombre de relances
+    await supabaseAdmin
+      .from('candidates')
+      .update({
+        reminders_count: newRemindersCount,
+        last_reminded_at: newLastRemindedAt,
+      })
+      .eq('id', candidateId);
+
     return NextResponse.json({
       success: true,
-      message: `E-mail de rappel envoyé avec succès à ${candidate.email}`,
+      message: `E-mail de rappel envoyé avec succès à ${candidate.email} (Relance n°${newRemindersCount})`,
+      reminders_count: newRemindersCount,
+      last_reminded_at: newLastRemindedAt,
     });
   } catch (err) {
     console.error('Erreur API remind candidate:', err);

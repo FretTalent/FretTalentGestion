@@ -542,10 +542,10 @@ export default function CandidatsDisponiblesPage() {
                   </span>
                   <h2 className="text-xl sm:text-2xl font-black text-slate-950 mt-2">
                     {activeCountry === 'ALL'
-                      ? 'Derniers conducteurs disponibles'
+                      ? 'Derniers conducteurs inscrits'
                       : activeCountry === 'VERIFIED'
-                      ? 'Derniers conducteurs 100% Vérifiés 🛡️'
-                      : `Derniers conducteurs en ${
+                      ? 'Derniers conducteurs inscrits (100% Vérifiés 🛡️)'
+                      : `Derniers conducteurs inscrits en ${
                           activeCountry === 'FR'
                             ? 'France'
                             : activeCountry === 'BE'

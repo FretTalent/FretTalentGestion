@@ -29,6 +29,65 @@ import {
 } from 'lucide-react';
 import { calculateAge } from '@/lib/country';
 
+// Projection mathématique exacte Lambert-93 (EPSG:2154) calibrée sur le SVG officiel
+function lonLatToLambert93(lonDeg, latDeg) {
+  const deg2rad = Math.PI / 180;
+  const lon = lonDeg * deg2rad;
+  const lat = latDeg * deg2rad;
+
+  const a = 6378137.0;
+  const e = 0.08181919106;
+  const lat1 = 44 * deg2rad;
+  const lat2 = 49 * deg2rad;
+  const lat0 = 46.5 * deg2rad;
+  const lon0 = 3.0 * deg2rad;
+  const X0 = 700000;
+  const Y0 = 6600000;
+
+  function m(phi) {
+    return Math.cos(phi) / Math.sqrt(1 - e * e * Math.sin(phi) * Math.sin(phi));
+  }
+
+  function t(phi) {
+    return Math.tan(Math.PI / 4 - phi / 2) / Math.pow((1 - e * Math.sin(phi)) / (1 + e * Math.sin(phi)), e / 2);
+  }
+
+  const m1 = m(lat1);
+  const m2 = m(lat2);
+  const t1 = t(lat1);
+  const t2 = t(lat2);
+  const t0 = t(lat0);
+
+  const n = Math.log(m1 / m2) / Math.log(t1 / t2);
+  const c = m1 / (n * Math.pow(t1, n));
+  const rho0 = a * c * Math.pow(t0, n);
+
+  const rho = a * c * Math.pow(t(lat), n);
+  const gamma = n * (lon - lon0);
+
+  const x = X0 + rho * Math.sin(gamma);
+  const y = Y0 + rho0 - rho * Math.cos(gamma);
+
+  return { x, y };
+}
+
+// Paramètres de cadrage 100% alignés avec public/france-belgique-map.svg
+const L93_BMIN_X = 58778.815;
+const L93_BMAX_Y = 7195945.389;
+const L93_MAX_SPAN = 1253092.953;
+const L93_OFFSET_X = 0;
+const L93_OFFSET_Y = 34091.822;
+
+function projectToSvgPct(lon, lat) {
+  const l93 = lonLatToLambert93(lon, lat);
+  const svgX = ((l93.x - L93_BMIN_X + L93_OFFSET_X) / L93_MAX_SPAN) * 100;
+  const svgY = ((L93_BMAX_Y - l93.y + L93_OFFSET_Y) / L93_MAX_SPAN) * 100;
+  return {
+    x: Math.max(2, Math.min(98, svgX)),
+    y: Math.max(2, Math.min(98, svgY)),
+  };
+}
+
 export default function CandidatsDisponiblesPage() {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -54,17 +113,28 @@ export default function CandidatsDisponiblesPage() {
 
         // Cache géocodage pour les 4 pays
         const coordsCache = {};
-        const uniqueKeys = [...new Set(data.map(c => `${c.country || 'FR'}_${c.postal_code}`))];
+        const uniqueKeys = [
+          ...new Set(
+            data.map(c => `${c.country || 'FR'}_${c.postal_code || ''}_${c.city || ''}`)
+          ),
+        ];
 
         await Promise.all(
           uniqueKeys.map(async key => {
-            const [cCountry, pc] = key.split('_');
-            if (!pc || pc === '00000') return;
+            const [cCountry, pc, city] = key.split('_');
+            const searchTerms = [];
+            if (pc && pc !== '00000') searchTerms.push(pc);
+            if (city && city !== 'Non renseigné' && city !== 'Ville non renseignée') searchTerms.push(city);
+
+            if (searchTerms.length === 0) return;
+
+            const query = searchTerms.join(' ');
+
             try {
               if (cCountry === 'BE' || cCountry === 'LU' || cCountry === 'CH') {
                 const countryCodeParam = cCountry.toLowerCase();
                 const res = await fetch(
-                  `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(pc)}&format=json&countrycodes=${countryCodeParam}&limit=1`,
+                  `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&countrycodes=${countryCodeParam}&limit=1`,
                   { headers: { 'User-Agent': 'FretTalentApp/1.0 (contact@frettalent.fr)' } }
                 );
                 if (!res.ok) return;
@@ -74,7 +144,7 @@ export default function CandidatsDisponiblesPage() {
                 }
               } else {
                 const res = await fetch(
-                  `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(pc)}&type=municipality&limit=1`,
+                  `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&type=municipality&limit=1`,
                 );
                 if (!res.ok) return;
                 const json = await res.json();
@@ -89,22 +159,15 @@ export default function CandidatsDisponiblesPage() {
           })
         );
 
-        // Bounding box géographique multi-pays (France, Belgique, Luxembourg, Suisse)
-        const minLon = -5.5;
-        const maxLon = 10.6;
-        const minLat = 41.2;
-        const maxLat = 51.8;
-
         const postalCounts = {};
 
         const mappedCandidates = data
           .map(c => {
-            const key = `${c.country || 'FR'}_${c.postal_code}`;
+            const key = `${c.country || 'FR'}_${c.postal_code || ''}_${c.city || ''}`;
             const coords = coordsCache[key];
             if (!coords) return null;
 
-            const rawX = ((coords.lon - minLon) / (maxLon - minLon)) * 100;
-            const rawY = 100 - ((coords.lat - minLat) / (maxLat - minLat)) * 100;
+            const proj = projectToSvgPct(coords.lon, coords.lat);
 
             // Décalage en rosace dorée pour éviter le chevauchement exact
             const idxInGroup = postalCounts[key] || 0;
@@ -114,13 +177,13 @@ export default function CandidatsDisponiblesPage() {
             let offsetY = 0;
             if (idxInGroup > 0) {
               const angle = idxInGroup * 2.39996;
-              const distance = 0.5 * Math.sqrt(idxInGroup);
+              const distance = 0.35 * Math.sqrt(idxInGroup);
               offsetX = Math.cos(angle) * distance;
               offsetY = Math.sin(angle) * distance;
             }
 
-            const x = Math.max(4, Math.min(96, rawX + offsetX));
-            const y = Math.max(4, Math.min(96, rawY + offsetY));
+            const x = Math.max(3, Math.min(97, proj.x + offsetX));
+            const y = Math.max(3, Math.min(97, proj.y + offsetY));
 
             const docs = c.documents || {};
             const isDocPresent = (k, legacyKey) => !!docs[k] || (legacyKey && !!docs[legacyKey]);

@@ -3,12 +3,15 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import ConfirmModal from '@/components/ConfirmModal';
+import toast from 'react-hot-toast';
 import {
   RefreshCw,
   ArrowLeft,
   CheckCircle,
   XCircle,
   ShieldCheck,
+  ShieldAlert,
   FileText,
   ExternalLink,
   Phone,
@@ -20,6 +23,7 @@ import {
   Clock,
   Bell,
   Send,
+  Zap,
 } from 'lucide-react';
 import { calculateAge } from '@/lib/country';
 
@@ -49,90 +53,147 @@ export default function CandidateAdminProfile() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [fetchError, setFetchError] = useState(null);
   const [reminding, setReminding] = useState(false);
-  const [remindMessage, setRemindMessage] = useState(null);
   const [resendingEmail, setResendingEmail] = useState(false);
   const [confirmingEmail, setConfirmingEmail] = useState(false);
 
-  const handleSendReminder = async () => {
+  // Configuration Modal de Confirmation Moderne
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    confirmText: 'Confirmer',
+    cancelText: 'Annuler',
+    variant: 'orange',
+    icon: null,
+    loading: false,
+    onConfirm: null,
+  });
+
+  const closeConfirmModal = () => {
+    setConfirmModal(prev => ({ ...prev, isOpen: false, loading: false }));
+  };
+
+  const handleSendReminder = () => {
     if (!candidate?.email) {
-      alert("Ce candidat n'a pas d'adresse e-mail renseignée.");
+      toast.error("Ce candidat n'a pas d'adresse e-mail renseignée.");
       return;
     }
-    if (!confirm(`Envoyer un e-mail de rappel à ${candidate.email} pour l'inviter à déposer ses documents ?`)) return;
-    setReminding(true);
-    setRemindMessage(null);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch(`/api/admin/candidates/${candidateId}/remind`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.access_token || ''}`,
-        },
-      });
-      const result = await res.json();
-      if (!res.ok) {
-        throw new Error(result.error || 'Erreur lors de la relance');
-      }
-      setCandidate(prev => ({
-        ...prev,
-        reminders_count: result.reminders_count ?? ((prev?.reminders_count || 0) + 1),
-        last_reminded_at: result.last_reminded_at || new Date().toISOString(),
-      }));
-      setRemindMessage({ type: 'success', text: result.message || 'E-mail de rappel envoyé avec succès !' });
-    } catch (err) {
-      setRemindMessage({ type: 'error', text: err.message });
-    } finally {
-      setReminding(false);
-    }
+
+    setConfirmModal({
+      isOpen: true,
+      title: 'Envoyer une relance par e-mail',
+      message: `Souhaitez-vous envoyer un e-mail de rappel à ${candidate.email} pour l'inviter à déposer ses pièces justificatives manquantes ?`,
+      confirmText: 'Envoyer le rappel',
+      cancelText: 'Annuler',
+      variant: 'orange',
+      icon: Mail,
+      loading: false,
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, loading: true }));
+        setReminding(true);
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          const res = await fetch(`/api/admin/candidates/${candidateId}/remind`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${session?.access_token || ''}`,
+            },
+          });
+          const result = await res.json();
+          if (!res.ok) {
+            throw new Error(result.error || 'Erreur lors de la relance');
+          }
+          setCandidate(prev => ({
+            ...prev,
+            reminders_count: result.reminders_count ?? ((prev?.reminders_count || 0) + 1),
+            last_reminded_at: result.last_reminded_at || new Date().toISOString(),
+          }));
+          toast.success(result.message || 'E-mail de rappel envoyé avec succès !');
+          closeConfirmModal();
+        } catch (err) {
+          toast.error(err.message || 'Erreur lors de la relance');
+          setConfirmModal(prev => ({ ...prev, loading: false }));
+        } finally {
+          setReminding(false);
+        }
+      },
+    });
   };
 
-  const handleResendConfirmationEmail = async () => {
+  const handleResendConfirmationEmail = () => {
     if (!candidate?.email) return;
-    if (!confirm(`Renvoyer le lien de confirmation d'e-mail à ${candidate.email} via Resend (support@frettalent.fr) ?`)) return;
-    setResendingEmail(true);
-    setRemindMessage(null);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch(`/api/admin/candidates/${candidateId}/resend-confirmation`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.access_token || ''}`,
-        },
-      });
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.error || "Erreur lors de l'envoi");
-      setRemindMessage({ type: 'success', text: result.message || 'Lien de confirmation renvoyé avec succès !' });
-    } catch (err) {
-      setRemindMessage({ type: 'error', text: err.message });
-    } finally {
-      setResendingEmail(false);
-    }
+
+    setConfirmModal({
+      isOpen: true,
+      title: "Renvoyer l'e-mail d'activation de compte",
+      message: `Renvoyer un nouveau lien d'activation sécurisé à ${candidate.email} via Resend (support@frettalent.fr) ?`,
+      confirmText: "Renvoyer l'e-mail",
+      cancelText: 'Annuler',
+      variant: 'orange',
+      icon: Send,
+      loading: false,
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, loading: true }));
+        setResendingEmail(true);
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          const res = await fetch(`/api/admin/candidates/${candidateId}/resend-confirmation`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${session?.access_token || ''}`,
+            },
+          });
+          const result = await res.json();
+          if (!res.ok) throw new Error(result.error || "Erreur lors de l'envoi");
+          toast.success(result.message || 'Lien de confirmation renvoyé avec succès !');
+          closeConfirmModal();
+        } catch (err) {
+          toast.error(err.message || "Erreur lors de l'envoi");
+          setConfirmModal(prev => ({ ...prev, loading: false }));
+        } finally {
+          setResendingEmail(false);
+        }
+      },
+    });
   };
 
-  const handleManualEmailConfirm = async () => {
-    if (!confirm(`Valider manuellement l'adresse e-mail de ${candidate.full_name || candidate.email} sans attendre qu'il clique sur le lien ?`)) return;
-    setConfirmingEmail(true);
-    setRemindMessage(null);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch(`/api/admin/candidates/${candidateId}/confirm-email`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.access_token || ''}`,
-        },
-      });
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.error || 'Erreur lors de la validation');
-      setCandidate(prev => ({
-        ...prev,
-        email_confirmed_at: result.email_confirmed_at || new Date().toISOString(),
-      }));
-      setRemindMessage({ type: 'success', text: result.message || 'E-mail validé avec succès !' });
-    } catch (err) {
-      setRemindMessage({ type: 'error', text: err.message });
-    } finally {
-      setConfirmingEmail(false);
-    }
+  const handleManualEmailConfirm = () => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Valider l'e-mail manuellement",
+      message: `Valider immédiatement l'adresse e-mail de ${candidate.full_name || candidate.email} dans Supabase sans attendre qu'il clique sur le lien ?`,
+      confirmText: "Valider l'e-mail maintenant",
+      cancelText: 'Annuler',
+      variant: 'success',
+      icon: Zap,
+      loading: false,
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, loading: true }));
+        setConfirmingEmail(true);
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          const res = await fetch(`/api/admin/candidates/${candidateId}/confirm-email`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${session?.access_token || ''}`,
+            },
+          });
+          const result = await res.json();
+          if (!res.ok) throw new Error(result.error || 'Erreur lors de la validation');
+          setCandidate(prev => ({
+            ...prev,
+            email_confirmed_at: result.email_confirmed_at || new Date().toISOString(),
+          }));
+          toast.success('Adresse e-mail validée avec succès !');
+          closeConfirmModal();
+        } catch (err) {
+          toast.error(err.message || 'Erreur lors de la validation');
+          setConfirmModal(prev => ({ ...prev, loading: false }));
+        } finally {
+          setConfirmingEmail(false);
+        }
+      },
+    });
   };
 
   useEffect(() => {
@@ -228,31 +289,47 @@ export default function CandidateAdminProfile() {
           validated: true,
           validated_at: new Date().toISOString(),
         }));
+        toast.success('Candidat validé et certifié avec succès !');
       } else {
-        alert(result.error || 'Erreur lors de la validation');
+        toast.error(result.error || 'Erreur lors de la validation');
       }
     } catch (err) {
-      alert('Erreur réseau');
+      toast.error('Erreur réseau lors de la validation');
     } finally {
       setValidating(false);
     }
   };
 
-  const handleRevokeValidation = async () => {
-    if (!confirm('Révoquer la validation de ce candidat ?')) return;
-    setValidating(true);
-    try {
-      const { error } = await supabase
-        .from('candidates')
-        .update({ validated: false, validated_at: null })
-        .eq('id', params.id);
-      if (error) throw error;
-      setCandidate(prev => ({ ...prev, validated: false, validated_at: null }));
-    } catch (err) {
-      alert('Erreur lors de la révocation');
-    } finally {
-      setValidating(false);
-    }
+  const handleRevokeValidation = () => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Révoquer la certification du profil',
+      message: `Êtes-vous certain de vouloir retirer le statut "Candidat Vérifié ✓" de ce chauffeur ?`,
+      confirmText: 'Révoquer la validation',
+      cancelText: 'Annuler',
+      variant: 'danger',
+      icon: ShieldAlert,
+      loading: false,
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, loading: true }));
+        setValidating(true);
+        try {
+          const { error } = await supabase
+            .from('candidates')
+            .update({ validated: false, validated_at: null })
+            .eq('id', params.id);
+          if (error) throw error;
+          setCandidate(prev => ({ ...prev, validated: false, validated_at: null }));
+          toast.success('Validation révoquée avec succès.');
+          closeConfirmModal();
+        } catch (err) {
+          toast.error('Erreur lors de la révocation');
+          setConfirmModal(prev => ({ ...prev, loading: false }));
+        } finally {
+          setValidating(false);
+        }
+      },
+    });
   };
 
   const handleOpenDoc = async (path, name) => {
@@ -264,7 +341,7 @@ export default function CandidateAdminProfile() {
       if (error) throw error;
       window.open(data.signedUrl, '_blank');
     } catch (err) {
-      alert("Impossible d'ouvrir le document.");
+      toast.error("Impossible d'ouvrir le document.");
     } finally {
       setDocLoading(null);
     }
@@ -916,6 +993,20 @@ export default function CandidateAdminProfile() {
           )}
         </div>
       </div>
+
+      {/* MODAL DE CONFIRMATION MODERNE ET DESIGN */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText}
+        cancelText={confirmModal.cancelText}
+        variant={confirmModal.variant}
+        icon={confirmModal.icon}
+        loading={confirmModal.loading}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={closeConfirmModal}
+      />
     </div>
   );
 }

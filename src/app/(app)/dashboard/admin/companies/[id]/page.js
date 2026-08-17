@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { RefreshCw, ArrowLeft, Save } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function CompanyProfile() {
   const router = useRouter();
@@ -48,6 +49,7 @@ export default function CompanyProfile() {
       setCompany(data);
     } catch (err) {
       console.error(err);
+      toast.error("Impossible de charger les données de l'entreprise");
     } finally {
       setLoading(false);
     }
@@ -66,10 +68,10 @@ export default function CompanyProfile() {
         .eq('id', params.id);
 
       if (error) throw error;
-      alert('Profil mis à jour');
+      toast.success('Profil entreprise mis à jour avec succès !');
     } catch (err) {
       console.error(err);
-      alert('Erreur lors de la mise à jour');
+      toast.error('Erreur lors de la mise à jour.');
     } finally {
       setSaving(false);
     }

@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import AddressAutocomplete from '@/components/AddressAutocomplete';
+import ConfirmModal from '@/components/ConfirmModal';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 import {
   Save,
   RefreshCw,
@@ -261,6 +263,8 @@ export default function CandidateDashboard() {
     }
   };
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   const toggleMultiSelect = (item, currentList, setList) => {
     const list = Array.isArray(currentList) ? currentList : [];
     if (list.includes(item)) {
@@ -270,29 +274,27 @@ export default function CandidateDashboard() {
     }
   };
 
-  const handleDeleteAccount = async () => {
-    const confirmDelete = window.confirm(
-      'Êtes-vous sûr de vouloir supprimer définitivement votre compte ? Cette action est irréversible et toutes vos données (CV, profil, candidatures) seront effacées.'
-    );
-
-    if (!confirmDelete) return;
-
+  const handleExecuteDeleteAccount = async () => {
     setIsDeleting(true);
+    setShowDeleteModal(false);
     try {
       const res = await fetch('/api/candidate/delete-account', {
         method: 'POST',
       });
       if (res.ok) {
+        toast.success('Votre compte a été supprimé avec succès.');
         await supabase.auth.signOut();
         router.push('/');
       } else {
         const errorData = await res.json();
+        toast.error(errorData.error || 'Erreur lors de la suppression du compte.');
         setMessage({
           type: 'error',
           text: errorData.error || 'Erreur lors de la suppression du compte.',
         });
       }
     } catch (err) {
+      toast.error('Erreur de connexion au serveur.');
       setMessage({ type: 'error', text: 'Erreur réseau.' });
     } finally {
       setIsDeleting(false);
@@ -1038,9 +1040,9 @@ export default function CandidateDashboard() {
               La suppression de votre compte est définitive. Toutes vos données seront effacées.
             </p>
             <button
-              onClick={handleDeleteAccount}
+              onClick={() => setShowDeleteModal(true)}
               disabled={isDeleting}
-              className="w-full px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50"
+              className="w-full px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50 cursor-pointer"
             >
               {isDeleting ? 'Suppression en cours...' : 'Supprimer mon compte'}
             </button>
@@ -1048,55 +1050,52 @@ export default function CandidateDashboard() {
         </div>
       </div>
 
+      {/* MODAL CONFIRMATION SUPPRESSION COMPTE */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Suppression définitive du compte"
+        message="Êtes-vous sûr de vouloir supprimer définitivement votre compte FretTalent ?&#10;&#10;Cette action est irréversible et toutes vos données (CV, pièces justificatives, coordonnées) seront immédiatement effacées."
+        variant="danger"
+        confirmText="Supprimer mon compte"
+        cancelText="Conserver mon compte"
+        loading={isDeleting}
+        onConfirm={handleExecuteDeleteAccount}
+        onCancel={() => setShowDeleteModal(false)}
+      />
+
       {/* MODAL BLOQUANTE DATE DE NAISSANCE POUR TOUT CANDIDAT SANS DATE */}
       {!loading && candidate && !candidate.birth_date && (
         <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-orange-200/60 relative animate-in fade-in zoom-in-95 duration-200">
-            <div className="w-14 h-14 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center mb-5 mx-auto shadow-inner">
-              <Sparkles className="w-7 h-7" />
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-md w-full p-6 sm:p-8 space-y-6 animate-in zoom-in-95 duration-200">
+            <div className="flex flex-col items-center text-center space-y-3">
+              <div className="w-14 h-14 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center shadow-inner">
+                <AlertTriangle className="w-7 h-7" />
+              </div>
+              <div>
+                <h3 className="text-xl font-extrabold text-slate-950">Action requise</h3>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  Pour garantir la conformité de votre profil auprès des transporteurs, veuillez renseigner votre date de naissance.
+                </p>
+              </div>
             </div>
 
-            <div className="text-center space-y-2 mb-6">
-              <span className="inline-block px-3 py-1 bg-orange-100 text-orange-800 text-[11px] font-black uppercase tracking-wider rounded-full">
-                Mise à jour obligatoire
-              </span>
-              <h2 className="text-xl font-black text-slate-900">
-                Renseignez votre Date de Naissance
-              </h2>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Pour que votre profil et votre tranche d&apos;âge apparaissent correctement auprès des transporteurs recruteurs, veuillez indiquer votre véritable date de naissance.
-              </p>
-            </div>
-
-            <form onSubmit={handleSaveModalBirthDate} className="space-y-4">
+            <form onSubmit={handleModalSubmitBirthDate} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 uppercase flex items-center justify-between">
-                  <span>Votre Date de Naissance *</span>
-                  <span className="text-[10px] text-slate-400 font-normal">
-                    {modalBirthDate && calculateAge(modalBirthDate) ? `Âge : ${calculateAge(modalBirthDate)} ans` : 'Min. 18 ans'}
-                  </span>
+                <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Votre date de naissance *
                 </label>
                 <input
                   type="date"
                   required
                   value={modalBirthDate}
-                  onChange={e => setModalBirthDate(e.target.value)}
-                  max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white"
+                  onChange={(e) => setModalBirthDate(e.target.value)}
+                  max={new Date().toISOString().split('T')[0]}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all cursor-pointer"
                 />
               </div>
 
-              {modalBirthDate && calculateAge(modalBirthDate) && (
-                <div className="p-3 bg-orange-50/80 border border-orange-200 rounded-xl flex items-center justify-between text-xs">
-                  <span className="text-orange-800 font-medium">Âge affiché aux recruteurs :</span>
-                  <span className="font-black text-orange-950 bg-white px-2 py-0.5 rounded-md border border-orange-200">
-                    {calculateAge(modalBirthDate)} ans
-                  </span>
-                </div>
-              )}
-
               {modalError && (
-                <p className="text-xs text-red-600 font-bold bg-red-50 p-2.5 rounded-xl border border-red-100 text-center">
+                <p className="text-xs font-bold text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-100 text-center">
                   {modalError}
                 </p>
               )}

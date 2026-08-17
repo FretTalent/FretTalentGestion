@@ -262,6 +262,11 @@ export default function CandidatsDisponiblesPage() {
     });
   }, [candidates, activeCountry, selectedLicenseFilter, searchQuery]);
 
+  // Limiter l'affichage de la carte et du volet aux 5 derniers chauffeurs inscrits
+  const displayedCandidates = useMemo(() => {
+    return filteredCandidates.slice(0, 5);
+  }, [filteredCandidates]);
+
   // Statistiques par pays
   const countFR = candidates.filter(c => c.country === 'FR').length;
   const countBE = candidates.filter(c => c.country === 'BE').length;
@@ -442,9 +447,9 @@ export default function CandidatsDisponiblesPage() {
                     </span>
                   </div>
 
-                  {/* Radar points interactifs */}
+                  {/* Radar points interactifs (5 derniers chauffeurs) */}
                 {!loading &&
-                  filteredCandidates.map(candidate => {
+                  displayedCandidates.map(candidate => {
                     const isHovered = hoveredCandidate?.id === candidate.id;
                     const isSelected = selectedCandidate?.id === candidate.id;
                     const isActive = isHovered || isSelected;
@@ -533,14 +538,14 @@ export default function CandidatsDisponiblesPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-xs font-black text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-100">
-                    Candidats trouvés ({filteredCandidates.length})
+                    5 Derniers Chauffeurs Inscrits ({displayedCandidates.length})
                   </span>
                   <h2 className="text-xl sm:text-2xl font-black text-slate-950 mt-2">
                     {activeCountry === 'ALL'
-                      ? 'Tous les conducteurs disponibles'
+                      ? 'Derniers conducteurs disponibles'
                       : activeCountry === 'VERIFIED'
-                      ? 'Conducteurs 100% Vérifiés 🛡️'
-                      : `Conducteurs en ${
+                      ? 'Derniers conducteurs 100% Vérifiés 🛡️'
+                      : `Derniers conducteurs en ${
                           activeCountry === 'FR'
                             ? 'France'
                             : activeCountry === 'BE'
@@ -553,9 +558,9 @@ export default function CandidatsDisponiblesPage() {
                 </div>
               </div>
 
-              {/* LISTE DÉFILANTE */}
+              {/* LISTE DÉFILANTE (5 DERNIERS) */}
               <div className="space-y-3 max-h-[460px] overflow-y-auto pr-1">
-                {filteredCandidates.length === 0 ? (
+                {displayedCandidates.length === 0 ? (
                   <div className="p-8 text-center bg-slate-50 border border-slate-200 rounded-2xl text-slate-500 text-xs space-y-2">
                     <Users className="w-6 h-6 text-slate-400 mx-auto" />
                     <p className="font-semibold">Aucun chauffeur ne correspond à vos filtres actuels.</p>
@@ -571,7 +576,7 @@ export default function CandidatsDisponiblesPage() {
                     </button>
                   </div>
                 ) : (
-                  filteredCandidates.map(c => {
+                  displayedCandidates.map(c => {
                     const isHovered = hoveredCandidate?.id === c.id;
                     const isSelected = selectedCandidate?.id === c.id;
 

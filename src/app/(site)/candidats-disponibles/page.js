@@ -447,9 +447,9 @@ export default function CandidatsDisponiblesPage() {
                     </span>
                   </div>
 
-                  {/* Radar points interactifs (5 derniers chauffeurs) */}
+                  {/* Radar points interactifs (Tous les chauffeurs inscrits) */}
                 {!loading &&
-                  displayedCandidates.map(candidate => {
+                  filteredCandidates.map(candidate => {
                     const isHovered = hoveredCandidate?.id === candidate.id;
                     const isSelected = selectedCandidate?.id === candidate.id;
                     const isActive = isHovered || isSelected;

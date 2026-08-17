@@ -50,6 +50,8 @@ export default function CandidateAdminProfile() {
   const [fetchError, setFetchError] = useState(null);
   const [reminding, setReminding] = useState(false);
   const [remindMessage, setRemindMessage] = useState(null);
+  const [resendingEmail, setResendingEmail] = useState(false);
+  const [confirmingEmail, setConfirmingEmail] = useState(false);
 
   const handleSendReminder = async () => {
     if (!candidate?.email) {
@@ -81,6 +83,55 @@ export default function CandidateAdminProfile() {
       setRemindMessage({ type: 'error', text: err.message });
     } finally {
       setReminding(false);
+    }
+  };
+
+  const handleResendConfirmationEmail = async () => {
+    if (!candidate?.email) return;
+    if (!confirm(`Renvoyer le lien de confirmation d'e-mail à ${candidate.email} via Resend (support@frettalent.fr) ?`)) return;
+    setResendingEmail(true);
+    setRemindMessage(null);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(`/api/admin/candidates/${candidateId}/resend-confirmation`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session?.access_token || ''}`,
+        },
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Erreur lors de l'envoi");
+      setRemindMessage({ type: 'success', text: result.message || 'Lien de confirmation renvoyé avec succès !' });
+    } catch (err) {
+      setRemindMessage({ type: 'error', text: err.message });
+    } finally {
+      setResendingEmail(false);
+    }
+  };
+
+  const handleManualEmailConfirm = async () => {
+    if (!confirm(`Valider manuellement l'adresse e-mail de ${candidate.full_name || candidate.email} sans attendre qu'il clique sur le lien ?`)) return;
+    setConfirmingEmail(true);
+    setRemindMessage(null);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(`/api/admin/candidates/${candidateId}/confirm-email`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session?.access_token || ''}`,
+        },
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Erreur lors de la validation');
+      setCandidate(prev => ({
+        ...prev,
+        email_confirmed_at: result.email_confirmed_at || new Date().toISOString(),
+      }));
+      setRemindMessage({ type: 'success', text: result.message || 'E-mail validé avec succès !' });
+    } catch (err) {
+      setRemindMessage({ type: 'error', text: err.message });
+    } finally {
+      setConfirmingEmail(false);
     }
   };
 
@@ -367,10 +418,45 @@ export default function CandidateAdminProfile() {
             </div>
 
             <div className="border-t border-slate-100 pt-4 space-y-3">
-              <div className="flex items-center gap-3 text-sm">
-                <Mail className="h-4 w-4 text-slate-400 flex-shrink-0" />
-                <span className="text-slate-700 truncate">{candidate.email || '—'}</span>
+              <div className="flex flex-col gap-1.5 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 text-sm min-w-0">
+                    <Mail className="h-4 w-4 text-slate-400 flex-shrink-0" />
+                    <span className="text-slate-900 font-semibold truncate text-xs">{candidate.email || '—'}</span>
+                  </div>
+                  {candidate.email_confirmed_at ? (
+                    <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 text-[10px] font-extrabold px-2 py-0.5 rounded-md shrink-0">
+                      <CheckCircle className="h-3 w-3 text-green-600" />
+                      E-mail Validé
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-900 text-[10px] font-extrabold px-2 py-0.5 rounded-md shrink-0">
+                      <Clock className="h-3 w-3 text-amber-600" />
+                      Non Confirmé
+                    </span>
+                  )}
+                </div>
+
+                {!candidate.email_confirmed_at && candidate.email && (
+                  <div className="flex items-center gap-2 pt-2 border-t border-slate-200/60 mt-1">
+                    <button
+                      onClick={handleResendConfirmationEmail}
+                      disabled={resendingEmail}
+                      className="flex-1 py-1.5 px-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-[10px] font-bold text-slate-700 transition-all cursor-pointer disabled:opacity-50 text-center"
+                    >
+                      {resendingEmail ? 'Envoi...' : '📩 Renvoyer le lien'}
+                    </button>
+                    <button
+                      onClick={handleManualEmailConfirm}
+                      disabled={confirmingEmail}
+                      className="flex-1 py-1.5 px-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-bold transition-all cursor-pointer disabled:opacity-50 text-center"
+                    >
+                      {confirmingEmail ? 'Validation...' : '⚡ Valider maintenant'}
+                    </button>
+                  </div>
+                )}
               </div>
+
               <div className="flex items-center gap-3 text-sm">
                 <Phone className="h-4 w-4 text-slate-400 flex-shrink-0" />
                 <span className="text-slate-700">{candidate.phone || '—'}</span>

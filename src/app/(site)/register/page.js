@@ -218,9 +218,13 @@ function RegisterContent() {
 
     try {
       // 1. Création de l'utilisateur dans Supabase Auth
+      const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://www.frettalent.fr';
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: `${siteUrl}/login?confirmed=true`,
+        },
       });
 
       if (authError) throw authError;
@@ -231,6 +235,13 @@ function RegisterContent() {
           "Une erreur s'est produite lors de l'authentification.",
         );
       }
+
+      // Envoi du mail de confirmation personnalisé via Resend (support@frettalent.fr) pour 100% de délivrabilité
+      fetch('/api/auth/send-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      }).catch(e => console.warn('Erreur envoi email verification direct:', e));
 
       // 2. Insérer le profil d'utilisateur
       const { error: profileError } = await supabase

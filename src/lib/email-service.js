@@ -13,6 +13,7 @@ import CandidateReminderDay4 from '../emails/CandidateReminderDay4';
 import CandidateReminderDay10 from '../emails/CandidateReminderDay10';
 import ContactFormAdmin from '../emails/ContactFormAdmin';
 import ContactFormConfirmationUser from '../emails/ContactFormConfirmationUser';
+import VerificationEmail from '../emails/VerificationEmail';
 
 const FROM_EMAIL = 'FretTalent <support@frettalent.fr>';
 const ADMIN_EMAIL = 'support@frettalent.fr'; // A envoyer aux admins de FretTalent
@@ -348,6 +349,28 @@ export async function sendContactFormEmails({
   }
 
   return results;
+}
+
+/**
+ * Envoie un email de vérification / confirmation de compte avec lien direct sécurisé
+ */
+export async function sendVerificationEmail(email, confirmationUrl) {
+  try {
+    const html = await render(
+      <VerificationEmail confirmationUrl={confirmationUrl} />
+    );
+
+    const data = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [email],
+      subject: 'Activez votre compte FretTalent 🚚',
+      html,
+    });
+    return { success: true, data };
+  } catch (error) {
+    console.error('Erreur email sendVerificationEmail:', error);
+    return { success: false, error };
+  }
 }
 
 

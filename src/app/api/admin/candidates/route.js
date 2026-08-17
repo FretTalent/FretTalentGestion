@@ -47,7 +47,23 @@ export async function GET(req) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ candidates: data || [] });
+    // Récupérer le statut de confirmation des emails auth
+    const userConfirmMap = {};
+    try {
+      const { data: usersData } = await supabaseAdmin.auth.admin.listUsers({ perPage: 200 });
+      (usersData?.users || []).forEach(u => {
+        userConfirmMap[u.id] = u.email_confirmed_at || null;
+      });
+    } catch (e) {
+      console.warn('Auth listUsers note:', e.message);
+    }
+
+    const enhancedCandidates = (data || []).map(c => ({
+      ...c,
+      email_confirmed_at: userConfirmMap[c.id] || null,
+    }));
+
+    return NextResponse.json({ candidates: enhancedCandidates });
   } catch (err) {
     console.error('Erreur serveur API candidates:', err);
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 });

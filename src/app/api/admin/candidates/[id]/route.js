@@ -55,7 +55,21 @@ export async function GET(req, context) {
       return NextResponse.json({ error: 'Candidat non trouvé' }, { status: 404 });
     }
 
-    return NextResponse.json({ candidate: data });
+    // Récupérer le statut auth (email_confirmed_at)
+    let emailConfirmedAt = null;
+    try {
+      const { data: authUserData } = await supabaseAdmin.auth.admin.getUserById(id);
+      emailConfirmedAt = authUserData?.user?.email_confirmed_at || null;
+    } catch (e) {
+      console.warn('Auth user status check note:', e.message);
+    }
+
+    return NextResponse.json({
+      candidate: {
+        ...data,
+        email_confirmed_at: emailConfirmedAt,
+      },
+    });
   } catch (err) {
     console.error('Erreur serveur API candidate detail:', err);
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 });

@@ -418,28 +418,31 @@ export default function CandidatsDisponiblesPage() {
             
             {/* CARTE INTERACTIVE SVG (7 COLONNES) */}
             <div className="lg:col-span-7 flex flex-col items-center justify-center relative">
-              <div className="w-full max-w-[580px] aspect-square relative rounded-3xl bg-slate-950 border border-slate-800 p-4 shadow-2xl overflow-hidden">
+              <div className="w-full max-w-[580px] aspect-square relative rounded-3xl bg-slate-950 border border-slate-800 p-2 sm:p-4 shadow-2xl overflow-hidden flex items-center justify-center">
                 
-                {/* SVG Carte */}
-                <img
-                  src="/france-belgique-map.svg"
-                  alt="Carte des chauffeurs routiers France, Belgique, Luxembourg et Suisse"
-                  className="w-full h-full object-contain opacity-75 select-none pointer-events-none filter drop-shadow-md"
-                />
+                {/* Cadre 1:1 parfait pour synchroniser le SVG et les coordonnées GPS */}
+                <div className="relative w-full h-full aspect-square">
+                  
+                  {/* SVG Carte */}
+                  <img
+                    src="/france-belgique-map.svg"
+                    alt="Carte des chauffeurs routiers France, Belgique, Luxembourg et Suisse"
+                    className="absolute inset-0 w-full h-full object-fill opacity-80 select-none pointer-events-none filter drop-shadow-md"
+                  />
 
-                {/* Légende en haut de la carte */}
-                <div className="absolute top-4 left-4 bg-slate-900/90 backdrop-blur-md border border-slate-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl flex items-center gap-3 z-20 pointer-events-none">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block shadow-[0_0_8px_rgba(52,211,153,0.9)] animate-pulse" />
-                    100% Vérifié
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-orange-500 inline-block shadow-[0_0_8px_rgba(249,115,22,0.9)]" />
-                    Chauffeur actif
-                  </span>
-                </div>
+                  {/* Légende en haut de la carte */}
+                  <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-slate-900/90 backdrop-blur-md border border-slate-800 text-white text-[10px] sm:text-[11px] font-bold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl flex items-center gap-2.5 z-20 pointer-events-none shadow-md">
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block shadow-[0_0_8px_rgba(52,211,153,0.9)] animate-pulse" />
+                      100% Vérifié
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-orange-500 inline-block shadow-[0_0_8px_rgba(249,115,22,0.9)]" />
+                      Chauffeur actif
+                    </span>
+                  </div>
 
-                {/* Radar points interactifs */}
+                  {/* Radar points interactifs */}
                 {!loading &&
                   filteredCandidates.map(candidate => {
                     const isHovered = hoveredCandidate?.id === candidate.id;
@@ -520,6 +523,7 @@ export default function CandidatsDisponiblesPage() {
                       </div>
                     );
                   })}
+                </div>
               </div>
             </div>
 

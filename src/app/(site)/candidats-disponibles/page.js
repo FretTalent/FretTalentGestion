@@ -111,6 +111,15 @@ export default function CandidatsDisponiblesPage() {
           return;
         }
 
+        // Coordonnées calibrées pour les villes frontalières & littorales
+        const BORDER_CITY_COORDINATES = {
+          '59200': { lon: 3.0900, lat: 50.6400 }, // Tourcoing (Hauts-de-France / Métropole Lilloise)
+          '59100': { lon: 3.1000, lat: 50.6400 }, // Roubaix (France)
+          '59250': { lon: 3.0800, lat: 50.6500 }, // Halluin (France)
+          '59150': { lon: 3.1200, lat: 50.6300 }, // Wattrelos (France)
+          '29600': { lon: -3.8202, lat: 48.5600 }, // Morlaix (Finistère / Bretagne Nord)
+        };
+
         // Cache géocodage pour les 4 pays
         const coordsCache = {};
         const uniqueKeys = [
@@ -122,6 +131,11 @@ export default function CandidatsDisponiblesPage() {
         await Promise.all(
           uniqueKeys.map(async key => {
             const [cCountry, pc, city] = key.split('_');
+            if (cCountry === 'FR' && pc && BORDER_CITY_COORDINATES[pc]) {
+              coordsCache[key] = BORDER_CITY_COORDINATES[pc];
+              return;
+            }
+
             const searchTerms = [];
             if (pc && pc !== '00000') searchTerms.push(pc);
             if (city && city !== 'Non renseigné' && city !== 'Ville non renseignée') searchTerms.push(city);

@@ -501,7 +501,7 @@ export default function AdminDashboard() {
         <div className="flex items-center gap-2 flex-1 text-slate-400 min-w-0">
           <HelpCircle className="h-4 w-4 text-slate-400 shrink-0" />
           <span className="italic text-slate-500 truncate text-[11px] sm:text-xs">
-            Vue consolidée des inscriptions, déblocages 2€, abonnements Stripe et conformité des pièces.
+            Vue consolidée des inscriptions, déblocages 4,99€, abonnements Stripe et conformité des pièces.
           </span>
         </div>
         <div className="flex items-center gap-1 shrink-0 flex-wrap">
@@ -555,7 +555,7 @@ export default function AdminDashboard() {
             {stats.totalRevenue.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
           </div>
           <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span className="text-[11px]">Déblocages 2€ :</span>
+            <span className="text-[11px]">Déblocages 4,99€ :</span>
             <span className="font-mono font-bold text-slate-900 text-[11px]">
               {stats.unlocksCount} transactions
             </span>
@@ -842,7 +842,7 @@ export default function AdminDashboard() {
               </span>
             </div>
             <h3 className="font-black text-slate-950 text-sm sm:text-base mt-0.5">
-              Historique des Achats de Contacts Chauffeurs (2,00 € TTC)
+              Historique des Achats de Contacts Chauffeurs (4,99 € TTC)
             </h3>
           </div>
 

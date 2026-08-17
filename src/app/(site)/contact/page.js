@@ -116,7 +116,7 @@ export default function ContactPage() {
           </h1>
 
           <p className="text-sm sm:text-base text-slate-400 leading-relaxed max-w-2xl mx-auto">
-            Une question sur nos <strong>chauffeurs qualifiés</strong>, notre tarification à <strong>2€ / 39,99€</strong> ou la validation de vos documents ? Contactez directement nos équipes.
+            Une question sur nos <strong>chauffeurs qualifiés</strong>, notre tarification à <strong>4,99€ / 39,99€</strong> ou la validation de vos documents ? Contactez directement nos équipes.
           </p>
         </div>
 
@@ -273,7 +273,7 @@ export default function ContactPage() {
                 >
                   <Building2 className="w-5 h-5 text-orange-400 mb-2 group-hover:scale-110 transition-transform" />
                   <p className="text-sm font-bold text-white">🏢 Je suis une Entreprise</p>
-                  <p className="text-xs text-slate-400 mt-1">Recrutement de chauffeurs, tarifs 2€ / 39,99€, offres d&apos;emploi</p>
+                  <p className="text-xs text-slate-400 mt-1">Recrutement de chauffeurs, tarifs 4,99€ / 39,99€, offres d&apos;emploi</p>
                 </button>
 
                 <button
@@ -310,16 +310,16 @@ export default function ContactPage() {
                 <button
                   type="button"
                   onClick={() => setBotActiveAnswer({
-                    title: 'Déblocage de Chauffeur à 2,00 € TTC',
-                    text: 'Sur FretTalent, vous pouvez consulter la liste des chauffeurs gratuitement. Le déblocage des coordonnées complètes (téléphone direct, email, pièces justificatives contrôlées) coûte seulement 2,00 € TTC à l\'acte, sans aucun engagement ni abonnement forcé.',
+                    title: 'Déblocage de Chauffeur à 4,99 € TTC',
+                    text: 'Sur FretTalent, vous pouvez consulter la liste des chauffeurs gratuitement. Le déblocage des coordonnées complètes (téléphone direct, email, pièces justificatives contrôlées) coûte seulement 4,99 € TTC à l\'acte, sans aucun engagement ni abonnement forcé.',
                     ctaText: 'Explorer les Chauffeurs',
                     ctaLink: '/candidats-disponibles',
                     role: 'recruiter',
-                    subject: 'Question sur le déblocage à l\'acte (2€)',
+                    subject: 'Question sur le déblocage à l\'acte (4,99€)',
                   })}
                   className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-orange-500 text-left transition-all text-xs font-bold cursor-pointer text-slate-200"
                 >
-                  💰 Comment débloquer un chauffeur à 2 € ?
+                  💰 Comment débloquer un chauffeur à 4,99 € ?
                 </button>
 
                 <button

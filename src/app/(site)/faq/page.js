@@ -83,7 +83,7 @@ const FAQ_DATA = [
     questions: [
       {
         q: "Quel est le modèle tarifaire pour les entreprises ?",
-        a: "Nous proposons une formule souple sans engagement : le déblocage à l'unité (à partir de 2€ par contact débloqué). Des formules d'abonnement ou des packs de déblocages sont également disponibles sur notre page Tarifs."
+        a: "Nous proposons une formule souple sans engagement : le déblocage à l'unité (4,99€ par contact débloqué) ou le Forfait Illimité Pro à 39,99€/mois. Retrouvez tous les détails sur notre page Tarifs."
       },
       {
         q: "Les paiements sont-ils sécurisés ?",

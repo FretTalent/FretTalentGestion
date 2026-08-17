@@ -35,7 +35,7 @@ export default function CommentCaMarche() {
     {
       icon: Unlock,
       title: '3. Débloquez & Recrutez',
-      desc: 'Débloquez le contact pour 2 € (ou en illimité via le forfait) pour obtenir le nom, e-mail, téléphone et télécharger directement les justificatifs officiels.',
+      desc: 'Débloquez le contact pour 4,99 € (ou en illimité via le forfait) pour obtenir le nom, e-mail, téléphone et télécharger directement les justificatifs officiels.',
     },
   ];
 

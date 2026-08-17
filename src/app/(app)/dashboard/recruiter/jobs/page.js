@@ -595,7 +595,7 @@ export default function RecruiterDashboard() {
                           <Unlock className="h-4 w-4" />{' '}
                           {unlocking
                             ? 'Déblocage...'
-                            : 'Débloquer le contact (2€)'}
+                            : 'Débloquer le contact (4,99€)'}
                         </button>
                       </div>
                     )}
@@ -741,7 +741,7 @@ export default function RecruiterDashboard() {
               </div>
 
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
-                Vous utilisez actuellement la formule <strong>À la performance</strong> (déblocage au contact à 2€). Pour diffuser vos offres d'emploi sur FretTalent, être visible par des milliers de chauffeurs routiers et débloquer tous les profils en illimité, activez le <strong>Forfait Illimité Pro</strong>.
+                Vous utilisez actuellement la formule <strong>À la performance</strong> (déblocage au contact à 4,99€). Pour diffuser vos offres d'emploi sur FretTalent, être visible par des milliers de chauffeurs routiers et débloquer tous les profils en illimité, activez le <strong>Forfait Illimité Pro</strong>.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">

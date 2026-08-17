@@ -32,7 +32,7 @@ export async function POST(req) {
         const chatId = cb.message?.chat?.id || fromId;
 
         if (data === 'pub_carrier') {
-          const text = `🏢 <b>ESPACE TRANSPORTEURS & ENTREPRISES</b>\n━━━━━━━━━━━━━━━━━━━━\nFretTalent est la plateforme N°1 dédiée 100% au recrutement de chauffeurs routiers (C, CE, SPL, FIMO, Chrono, ADR).\n\n💰 <b>Nos Offres :</b>\n• <b>Paiement à l'acte :</b> 2,00 € TTC par chauffeur débloqué (sans engagement)\n• <b>Abonnement Pro :</b> 39,99 € HT/mois (déblocages illimités & diffusion d'offres prioritaires)\n\n👉 <i>Vous souhaitez être rappelé ou recruter immédiatement ? Envoyez votre message ici ou visitez notre site :</i>`;
+          const text = `🏢 <b>ESPACE TRANSPORTEURS & ENTREPRISES</b>\n━━━━━━━━━━━━━━━━━━━━\nFretTalent est la plateforme N°1 dédiée 100% au recrutement de chauffeurs routiers (C, CE, SPL, FIMO, Chrono, ADR).\n\n💰 <b>Nos Offres :</b>\n• <b>Paiement à l'acte :</b> 4,99 € TTC par chauffeur débloqué (sans engagement)\n• <b>Abonnement Pro :</b> 39,99 € HT/mois (déblocages illimités & diffusion d'offres prioritaires)\n\n👉 <i>Vous souhaitez être rappelé ou recruter immédiatement ? Envoyez votre message ici ou visitez notre site :</i>`;
           await sendTelegramMessage(text, {
             chatId,
             reply_markup: {
@@ -62,7 +62,7 @@ export async function POST(req) {
         }
 
         if (data === 'pub_tarifs') {
-          const text = `💰 <b>TARIFS TRANSPARENTS FRETTALENT</b>\n━━━━━━━━━━━━━━━━━━━━\n• <b>Chauffeurs :</b> 100% Gratuit à vie\n• <b>Entreprises (À l'acte) :</b> 2,00 € TTC / contact débloqué\n• <b>Entreprises (Pro Illimité) :</b> 39,99 € HT / mois\n\n👉 <i>Économisez plus de 90% par rapport aux agences d'intérim et cabinets de recrutement !</i>`;
+          const text = `💰 <b>TARIFS TRANSPARENTS FRETTALENT</b>\n━━━━━━━━━━━━━━━━━━━━\n• <b>Chauffeurs :</b> 100% Gratuit à vie\n• <b>Entreprises (À l'acte) :</b> 4,99 € TTC / contact débloqué\n• <b>Entreprises (Pro Illimité) :</b> 39,99 € HT / mois\n\n👉 <i>Économisez plus de 90% par rapport aux agences d'intérim et cabinets de recrutement !</i>`;
           await sendTelegramMessage(text, {
             chatId,
             reply_markup: {
@@ -377,7 +377,7 @@ Voici la liste de vos commandes interactives :
 ⏳ <b>/attente</b> : Chauffeurs à valider en 1 clic
 🏢 <b>/entreprises</b> : Dernières sociétés de transport inscrites
 💬 <b>/support</b> : Tickets et messages tchat en attente
-💳 <b>/ventes</b> : Derniers déblocages de contacts (2€)
+💳 <b>/ventes</b> : Derniers déblocages de contacts (4,99€)
 ☀️ <b>/briefing</b> : Recevoir le rapport matinal immédiatement
 
 💡 <b>Astuce Tchat :</b> Pour répondre à un client, faites simplement <b>"Répondre" (Reply)</b> au message d'alerte Telegram !
@@ -633,7 +633,7 @@ Comment pouvons-nous vous aider aujourd'hui ? Cliquez sur l'une des options ci-d
         { text: '🚚 Je suis un Chauffeur Routier', callback_data: 'pub_driver' },
       ],
       [
-        { text: '💰 Tarifs (2€ / 39,99€)', callback_data: 'pub_tarifs' },
+        { text: '💰 Tarifs (4,99€ / 39,99€)', callback_data: 'pub_tarifs' },
         { text: '💬 Parler à un Humain', callback_data: 'pub_human' },
       ],
       [

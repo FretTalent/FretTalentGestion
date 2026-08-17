@@ -13,7 +13,7 @@ import {
 export const metadata = {
   title: 'Recruter Chauffeur SPL & PL en Direct (Sans Intérim) | CVthèque France, Suisse, Belgique, Luxembourg | FretTalent',
   description:
-    'Accédez à la CVthèque N°1 de chauffeurs routiers Super Poids Lourd (SPL / Permis CE) et Poids Lourd en France, Suisse, Belgique et Luxembourg. Validation SIRET/BCE/RCS/IDE, contact direct 2€ sans commission d\'intérim.',
+    'Accédez à la CVthèque N°1 de chauffeurs routiers Super Poids Lourd (SPL / Permis CE) et Poids Lourd en France, Suisse, Belgique et Luxembourg. Validation SIRET/BCE/RCS/IDE, contact direct 4,99€ sans commission d\'intérim.',
   keywords: [
     'recruter chauffeur spl',
     'recrutement chauffeur super poids lourd',
@@ -43,7 +43,7 @@ export default function PourLesEntreprises() {
     {
       icon: DollarSign,
       title: 'Tarif à la Performance',
-      desc: "Pas de frais de commission ni d'abonnement obligatoire. Payez seulement 2 € par contact qualifié débloqué ou optez pour notre forfait sans engagement.",
+      desc: "Pas de frais de commission ni d'abonnement obligatoire. Payez seulement 4,99 € par contact qualifié débloqué ou optez pour notre forfait sans engagement.",
     },
   ];
 
@@ -213,7 +213,7 @@ export default function PourLesEntreprises() {
                     Là où une agence d'intérim applique des coefficients
                     multiplicateurs élevés sur chaque heure travaillée
                     (représentant des milliers d'euros par mois), FretTalent
-                    vous facture seulement 2 € par contact qualifié ou un
+                    vous facture seulement 4,99 € par contact qualifié ou un
                     forfait fixe sans engagement.
                   </p>
                 </div>
@@ -243,7 +243,7 @@ export default function PourLesEntreprises() {
                     Coût de mise en relation
                   </span>
                   <span className="font-bold text-orange-400">
-                    2 € unique (ou forfait)
+                    4,99 € unique (ou forfait)
                   </span>
                 </div>
                 <div className="py-3.5 flex justify-between">

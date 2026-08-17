@@ -88,20 +88,19 @@ export async function POST(req) {
       );
     }
 
-    // 5. Créer l'enregistrement de déblocage (2,00 €)
+    // 5. Créer l'enregistrement de déblocage (4,99 €)
     const { error: insertError } = await supabaseAdmin.from('unlocks').insert([
       {
         company_id: company.id,
         candidate_id: candidateId,
-        amount_charged: 200,
+        amount_charged: 499,
       },
     ]);
 
     if (insertError) {
-      return NextResponse.json(
-        { error: 'Déblocage déjà existant ou invalide' },
-        { status: 409 },
-      );
+      return NextResponse.json({
+        error: 'Déblocage déjà existant ou invalide',
+      }, { status: 409 });
     }
 
     // 6. Intégration Stripe (Post-payé) :
@@ -110,7 +109,7 @@ export async function POST(req) {
       try {
         await stripe.invoiceItems.create({
           customer: company.stripe_customer_id,
-          amount: 200, // 2.00 EUR en centimes
+          amount: 499, // 4.99 EUR en centimes
           currency: 'eur',
           description: `Déblocage du contact candidat ${candidateId.slice(0, 8)}`,
         });

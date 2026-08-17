@@ -83,7 +83,7 @@ export async function POST(req) {
     let checkoutSessionParams;
 
     if (plan === 'pay_per_unlock') {
-      // Create Setup Checkout Session (to save card for later 2€ use)
+      // Create Setup Checkout Session (to save card for later 4.99€ use)
       checkoutSessionParams = {
         payment_method_types: ['card'],
         mode: 'setup',

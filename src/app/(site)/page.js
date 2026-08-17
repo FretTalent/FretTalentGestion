@@ -22,7 +22,7 @@ import {
 export default function Home() {
   const stats = [
     { value: '100%', label: 'Gratuit pour les chauffeurs' },
-    { value: '2 €', label: 'Par contact débloqué' },
+    { value: '4,99 €', label: 'Par contact débloqué' },
     { value: '0 €', label: 'Frais cachés' },
   ];
 
@@ -327,7 +327,7 @@ export default function Home() {
                       <span className="text-orange-500 font-black">✓</span> 0% commission sur salaire
                     </div>
                     <div className="flex items-center gap-2 bg-slate-50 border border-slate-200/80 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-800">
-                      <span className="text-blue-500 font-black">✓</span> Contact direct 2€
+                      <span className="text-blue-500 font-black">✓</span> Contact direct 4,99€
                     </div>
                   </div>
                 </div>
@@ -453,7 +453,7 @@ export default function Home() {
                   <div className="flex flex-wrap gap-1.5 pt-2">
                     <span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md">Vérification manuelle</span>
                     <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">100% Anonymat garanti</span>
-                    <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">Paiement 2€ Stripe</span>
+                    <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">Paiement 4,99€ Stripe</span>
                   </div>
                 </div>
 
@@ -508,7 +508,7 @@ export default function Home() {
                   Pourquoi recruter sans agence d&apos;intérim transport ?
                 </h3>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Les agences d&apos;intérim traditionnelles prélèvent de lourdes commissions récurrentes sur chaque heure travaillée (taux horaire coefficient 1.8 à 2.2). FretTalent propose un <strong>modèle direct et équitable</strong> : 2€ par contact débloqué ou forfait sans engagement, sans aucun prélèvement sur les salaires.
+                  Les agences d&apos;intérim traditionnelles prélèvent de lourdes commissions récurrentes sur chaque heure travaillée (taux horaire coefficient 1.8 à 2.2). FretTalent propose un <strong>modèle direct et équitable</strong> : 4,99€ par contact débloqué ou forfait sans engagement, sans aucun prélèvement sur les salaires.
                 </p>
               </div>
 

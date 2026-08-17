@@ -163,7 +163,7 @@ export default function AdminCompanies() {
           <div className="text-2xl font-black text-purple-700 mt-1">{vipCount}</div>
         </div>
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Paiement à l'Acte (2 €)</span>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Paiement à l'Acte (4,99 €)</span>
           <div className="text-2xl font-black text-slate-900 mt-1">{companies.length - vipCount}</div>
         </div>
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
@@ -207,7 +207,7 @@ export default function AdminCompanies() {
           >
             <option value="all">💳 Toutes Formules</option>
             <option value="premium_monthly">⭐ Pro Illimité (39,99 €)</option>
-            <option value="pay_per_unlock">⚡ Paiement à l'acte (2 €)</option>
+            <option value="pay_per_unlock">⚡ Paiement à l'acte (4,99 €)</option>
           </select>
         </div>
       </div>
@@ -269,7 +269,7 @@ export default function AdminCompanies() {
                       ) : (
                         <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 font-bold px-2.5 py-1 rounded-md text-[10px] border border-slate-200">
                           <Zap className="h-3 w-3 text-amber-500" />
-                          Pay-per-unlock (2 €)
+                          Pay-per-unlock (4,99 €)
                         </span>
                       )}
                     </td>

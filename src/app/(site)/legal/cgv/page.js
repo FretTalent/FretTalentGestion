@@ -44,7 +44,7 @@ export default function CGV() {
             Les tarifs des Services sont indiqués sur le Site en Euros (€) et sont exprimés Hors Taxes (HT). Étant donné le statut de micro-entrepreneur du Prestataire, <strong>la TVA est non applicable, article 293 B du CGI</strong> (sauf modification du régime fiscal auquel cas la TVA au taux en vigueur sera appliquée et les prix seront exprimés en TTC).
           </p>
           <ul className="list-disc list-inside space-y-2 text-base text-slate-600">
-            <li>Paiement au déblocage : 2,00 € par candidat débloqué.</li>
+            <li>Paiement au déblocage : 4,99 € par candidat débloqué.</li>
             <li>Forfait Pro : 39,99 € / mois.</li>
             <li>Forfait Premium Plus : 54,99 € / mois.</li>
           </ul>

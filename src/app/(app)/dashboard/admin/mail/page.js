@@ -35,7 +35,7 @@ const TEMPLATES = {
     badge: 'Acquisition B2B',
     badgeColor: 'bg-emerald-100 text-emerald-800',
     category: 'recruiter',
-    description: 'Pitch rapide (15s) : stop aux camions à l\'arrêt, niche 100% chauffeurs & tarifs 2€ / 39,99€',
+    description: 'Pitch rapide (15s) : stop aux camions à l\'arrêt, niche 100% chauffeurs & tarifs 4,99€ / 39,99€',
     icon: Truck,
     iconColor: 'text-emerald-600',
     iconBg: 'bg-emerald-50',
@@ -51,7 +51,7 @@ FretTalent est la plateforme N°1 dédiée 100% au recrutement de chauffeurs rou
 ✅ Chauffeurs Qualifiés : Permis C, CE, SPL, FIMO/FCO, Carte Chrono, ADR, Frigo, Bâché, Benne TP, Messagerie.
 ✅ Profils 100% Contrôlés : Justificatifs et permis vérifiés par nos équipes avant validation.
 ✅ Réseau 4 Pays : France 🇫🇷, Belgique 🇧🇪, Luxembourg 🇱🇺, Suisse 🇨🇭.
-✅ Tarifs Imbattables : 2,00 € TTC par chauffeur débloqué OU 39,99 €/mois en illimité (économisez 90% sur vos coûts RH).
+✅ Tarifs Imbattables : 4,99 € TTC par chauffeur débloqué OU 39,99 €/mois en illimité (économisez 90% sur vos coûts RH).
 
 Accédez directement aux coordonnées et CV des conducteurs disponibles dès aujourd'hui :
 
@@ -81,7 +81,7 @@ Vous cherchez des chauffeurs qualifiés en France, Belgique, Luxembourg ou Suiss
 
 ✅ Accès immédiat à des centaines de chauffeurs certifiés (Permis, FIMO, Carte Chrono)
 ✅ Réseau 4 pays : France, Belgique, Luxembourg et Suisse
-✅ Tarifs simples : 2,00 € par déblocage ou 39,99 €/mois en illimité
+✅ Tarifs simples : 4,99 € par déblocage ou 39,99 €/mois en illimité
 
 Plus besoin d'agences intermédiaires coûteuses. Recrutez directement vos talents.
 

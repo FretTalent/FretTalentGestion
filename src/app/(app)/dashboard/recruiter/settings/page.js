@@ -330,7 +330,7 @@ export default function RecruiterSettings() {
                     {subscriptionPlan === 'pay_per_unlock' && <div className="h-2 w-2 bg-orange-500 rounded-full" />}
                   </div>
                 </div>
-                <div className="text-2xl font-black text-slate-900 mb-2">2€ <span className="text-sm text-slate-500 font-normal">/ contact</span></div>
+                <div className="text-2xl font-black text-slate-900 mb-2">4,99€ <span className="text-sm text-slate-500 font-normal">/ contact</span></div>
                 <p className="text-xs text-slate-600 mt-auto">
                   Débloquez les coordonnées et les documents des candidats un par un au fil de vos besoins.
                 </p>
@@ -400,14 +400,14 @@ export default function RecruiterSettings() {
                     <div>
                       <p className="text-sm font-bold">
                         {company.subscription_plan === 'pay_per_unlock'
-                          ? 'Carte bancaire validée (Paiement à l\'acte 2€ actif)'
+                          ? 'Carte bancaire validée (Paiement à l\'acte 4,99€ actif)'
                           : company.subscription_plan === 'premium_plus_monthly'
                           ? 'Forfait Premium Plus actif (54,99€ / mois)'
                           : 'Forfait Illimité Pro actif (39,99€ / mois)'}
                       </p>
                       <p className="text-xs text-emerald-700">
                         {company.subscription_plan === 'pay_per_unlock'
-                          ? 'Déblocages facturés 2€/contact sans abonnement'
+                          ? 'Déblocages facturés 4,99€/contact sans abonnement'
                           : 'Déblocages illimités et publication d\'offres incluses'}
                       </p>
                     </div>

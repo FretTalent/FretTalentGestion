@@ -42,8 +42,8 @@ export default function TarifsPage() {
 
   const faqs = [
     {
-      q: "Comment fonctionne le paiement à l'acte (2 € par contact) ?",
-      a: "Avec la formule à la performance, vous n'avez aucun abonnement. Vous parcourez la carte et les compétences des chauffeurs gratuitement. Vous ne payez que 2 € lorsque vous décidez de débloquer le numéro de téléphone, l'e-mail et les documents officiels d'un candidat précis.",
+      q: "Comment fonctionne le paiement à l'acte (4,99 € par contact) ?",
+      a: "Avec la formule à la performance, vous n'avez aucun abonnement. Vous parcourez la carte et les compétences des chauffeurs gratuitement. Vous ne payez que 4,99 € lorsque vous décidez de débloquer le numéro de téléphone, l'e-mail et les documents officiels d'un candidat précis.",
     },
     {
       q: "Le Forfait Illimité Pro à 39,99 € est-il sans engagement ?",
@@ -151,7 +151,7 @@ export default function TarifsPage() {
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
           
-          {/* CARTE 1 : À LA PERFORMANCE (2€) */}
+          {/* CARTE 1 : À LA PERFORMANCE (4,99€) */}
           <div className="bg-white border-2 border-slate-200 rounded-3xl p-8 flex flex-col justify-between hover:border-slate-300 transition-all duration-300 shadow-sm hover:shadow-xl relative card-hover-effect">
             <div className="space-y-6">
               <div className="flex items-center justify-between gap-2">
@@ -173,7 +173,7 @@ export default function TarifsPage() {
               <div className="border-b border-slate-100 pb-5">
                 <div className="flex items-baseline gap-2">
                   <span className="text-4xl sm:text-5xl font-black text-slate-950 tracking-tight whitespace-nowrap">
-                    2&nbsp;€
+                    4,99&nbsp;€
                   </span>
                   <span className="text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">
                     / contact débloqué

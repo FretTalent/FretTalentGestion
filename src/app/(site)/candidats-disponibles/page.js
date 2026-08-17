@@ -638,7 +638,7 @@ export default function CandidatsDisponiblesPage() {
                             className="inline-flex items-center gap-1 text-orange-600 font-black text-xs hover:text-orange-700 hover:underline"
                           >
                             <Lock className="h-3 w-3" />
-                            <span>Débloquer (2€)</span>
+                            <span>Débloquer (4,99€)</span>
                           </Link>
                         </div>
                       </div>

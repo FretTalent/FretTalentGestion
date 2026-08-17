@@ -717,7 +717,7 @@ export default function RecruiterDashboard() {
                         <Unlock className="h-4 w-4" />
                         {unlocking
                           ? 'Déblocage...'
-                          : 'Débloquer le contact (2€)'}
+                          : 'Débloquer le contact (4,99€)'}
                       </button>
                     </div>
                   )}

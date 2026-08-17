@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS public.unlocks (
     company_id UUID NOT NULL REFERENCES public.companies(id) ON DELETE CASCADE,
     candidate_id UUID NOT NULL REFERENCES public.candidates(id) ON DELETE CASCADE,
     unlocked_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    amount_charged INTEGER NOT NULL DEFAULT 200, -- En centimes (200 = 2.00 €)
+    amount_charged INTEGER NOT NULL DEFAULT 499, -- En centimes (499 = 4.99 €)
     stripe_invoice_item_id VARCHAR(100),
     CONSTRAINT unique_unlock UNIQUE (company_id, candidate_id)
 );

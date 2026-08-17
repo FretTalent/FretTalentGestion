@@ -133,7 +133,7 @@ export default function AdminFinance() {
       `"${u.companies?.name || ''}"`,
       u.companies?.country || 'FR',
       `"${u.candidates?.full_name || ''}"`,
-      `${((u.amount_charged || 200) / 100).toFixed(2)} €`,
+      `${((u.amount_charged || 499) / 100).toFixed(2)} €`,
       u.stripe_payment_intent_id || 'pi_auto_unlock'
     ]);
 
@@ -175,7 +175,7 @@ export default function AdminFinance() {
           </div>
           <span className="text-slate-600 text-xs hidden sm:inline">|</span>
           <span className="text-xs text-slate-300 font-medium truncate max-w-[280px] sm:max-w-none">
-            Suivi des Encaissements Déblocages 2€ & Abonnements
+            Suivi des Encaissements Déblocages 4,99€ & Abonnements
           </span>
           <span className="inline-flex items-center gap-1 bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -219,7 +219,7 @@ export default function AdminFinance() {
         <div className="flex items-center gap-2 flex-1 text-slate-400 min-w-0">
           <HelpCircle className="h-4 w-4 text-slate-400 shrink-0" />
           <span className="italic text-slate-500 truncate text-[11px] sm:text-xs">
-            Encaissements des déblocages de coordonnées chauffeurs (2,00 € TTC) et récurrence des abonnements Pro Illimités.
+            Encaissements des déblocages de coordonnées chauffeurs (4,99 € TTC) et récurrence des abonnements Pro Illimités.
           </span>
         </div>
         <div className="flex items-center gap-1.5 shrink-0 text-slate-500 font-mono text-[11px]">
@@ -242,7 +242,7 @@ export default function AdminFinance() {
           <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
             <span className="text-[11px]">Volume à l'acte :</span>
             <span className="font-bold font-mono text-slate-900 text-[11px]">
-              {unlocks.length} ventes 2€
+              {unlocks.length} ventes 4,99€
             </span>
           </div>
         </div>
@@ -271,12 +271,12 @@ export default function AdminFinance() {
             <DollarSign className="h-4 w-4 text-teal-600 shrink-0 ml-1" />
           </div>
           <div className="text-3xl sm:text-4xl font-black text-slate-950 mt-2 tracking-tight font-mono">
-            2,00 €
+            4,99 €
           </div>
           <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
             <span className="text-[11px]">Tarif fixe TTC :</span>
             <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded text-[10px]">
-              1,67 € HT
+              4,16 € HT
             </span>
           </div>
         </div>
@@ -315,7 +315,7 @@ export default function AdminFinance() {
               {/* Barres de flux */}
               <div className="space-y-1.5">
                 <div className="flex justify-between text-xs">
-                  <span className="font-bold text-slate-800">⚡ Paiements à l'Acte (Déblocages 2€ TTC)</span>
+                  <span className="font-bold text-slate-800">⚡ Paiements à l'Acte (Déblocages 4,99€ TTC)</span>
                   <span className="font-mono font-black text-emerald-700">{totalUnlockRevenue.toFixed(2)} € ({totalGrossRevenue > 0 ? Math.round((totalUnlockRevenue / totalGrossRevenue) * 100) : 0}%)</span>
                 </div>
                 <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
@@ -407,7 +407,7 @@ export default function AdminFinance() {
           <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
             {[
               { id: 'all', label: 'Toutes Transactions' },
-              { id: 'pay_per_view', label: '⚡ Déblocages 2€' },
+              { id: 'pay_per_view', label: '⚡ Déblocages 4,99€' },
               { id: 'vip', label: '⭐ Abonnés Pro' },
             ].map(tab => (
               <button

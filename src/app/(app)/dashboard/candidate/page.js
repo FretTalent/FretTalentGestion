@@ -23,6 +23,10 @@ import {
   CheckCircle2,
   AlertTriangle,
   Lock,
+  Star,
+  Send,
+  Zap,
+  MailCheck,
 } from 'lucide-react';
 import { validatePhoneNumber, validateAddress, COUNTRIES, calculateAge } from '@/lib/country';
 
@@ -444,6 +448,51 @@ export default function CandidateDashboard() {
           }`}
         >
           <p className="text-sm font-semibold text-center">{message.text}</p>
+        </div>
+      )}
+
+      {/* BANNIÈRE CV RAPIDE ACTIF / BOOST 7 JOURS */}
+      {activeBadge && (
+        <div className="bg-gradient-to-r from-slate-900 via-orange-950 to-slate-900 border border-orange-500/40 text-white p-5 sm:p-6 rounded-3xl shadow-xl shadow-orange-950/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
+          <div className="flex items-center gap-4 z-10">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-950 flex items-center justify-center font-black text-xl shrink-0 shadow-lg shadow-orange-500/30">
+              <Star className="w-6 h-6 fill-slate-950 text-slate-950" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[11px] font-black uppercase tracking-wider text-amber-300 bg-amber-950/80 border border-amber-500/40 px-3 py-0.5 rounded-full">
+                  ⭐ CV Rapide Opérationnel • Visible 7 jours
+                </span>
+                {(() => {
+                  const daysLeft = Math.max(1, Math.ceil((new Date(activeBadge.expires_at) - new Date()) / (1000 * 60 * 60 * 24)));
+                  return (
+                    <span className="text-xs font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
+                      {daysLeft} jour{daysLeft > 1 ? 's' : ''} restant{daysLeft > 1 ? 's' : ''}
+                    </span>
+                  );
+                })()}
+              </div>
+              <h3 className="text-base sm:text-lg font-black text-white mt-1">
+                Votre profil est mis en avant en priorité sur la carte des chauffeurs !
+              </h3>
+              <p className="text-xs text-slate-300 mt-0.5">
+                {myCandidatures.length > 0 && myCandidatures[0].target_companies_count
+                  ? `Votre CV et vos documents ont été transmis à ${myCandidatures[0].target_companies_count} transporteur(s) dans votre zone de 50 km.`
+                  : 'Votre profil bénéficie de l’étoile dorée et se positionne tout en haut de la liste des recruteurs.'}
+              </p>
+            </div>
+          </div>
+          <div className="shrink-0 w-full sm:w-auto z-10">
+            <Link
+              href="/dashboard/candidate/cv-rapide"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-xs font-black text-slate-950 bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-300 hover:to-orange-300 transition-all shadow-md shadow-orange-500/20"
+            >
+              <Zap className="w-3.5 h-3.5 fill-slate-950" />
+              <span>Suivre mes diffusions</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
         </div>
       )}
 

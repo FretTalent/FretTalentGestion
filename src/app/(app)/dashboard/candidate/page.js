@@ -224,9 +224,15 @@ export default function CandidateDashboard() {
   const handlePurchasePremium = async () => {
     setPurchasingPremium(true);
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+
       const res = await fetch('/api/premium/purchase', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
       });
 
       const data = await res.json();

@@ -1,21 +1,40 @@
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { createClient as createServerClient } from '@/lib/supabase-server';
+import { createClient as createDirectClient } from '@supabase/supabase-js';
 
 export async function POST(req) {
   try {
     const supabase = await createServerClient();
-    const {
+    let {
       data: { user },
       error: userError,
     } = await supabase.auth.getUser();
 
+    // Fallback: Si getUser échoue (ex: tokens stockés dans le local storage du navigateur), on vérifie le header Authorization
     if (userError || !user) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+      const authHeader = req.headers.get('Authorization') || req.headers.get('authorization');
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.split(' ')[1];
+        const { data: jwtData, error: jwtError } = await supabase.auth.getUser(token);
+        if (jwtData?.user && !jwtError) {
+          user = jwtData.user;
+          userError = null;
+        }
+      }
     }
 
-    // Récupérer le profil du candidat
-    const { data: candidate, error: candError } = await supabase
+    if (userError || !user) {
+      return NextResponse.json({ error: 'Non authentifié. Veuillez vous reconnecter.' }, { status: 401 });
+    }
+
+    const supabaseAdmin = createDirectClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
+
+    // Récupérer le profil du candidat via supabaseAdmin pour contourner d'éventuels soucis de RLS
+    const { data: candidate, error: candError } = await supabaseAdmin
       .from('candidates')
       .select('*')
       .eq('id', user.id)

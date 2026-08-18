@@ -215,7 +215,7 @@ export default function AppLayout({ children }) {
       </div>
 
       {/* User badge */}
-      <div className="px-3 py-3 mx-3 my-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="px-3 py-3 mx-3 my-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.09)' }}>
         <div className="flex items-center gap-3">
           <div
             className={`w-9 h-9 rounded-xl bg-gradient-to-br ${avatarGradient} text-white flex items-center justify-center font-bold text-sm shrink-0`}
@@ -226,11 +226,11 @@ export default function AppLayout({ children }) {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5 mb-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: '#475569' }}>
+              <span className="text-[9px] font-black uppercase tracking-widest text-slate-300">
                 {roleLabel}
               </span>
             </div>
-            <p className="text-xs font-semibold text-white truncate" title={displayName}>
+            <p className="text-xs font-bold text-white truncate" title={displayName}>
               {displayName}
             </p>
           </div>
@@ -238,17 +238,16 @@ export default function AppLayout({ children }) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-grow px-3 py-1 space-y-0.5 overflow-y-auto">
+      <nav className="flex-grow px-3 py-1 space-y-1 overflow-y-auto">
         {navItems.map((item, index) => {
           if (item.section) {
             return (
               <div
                 key={`sec-${index}`}
-                className="pt-5 pb-1.5 px-2 text-[9px] font-black uppercase tracking-widest flex items-center gap-2"
-                style={{ color: '#334155' }}
+                className="pt-5 pb-1.5 px-2 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 text-slate-300"
               >
                 <span>{item.section}</span>
-                <span className="flex-1 h-[1px]" style={{ background: 'rgba(255,255,255,0.05)' }} />
+                <span className="flex-1 h-[1px]" style={{ background: 'rgba(255,255,255,0.1)' }} />
               </div>
             );
           }
@@ -273,21 +272,21 @@ export default function AppLayout({ children }) {
               key={item.href}
               href={item.href}
               onClick={() => setSidebarOpen(false)}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all group relative"
-              style={{
-                color: isActive ? '#ffffff' : '#475569',
-                background: isActive ? 'rgba(249,115,22,0.1)' : 'transparent',
-                borderLeft: isActive ? '3px solid #f97316' : '3px solid transparent',
-              }}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all group relative ${
+                isActive
+                  ? 'text-white bg-orange-500/15 border-l-[3px] border-orange-500 font-bold'
+                  : 'text-slate-200 hover:text-white hover:bg-white/10'
+              }`}
             >
               <Icon
-                className="h-[15px] w-[15px] flex-shrink-0 transition-colors"
-                style={{ color: isActive ? '#f97316' : 'inherit' }}
+                className={`h-4 w-4 flex-shrink-0 transition-colors ${
+                  isActive ? 'text-orange-400' : 'text-slate-300 group-hover:text-white'
+                }`}
               />
               <span className="truncate flex-1 min-w-0">{item.label}</span>
               {badge && (
                 <span
-                  className="px-1.5 py-0.5 rounded-full text-[9px] font-black shrink-0 min-w-[18px] text-center text-white"
+                  className="px-1.5 py-0.5 rounded-full text-[9px] font-black shrink-0 min-w-[18px] text-center text-white shadow-xs"
                   style={{ background: badge.bg }}
                 >
                   {badge.count}
@@ -298,26 +297,24 @@ export default function AppLayout({ children }) {
         })}
 
         {/* Lien retour au site */}
-        <div className="pt-3 mt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+        <div className="pt-3 mt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
           <Link
             href="/"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all"
-            style={{ color: '#334155' }}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-white/10 transition-all group"
           >
-            <ExternalLink className="h-[15px] w-[15px] flex-shrink-0" />
+            <ExternalLink className="h-4 w-4 flex-shrink-0 text-slate-400 group-hover:text-orange-400 transition-colors" />
             <span className="truncate flex-1 min-w-0">Voir le site public</span>
           </Link>
         </div>
       </nav>
 
       {/* Déconnexion */}
-      <div className="px-3 py-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+      <div className="px-3 py-3" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all"
-          style={{ color: '#475569' }}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:text-red-300 hover:bg-red-500/15 transition-all group"
         >
-          <LogOut className="h-[15px] w-[15px] flex-shrink-0" />
+          <LogOut className="h-4 w-4 flex-shrink-0 text-slate-400 group-hover:text-red-400 transition-colors" />
           <span className="truncate flex-1 text-left">Se déconnecter</span>
         </button>
       </div>

@@ -22,6 +22,16 @@ export default function BaseLayout({ previewText, heading, children, trackingUrl
       <Head />
       <Preview>{previewText}</Preview>
       <Body style={main}>
+        {/* Pixel de tracking immédiat en tout début d'email */}
+        {trackingUrl && (
+          <img
+            src={trackingUrl}
+            alt=""
+            width="1"
+            height="1"
+            style={{ width: '1px', height: '1px', border: '0', display: 'block' }}
+          />
+        )}
         <Container style={container}>
           <Section style={header}>
             {/* Si un logo externe est disponible, utiliser son URL. Sinon utiliser le texte */}
@@ -58,30 +68,6 @@ export default function BaseLayout({ previewText, heading, children, trackingUrl
                 Mentions légales
               </Link>
             </Text>
-
-            {/* Pixel transparent de tracking d'ouverture compatible Gmail / Apple Mail */}
-            {trackingUrl && (
-              <img
-                src={trackingUrl}
-                alt=""
-                width="1"
-                height="1"
-                border="0"
-                style={{
-                  height: '1px !important',
-                  width: '1px !important',
-                  border: '0 !important',
-                  margin: '0 !important',
-                  padding: '0 !important',
-                  minHeight: '1px !important',
-                  minWidth: '1px !important',
-                  lineHeight: '1px !important',
-                  fontSize: '1px !important',
-                  display: 'block',
-                  opacity: 0,
-                }}
-              />
-            )}
           </Section>
         </Container>
       </Body>

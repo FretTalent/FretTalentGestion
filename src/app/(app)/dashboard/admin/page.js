@@ -427,59 +427,79 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[450px] gap-3 bg-slate-100/60 rounded-xl p-8">
-        <RefreshCw className="h-8 w-8 text-slate-700 animate-spin" />
-        <p className="text-slate-600 text-xs font-bold uppercase tracking-wider">
-          Chargement du Centre de Pilotage FretTalent...
-        </p>
+      <div className="flex flex-col items-center justify-center min-h-[500px] gap-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-slate-200/80 p-8 shadow-xs">
+        <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center text-orange-500">
+          <RefreshCw className="h-6 w-6 animate-spin" />
+        </div>
+        <div className="text-center space-y-1">
+          <p className="text-slate-900 text-sm font-bold">Chargement du Centre de Pilotage</p>
+          <p className="text-slate-400 text-xs">Synchronisation en direct avec la base Supabase...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-full space-y-4 pb-12 font-sans bg-slate-100/70 p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm overflow-hidden box-border">
+    <div className="w-full max-w-7xl mx-auto space-y-6 pb-12 font-sans">
       
-      {/* 1. EN-TÊTE SUPÉRIEURE DE PILOTAGE */}
-      <div className="w-full bg-slate-950 text-white px-4 py-2.5 rounded-xl flex flex-wrap items-center justify-between gap-3 shadow-md min-w-0">
-        <div className="flex items-center gap-3 flex-wrap min-w-0">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center font-black text-[11px] text-white">
-              FT
-            </div>
-            <span className="font-bold text-xs text-slate-200">
-              Espace de Pilotage FretTalent
+      {/* 1. HEADER DE PILOTAGE SAAS */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div className="space-y-1.5 min-w-0">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              Tableau de bord
+            </h1>
+            <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Direct Supabase
             </span>
           </div>
-          <span className="text-slate-600 text-xs hidden sm:inline">|</span>
-          <span className="text-xs text-slate-300 font-medium truncate max-w-[280px] sm:max-w-none">
-            Direction Générale Transport & Logistique
-          </span>
-          <span className="inline-flex items-center gap-1 bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            En Direct Supabase
-          </span>
+          <p className="text-xs sm:text-sm text-slate-500 max-w-2xl">
+            Vue consolidée des inscriptions, déblocages 4,99€, modération des pièces et revenus Stripe.
+          </p>
         </div>
 
-        {/* Barre d'outils rapides */}
-        <div className="flex items-center gap-2 flex-wrap shrink-0">
+        {/* Barre d'outils et sélecteur */}
+        <div className="flex items-center gap-2.5 flex-wrap shrink-0">
+          {/* Segmented Timeframe Switcher */}
+          <div className="flex items-center p-1 bg-slate-100/90 rounded-xl border border-slate-200/60">
+            {[
+              { key: '7 Jours', label: '7J' },
+              { key: '30 Jours', label: '30J' },
+              { key: 'Année', label: '1 An' },
+            ].map(period => (
+              <button
+                key={period.key}
+                onClick={() => setFilterTimeframe(period.key)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  filterTimeframe === period.key
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                {period.label}
+              </button>
+            ))}
+          </div>
+
           <button
             onClick={handleTestTelegram}
             disabled={testingTelegram}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-2xs"
             title="Tester l'alerte sur votre robot Telegram"
           >
-            <Send className={`h-3 w-3 ${testingTelegram ? 'animate-spin' : ''}`} />
-            <span className="hidden md:inline">Alerte Telegram</span>
+            <Send className={`h-3.5 w-3.5 text-slate-500 ${testingTelegram ? 'animate-spin' : ''}`} />
+            <span className="hidden sm:inline">Alerte Telegram</span>
           </button>
 
           <Link
             href="/dashboard/admin/chat"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all shadow-xs shadow-orange-500/20"
           >
-            <MessageSquare className="h-3 w-3" />
+            <MessageSquare className="h-3.5 w-3.5" />
             <span>Support</span>
             {stats.openSupportConvCount > 0 && (
-              <span className="bg-white text-orange-700 px-1.5 py-0.2 rounded-full font-black text-[10px]">
+              <span className="bg-white text-orange-600 px-1.5 py-0.2 rounded-full font-black text-[10px]">
                 {stats.openSupportConvCount}
               </span>
             )}
@@ -487,152 +507,141 @@ export default function AdminDashboard() {
 
           <button
             onClick={fetchAdminData}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 transition-all cursor-pointer shadow-2xs"
             title="Actualiser les données"
           >
-            <RefreshCw className="h-3 w-3" />
-            <span className="hidden sm:inline">Actualiser</span>
+            <RefreshCw className="h-4 w-4" />
           </button>
         </div>
       </div>
 
-      {/* 2. BANDEAU DE CONTEXTE & SÉLECTEUR DE PÉRIODE */}
-      <div className="w-full bg-white px-4 py-2 rounded-xl border border-slate-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-2xs min-w-0">
-        <div className="flex items-center gap-2 flex-1 text-slate-400 min-w-0">
-          <HelpCircle className="h-4 w-4 text-slate-400 shrink-0" />
-          <span className="italic text-slate-500 truncate text-[11px] sm:text-xs">
-            Vue consolidée des inscriptions, déblocages 4,99€, abonnements Stripe et conformité des pièces.
-          </span>
-        </div>
-        <div className="flex items-center gap-1 shrink-0 flex-wrap">
-          {[
-            { key: '7 Jours', label: '7 Jours' },
-            { key: '30 Jours', label: '30 Jours' },
-            { key: 'Année', label: 'Année' },
-          ].map(period => (
-            <button
-              key={period.key}
-              onClick={() => setFilterTimeframe(period.key)}
-              className={`px-2.5 py-1 rounded text-[11px] font-bold transition-colors cursor-pointer ${
-                filterTimeframe === period.key
-                  ? 'bg-slate-900 text-white shadow-2xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              {period.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 3. HERO SCORECARDS KPIS (4 COLONNES ÉQUILIBRÉES) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 w-full min-w-0">
+      {/* 2. 4 SCORECARDS KPIS (DESIGN MODERNE AVEC ACCENT TOP) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full min-w-0">
         
         {/* KPI 1 : Volume Chauffeurs */}
-        <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow min-w-0">
-          <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-            <span className="truncate">Volume Chauffeurs</span>
-            <Users className="h-4 w-4 text-teal-600 shrink-0 ml-1" />
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-300 relative overflow-hidden group">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500" />
+          <div className="flex items-center justify-between text-slate-500 text-xs font-bold">
+            <span className="uppercase tracking-wider text-[11px]">Volume Chauffeurs</span>
+            <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Users className="h-4 w-4" />
+            </div>
           </div>
-          <div className="text-3xl sm:text-4xl font-black text-slate-950 mt-2 tracking-tight font-mono">
+          <div className="text-3xl sm:text-4xl font-black text-slate-900 mt-2 tracking-tight">
             {stats.candidatesCount}
           </div>
-          <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span className="text-[11px]">Dossiers 100% validés :</span>
-            <span className="font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded text-[10px]">
+          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span className="text-slate-500 text-[11px]">Dossiers validés</span>
+            <span className="font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 text-[10px]">
               {stats.validatedCandidatesCount} ({validationRate}%)
             </span>
           </div>
         </div>
 
-        {/* KPI 2 : Chiffre d'Affaires & Stripe */}
-        <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow min-w-0">
-          <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-            <span className="truncate">Chiffre d'Affaires</span>
-            <CreditCard className="h-4 w-4 text-emerald-600 shrink-0 ml-1" />
+        {/* KPI 2 : Chiffre d'Affaires */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-300 relative overflow-hidden group">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500" />
+          <div className="flex items-center justify-between text-slate-500 text-xs font-bold">
+            <span className="uppercase tracking-wider text-[11px]">Chiffre d&apos;Affaires</span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <CreditCard className="h-4 w-4" />
+            </div>
           </div>
-          <div className="text-3xl sm:text-4xl font-black text-slate-950 mt-2 tracking-tight font-mono">
+          <div className="text-3xl sm:text-4xl font-black text-slate-900 mt-2 tracking-tight">
             {stats.totalRevenue.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
           </div>
-          <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span className="text-[11px]">Déblocages 4,99€ :</span>
-            <span className="font-mono font-bold text-slate-900 text-[11px]">
-              {stats.unlocksCount} transactions
+          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span className="text-slate-500 text-[11px]">Déblocages 4,99€</span>
+            <span className="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-full text-[10px]">
+              {stats.unlocksCount} ventes
             </span>
           </div>
         </div>
 
-        {/* KPI 3 : Entreprises Partenaires */}
-        <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow min-w-0">
-          <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-            <span className="truncate">Comptes Entreprises</span>
-            <Building2 className="h-4 w-4 text-blue-600 shrink-0 ml-1" />
+        {/* KPI 3 : Entreprises & Recruteurs */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-300 relative overflow-hidden group">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500" />
+          <div className="flex items-center justify-between text-slate-500 text-xs font-bold">
+            <span className="uppercase tracking-wider text-[11px]">Comptes Entreprises</span>
+            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Building2 className="h-4 w-4" />
+            </div>
           </div>
-          <div className="text-3xl sm:text-4xl font-black text-slate-950 mt-2 tracking-tight font-mono">
+          <div className="text-3xl sm:text-4xl font-black text-slate-900 mt-2 tracking-tight">
             {stats.companiesCount}
           </div>
-          <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span className="text-[11px]">Annonces publiées :</span>
-            <span className="font-bold text-slate-900 text-[11px]">
+          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span className="text-slate-500 text-[11px]">Annonces publiées</span>
+            <span className="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-full text-[10px]">
               {stats.jobsCount} offres
             </span>
           </div>
         </div>
 
-        {/* KPI 4 : Indice de Conformité */}
-        <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow min-w-0">
-          <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-            <span className="truncate">Conformité Pièces</span>
-            <ShieldCheck className="h-4 w-4 text-orange-500 shrink-0 ml-1" />
+        {/* KPI 4 : Conformité Pièces */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-300 relative overflow-hidden group">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-violet-600" />
+          <div className="flex items-center justify-between text-slate-500 text-xs font-bold">
+            <span className="uppercase tracking-wider text-[11px]">Conformité Pièces</span>
+            <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <ShieldCheck className="h-4 w-4" />
+            </div>
           </div>
-          <div className="text-3xl sm:text-4xl font-black text-slate-950 mt-2 tracking-tight font-mono">
+          <div className="text-3xl sm:text-4xl font-black text-slate-900 mt-2 tracking-tight">
             {validationRate}
             <span className="text-lg text-slate-400 font-normal"> / 100</span>
           </div>
-          <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span className="text-[11px]">Justificatifs vérifiés :</span>
-            <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded text-[10px]">
-              ● Conforme
+          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span className="text-slate-500 text-[11px]">Justificatifs vérifiés</span>
+            <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 text-[10px]">
+              ● Dossiers audités
             </span>
           </div>
         </div>
 
       </div>
 
-      {/* 4. LIGNE CENTRALE : COURBE DYNAMIQUE DE CROISSANCE + SPÉCIALITÉS */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 w-full min-w-0">
+      {/* 3. LIGNE CENTRALE : COURBE DYNAMIQUE + SPÉCIALITÉS */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full min-w-0">
         
-        {/* TUILE 1 : COURBE D'ÉVOLUTION 100% OPÉRATIONNELLE (7 COLS) */}
-        <div className="lg:col-span-7 min-w-0 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between overflow-hidden">
+        {/* COURBE DE CROISSANCE SAAS (7 COLS) */}
+        <div className="lg:col-span-7 min-w-0 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between overflow-hidden">
           <div>
-            <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
-              <span>Tendances de Croissance & Inscriptions</span>
-              <span className="text-slate-400 font-mono">Période : {filterTimeframe}</span>
+            <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+              <span className="text-slate-900 font-black text-sm normal-case">Tendances de Croissance</span>
+              <span className="text-slate-400 font-mono text-[11px]">Période : {filterTimeframe}</span>
             </div>
             <div className="flex items-center gap-4 text-xs font-semibold text-slate-600 mb-4">
               <span className="flex items-center gap-1.5">
-                <span className="w-3 h-1 bg-teal-500 rounded" /> Inscriptions Chauffeurs
+                <span className="w-2.5 h-2.5 bg-orange-500 rounded-full" /> Inscriptions Chauffeurs
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="w-3 h-1 bg-slate-700 rounded" /> Déblocages & Recherches
+                <span className="w-2.5 h-2.5 bg-slate-400 rounded-full" /> Déblocages & Recherches
               </span>
             </div>
           </div>
 
-          {/* Courbe SVG dynamique calculée à partir des données réelles Supabase */}
-          <div className="h-44 w-full relative flex items-end overflow-hidden">
+          {/* Courbe SVG dynamique */}
+          <div className="h-44 w-full relative flex items-end overflow-hidden pt-2">
             <svg viewBox="0 0 500 150" className="w-full h-full" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="candGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#f97316" stopOpacity="0.25" />
+                  <stop offset="100%" stopColor="#f97316" stopOpacity="0.0" />
+                </linearGradient>
+              </defs>
+
               {/* Lignes de repère */}
-              <line x1="0" y1="20" x2="500" y2="20" stroke="#f1f5f9" strokeWidth="1" />
-              <line x1="0" y1="70" x2="500" y2="70" stroke="#f1f5f9" strokeWidth="1" />
-              <line x1="0" y1="120" x2="500" y2="120" stroke="#f1f5f9" strokeWidth="1" />
+              <line x1="0" y1="20" x2="500" y2="20" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
+              <line x1="0" y1="70" x2="500" y2="70" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
+              <line x1="0" y1="120" x2="500" y2="120" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
 
               {/* Courbe 1 : Inscriptions Chauffeurs */}
               {trendData.pathCand && (
                 <path
                   d={trendData.pathCand}
                   fill="none"
-                  stroke="#0d9488"
+                  stroke="#f97316"
                   strokeWidth="3"
                   strokeLinecap="round"
                 />
@@ -643,7 +652,7 @@ export default function AdminDashboard() {
                 <path
                   d={trendData.pathAct}
                   fill="none"
-                  stroke="#334155"
+                  stroke="#94a3b8"
                   strokeWidth="2"
                   strokeDasharray="4 4"
                 />
@@ -651,74 +660,81 @@ export default function AdminDashboard() {
 
               {/* Points interactifs */}
               {trendData.ptsCand?.map((pt, idx) => (
-                <circle key={`c-${idx}`} cx={pt.x} cy={pt.y} r="3" fill="#0d9488" />
+                <g key={`c-${idx}`}>
+                  <circle cx={pt.x} cy={pt.y} r="4" fill="#ffffff" stroke="#f97316" strokeWidth="2" />
+                </g>
               ))}
             </svg>
           </div>
 
-          {/* Axe X Labels dynamiques */}
-          <div className="flex justify-between text-[10px] text-slate-400 font-mono pt-2 border-t border-slate-100 overflow-x-hidden">
+          {/* Axe X Labels */}
+          <div className="flex justify-between text-[11px] text-slate-400 font-mono pt-3 border-t border-slate-100 overflow-x-hidden">
             {trendData.labels?.map((lbl, i) => (
               <span key={i}>{lbl}</span>
             ))}
           </div>
         </div>
 
-        {/* TUILE 2 : HISTOGRAMME PAR SPÉCIALITÉ (5 COLS) */}
-        <div className="lg:col-span-5 min-w-0 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between overflow-hidden">
+        {/* HISTOGRAMME PAR SPÉCIALITÉ (5 COLS) */}
+        <div className="lg:col-span-5 min-w-0 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between overflow-hidden">
           <div>
-            <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-3">
-              <span>Chauffeurs par Spécialité</span>
-              <span className="text-[10px] text-slate-400">Effectif</span>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-slate-900 font-black text-sm">Chauffeurs par Spécialité</h3>
+              <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">
+                Effectif total
+              </span>
+            </div>
+
+            {/* Barres horizontales */}
+            <div className="space-y-3">
+              {[
+                { label: 'SPL / Permis CE', val: specialityCounts.SPL, gradient: 'from-orange-500 to-amber-500' },
+                { label: 'Tautliner / Bâché', val: specialityCounts.Tautliner, gradient: 'from-orange-400 to-amber-400' },
+                { label: 'Citerne & ADR', val: specialityCounts.ADR, gradient: 'from-blue-500 to-indigo-500' },
+                { label: 'Frigo / Froid', val: specialityCounts.Frigo, gradient: 'from-cyan-500 to-blue-400' },
+                { label: 'Benne TP / Céréale', val: specialityCounts.Benne, gradient: 'from-emerald-500 to-teal-400' },
+                { label: 'Messagerie / Distrib', val: specialityCounts.Messagerie, gradient: 'from-slate-400 to-slate-500' },
+              ].map((item, idx) => {
+                const pct = Math.max(10, Math.round((item.val / maxSpeciality) * 100));
+                return (
+                  <div key={idx} className="space-y-1.5 min-w-0">
+                    <div className="flex justify-between text-xs">
+                      <span className="font-semibold text-slate-700 text-[11px] truncate">{item.label}</span>
+                      <span className="font-mono text-slate-900 font-bold text-[11px] shrink-0">{item.val}</span>
+                    </div>
+                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full bg-gradient-to-r ${item.gradient} rounded-full transition-all duration-500`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          {/* Barres horizontales */}
-          <div className="space-y-2.5">
-            {[
-              { label: 'SPL / Permis CE', val: specialityCounts.SPL, color: 'bg-teal-600' },
-              { label: 'Tautliner / Bâché', val: specialityCounts.Tautliner, color: 'bg-teal-500' },
-              { label: 'Citerne & ADR', val: specialityCounts.ADR, color: 'bg-teal-400' },
-              { label: 'Frigo / Froid', val: specialityCounts.Frigo, color: 'bg-teal-300' },
-              { label: 'Benne TP / Céréale', val: specialityCounts.Benne, color: 'bg-teal-200' },
-              { label: 'Messagerie / Distrib', val: specialityCounts.Messagerie, color: 'bg-slate-300' },
-            ].map((item, idx) => {
-              const pct = Math.max(10, Math.round((item.val / maxSpeciality) * 100));
-              return (
-                <div key={idx} className="space-y-1 min-w-0">
-                  <div className="flex justify-between text-xs">
-                    <span className="font-semibold text-slate-700 text-[11px] truncate">{item.label}</span>
-                    <span className="font-mono text-slate-900 font-bold text-[11px] shrink-0">{item.val}</span>
-                  </div>
-                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full ${item.color} rounded-full transition-all duration-500`}
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="pt-2 text-[10px] text-slate-400 font-mono text-right">
+          <div className="pt-3 text-[11px] text-slate-400 font-medium text-right border-t border-slate-100 mt-4">
             Répartition métier en temps réel
           </div>
         </div>
 
       </div>
 
-      {/* 5. LIGNE INFÉRIEURE : MODÉRATION 1-CLIC + RÉPARTITION 4 PAYS */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 w-full min-w-0">
+      {/* 4. LIGNE INFÉRIEURE : MODÉRATION 1-CLIC + RÉPARTITION 4 PAYS */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full min-w-0">
         
-        {/* TUILE 3 : FILE DE MODÉRATION PRIORITAIRE (7 COLS) */}
-        <div className="lg:col-span-7 min-w-0 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between overflow-hidden">
+        {/* FILE DE MODÉRATION PRIORITAIRE (7 COLS) */}
+        <div className="lg:col-span-7 min-w-0 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between overflow-hidden">
           <div>
-            <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-3">
-              <span>File de Modération Prioritaire (Validation 1-Clic)</span>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-slate-900 font-black text-sm">File de Modération Prioritaire</h3>
+                <p className="text-xs text-slate-400">Validation 1-clic des justificatifs</p>
+              </div>
               <Link
                 href="/dashboard/admin/candidates?status=pending"
-                className="text-[10px] text-orange-600 hover:text-orange-700 font-bold flex items-center gap-0.5"
+                className="text-xs text-orange-600 hover:text-orange-700 font-bold flex items-center gap-1 bg-orange-50 px-2.5 py-1 rounded-full border border-orange-100 transition-colors"
               >
                 <span>Tout voir ({pendingCandidatesQueue.length})</span>
                 <ChevronRight className="h-3 w-3" />
@@ -726,24 +742,24 @@ export default function AdminDashboard() {
             </div>
 
             {pendingCandidatesQueue.length === 0 ? (
-              <div className="p-6 bg-slate-50 rounded-xl border border-slate-100 text-center space-y-1 my-2">
-                <CheckCircle2 className="h-6 w-6 text-emerald-500 mx-auto" />
-                <p className="text-xs font-bold text-slate-700">Aucun profil en attente de vérification !</p>
-                <p className="text-[11px] text-slate-400">Tous les dossiers soumis ont été traités.</p>
+              <div className="p-8 bg-slate-50 rounded-xl border border-slate-100 text-center space-y-2 my-2">
+                <CheckCircle2 className="h-8 w-8 text-emerald-500 mx-auto" />
+                <p className="text-xs font-bold text-slate-800">Aucun profil en attente de vérification !</p>
+                <p className="text-[11px] text-slate-400">Tous les dossiers soumis sont conformes.</p>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {pendingCandidatesQueue.slice(0, 4).map((cand) => (
                   <div
                     key={cand.id}
-                    className="p-2.5 rounded-lg border border-slate-100 bg-slate-50/60 hover:bg-slate-50 flex items-center justify-between gap-3 text-xs transition-colors"
+                    className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 hover:border-slate-200 flex items-center justify-between gap-3 text-xs transition-all"
                   >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-7 h-7 rounded-lg bg-orange-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
                         {cand.full_name?.charAt(0) || 'C'}
                       </div>
                       <div className="min-w-0">
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <p className="font-bold text-slate-900 truncate text-xs">{cand.full_name || 'Chauffeur'}</p>
                           {cand.birth_date && calculateAge(cand.birth_date) && (
                             <span className="bg-slate-200 text-slate-700 font-bold px-1.5 py-0.2 rounded text-[10px]">
@@ -751,28 +767,28 @@ export default function AdminDashboard() {
                             </span>
                           )}
                         </div>
-                        <p className="text-[10px] text-slate-400 truncate">
+                        <p className="text-[11px] text-slate-400 truncate mt-0.5">
                           {cand.city || 'France'} • {cand.licenses?.join(', ') || 'Permis C/CE'}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1.5 shrink-0">
+                    <div className="flex items-center gap-2 shrink-0">
                       <Link
                         href={`/dashboard/admin/candidates/${cand.id}`}
-                        className="px-2.5 py-1 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-semibold rounded text-[11px] transition-colors"
+                        className="px-3 py-1.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-semibold rounded-lg text-[11px] transition-colors shadow-2xs"
                       >
                         Voir
                       </Link>
                       <button
                         onClick={() => handleQuickValidateCandidate(cand.id, cand.full_name)}
                         disabled={actionLoading === cand.id}
-                        className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded text-[11px] flex items-center gap-1 transition-colors disabled:opacity-50 cursor-pointer"
+                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-[11px] flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer shadow-xs shadow-emerald-600/20"
                       >
                         {actionLoading === cand.id ? (
                           <RefreshCw className="h-3 w-3 animate-spin" />
                         ) : (
-                          <ShieldCheck className="h-3 w-3" />
+                          <ShieldCheck className="h-3.5 w-3.5" />
                         )}
                         <span>Valider</span>
                       </button>
@@ -783,97 +799,112 @@ export default function AdminDashboard() {
             )}
           </div>
 
-          <div className="pt-3 border-t border-slate-100 text-[10px] text-slate-400 flex items-center justify-between">
-            <span>Validation avec envoi automatique de l'e-mail de certification</span>
-            <span className="font-mono">{pendingCandidatesQueue.length} dossier(s) restant(s)</span>
+          <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-400 flex items-center justify-between mt-3">
+            <span>Envoi automatique d&apos;e-mail de certification</span>
+            <span className="font-mono font-bold text-slate-700">{pendingCandidatesQueue.length} dossier(s) restant(s)</span>
           </div>
         </div>
 
-        {/* TUILE 4 : RÉPARTITION GÉOGRAPHIQUE 4 PAYS (5 COLS) */}
-        <div className="lg:col-span-5 min-w-0 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between overflow-hidden">
+        {/* RÉPARTITION GÉOGRAPHIQUE 4 PAYS (5 COLS) */}
+        <div className="lg:col-span-5 min-w-0 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between overflow-hidden">
           <div>
-            <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-3">
-              <span>Répartition Géographique du Réseau</span>
-              <span className="text-[10px] text-slate-400">4 Pays Couverts</span>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-slate-900 font-black text-sm">Réseau Géographique</h3>
+                <p className="text-xs text-slate-400">4 pays européens couverts</p>
+              </div>
+              <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
+                International
+              </span>
             </div>
 
             {/* Grille des 4 pays */}
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="bg-teal-50 border border-teal-200 p-3 rounded-lg flex flex-col justify-between">
-                <span className="font-bold text-teal-950">🇫🇷 France</span>
-                <div className="text-xl font-black text-teal-700 mt-1 font-mono">{stats.franceCandidates}</div>
-                <span className="text-[10px] text-teal-600 mt-0.5">Chauffeurs actifs</span>
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="bg-blue-50/60 border border-blue-100 p-3.5 rounded-xl flex flex-col justify-between hover:bg-blue-50 transition-colors">
+                <span className="font-bold text-blue-950 flex items-center gap-1.5">
+                  <span className="text-base">🇫🇷</span> France
+                </span>
+                <div className="text-2xl font-black text-blue-700 mt-2 font-mono">{stats.franceCandidates}</div>
+                <span className="text-[10px] text-blue-600 mt-0.5">Chauffeurs actifs</span>
               </div>
-              <div className="bg-rose-50 border border-rose-200 p-3 rounded-lg flex flex-col justify-between">
-                <span className="font-bold text-rose-950">🇧🇪 Belgique</span>
-                <div className="text-xl font-black text-rose-700 mt-1 font-mono">{stats.belgiumCandidates}</div>
+              <div className="bg-rose-50/60 border border-rose-100 p-3.5 rounded-xl flex flex-col justify-between hover:bg-rose-50 transition-colors">
+                <span className="font-bold text-rose-950 flex items-center gap-1.5">
+                  <span className="text-base">🇧🇪</span> Belgique
+                </span>
+                <div className="text-2xl font-black text-rose-700 mt-2 font-mono">{stats.belgiumCandidates}</div>
                 <span className="text-[10px] text-rose-600 mt-0.5">Chauffeurs actifs</span>
               </div>
-              <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg flex flex-col justify-between">
-                <span className="font-bold text-amber-950">🇱🇺 Luxembourg</span>
-                <div className="text-xl font-black text-amber-700 mt-1 font-mono">{stats.luxembourgCandidates}</div>
+              <div className="bg-amber-50/60 border border-amber-100 p-3.5 rounded-xl flex flex-col justify-between hover:bg-amber-50 transition-colors">
+                <span className="font-bold text-amber-950 flex items-center gap-1.5">
+                  <span className="text-base">🇱🇺</span> Luxembourg
+                </span>
+                <div className="text-2xl font-black text-amber-700 mt-2 font-mono">{stats.luxembourgCandidates}</div>
                 <span className="text-[10px] text-amber-600 mt-0.5">Chauffeurs actifs</span>
               </div>
-              <div className="bg-slate-100 border border-slate-200 p-3 rounded-lg flex flex-col justify-between">
-                <span className="font-bold text-slate-950">🇨🇭 Suisse</span>
-                <div className="text-xl font-black text-slate-700 mt-1 font-mono">{stats.switzerlandCandidates}</div>
+              <div className="bg-slate-50 border border-slate-200/80 p-3.5 rounded-xl flex flex-col justify-between hover:bg-slate-100/70 transition-colors">
+                <span className="font-bold text-slate-900 flex items-center gap-1.5">
+                  <span className="text-base">🇨🇭</span> Suisse
+                </span>
+                <div className="text-2xl font-black text-slate-700 mt-2 font-mono">{stats.switzerlandCandidates}</div>
                 <span className="text-[10px] text-slate-500 mt-0.5">Chauffeurs actifs</span>
               </div>
             </div>
           </div>
 
-          <div className="pt-2 text-[10px] text-slate-400 font-mono text-right">
+          <div className="pt-3 text-[11px] text-slate-400 font-medium text-right border-t border-slate-100 mt-4">
             Expansion transfrontalière européenne
           </div>
         </div>
 
       </div>
 
-      {/* 6. FLUX EN DIRECT DES DÉBLOCAGES & PAIEMENTS STRIPE */}
-      <div className="w-full bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+      {/* 5. FLUX EN DIRECT DES DÉBLOCAGES & PAIEMENTS STRIPE */}
+      <div className="w-full bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                Flux en Direct des Déblocages & Paiements Stripe
-              </span>
-              <span className="bg-emerald-950 text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full font-mono">
+              <h3 className="font-black text-slate-900 text-sm sm:text-base">
+                Achats de Contacts Chauffeurs (4,99 € TTC)
+              </h3>
+              <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full font-mono">
                 {stats.unlocksCount} déblocages
               </span>
             </div>
-            <h3 className="font-black text-slate-950 text-sm sm:text-base mt-0.5">
-              Historique des Achats de Contacts Chauffeurs (4,99 € TTC)
-            </h3>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Historique en direct des transactions Stripe
+            </p>
           </div>
 
           <Link
             href="/dashboard/admin/finance"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-colors shrink-0"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors shrink-0 shadow-2xs"
           >
             <span>Grand Livre Financier</span>
-            <ChevronRight className="h-3.5 w-3.5 text-slate-500" />
+            <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
           </Link>
         </div>
 
         {recentUnlocks.length === 0 ? (
-          <p className="text-xs text-slate-400 py-6 text-center">Aucun déblocage récent enregistré.</p>
+          <p className="text-xs text-slate-400 py-8 text-center bg-slate-50 rounded-xl">
+            Aucun déblocage récent enregistré.
+          </p>
         ) : (
-          <div className="overflow-x-auto w-full border border-slate-100 rounded-lg">
+          <div className="overflow-x-auto w-full border border-slate-100 rounded-xl">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-slate-950 text-white font-bold uppercase tracking-wider text-[10px]">
-                  <th className="py-2.5 px-3">Date</th>
-                  <th className="py-2.5 px-3">Entreprise Recruteur</th>
-                  <th className="py-2.5 px-3">Chauffeur Débloqué</th>
-                  <th className="py-2.5 px-3 text-center">Montant</th>
-                  <th className="py-2.5 px-3 text-center">Réf. Stripe</th>
-                  <th className="py-2.5 px-3 text-right">Statut</th>
+                <tr className="bg-slate-50 border-b border-slate-200/80 text-slate-600 font-bold uppercase tracking-wider text-[10px]">
+                  <th className="py-3 px-4">Date</th>
+                  <th className="py-3 px-4">Entreprise Recruteur</th>
+                  <th className="py-3 px-4">Chauffeur Débloqué</th>
+                  <th className="py-3 px-4 text-center">Montant</th>
+                  <th className="py-3 px-4 text-center">Réf. Stripe</th>
+                  <th className="py-3 px-4 text-right">Statut</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
                 {recentUnlocks.slice(0, 8).map((unlock) => (
-                  <tr key={unlock.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="py-2.5 px-3 font-mono text-[11px] text-slate-500">
+                  <tr key={unlock.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="py-3 px-4 font-mono text-[11px] text-slate-500">
                       {unlock.created_at ? new Date(unlock.created_at).toLocaleDateString('fr-FR', {
                         day: '2-digit',
                         month: 'short',
@@ -881,20 +912,20 @@ export default function AdminDashboard() {
                         minute: '2-digit',
                       }) : '—'}
                     </td>
-                    <td className="py-2.5 px-3 font-bold text-slate-900 text-xs truncate max-w-[180px]">
+                    <td className="py-3 px-4 font-bold text-slate-900 text-xs truncate max-w-[180px]">
                       {unlock.companies?.name || 'Entreprise'}
                     </td>
-                    <td className="py-2.5 px-3 text-slate-700 text-xs truncate max-w-[180px]">
+                    <td className="py-3 px-4 text-slate-700 text-xs truncate max-w-[180px]">
                       {unlock.candidates?.full_name || 'Chauffeur'}
                     </td>
-                    <td className="py-2.5 px-3 text-center font-mono font-black text-emerald-700 text-xs">
+                    <td className="py-3 px-4 text-center font-mono font-black text-emerald-700 text-xs">
                       {((unlock.amount_charged || 200) / 100).toFixed(2)} €
                     </td>
-                    <td className="py-2.5 px-3 text-center font-mono text-[10px] text-slate-400">
+                    <td className="py-3 px-4 text-center font-mono text-[10px] text-slate-400">
                       {unlock.stripe_payment_intent_id ? unlock.stripe_payment_intent_id.slice(-8) : 'pi_direct'}
                     </td>
-                    <td className="py-2.5 px-3 text-right">
-                      <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    <td className="py-3 px-4 text-right">
+                      <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
                         <Check className="h-2.5 w-2.5" />
                         Payé
                       </span>
@@ -910,3 +941,4 @@ export default function AdminDashboard() {
     </div>
   );
 }
+

@@ -23,6 +23,8 @@ import {
   CreditCard,
   X,
   MessageSquare,
+  Bell,
+  ExternalLink,
 } from 'lucide-react';
 
 const navCandidate = [
@@ -56,6 +58,35 @@ const navAdmin = [
   { section: 'Support & Outils' },
   { href: '/dashboard/admin/chat', icon: MessageSquare, label: 'Tchat Support' },
   { href: '/dashboard/admin/mail', icon: Mail, label: 'Gestion mails' },
+];
+
+// Breadcrumb mapping
+const breadcrumbMap = {
+  '/dashboard/admin': 'Tableau de bord',
+  '/dashboard/admin/stats': 'Statistiques site',
+  '/dashboard/admin/finance': 'Finances & Stripe',
+  '/dashboard/admin/candidates': 'Candidats',
+  '/dashboard/admin/companies': 'Entreprises',
+  '/dashboard/admin/jobs': 'Modération annonces',
+  '/dashboard/admin/chat': 'Tchat Support',
+  '/dashboard/admin/mail': 'Gestion mails',
+  '/dashboard/admin/users': 'Utilisateurs',
+  '/dashboard/candidate': 'Mon profil',
+  '/dashboard/candidate/documents': 'Mes documents',
+  '/dashboard/candidate/support': 'Support',
+  '/dashboard/recruiter': 'Recherche',
+  '/dashboard/recruiter/jobs': 'Mes offres',
+  '/dashboard/recruiter/settings': 'Paramètres',
+  '/dashboard/recruiter/support': 'Support',
+};
+
+// Avatar gradient based on first char
+const avatarColors = [
+  'from-orange-500 to-amber-500',
+  'from-blue-500 to-indigo-500',
+  'from-emerald-500 to-teal-500',
+  'from-violet-500 to-purple-500',
+  'from-rose-500 to-pink-500',
 ];
 
 export default function AppLayout({ children }) {
@@ -144,46 +175,62 @@ export default function AppLayout({ children }) {
   const displayName =
     role === 'recruiter' && companyName ? companyName : userEmail;
 
+  const avatarInitial =
+    role === 'admin' ? '⚡' : (displayName?.charAt(0)?.toUpperCase() || 'U');
+  const avatarGradient = avatarColors[(displayName?.charCodeAt(0) || 0) % avatarColors.length];
+
+  // Current page breadcrumb
+  const currentPageLabel = breadcrumbMap[pathname] || (pathname?.includes('/candidates/') ? 'Dossier Candidat' : 'Dashboard');
+  const isAdminPage = pathname?.startsWith('/dashboard/admin');
+
   const Sidebar = ({ mobile = false }) => (
     <aside
       className={`${
         mobile ? 'flex' : 'hidden lg:flex'
-      } flex-col w-64 bg-slate-950 text-white min-h-screen fixed top-0 left-0 z-40 border-r border-slate-800 shadow-2xl`}
+      } flex-col w-64 min-h-screen fixed top-0 left-0 z-40`}
+      style={{ background: '#0a0f1e', borderRight: '1px solid rgba(255,255,255,0.06)', boxShadow: '4px 0 24px rgba(0,0,0,0.15)' }}
     >
       {/* Logo */}
-      <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-800/80 bg-slate-950">
-        <Link href="/" className="flex items-center gap-2">
-          <img src="/logo.png" alt="FretTalent" className="h-8 md:h-9 w-auto object-contain brightness-0 invert" />
+      <div className="flex items-center justify-between gap-3 px-5 py-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <Link href="/" className="flex items-center gap-2.5">
+          <img src="/logo.png" alt="FretTalent" className="h-8 w-auto object-contain brightness-0 invert" />
           {role === 'admin' && (
-            <span className="text-[10px] font-black uppercase tracking-wider bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded border border-orange-500/30">
-              Administration
+            <span
+              className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full"
+              style={{ background: 'rgba(249,115,22,0.15)', color: '#fb923c', border: '1px solid rgba(249,115,22,0.3)' }}
+            >
+              Admin
             </span>
           )}
         </Link>
         {mobile && (
           <button
             onClick={() => setSidebarOpen(false)}
-            className="p-1 rounded-lg text-slate-400 hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg transition-colors"
+            style={{ color: '#64748b' }}
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
         )}
       </div>
 
       {/* User badge */}
-      <div className="px-4 py-3.5 border-b border-slate-800/80 bg-slate-900/50">
+      <div className="px-3 py-3 mx-3 my-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-amber-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-inner">
-            {role === 'admin' ? '⚡' : displayName?.charAt(0)?.toUpperCase() || 'U'}
+          <div
+            className={`w-9 h-9 rounded-xl bg-gradient-to-br ${avatarGradient} text-white flex items-center justify-center font-bold text-sm shrink-0`}
+            style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}
+          >
+            {avatarInitial}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 mb-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 truncate">
+              <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: '#475569' }}>
                 {roleLabel}
               </span>
             </div>
-            <p className="text-xs font-bold text-white truncate">
+            <p className="text-xs font-semibold text-white truncate" title={displayName}>
               {displayName}
             </p>
           </div>
@@ -191,16 +238,17 @@ export default function AppLayout({ children }) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-grow px-3 py-3 space-y-0.5 overflow-y-auto">
+      <nav className="flex-grow px-3 py-1 space-y-0.5 overflow-y-auto">
         {navItems.map((item, index) => {
           if (item.section) {
             return (
               <div
                 key={`sec-${index}`}
-                className="pt-4 pb-1 px-3 text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-2"
+                className="pt-5 pb-1.5 px-2 text-[9px] font-black uppercase tracking-widest flex items-center gap-2"
+                style={{ color: '#334155' }}
               >
                 <span>{item.section}</span>
-                <span className="flex-1 h-[1px] bg-slate-800/60" />
+                <span className="flex-1 h-[1px]" style={{ background: 'rgba(255,255,255,0.05)' }} />
               </div>
             );
           }
@@ -212,11 +260,11 @@ export default function AppLayout({ children }) {
           let badge = null;
           if (role === 'admin') {
             if (item.href === '/dashboard/admin/candidates' && adminCounts.pendingCandidates > 0) {
-              badge = { count: adminCounts.pendingCandidates, color: 'bg-orange-500 text-white' };
+              badge = { count: adminCounts.pendingCandidates, bg: '#f97316' };
             } else if (item.href === '/dashboard/admin/jobs' && adminCounts.pendingJobs > 0) {
-              badge = { count: adminCounts.pendingJobs, color: 'bg-amber-500 text-white' };
+              badge = { count: adminCounts.pendingJobs, bg: '#f59e0b' };
             } else if (item.href === '/dashboard/admin/chat' && adminCounts.openSupport > 0) {
-              badge = { count: adminCounts.openSupport, color: 'bg-emerald-500 text-white' };
+              badge = { count: adminCounts.openSupport, bg: '#10b981' };
             }
           }
 
@@ -225,20 +273,23 @@ export default function AppLayout({ children }) {
               key={item.href}
               href={item.href}
               onClick={() => setSidebarOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all group ${
-                isActive
-                  ? 'bg-slate-800 text-white border-l-2 border-orange-500 font-bold'
-                  : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
-              }`}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all group relative"
+              style={{
+                color: isActive ? '#ffffff' : '#475569',
+                background: isActive ? 'rgba(249,115,22,0.1)' : 'transparent',
+                borderLeft: isActive ? '3px solid #f97316' : '3px solid transparent',
+              }}
             >
               <Icon
-                className={`h-4 w-4 flex-shrink-0 ${
-                  isActive ? 'text-orange-400' : 'text-slate-400 group-hover:text-slate-200'
-                }`}
+                className="h-[15px] w-[15px] flex-shrink-0 transition-colors"
+                style={{ color: isActive ? '#f97316' : 'inherit' }}
               />
               <span className="truncate flex-1 min-w-0">{item.label}</span>
               {badge && (
-                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-black shrink-0 ${badge.color}`}>
+                <span
+                  className="px-1.5 py-0.5 rounded-full text-[9px] font-black shrink-0 min-w-[18px] text-center text-white"
+                  style={{ background: badge.bg }}
+                >
                   {badge.count}
                 </span>
               )}
@@ -247,24 +298,26 @@ export default function AppLayout({ children }) {
         })}
 
         {/* Lien retour au site */}
-        <div className="pt-3 mt-3 border-t border-slate-800/80">
+        <div className="pt-3 mt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
           <Link
             href="/"
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-all group"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all"
+            style={{ color: '#334155' }}
           >
-            <Truck className="h-4 w-4 text-slate-400 group-hover:text-orange-400 flex-shrink-0" />
+            <ExternalLink className="h-[15px] w-[15px] flex-shrink-0" />
             <span className="truncate flex-1 min-w-0">Voir le site public</span>
           </Link>
         </div>
       </nav>
 
       {/* Déconnexion */}
-      <div className="px-3 py-3 border-t border-slate-800/80">
+      <div className="px-3 py-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all group"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all"
+          style={{ color: '#475569' }}
         >
-          <LogOut className="h-4 w-4 text-slate-400 group-hover:text-red-400 flex-shrink-0" />
+          <LogOut className="h-[15px] w-[15px] flex-shrink-0" />
           <span className="truncate flex-1 text-left">Se déconnecter</span>
         </button>
       </div>
@@ -272,14 +325,15 @@ export default function AppLayout({ children }) {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans flex">
+    <div className="min-h-screen font-sans flex" style={{ background: '#f4f6fb' }}>
       {/* Sidebar desktop */}
       <Sidebar />
 
       {/* Overlay mobile */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-30 bg-slate-900/60 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-30 lg:hidden"
+          style={{ background: 'rgba(10,15,30,0.7)', backdropFilter: 'blur(4px)' }}
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -293,6 +347,7 @@ export default function AppLayout({ children }) {
 
       {/* Main content */}
       <div className="flex-1 lg:ml-64 flex flex-col min-h-screen min-w-0 max-w-full overflow-x-hidden">
+
         {/* Top bar mobile */}
         <header className="lg:hidden sticky top-0 z-20 bg-white border-b border-slate-200 px-4 py-3 flex items-center gap-3 shadow-sm">
           <button
@@ -324,6 +379,55 @@ export default function AppLayout({ children }) {
           </div>
         </header>
 
+        {/* Desktop Topbar avec breadcrumb */}
+        <header
+          className="hidden lg:flex sticky top-0 z-20 items-center justify-between px-6 py-3 border-b"
+          style={{ background: '#ffffff', borderColor: '#e8ecf4', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
+        >
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-1.5 text-sm">
+            <span className="font-medium" style={{ color: '#94a3b8' }}>Dashboard</span>
+            <ChevronRight className="h-3.5 w-3.5" style={{ color: '#cbd5e1' }} />
+            {isAdminPage && (
+              <>
+                <span className="font-medium" style={{ color: '#94a3b8' }}>Admin</span>
+                <ChevronRight className="h-3.5 w-3.5" style={{ color: '#cbd5e1' }} />
+              </>
+            )}
+            <span className="font-semibold text-slate-800">{currentPageLabel}</span>
+          </div>
+
+          {/* Right side */}
+          <div className="flex items-center gap-3">
+            {/* Live indicator */}
+            <div
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+              style={{ background: 'rgba(16,185,129,0.08)', color: '#059669', border: '1px solid rgba(16,185,129,0.15)' }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>En direct</span>
+            </div>
+
+            {/* Notifications bell (admin only) */}
+            {role === 'admin' && (adminCounts.pendingCandidates > 0 || adminCounts.openSupport > 0) && (
+              <Link href="/dashboard/admin/candidates?status=pending" className="relative p-2 rounded-xl hover:bg-slate-100 transition-colors">
+                <Bell className="h-4 w-4 text-slate-500" />
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-orange-500 text-white text-[8px] font-black flex items-center justify-center">
+                  {adminCounts.pendingCandidates + adminCounts.openSupport}
+                </span>
+              </Link>
+            )}
+
+            {/* Avatar */}
+            <div
+              className={`w-8 h-8 rounded-xl bg-gradient-to-br ${avatarGradient} text-white flex items-center justify-center font-bold text-xs cursor-default`}
+              title={displayName}
+            >
+              {avatarInitial}
+            </div>
+          </div>
+        </header>
+
         {/* Page content */}
         <main className="flex-grow p-3 sm:p-5 lg:p-6 min-w-0 max-w-full overflow-x-hidden">{children}</main>
       </div>
@@ -334,3 +438,4 @@ export default function AppLayout({ children }) {
     </div>
   );
 }
+

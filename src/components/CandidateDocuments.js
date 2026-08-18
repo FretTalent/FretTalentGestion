@@ -93,22 +93,34 @@ export default function CandidateDocuments({
 
       onUpdate(newDocuments); // Mettre à jour l'état parent
 
-      // Notification Telegram Admin UNIQUEMENT quand le dossier est 100% complet
+      // Notification Telegram Admin UNIQUEMENT quand le dossier contient des pièces
       try {
         const isDocPresent = (k, legacyK) => !!newDocuments[k] || (legacyK && !!newDocuments[legacyK]);
-        const requiredDocs = [
-          isDocPresent('cv'),
-          isDocPresent('permis_recto', 'permis'),
-          isDocPresent('permis_verso', 'permis'),
-          isDocPresent('chrono_recto', 'chrono'),
-          isDocPresent('chrono_verso', 'chrono'),
-          isDocPresent('fimo_recto', 'fimo'),
-          isDocPresent('fimo_verso', 'fimo'),
+        
+        const MANDATORY_DOCS = [
+          { key: 'cv', label: 'CV' },
+          { key: 'permis_recto', legacy: 'permis', label: 'Permis (Recto)' },
+          { key: 'permis_verso', legacy: 'permis', label: 'Permis (Verso)' },
+          { key: 'chrono_recto', legacy: 'chrono', label: 'Carte Chrono (Recto)' },
+          { key: 'chrono_verso', legacy: 'chrono', label: 'Carte Chrono (Verso)' },
+          { key: 'fimo_recto', legacy: 'fimo', label: 'FIMO / FCO (Recto)' },
+          { key: 'fimo_verso', legacy: 'fimo', label: 'FIMO / FCO (Verso)' },
         ];
-        const uploadedCount = requiredDocs.filter(Boolean).length;
+
+        const presentMandatory = MANDATORY_DOCS.filter(d => isDocPresent(d.key, d.legacy));
+        const missingMandatory = MANDATORY_DOCS.filter(d => !isDocPresent(d.key, d.legacy));
+
+        const uploadedCount = presentMandatory.length;
+        const totalRequired = MANDATORY_DOCS.length; // 7
         const isComplete = uploadedCount === 7;
 
-        // On ne notifie Telegram QUE si le dossier vient d'atteindre 100% de complétion
+        // Récupérer la liste des noms de tous les documents présents sur le profil
+        const docList = Object.keys(newDocuments)
+          .map(k => DOCUMENT_TYPES.find(dt => dt.key === k)?.label || LEGACY_LABELS[k] || k);
+
+        const missingLabels = missingMandatory.map(m => m.label);
+
+        // On ne notifie Telegram QUE si le dossier vient d'atteindre 100% de complétion réelle (les 7 pièces obligatoires)
         if (isComplete) {
           const { data: candInfo } = await supabase
             .from('candidates')
@@ -126,10 +138,11 @@ export default function CandidateDocuments({
                 candidateId: candidateId,
                 city: candInfo?.city || '—',
                 country: candInfo?.country || 'FR',
-                uploadedCount: 7,
-                totalRequired: 7,
+                uploadedCount,
+                totalRequired,
                 isComplete: true,
-                docLabel: docType.label,
+                docList,
+                missingDocs: missingLabels,
               },
             }),
           }).catch(err => console.error('Telegram notification error:', err));

@@ -190,29 +190,51 @@ export async function notifyTelegramDocumentsUploaded({
   country = 'FR',
   uploadedCount = 7,
   totalRequired = 7,
+  docList = [],
+  missingDocs = [],
 }) {
   const flag = country === 'BE' ? '🇧🇪' : country === 'LU' ? '🇱🇺' : country === 'CH' ? '🇨🇭' : '🇫🇷';
+  const isStrictlyComplete = missingDocs.length === 0;
+
+  const docsDetail = docList.length > 0
+    ? `\n📋 <b>Pièces déposées :</b>\n${docList.map(d => `  ✅ ${escapeHtml(d)}`).join('\n')}`
+    : '';
+
+  const missingDetail = missingDocs.length > 0
+    ? `\n⚠️ <b>Pièces obligatoires manquantes :</b>\n${missingDocs.map(d => `  ❌ ${escapeHtml(d)}`).join('\n')}`
+    : '';
+
+  const statusTitle = isStrictlyComplete
+    ? `🎉 <b>DOSSIER CHAUFFEUR 100% COMPLET !</b> 🛡️`
+    : `📑 <b>DÉPÔT DE DOCUMENTS CHAUFFEUR (${uploadedCount}/${totalRequired})</b>`;
+
+  const footerNotice = isStrictlyComplete
+    ? `👉 <i>Tous les justificatifs indispensables (CV, Permis Recto/Verso, Chrono Recto/Verso, FIMO Recto/Verso) sont conformes !</i>`
+    : `👉 <i>Attention : Le dossier n'a pas encore toutes les pièces indispensables pour être certifié.</i>`;
 
   const message = `
-🎉 <b>DOSSIER CHAUFFEUR 100% COMPLET !</b> 🛡️
+${statusTitle}
 ━━━━━━━━━━━━━━━━━━
 👤 <b>Chauffeur :</b> ${escapeHtml(candidateName || 'Candidat')}
 📍 <b>Ville :</b> ${escapeHtml(city || '—')} ${flag}
-📑 <b>Pièces déposées :</b> ${uploadedCount}/${totalRequired} justificatifs conformes
+📑 <b>Total :</b> ${uploadedCount}/${totalRequired} pièces obligatoires
+${docsDetail}${missingDetail}
 ⏱ <b>Date :</b> ${new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}
 
-👉 <i>Tous les justificatifs de conduite (Permis, Chrono, FIMO) ont été déposés. Le profil est prêt à être certifié !</i>
+${footerNotice}
 `.trim();
 
   const inline_keyboard = [];
 
   if (candidateId) {
-    inline_keyboard.push([
-      {
-        text: '🛡️ Valider le Chauffeur (1 Clic)',
-        callback_data: `validate_cand:${candidateId}`,
-      },
-    ]);
+    if (isStrictlyComplete) {
+      inline_keyboard.push([
+        {
+          text: '🛡️ Valider le Chauffeur (1 Clic)',
+          callback_data: `validate_cand:${candidateId}`,
+        },
+      ]);
+    }
 
     inline_keyboard.push([
       {

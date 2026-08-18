@@ -539,6 +539,58 @@ export async function sendTelegramContactNotification({
   });
 }
 
+/**
+ * Alerte Telegram Admin : Achat Forfait Auto-Candidature Premium (19,99 €)
+ */
+export async function sendTelegramPremiumPurchaseNotification({
+  candidateName,
+  candidateCity,
+  candidatePostalCode,
+  companiesCount,
+  amount = '19,99 €',
+}) {
+  const telegramMsg = `🚀 <b>NOUVELLE AUTO-CANDIDATURE PREMIUM (19,99 €)</b>
+━━━━━━━━━━━━━━━━━━━━
+👤 <b>Chauffeur :</b> ${escapeHtml(candidateName)}
+📍 <b>Localisation :</b> ${escapeHtml(candidatePostalCode || '')} ${escapeHtml(candidateCity || 'France')}
+🏢 <b>Entreprises ciblées (50 km) :</b> <b>${companiesCount} transporteurs</b>
+💳 <b>Montant encaissé :</b> <b>${amount}</b>
+⭐ <b>Badge :</b> Actif 48h sur la carte
+━━━━━━━━━━━━━━━━━━━━
+📅 <i>${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</i>`;
+
+  const inlineKeyboard = [
+    [
+      { text: '📊 Dashboard Admin', url: 'https://www.frettalent.fr/dashboard/admin' },
+      { text: '🚚 Voir Candidats', url: 'https://www.frettalent.fr/dashboard/admin/candidates' },
+    ],
+  ];
+
+  return sendTelegramMessage(telegramMsg, {
+    reply_markup: { inline_keyboard: inlineKeyboard },
+  });
+}
+
+/**
+ * Alerte Telegram Admin : Une entreprise a ouvert une candidature Premium
+ */
+export async function sendTelegramCandidatureOpenedNotification({
+  companyName,
+  companyCity,
+  candidateName,
+}) {
+  const telegramMsg = `👁️ <b>CANDIDATURE PREMIUM OUVERTE !</b>
+━━━━━━━━━━━━━━━━━━━━
+🏢 <b>Entreprise :</b> <b>${escapeHtml(companyName)}</b> (${escapeHtml(companyCity || 'France')})
+👤 <b>Chauffeur consulté :</b> <b>${escapeHtml(candidateName)}</b>
+✉️ <b>Accusé :</b> Transmis automatiquement par email au chauffeur
+━━━━━━━━━━━━━━━━━━━━
+📅 <i>${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</i>`;
+
+  return sendTelegramMessage(telegramMsg);
+}
+
+
 
 function escapeHtml(text) {
   if (!text) return '';

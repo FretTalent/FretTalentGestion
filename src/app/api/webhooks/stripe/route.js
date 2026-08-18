@@ -33,7 +33,30 @@ export async function POST(req) {
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
-        const session = event.data.object;
+        // 1. Gestion de l'Auto-Candidature Premium pour les chauffeurs (19,99 €)
+        if (session.metadata?.type === 'auto_candidature_premium') {
+          const candidateId = session.metadata?.candidate_id || session.client_reference_id;
+          if (candidateId) {
+            console.log(`🚀 [Stripe Webhook] Achat Auto-Candidature Premium détecté pour le candidat ${candidateId}. Déclenchement de l'envoi...`);
+            
+            // Appel interne du pipeline d'envoi
+            const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.frettalent.fr';
+            fetch(`${appUrl}/api/premium/send-candidature`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                candidateId,
+                stripeSessionId: session.id,
+                amountPaid: session.amount_total || 1999,
+              }),
+            }).catch(err => {
+              console.error('[Stripe Webhook] Erreur déclenchement send-candidature:', err);
+            });
+          }
+          break;
+        }
+
+        // 2. Gestion des abonnements et déblocages entreprises
         const customerId = session.customer;
         const companyIdFromMeta = session.metadata?.company_id;
         

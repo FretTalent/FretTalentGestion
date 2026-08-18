@@ -173,6 +173,21 @@ export default function CandidatsDisponiblesPage() {
           })
         );
 
+        // Récupérer également les badges Premium 48h actifs
+        let premiumCandidateIds = new Set();
+        try {
+          const { data: activeBadges } = await supabase
+            .from('premium_badges')
+            .select('candidate_id')
+            .eq('is_active', true)
+            .gt('expires_at', new Date().toISOString());
+          if (activeBadges) {
+            premiumCandidateIds = new Set(activeBadges.map(b => b.candidate_id));
+          }
+        } catch (bErr) {
+          console.warn('Erreur récupération badges premium:', bErr);
+        }
+
         const postalCounts = {};
 
         const mappedCandidates = data
@@ -211,6 +226,7 @@ export default function CandidatsDisponiblesPage() {
               isDocPresent('fimo_verso', 'fimo');
             const isAvailable = c.is_active && c.availability && c.availability !== '';
             const fullVerified = c.validated && allDocsPresent && isAvailable;
+            const isPremium = premiumCandidateIds.has(c.id);
 
             return {
               id: c.id,
@@ -221,6 +237,7 @@ export default function CandidatsDisponiblesPage() {
               x,
               y,
               fullVerified,
+              isPremium,
               licenses: c.licenses || [],
               certifications: c.certifications || [],
               jobPreferences: c.job_preferences || [],
@@ -234,6 +251,12 @@ export default function CandidatsDisponiblesPage() {
             };
           })
           .filter(Boolean);
+
+        // Tri : Les candidats Premium en tête de liste
+        mappedCandidates.sort((a, b) => {
+          if (a.isPremium === b.isPremium) return 0;
+          return a.isPremium ? -1 : 1;
+        });
 
         setCandidates(mappedCandidates);
       } catch (err) {
@@ -631,16 +654,23 @@ export default function CandidatsDisponiblesPage() {
                             </div>
                           </div>
 
-                          {c.fullVerified ? (
-                            <span className="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2.5 py-1 rounded-full border border-emerald-200 flex items-center gap-1 shrink-0">
-                              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-                              100% Vérifié
-                            </span>
-                          ) : (
-                            <span className="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-1 rounded-full shrink-0">
-                              Disponible
-                            </span>
-                          )}
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            {c.isPremium && (
+                              <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-xs flex items-center gap-1">
+                                ⭐ Premium 48h
+                              </span>
+                            )}
+                            {c.fullVerified ? (
+                              <span className="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2.5 py-1 rounded-full border border-emerald-200 flex items-center gap-1">
+                                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                                100% Vérifié
+                              </span>
+                            ) : (
+                              <span className="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-1 rounded-full">
+                                Disponible
+                              </span>
+                            )}
+                          </div>
                         </div>
 
                         <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">

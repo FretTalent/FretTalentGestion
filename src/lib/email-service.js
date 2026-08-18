@@ -14,6 +14,11 @@ import CandidateReminderDay10 from '../emails/CandidateReminderDay10';
 import ContactFormAdmin from '../emails/ContactFormAdmin';
 import ContactFormConfirmationUser from '../emails/ContactFormConfirmationUser';
 import VerificationEmail from '../emails/VerificationEmail';
+import CompanyPremiumCandidature from '../emails/CompanyPremiumCandidature';
+import CandidatePremiumConfirmation from '../emails/CandidatePremiumConfirmation';
+import CandidateApplicationOpened from '../emails/CandidateApplicationOpened';
+import CompanyRelanceDay7 from '../emails/CompanyRelanceDay7';
+import CandidateRelanceSent from '../emails/CandidateRelanceSent';
 
 const FROM_EMAIL = 'FretTalent <support@frettalent.fr>';
 const ADMIN_EMAIL = 'support@frettalent.fr'; // A envoyer aux admins de FretTalent
@@ -372,5 +377,192 @@ export async function sendVerificationEmail(email, confirmationUrl) {
     return { success: false, error };
   }
 }
+
+/**
+ * Envoie la candidature Premium d'un chauffeur à une entreprise ciblée
+ */
+export async function sendCompanyPremiumCandidatureEmail({
+  toEmail,
+  companyName,
+  candidate,
+  distanceKm,
+  trackingUrl,
+  summaryPdfHtmlUrl,
+  attachments = [],
+}) {
+  try {
+    const html = await render(
+      <CompanyPremiumCandidature
+        companyName={companyName}
+        candidateName={candidate.full_name || 'Chauffeur'}
+        candidateCity={candidate.city || 'France'}
+        candidatePostalCode={candidate.postal_code || ''}
+        distanceKm={distanceKm}
+        licenses={candidate.licenses || ['SPL']}
+        certifications={candidate.certifications || []}
+        specialties={candidate.job_preferences || []}
+        experienceYears={candidate.experience_years || 0}
+        availability={candidate.availability === 'immediate' ? 'Immédiate' : candidate.availability_date || 'Sous préavis'}
+        phone={candidate.phone || 'Non renseigné'}
+        email={candidate.email || 'Non renseigné'}
+        bio={candidate.bio || ''}
+        candidateId={candidate.id}
+        trackingUrl={trackingUrl}
+        summaryPdfHtmlUrl={summaryPdfHtmlUrl}
+      />
+    );
+
+    const emailOptions = {
+      from: FROM_EMAIL,
+      to: [toEmail],
+      subject: `⭐ Candidature Directe : ${candidate.full_name || 'Chauffeur'} (${(candidate.licenses || ['SPL']).join('/')}) à ${distanceKm} km`,
+      html,
+    };
+
+    if (attachments && attachments.length > 0) {
+      emailOptions.attachments = attachments;
+    }
+
+    const data = await resend.emails.send(emailOptions);
+    return { success: true, data };
+  } catch (error) {
+    console.error('Erreur sendCompanyPremiumCandidatureEmail:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Envoie la confirmation au chauffeur avec le nombre d'entreprises contactées
+ */
+export async function sendCandidatePremiumConfirmationEmail({
+  email,
+  candidateName,
+  companiesCount,
+  radiusKm = 50,
+  city = 'votre secteur',
+}) {
+  try {
+    const html = await render(
+      <CandidatePremiumConfirmation
+        candidateName={candidateName}
+        companiesCount={companiesCount}
+        radiusKm={radiusKm}
+        city={city}
+      />
+    );
+
+    const data = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [email],
+      subject: `🚀 Confirmation : Votre candidature a été transmise à ${companiesCount} entreprises !`,
+      html,
+    });
+    return { success: true, data };
+  } catch (error) {
+    console.error('Erreur sendCandidatePremiumConfirmationEmail:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Envoie un accusé de réception au chauffeur quand une entreprise ouvre son dossier
+ */
+export async function sendCandidateApplicationOpenedEmail({
+  email,
+  candidateName,
+  companyName,
+  companyCity,
+}) {
+  try {
+    const html = await render(
+      <CandidateApplicationOpened
+        candidateName={candidateName}
+        companyName={companyName}
+        companyCity={companyCity}
+        openedAt={new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+      />
+    );
+
+    const data = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [email],
+      subject: `🎉 ${companyName} (${companyCity}) vient d'ouvrir votre candidature !`,
+      html,
+    });
+    return { success: true, data };
+  } catch (error) {
+    console.error('Erreur sendCandidateApplicationOpenedEmail:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Envoie la relance J+7 aux entreprises
+ */
+export async function sendCompanyRelanceDay7Email({
+  toEmail,
+  companyName,
+  candidate,
+  distanceKm,
+  trackingUrl,
+}) {
+  try {
+    const html = await render(
+      <CompanyRelanceDay7
+        companyName={companyName}
+        candidateName={candidate.full_name || 'Chauffeur'}
+        candidateCity={candidate.city || 'France'}
+        candidatePostalCode={candidate.postal_code || ''}
+        distanceKm={distanceKm}
+        licenses={candidate.licenses || ['SPL']}
+        phone={candidate.phone || ''}
+        email={candidate.email || ''}
+        availability={candidate.availability === 'immediate' ? 'Immédiate' : candidate.availability_date || 'Sous préavis'}
+        trackingUrl={trackingUrl}
+      />
+    );
+
+    const data = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [toEmail],
+      subject: `Rappel Disponibilité : Le chauffeur ${candidate.full_name || ''} (${(candidate.licenses || ['SPL']).join('/')}) à ${distanceKm} km`,
+      html,
+    });
+    return { success: true, data };
+  } catch (error) {
+    console.error('Erreur sendCompanyRelanceDay7Email:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Envoie la confirmation au chauffeur que sa relance J+7 a été transmise
+ */
+export async function sendCandidateRelanceSentEmail({
+  email,
+  candidateName,
+  companiesCount,
+}) {
+  try {
+    const html = await render(
+      <CandidateRelanceSent
+        candidateName={candidateName}
+        companiesCount={companiesCount}
+      />
+    );
+
+    const data = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [email],
+      subject: `📬 Relance automatique J+7 transmise à ${companiesCount} transporteurs !`,
+      html,
+    });
+    return { success: true, data };
+  } catch (error) {
+    console.error('Erreur sendCandidateRelanceSentEmail:', error);
+    return { success: false, error: error.message };
+  }
+}
+
 
 

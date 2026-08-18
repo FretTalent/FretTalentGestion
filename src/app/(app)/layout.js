@@ -24,6 +24,8 @@ import {
   X,
   MessageSquare,
   Send,
+  Sparkles,
+  Bell,
   ExternalLink,
 } from 'lucide-react';
 

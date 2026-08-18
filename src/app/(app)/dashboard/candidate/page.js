@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import AddressAutocomplete from '@/components/AddressAutocomplete';
 import ConfirmModal from '@/components/ConfirmModal';
@@ -32,6 +32,7 @@ import { validatePhoneNumber, validateAddress, COUNTRIES, calculateAge } from '@
 
 export default function CandidateDashboard() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // États de profil
   const [profile, setProfile] = useState(null);
@@ -186,6 +187,27 @@ export default function CandidateDashboard() {
         setCountry(candidateData.country || 'FR');
         setBio(candidateData.bio || '');
         setDocuments(typeof candidateData.documents === 'object' && candidateData.documents !== null ? candidateData.documents : {});
+      }
+
+      // Si le candidat revient d'un paiement réussi Stripe Checkout
+      const paymentSuccess = searchParams.get('payment') === 'success';
+      const sessionId = searchParams.get('session_id');
+
+      if (paymentSuccess && sessionId) {
+        try {
+          await fetch('/api/premium/send-candidature', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              candidateId: user.id,
+              stripeSessionId: sessionId,
+              amountPaid: 1999,
+            }),
+          });
+          toast.success('Votre option CV Rapide (7 jours) a été activée avec succès !');
+        } catch (postErr) {
+          console.warn('Erreur activation automatique retour Stripe:', postErr);
+        }
       }
 
       // Charger l'historique des déblocages de son contact

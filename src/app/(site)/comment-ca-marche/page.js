@@ -60,23 +60,19 @@ export default function CommentCaMarche() {
   return (
     <div className="bg-white text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-12 pb-28 md:pb-36 bg-white border-b border-slate-100">
-        <div className="absolute inset-0 bg-[radial-gradient(#f97316_1px,transparent_1px)] [background-size:24px_24px] opacity-5"></div>
-        <div className="absolute left-1/2 -translate-x-1/2 bottom-0 hidden md:block opacity-25 pointer-events-none">
-          <img
-            src="https://png.pngtree.com/png-vector/20240309/ourmid/pngtree-orange-truck-transport-png-image_11920914.png"
-            alt="Camion Transport"
-            className="h-56 md:h-72 w-auto object-contain"
-          />
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-4">
+      <section className="relative overflow-hidden pt-16 pb-24 md:pb-32 bg-white border-b border-slate-100">
+        {/* Pattern dots moderne */}
+        <div className="absolute inset-0 bg-dots opacity-[0.35] pointer-events-none" />
+        {/* Halo orange subtil */}
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-orange-500/5 rounded-full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/2" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-5">
           <span className="text-xs font-bold text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-100">
             Mise en relation directe
           </span>
-          <h1 className="text-4xl sm:text-5xl font-black text-slate-955 tracking-tight">
+          <h1 className="text-4xl sm:text-5xl font-black text-slate-950 tracking-tight">
             Comment fonctionne FretTalent ?
           </h1>
-          <p className="text-slate-655 text-lg max-w-2xl mx-auto">
+          <p className="text-slate-600 text-lg max-w-2xl mx-auto">
             Une plateforme éthique, performante et sans intermédiaire qui
             connecte les entreprises de transport et les conducteurs routiers.
           </p>
@@ -141,7 +137,7 @@ export default function CommentCaMarche() {
               <span className="text-xs font-bold text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-100">
                 Pour les conducteurs
               </span>
-              <h2 className="text-3xl font-extrabold text-slate-955 tracking-tight">
+              <h2 className="text-3xl font-extrabold text-slate-950 tracking-tight">
                 Valorisez votre profil en toute sécurité
               </h2>
               <p className="text-slate-600 text-base leading-relaxed">
@@ -187,16 +183,14 @@ export default function CommentCaMarche() {
 
       {/* RÉSULTAT DU DOSSIER COMPLET */}
       <section className="py-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
-        <div className="bg-orange-500 text-white p-8 rounded-3xl space-y-6 shadow-xl relative overflow-hidden">
+        <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-10 rounded-3xl space-y-5 shadow-xl shadow-orange-500/25 relative overflow-hidden">
           <div className="absolute -right-16 -bottom-16 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="absolute -left-10 bottom-0 hidden md:block opacity-25 pointer-events-none">
-            <img src="https://png.pngtree.com/png-clipart/20250521/original/pngtree-an-orange-truck-with-logistics-container-turning-png-image_21052111.png" alt="Camion FretTalent" className="w-[300px] object-contain" />
-          </div>
+          <div className="absolute -left-16 -top-16 w-48 h-48 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
           <h3 className="text-2xl font-black text-white relative z-10">
             Une fluidité administrative garantie
           </h3>
-          <p className="text-sm text-orange-50 max-w-3xl mx-auto leading-relaxed">
-            Grâce à l'intégration du{' '}
+          <p className="text-sm text-orange-50 max-w-3xl mx-auto leading-relaxed relative z-10">
+            Grâce à l’intégration du{' '}
             <strong>Dossier Numérique Chauffeur</strong>, les candidats ne
             perdent plus de temps à renvoyer leurs documents par e-mail et les
             entreprises disposent instantanément de toutes les pièces
@@ -204,10 +198,10 @@ export default function CommentCaMarche() {
             conducteur FIMO/FCO, carte chronotachygraphe) pour rédiger le
             contrat de travail.
           </p>
-          <div className="flex justify-center gap-4 pt-2">
+          <div className="flex justify-center gap-4 pt-2 relative z-10">
             <Link
               href="/register"
-              className="px-6 py-3 rounded-full text-xs font-bold bg-white text-orange-600 hover:bg-orange-50 transition-colors"
+              className="px-7 py-3 rounded-full text-sm font-bold bg-white text-orange-600 hover:bg-orange-50 transition-colors shadow-md"
             >
               Je crée mon compte
             </Link>

@@ -30,7 +30,11 @@ export default function Home() {
     <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-orange-500 selection:text-white">
       <main className="flex-grow flex flex-col">
         {/* HERO SECTION UNIQUE */}
-        <section className="w-full relative overflow-hidden py-16 md:py-24 bg-gradient-to-b from-orange-50/30 via-white to-white">
+        <section className="w-full relative overflow-hidden py-16 md:py-24 bg-white">
+          {/* Pattern dots moderne en arrière-plan */}
+          <div className="absolute inset-0 bg-dots opacity-[0.4] pointer-events-none" />
+          {/* Halo orange subtil derrière le texte */}
+          <div className="absolute -top-32 -left-32 w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
               {/* Text side */}
@@ -67,14 +71,12 @@ export default function Home() {
                   </Link>
                 </div>
 
-                {/* Badges de réassurance */}
-                <div className="pt-4 grid grid-cols-3 gap-2 border-t border-slate-100">
+                {/* Badges de réassurance — Stat Cards */}
+                <div className="pt-4 grid grid-cols-3 gap-3 border-t border-slate-100">
                   {stats.map((stat, i) => (
-                    <div key={i} className="text-center lg:text-left">
-                      <div className="text-2xl font-black text-slate-950">
-                        {stat.value}
-                      </div>
-                      <div className="text-xs text-slate-500">{stat.label}</div>
+                    <div key={i} className="stat-card">
+                      <span className="stat-value">{stat.value}</span>
+                      <span className="stat-label">{stat.label}</span>
                     </div>
                   ))}
                 </div>
@@ -124,13 +126,13 @@ export default function Home() {
             </div>
 
             {/* Bannière Défilante "Ils nous font confiance" */}
-            <div className="mt-20 pt-10 border-t border-slate-100 overflow-hidden w-full">
+            <div className="mt-16 pt-10 border-t border-slate-100 overflow-hidden w-full">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4">
                 <p className="text-center text-xs font-bold text-slate-400 uppercase tracking-widest">
                   Ils nous font déjà confiance
                 </p>
               </div>
-              <div className="relative w-full flex items-center bg-slate-50 py-6 rounded-2xl border border-slate-100">
+              <div className="relative w-full flex items-center bg-white py-6 rounded-2xl border border-slate-200/60">
                 {/* Gradients pour effet fondu sur les côtés */}
                 <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none"></div>
                 <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none"></div>
@@ -262,50 +264,24 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Bannière Communauté Facebook */}
-        <section className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 py-12 text-white border-t border-slate-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-2 text-center md:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1877F2]/20 text-blue-400 text-xs font-bold uppercase tracking-wider">
-                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                </svg>
-                Communauté Transport & Logistique
-              </div>
-              <h3 className="text-xl sm:text-2xl font-black">
-                Rejoignez la communauté FretTalent sur Facebook
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-300 max-w-2xl">
-                Suivez nos actualités, échangez avec des centaines de conducteurs et découvrez les offres de recrutement en direct.
-              </p>
-            </div>
-            <a
-              href="https://www.facebook.com/profile.php?id=61593021909293"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-shrink-0 bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold px-6 py-3.5 rounded-full text-sm transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2.5 hover:-translate-y-0.5"
-            >
-              <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-              </svg>
-              <span>Suivre notre page Facebook</span>
-            </a>
-          </div>
-        </section>
+        {/* Section Facebook supprimée — liens sociaux disponibles dans le footer */}
 
         {/* Section Vitrine SEO & Valeur Ajoutée */}
-        <section className="py-20 bg-gradient-to-b from-white via-slate-50 to-white relative overflow-hidden border-t border-slate-100">
-          {/* Subtle background glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
+        <section className="py-20 bg-white relative overflow-hidden border-t border-slate-100">
+          {/* Glow subtil */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-orange-500/4 rounded-full blur-3xl pointer-events-none" />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 relative z-10">
             
-            {/* Top Presentation Card with Photo */}
-            <div className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200/80 shadow-xl shadow-slate-200/40 relative overflow-hidden">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            {/* Carte de présentation principale avec métriques */}
+            <div className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200/80 shadow-lg relative overflow-hidden">
+              {/* Accent décoratif coin supérieur droit */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-orange-50 to-transparent rounded-3xl pointer-events-none" />
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
                 
-                {/* Left Text Presentation */}
-                <div className="lg:col-span-7 space-y-5 text-center lg:text-left">
+                {/* Texte gauche */}
+                <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
                   <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-50 text-orange-600 text-xs font-bold uppercase tracking-wider border border-orange-100">
                     <Sparkles className="h-3.5 w-3.5 text-orange-500" />
                     <span>L&apos;Excellence du Recrutement Transport</span>
@@ -316,40 +292,47 @@ export default function Home() {
                   </h2>
 
                   <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-                    <strong>FretTalent</strong> est le premier réseau spécialisé dans la mise en relation directe entre <strong>chauffeurs routiers qualifiés</strong> et <strong>entreprises de transport</strong> en France, en Belgique, au Luxembourg et en Suisse. Notre mission est de simplifier l&apos;embauche de conducteurs poids lourds et super poids lourds sans passer par les agences d&apos;intérim traditionnelles, garantissant rapidité, transparence et <strong>zéro commission sur les salaires</strong>.
+                    <strong>FretTalent</strong> est le premier réseau spécialisé dans la mise en relation directe entre <strong>chauffeurs routiers qualifiés</strong> et <strong>entreprises de transport</strong> en France, en Belgique, au Luxembourg et en Suisse. Notre mission est de simplifier l&apos;embauche sans passer par les agences d&apos;intérim, garantissant rapidité, transparence et <strong>zéro commission sur les salaires</strong>.
                   </p>
 
-                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
-                    <div className="flex items-center gap-2 bg-slate-50 border border-slate-200/80 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-800">
-                      <span className="text-emerald-500 font-black">✓</span> Sans agence d&apos;intérim
+                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-1">
+                    <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-800">
+                      <Check className="w-3.5 h-3.5 text-emerald-600" /> Sans agence d&apos;intérim
                     </div>
-                    <div className="flex items-center gap-2 bg-slate-50 border border-slate-200/80 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-800">
-                      <span className="text-orange-500 font-black">✓</span> 0% commission sur salaire
+                    <div className="flex items-center gap-2 bg-orange-50 border border-orange-100 px-3.5 py-2 rounded-xl text-xs font-bold text-orange-800">
+                      <Check className="w-3.5 h-3.5 text-orange-600" /> 0% commission sur salaire
                     </div>
-                    <div className="flex items-center gap-2 bg-slate-50 border border-slate-200/80 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-800">
-                      <span className="text-blue-500 font-black">✓</span> Contact direct 4,99€
+                    <div className="flex items-center gap-2 bg-blue-50 border border-blue-100 px-3.5 py-2 rounded-xl text-xs font-bold text-blue-800">
+                      <Check className="w-3.5 h-3.5 text-blue-600" /> Contact direct 4,99€
                     </div>
                   </div>
                 </div>
 
-                {/* Right Photo Presentation */}
-                <div className="lg:col-span-5 relative flex flex-col items-center justify-center pt-4 lg:pt-0">
-                  <div className="relative w-full max-w-[340px] sm:max-w-[380px] flex items-center justify-center">
-                    
-                    {/* Orange Glow Halo */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-orange-500/20 via-amber-400/15 to-transparent rounded-full blur-2xl pointer-events-none" />
-
-                    {/* Driver Image */}
-                    <img
-                      src="/driver-victory.png"
-                      alt="Chauffeur routier FretTalent avec le signe de la victoire"
-                      className="w-full h-auto max-h-[340px] sm:max-h-[400px] object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300 relative z-10"
-                    />
-
-                    {/* Floating badge */}
-                    <div className="absolute -bottom-2 bg-white/95 backdrop-blur-md border border-orange-200 shadow-xl px-4 py-2 rounded-full flex items-center gap-2 z-20 hover:scale-105 transition-transform">
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-                      <span className="text-xs font-black text-slate-900">Embauches Réussies ✌️</span>
+                {/* Métriques droite — remplace la photo répétée */}
+                <div className="lg:col-span-5 grid grid-cols-2 gap-4">
+                  <div className="col-span-2 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-5 text-white relative overflow-hidden">
+                    <div className="absolute -top-4 -right-4 w-20 h-20 bg-white/10 rounded-full blur-xl" />
+                    <div className="text-3xl font-black">4,99 €</div>
+                    <div className="text-sm font-semibold text-orange-100 mt-0.5">Par contact débloqué</div>
+                    <div className="text-xs text-orange-200 mt-1">Vs 800–2000 € en agence d&apos;intérim</div>
+                  </div>
+                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-center">
+                    <div className="text-2xl font-black text-slate-950">4</div>
+                    <div className="text-xs text-slate-500 mt-0.5 font-medium">Pays couverts</div>
+                    <div className="text-[10px] text-slate-400">FR • BE • LU • CH</div>
+                  </div>
+                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-center">
+                    <div className="text-2xl font-black text-slate-950">100%</div>
+                    <div className="text-xs text-slate-500 mt-0.5 font-medium">Gratuit</div>
+                    <div className="text-[10px] text-slate-400">Pour les chauffeurs</div>
+                  </div>
+                  <div className="col-span-2 bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-500 flex items-center justify-center shrink-0">
+                      <ShieldCheck className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-black text-emerald-900">Dossiers vérifiés manuellement</div>
+                      <div className="text-xs text-emerald-700">Permis, FIMO, ADR, Carte Chrono</div>
                     </div>
                   </div>
                 </div>
@@ -357,14 +340,14 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 3 Pillar Feature Cards */}
+            {/* 3 Pillar Feature Cards — améliorées */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
               
               {/* Carte 1 : Chauffeurs Routiers */}
-              <div className="bg-white p-7 sm:p-8 rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 flex flex-col justify-between group">
+              <div className="bg-white p-7 sm:p-8 rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-300 flex flex-col justify-between group">
                 <div className="space-y-4">
-                  <div className="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Truck className="h-6 w-6" />
+                  <div className="w-14 h-14 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center group-hover:bg-orange-500 group-hover:text-white group-hover:scale-110 transition-all duration-300">
+                    <Truck className="h-7 w-7" />
                   </div>
                   
                   <div className="space-y-1.5">
@@ -375,32 +358,32 @@ export default function Home() {
                   </div>
 
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Accédez gratuitement à des opportunités de recrutement en <strong>CDI, CDD, Intérim et missions indépendantes</strong>. Valorisez votre expérience, vos permis (B, C, CE), vos certifications (FIMO, FCO, Carte Chronotachygraphe) et vos habilitations spéciales (ADR de base, Citerne, Explosifs) auprès de centaines de transporteurs certifiés.
+                    Accédez gratuitement à des opportunités de recrutement en <strong>CDI, CDD, Intérim et missions indépendantes</strong>. Valorisez vos permis (B, C, CE), certifications (FIMO, FCO, Carte Chrono) et habilitations (ADR, Citerne) auprès de centaines de transporteurs certifiés.
                   </p>
 
                   <div className="flex flex-wrap gap-1.5 pt-2">
-                    <span className="text-[10px] font-bold bg-orange-50 text-orange-700 px-2 py-0.5 rounded-md">CDI / CDD / Intérim</span>
-                    <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">Permis B, C & CE</span>
-                    <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">FIMO • FCO • ADR</span>
+                    <span className="text-[10px] font-bold bg-orange-50 text-orange-700 px-2.5 py-1 rounded-lg border border-orange-100">CDI / CDD / Intérim</span>
+                    <span className="text-[10px] font-bold bg-slate-50 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-100">Permis B, C & CE</span>
+                    <span className="text-[10px] font-bold bg-slate-50 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-100">FIMO • FCO • ADR</span>
                   </div>
                 </div>
 
                 <div className="pt-6 border-t border-slate-100 mt-6">
                   <Link
                     href="/register?role=candidate"
-                    className="text-xs font-bold text-orange-600 group-hover:text-orange-700 flex items-center gap-1.5 group-hover:underline"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-full transition-all shadow-sm shadow-orange-500/20"
                   >
-                    <span>Créer mon profil chauffeur gratuit</span>
-                    <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                    <span>Créer mon profil gratuit</span>
+                    <ArrowRight className="h-3 w-3" />
                   </Link>
                 </div>
               </div>
 
               {/* Carte 2 : Entreprises & Transporteurs */}
-              <div className="bg-white p-7 sm:p-8 rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300 flex flex-col justify-between group">
+              <div className="bg-white p-7 sm:p-8 rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:bg-blue-50/30 hover:border-blue-200 transition-all duration-300 flex flex-col justify-between group">
                 <div className="space-y-4">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Building2 className="h-6 w-6" />
+                  <div className="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white group-hover:scale-110 transition-all duration-300">
+                    <Building2 className="h-7 w-7" />
                   </div>
                   
                   <div className="space-y-1.5">
@@ -411,32 +394,32 @@ export default function Home() {
                   </div>
 
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Recrutez efficacement vos conducteurs en <strong>France</strong> (SIRET), <strong>Belgique</strong> (BCE), <strong>Luxembourg</strong> (RCS/TVA) et <strong>Suisse</strong> (IDE). Filtrez les profils disponibles selon le rayon de mobilité, les spécialités de matériel (Benne, Frigo, Tautliner, Citerne, Plateau, Messagerie) et débloquez directement les coordonnées vérifiées des candidats.
+                    Recrutez efficacement en <strong>France</strong> (SIRET), <strong>Belgique</strong> (BCE), <strong>Luxembourg</strong> (RCS/TVA) et <strong>Suisse</strong> (IDE). Filtrez par mobilité, spécialité (Benne, Frigo, Citerne) et débloquez directement les coordonnées vérifiées.
                   </p>
 
                   <div className="flex flex-wrap gap-1.5 pt-2">
-                    <span className="text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md">FR • BE • LU • CH</span>
-                    <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">Benne / Frigo / Citerne</span>
-                    <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">Filtre km précis</span>
+                    <span className="text-[10px] font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-lg border border-blue-100">FR • BE • LU • CH</span>
+                    <span className="text-[10px] font-bold bg-slate-50 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-100">Benne / Frigo / Citerne</span>
+                    <span className="text-[10px] font-bold bg-slate-50 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-100">Filtre km précis</span>
                   </div>
                 </div>
 
                 <div className="pt-6 border-t border-slate-100 mt-6">
                   <Link
                     href="/register?role=recruiter"
-                    className="text-xs font-bold text-blue-600 group-hover:text-blue-700 flex items-center gap-1.5 group-hover:underline"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-full transition-all shadow-sm shadow-blue-600/20"
                   >
-                    <span>Découvrir les profils transport</span>
-                    <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                    <span>Découvrir les profils</span>
+                    <ArrowRight className="h-3 w-3" />
                   </Link>
                 </div>
               </div>
 
               {/* Carte 3 : Transparence & Sécurité */}
-              <div className="bg-white p-7 sm:p-8 rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all duration-300 flex flex-col justify-between group">
+              <div className="bg-white p-7 sm:p-8 rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:bg-emerald-50/30 hover:border-emerald-200 transition-all duration-300 flex flex-col justify-between group">
                 <div className="space-y-4">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <ShieldCheck className="h-6 w-6" />
+                  <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white group-hover:scale-110 transition-all duration-300">
+                    <ShieldCheck className="h-7 w-7" />
                   </div>
                   
                   <div className="space-y-1.5">
@@ -447,23 +430,23 @@ export default function Home() {
                   </div>
 
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Tous les documents essentiels (permis de conduire, carte de qualification conducteur, attestation FIMO/FCO) sont vérifiés par notre équipe de modération. Les candidats conservent un <strong>contrôle total sur l&apos;anonymat</strong> de leurs données jusqu&apos;à la demande de déblocage par une entreprise.
+                    Tous les documents essentiels (permis, FIMO/FCO) sont vérifiés manuellement par notre équipe. Les candidats conservent un <strong>contrôle total sur l&apos;anonymat</strong> de leurs données jusqu&apos;à la demande de déblocage.
                   </p>
 
                   <div className="flex flex-wrap gap-1.5 pt-2">
-                    <span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md">Vérification manuelle</span>
-                    <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">100% Anonymat garanti</span>
-                    <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">Paiement 4,99€ Stripe</span>
+                    <span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-lg border border-emerald-100">Vérification manuelle</span>
+                    <span className="text-[10px] font-bold bg-slate-50 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-100">100% Anonymat</span>
+                    <span className="text-[10px] font-bold bg-slate-50 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-100">Paiement Stripe</span>
                   </div>
                 </div>
 
                 <div className="pt-6 border-t border-slate-100 mt-6">
                   <Link
                     href="/comment-ca-marche"
-                    className="text-xs font-bold text-emerald-600 group-hover:text-emerald-700 flex items-center gap-1.5 group-hover:underline"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-full transition-all shadow-sm shadow-emerald-600/20"
                   >
-                    <span>Comment fonctionne FretTalent</span>
-                    <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                    <span>Comment ça fonctionne</span>
+                    <ArrowRight className="h-3 w-3" />
                   </Link>
                 </div>
               </div>
@@ -490,45 +473,53 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               
-              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200/80 space-y-3 card-hover-effect">
-                <h3 className="text-base font-bold text-slate-900 flex items-start gap-2.5">
-                  <span className="text-orange-500 font-black">01.</span>
-                  Comment recruter un chauffeur SPL (Super Poids Lourd) ?
-                </h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Sur <strong>FretTalent</strong>, accédez à la carte interactive des conducteurs titulaires du <strong>Permis CE</strong>, <strong>Carte Chrono</strong> et <strong>FIMO/FCO</strong> à jour. Filtrez par département (FR), province (BE) ou canton (CH, LU) et débloquez directement leurs coordonnées pour une embauche sans intermédiaire.
+              <div className="bg-white border border-slate-200 p-6 rounded-2xl space-y-3 card-hover-effect shadow-sm">
+                <div className="flex items-center gap-3">
+                  <span className="w-7 h-7 rounded-full bg-orange-500 text-white text-xs font-black flex items-center justify-center shrink-0">01</span>
+                  <h3 className="text-sm font-bold text-slate-900">
+                    Comment recruter un chauffeur SPL (Super Poids Lourd) ?
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed pl-10">
+                  Sur <strong>FretTalent</strong>, accédez à la carte interactive des conducteurs titulaires du <strong>Permis CE</strong>, <strong>Carte Chrono</strong> et <strong>FIMO/FCO</strong> à jour. Filtrez par département (FR), province (BE) ou canton (CH, LU) et débloquez directement leurs coordonnées.
                 </p>
               </div>
 
-              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200/80 space-y-3 card-hover-effect">
-                <h3 className="text-base font-bold text-slate-900 flex items-start gap-2.5">
-                  <span className="text-orange-500 font-black">02.</span>
-                  Pourquoi recruter sans agence d&apos;intérim transport ?
-                </h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Les agences d&apos;intérim traditionnelles prélèvent de lourdes commissions récurrentes sur chaque heure travaillée (taux horaire coefficient 1.8 à 2.2). FretTalent propose un <strong>modèle direct et équitable</strong> : 4,99€ par contact débloqué ou forfait sans engagement, sans aucun prélèvement sur les salaires.
+              <div className="bg-white border border-slate-200 p-6 rounded-2xl space-y-3 card-hover-effect shadow-sm">
+                <div className="flex items-center gap-3">
+                  <span className="w-7 h-7 rounded-full bg-orange-500 text-white text-xs font-black flex items-center justify-center shrink-0">02</span>
+                  <h3 className="text-sm font-bold text-slate-900">
+                    Pourquoi recruter sans agence d&apos;intérim transport ?
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed pl-10">
+                  Les agences d&apos;intérim prélèvent de lourdes commissions (coefficient 1.8 à 2.2). FretTalent propose un <strong>modèle direct et équitable</strong> : 4,99€ par contact débloqué, sans aucun prélèvement sur les salaires.
                 </p>
               </div>
 
-              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200/80 space-y-3 card-hover-effect">
-                <h3 className="text-base font-bold text-slate-900 flex items-start gap-2.5">
-                  <span className="text-orange-500 font-black">03.</span>
-                  Quelles certifications sont vérifiées sur la plateforme ?
-                </h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Notre équipe valide manuellement les <strong>Permis C et CE</strong> (recto/verso), la <strong>Carte Conducteur (Chrono)</strong>, l&apos;attestation <strong>FIMO / FCO Marchandises</strong> et les spécialités <strong>ADR de base, Citerne et Matières Dangereuses</strong> pour garantir des profils 100% opérationnels.
+              <div className="bg-white border border-slate-200 p-6 rounded-2xl space-y-3 card-hover-effect shadow-sm">
+                <div className="flex items-center gap-3">
+                  <span className="w-7 h-7 rounded-full bg-orange-500 text-white text-xs font-black flex items-center justify-center shrink-0">03</span>
+                  <h3 className="text-sm font-bold text-slate-900">
+                    Quelles certifications sont vérifiées sur la plateforme ?
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed pl-10">
+                  Notre équipe valide manuellement les <strong>Permis C et CE</strong>, la <strong>Carte Conducteur (Chrono)</strong>, l&apos;attestation <strong>FIMO / FCO Marchandises</strong> et les spécialités <strong>ADR de base, Citerne et Matières Dangereuses</strong>.
                 </p>
               </div>
 
-              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200/80 space-y-3 card-hover-effect">
-                <h3 className="text-base font-bold text-slate-900 flex items-start gap-2.5">
-                  <span className="text-orange-500 font-black">04.</span>
-                  Comment fonctionne l&apos;emploi transfrontalier (Suisse, Luxembourg, Belgique) ?
-                </h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  FretTalent intègre les spécificités administratives des 4 pays : vérification des entreprises via <strong>SIRET (France)</strong>, <strong>BCE (Belgique)</strong>, <strong>RCS (Luxembourg)</strong> et <strong>IDE (Suisse)</strong>. Les conducteurs transfrontaliers peuvent postuler selon leur mobilité géographique.
+              <div className="bg-white border border-slate-200 p-6 rounded-2xl space-y-3 card-hover-effect shadow-sm">
+                <div className="flex items-center gap-3">
+                  <span className="w-7 h-7 rounded-full bg-orange-500 text-white text-xs font-black flex items-center justify-center shrink-0">04</span>
+                  <h3 className="text-sm font-bold text-slate-900">
+                    Comment fonctionne l&apos;emploi transfrontalier ?
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed pl-10">
+                  FretTalent intègre les spécificités des 4 pays : <strong>SIRET (France)</strong>, <strong>BCE (Belgique)</strong>, <strong>RCS (Luxembourg)</strong> et <strong>IDE (Suisse)</strong>. Les conducteurs transfrontaliers peuvent postuler selon leur mobilité géographique.
                 </p>
               </div>
 

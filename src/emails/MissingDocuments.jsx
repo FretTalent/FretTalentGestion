@@ -5,11 +5,12 @@ import BaseLayout from './BaseLayout';
 const baseUrl =
   process.env.NEXT_PUBLIC_BASE_URL || 'https://www.frettalent.com';
 
-export default function MissingDocuments({ candidateName, missingList }) {
+export default function MissingDocuments({ candidateName, missingList, trackingUrl }) {
   return (
     <BaseLayout
       previewText="Action requise : Documents manquants sur FretTalent"
       heading="Action Requise ⚠️"
+      trackingUrl={trackingUrl}
     >
       <Text style={text}>
         Bonjour <strong>{candidateName}</strong>,

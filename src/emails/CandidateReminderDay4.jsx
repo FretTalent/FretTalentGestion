@@ -4,11 +4,12 @@ import BaseLayout from './BaseLayout';
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.frettalent.com';
 
-export default function CandidateReminderDay4({ candidateName = 'Chauffeur' }) {
+export default function CandidateReminderDay4({ candidateName = 'Chauffeur', trackingUrl }) {
   return (
     <BaseLayout
       previewText="⚠️ Opportunités d'embauche en attente sur votre profil FretTalent"
       heading="Ne manquez pas vos opportunités 🚛"
+      trackingUrl={trackingUrl}
     >
       <Text style={text}>
         Bonjour <strong>{candidateName}</strong>,

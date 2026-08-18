@@ -60,8 +60,12 @@ export async function POST(req, context) {
       return NextResponse.json({ error: "Ce candidat n'a pas d'adresse e-mail renseignée" }, { status: 400 });
     }
 
-    // Envoyer l'email de relance
-    const res = await sendCandidateReminderDay1(candidate.email, candidate.full_name || 'Chauffeur');
+    // Envoyer l'email de relance avec tracking
+    const res = await sendCandidateReminderDay1(
+      candidate.email,
+      candidate.full_name || 'Chauffeur',
+      candidate.id
+    );
 
     if (!res.success) {
       return NextResponse.json({ error: "Erreur lors de l'envoi de l'e-mail" }, { status: 500 });

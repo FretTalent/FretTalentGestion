@@ -16,7 +16,7 @@ import * as React from 'react';
 const baseUrl =
   process.env.NEXT_PUBLIC_BASE_URL || 'https://www.frettalent.com';
 
-export default function BaseLayout({ previewText, heading, children }) {
+export default function BaseLayout({ previewText, heading, children, trackingUrl }) {
   return (
     <Html>
       <Head />
@@ -58,6 +58,17 @@ export default function BaseLayout({ previewText, heading, children }) {
                 Mentions légales
               </Link>
             </Text>
+
+            {/* Pixel transparent de tracking d'ouverture */}
+            {trackingUrl && (
+              <Img
+                src={trackingUrl}
+                alt=""
+                width="1"
+                height="1"
+                style={{ display: 'none', width: '1px', height: '1px', opacity: 0 }}
+              />
+            )}
           </Section>
         </Container>
       </Body>

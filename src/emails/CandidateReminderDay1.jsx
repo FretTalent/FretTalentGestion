@@ -4,11 +4,12 @@ import BaseLayout from './BaseLayout';
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.frettalent.com';
 
-export default function CandidateReminderDay1({ candidateName = 'Chauffeur' }) {
+export default function CandidateReminderDay1({ candidateName = 'Chauffeur', trackingUrl }) {
   return (
     <BaseLayout
       previewText="Activez votre badge Chauffeur Vérifié 🛡️ sur FretTalent"
       heading="Bienvenue sur FretTalent 🚛"
+      trackingUrl={trackingUrl}
     >
       <Text style={text}>
         Bonjour <strong>{candidateName}</strong>,

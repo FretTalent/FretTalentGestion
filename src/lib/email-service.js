@@ -106,12 +106,38 @@ export async function sendMissingDocumentsEmail(
   email,
   candidateName,
   missingList,
+  candidateId = null
 ) {
   try {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.frettalent.fr';
+    const trackingToken = `doc-${Math.random().toString(36).substring(2, 12)}${Date.now().toString(36)}`;
+    const trackingUrl = `${baseUrl}/api/premium/open-tracking?t=${trackingToken}`;
+
+    // Enregistrer dans candidature_emails pour le tracking d'ouverture
+    try {
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      );
+      await supabaseAdmin.from('candidature_emails').insert({
+        candidature_id: candidateId,
+        candidate_id: candidateId,
+        company_name: candidateName || email,
+        company_email: email,
+        tracking_token: trackingToken,
+        status: 'sent',
+        sent_at: new Date().toISOString(),
+      });
+    } catch (dbErr) {
+      console.warn('[MissingDocs] Warning enregistrement tracking:', dbErr.message);
+    }
+
     const html = await render(
       <MissingDocuments
         candidateName={candidateName}
         missingList={missingList}
+        trackingUrl={trackingUrl}
       />,
     );
 
@@ -239,9 +265,38 @@ export async function sendSupportNewMessageUser({
 /**
  * Envoie le rappel J+1 (incitation bienveillante)
  */
-export async function sendCandidateReminderDay1(email, candidateName) {
+export async function sendCandidateReminderDay1(email, candidateName, candidateId = null) {
   try {
-    const html = await render(<CandidateReminderDay1 candidateName={candidateName} />);
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.frettalent.fr';
+    const trackingToken = `remind-${Math.random().toString(36).substring(2, 12)}${Date.now().toString(36)}`;
+    const trackingUrl = `${baseUrl}/api/premium/open-tracking?t=${trackingToken}`;
+
+    // Enregistrer pour le tracking Telegram
+    try {
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      );
+      await supabaseAdmin.from('candidature_emails').insert({
+        candidature_id: candidateId,
+        candidate_id: candidateId,
+        company_name: candidateName || email,
+        company_email: email,
+        tracking_token: trackingToken,
+        status: 'sent',
+        sent_at: new Date().toISOString(),
+      });
+    } catch (dbErr) {
+      console.warn('[ReminderDay1] Warning enregistrement tracking:', dbErr.message);
+    }
+
+    const html = await render(
+      <CandidateReminderDay1
+        candidateName={candidateName}
+        trackingUrl={trackingUrl}
+      />
+    );
     const data = await resend.emails.send({
       from: FROM_EMAIL,
       to: [email],
@@ -258,9 +313,37 @@ export async function sendCandidateReminderDay1(email, candidateName) {
 /**
  * Envoie le rappel J+4 (opportunités d'embauche)
  */
-export async function sendCandidateReminderDay4(email, candidateName) {
+export async function sendCandidateReminderDay4(email, candidateName, candidateId = null) {
   try {
-    const html = await render(<CandidateReminderDay4 candidateName={candidateName} />);
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.frettalent.fr';
+    const trackingToken = `remind-${Math.random().toString(36).substring(2, 12)}${Date.now().toString(36)}`;
+    const trackingUrl = `${baseUrl}/api/premium/open-tracking?t=${trackingToken}`;
+
+    try {
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      );
+      await supabaseAdmin.from('candidature_emails').insert({
+        candidature_id: candidateId,
+        candidate_id: candidateId,
+        company_name: candidateName || email,
+        company_email: email,
+        tracking_token: trackingToken,
+        status: 'sent',
+        sent_at: new Date().toISOString(),
+      });
+    } catch (dbErr) {
+      console.warn('[ReminderDay4] Warning enregistrement tracking:', dbErr.message);
+    }
+
+    const html = await render(
+      <CandidateReminderDay4
+        candidateName={candidateName}
+        trackingUrl={trackingUrl}
+      />
+    );
     const data = await resend.emails.send({
       from: FROM_EMAIL,
       to: [email],
@@ -277,9 +360,37 @@ export async function sendCandidateReminderDay4(email, candidateName) {
 /**
  * Envoie le rappel J+10 (opportunités & validation)
  */
-export async function sendCandidateReminderDay10(email, candidateName) {
+export async function sendCandidateReminderDay10(email, candidateName, candidateId = null) {
   try {
-    const html = await render(<CandidateReminderDay10 candidateName={candidateName} />);
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.frettalent.fr';
+    const trackingToken = `remind-${Math.random().toString(36).substring(2, 12)}${Date.now().toString(36)}`;
+    const trackingUrl = `${baseUrl}/api/premium/open-tracking?t=${trackingToken}`;
+
+    try {
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      );
+      await supabaseAdmin.from('candidature_emails').insert({
+        candidature_id: candidateId,
+        candidate_id: candidateId,
+        company_name: candidateName || email,
+        company_email: email,
+        tracking_token: trackingToken,
+        status: 'sent',
+        sent_at: new Date().toISOString(),
+      });
+    } catch (dbErr) {
+      console.warn('[ReminderDay10] Warning enregistrement tracking:', dbErr.message);
+    }
+
+    const html = await render(
+      <CandidateReminderDay10
+        candidateName={candidateName}
+        trackingUrl={trackingUrl}
+      />
+    );
     const data = await resend.emails.send({
       from: FROM_EMAIL,
       to: [email],

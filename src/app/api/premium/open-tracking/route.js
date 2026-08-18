@@ -40,7 +40,7 @@ export async function GET(req) {
       const userAgent = req.headers.get('user-agent') || 'unknown';
 
       // 1. Récupérer l'enregistrement de l'email envoyé
-      const { data: emailRecord } = await supabaseAdmin
+      const { data: emailRecord, error: queryErr } = await supabaseAdmin
         .from('candidature_emails')
         .select(`
           id,
@@ -48,37 +48,95 @@ export async function GET(req) {
           candidate_id,
           entreprise_id,
           company_name,
+          company_email,
           open_count,
           opened_at
         `)
         .eq('tracking_token', token)
         .maybeSingle();
 
-      if (!emailRecord) return;
+      if (queryErr) {
+        console.error('[Open-Tracking] Erreur DB lookup token:', queryErr);
+      }
+
+      if (!emailRecord) {
+        console.log(`[Open-Tracking] Token inconnu ou déjà traité : ${token}`);
+        // Même si le token n'est pas trouvé dans la DB, notifier l'administrateur
+        await notifyTelegramEmailOpened({
+          recipientEmail: 'Destinataire non indexé',
+          recipientName: 'Destinataire',
+          recipientRole: 'candidate',
+          emailSubject: 'Email / Relance FretTalent',
+          emailType: 'Email FretTalent',
+          openCount: 1,
+          ip,
+          userAgent,
+        });
+        return;
+      }
 
       const isFirstOpen = (emailRecord.open_count || 0) === 0;
+      const currentOpenCount = (emailRecord.open_count || 0) + 1;
 
       // 2. Enregistrer l'événement d'ouverture dans le journal
-      await supabaseAdmin.from('candidature_open_tracking').insert({
-        candidature_email_id: emailRecord.id,
-        tracking_token: token,
-        ip_address: ip,
-        user_agent: userAgent,
-        opened_at: new Date().toISOString(),
-      });
+      try {
+        await supabaseAdmin.from('candidature_open_tracking').insert({
+          candidature_email_id: emailRecord.id,
+          tracking_token: token,
+          ip_address: ip,
+          user_agent: userAgent,
+          opened_at: new Date().toISOString(),
+        });
+      } catch (logErr) {
+        console.warn('[Open-Tracking] Log insertion warning:', logErr.message);
+      }
 
       // 3. Mettre à jour candidature_emails
       await supabaseAdmin
         .from('candidature_emails')
         .update({
           opened_at: emailRecord.opened_at || new Date().toISOString(),
-          open_count: (emailRecord.open_count || 0) + 1,
+          open_count: currentOpenCount,
         })
         .eq('id', emailRecord.id);
 
-      // 4. Si c'est la première ouverture par cette entreprise :
-      if (isFirstOpen) {
-        // A. Incrémenter le compteur de la session de candidature
+      // 4. Déterminer les détails et le rôle du destinataire
+      const isCandidateEmail = emailRecord.candidate_id && !emailRecord.entreprise_id && (emailRecord.company_name?.includes('@') || !emailRecord.company_name);
+      const isRecruiterEmail = !!emailRecord.entreprise_id || (!isCandidateEmail && !!emailRecord.company_name);
+
+      let recipientEmail = emailRecord.company_email || (emailRecord.company_name?.includes('@') ? emailRecord.company_name : '');
+      let recipientName = emailRecord.company_name || 'Destinataire';
+      let recipientRole = isCandidateEmail ? 'candidate' : (isRecruiterEmail ? 'recruiter' : 'external');
+      let emailType = 'Auto-Candidature Premium';
+      let emailSubject = 'Candidature & Documents Chauffeur (50 km)';
+
+      // Si c'est une relance ou un email candidat
+      if (token.startsWith('remind-') || token.startsWith('doc-') || isCandidateEmail) {
+        recipientRole = 'candidate';
+        emailType = token.startsWith('remind-') ? 'Relance Documents Chauffeur' : (token.startsWith('doc-') ? 'Documents Manquants' : 'Notification Chauffeur');
+        emailSubject = token.startsWith('remind-') ? 'Activez votre badge Chauffeur Vérifié 🚛' : 'Action requise : Documents manquants ⚠️';
+        
+        if (!recipientEmail && emailRecord.candidate_id) {
+          const { data: cand } = await supabaseAdmin
+            .from('candidates')
+            .select('full_name, email')
+            .eq('id', emailRecord.candidate_id)
+            .maybeSingle();
+          if (cand) {
+            recipientEmail = cand.email || recipientEmail;
+            recipientName = cand.full_name || recipientName;
+          }
+        }
+      }
+
+      // Si c'est un mail marketing ou admin
+      if (token.startsWith('mail-')) {
+        emailType = 'Campagne / Email Admin';
+        emailSubject = 'Message de l\'équipe FretTalent';
+      }
+
+      // 5. Si c'est une candidature envoyée à une entreprise (flow Auto-Candidature standard)
+      if (isFirstOpen && emailRecord.entreprise_id) {
         if (emailRecord.candidature_id) {
           const { data: cand } = await supabaseAdmin
             .from('candidatures')
@@ -93,67 +151,51 @@ export async function GET(req) {
           }
         }
 
-        // B. Incrémenter les stats de l'entreprise
-        if (emailRecord.entreprise_id) {
-          const { data: ent } = await supabaseAdmin
+        const { data: ent } = await supabaseAdmin
+          .from('entreprises')
+          .select('candidatures_opened_count, city')
+          .eq('id', emailRecord.entreprise_id)
+          .maybeSingle();
+        
+        if (ent) {
+          await supabaseAdmin
             .from('entreprises')
-            .select('candidatures_opened_count')
-            .eq('id', emailRecord.entreprise_id)
-            .maybeSingle();
-          if (ent) {
-            await supabaseAdmin
-              .from('entreprises')
-              .update({ candidatures_opened_count: (ent.candidatures_opened_count || 0) + 1 })
-              .eq('id', emailRecord.entreprise_id);
-          }
+            .update({ candidatures_opened_count: (ent.candidatures_opened_count || 0) + 1 })
+            .eq('id', emailRecord.entreprise_id);
         }
 
-        // C. Récupérer les informations du candidat pour lui envoyer l'email d'accusé
         const { data: candidate } = await supabaseAdmin
           .from('candidates')
           .select('full_name, email')
           .eq('id', emailRecord.candidate_id)
           .maybeSingle();
 
-        // Récupérer la ville de l'entreprise si liée
-        let companyCity = 'votre secteur';
-        if (emailRecord.entreprise_id) {
-          const { data: entData } = await supabaseAdmin
-            .from('entreprises')
-            .select('city')
-            .eq('id', emailRecord.entreprise_id)
-            .maybeSingle();
-          if (entData?.city) companyCity = entData.city;
-        }
-
         if (candidate?.email) {
           await sendCandidateApplicationOpenedEmail({
             email: candidate.email,
             candidateName: candidate.full_name || 'Chauffeur',
             companyName: emailRecord.company_name,
-            companyCity,
+            companyCity: ent?.city || 'votre secteur',
           });
         }
 
-        // D. Notification Telegram Admin pour la candidature
         await sendTelegramCandidatureOpenedNotification({
           companyName: emailRecord.company_name,
-          companyCity,
+          companyCity: ent?.city || 'votre secteur',
           candidateName: candidate?.full_name || 'Chauffeur',
         });
       }
 
-      // 5. NOTIFICATION TELEGRAM UNIVERSELLE POUR TOUTE OUVERTURE D'EMAIL (Entreprise, Chauffeur, Autre)
-      const recipientRole = emailRecord.entreprise_id || emailRecord.company_name ? 'recruiter' : 'candidate';
+      // 6. NOTIFICATION TELEGRAM UNIVERSELLE POUR TOUTE OUVERTURE D'EMAIL
       await notifyTelegramEmailOpened({
-        recipientEmail: emailRecord.company_email || (emailRecord.entreprise_id ? 'Entreprise' : 'Destinataire'),
-        recipientName: emailRecord.company_name || 'Destinataire',
+        recipientEmail: recipientEmail || 'gnri02270@gmail.com',
+        recipientName,
         recipientRole,
-        companyName: emailRecord.company_name,
-        candidateName: emailRecord.candidate_id ? 'Chauffeur ciblé' : undefined,
-        emailSubject: `Candidature & Documents Chauffeur (50 km)`,
-        emailType: 'Auto-Candidature Premium',
-        openCount: (emailRecord.open_count || 0) + 1,
+        companyName: isRecruiterEmail ? emailRecord.company_name : undefined,
+        candidateName: isCandidateEmail ? recipientName : undefined,
+        emailSubject,
+        emailType,
+        openCount: currentOpenCount,
         ip,
         userAgent,
       });

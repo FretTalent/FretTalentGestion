@@ -103,14 +103,27 @@ export default function MarketingEmail({
               réservés.
             </Text>
 
-            {/* Pixel transparent de tracking d'ouverture */}
+            {/* Pixel transparent de tracking d'ouverture compatible Gmail / Apple Mail */}
             {trackingUrl && (
-              <Img
+              <img
                 src={trackingUrl}
                 alt=""
                 width="1"
                 height="1"
-                style={{ display: 'none', width: '1px', height: '1px', opacity: 0 }}
+                border="0"
+                style={{
+                  height: '1px !important',
+                  width: '1px !important',
+                  border: '0 !important',
+                  margin: '0 !important',
+                  padding: '0 !important',
+                  minHeight: '1px !important',
+                  minWidth: '1px !important',
+                  lineHeight: '1px !important',
+                  fontSize: '1px !important',
+                  display: 'block',
+                  opacity: 0,
+                }}
               />
             )}
           </Container>

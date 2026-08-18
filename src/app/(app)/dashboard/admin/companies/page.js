@@ -16,7 +16,10 @@ import {
   Phone,
   Calendar,
   ExternalLink,
+  ChevronRight,
+  Filter,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function AdminCompanies() {
   const router = useRouter();
@@ -50,6 +53,7 @@ export default function AdminCompanies() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    toast.success('Export des entreprises téléchargé !');
   };
 
   useEffect(() => {
@@ -118,207 +122,231 @@ export default function AdminCompanies() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <RefreshCw className="h-8 w-8 text-slate-700 animate-spin" />
+      <div className="flex flex-col items-center justify-center min-h-[500px] gap-4">
+        <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-[#FF7A00] animate-spin">
+          <RefreshCw className="w-6 h-6" />
+        </div>
+        <p className="text-xs font-black uppercase tracking-widest text-slate-400">
+          Chargement des entreprises...
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6 pb-12 font-sans">
+    <div className="space-y-8 font-sans pb-12">
       
-      {/* HEADER EXECUTIVE */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
+      {/* 1. HEADER HERO ENTREPRISES */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="space-y-2 z-10">
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-              Comptes Recruteurs Inscrits
+            <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[11px] font-black uppercase tracking-wider border border-blue-200/60 flex items-center gap-1.5">
+              <Building2 className="w-3.5 h-3.5" />
+              Réseau Recruteurs Transport
             </span>
-            <span className="bg-slate-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-full font-mono">
-              {companies.length} recruteurs
-            </span>
+            <span className="text-xs font-bold text-slate-600">• Entreprises & Agences</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-950 mt-1 tracking-tight">
-            Entreprises & Recruteurs Plateforme
+
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Comptes Entreprises & Recruteurs
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Supervision des comptes recruteurs inscrits, formules d&apos;abonnement Pro VIP (39,99 €) et vérification légale SIRET/BCE/IDE.
+          <p className="text-sm text-slate-600 max-w-2xl leading-relaxed">
+            Supervision des transporteurs inscrits, vérification des numéros SIRET/BCE et gestion des abonnements Pro.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
-          <button
-            onClick={exportToCSV}
-            className="flex items-center gap-2 px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors shadow-xs cursor-pointer"
-          >
-            <Download className="h-4 w-4" />
-            <span>Exporter CSV</span>
-          </button>
-          
+        <div className="flex flex-wrap items-center gap-3 z-10">
           <button
             onClick={fetchCompanies}
-            className="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors cursor-pointer"
-            title="Actualiser"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer"
           >
-            <RefreshCw className="h-4 w-4" />
+            <RefreshCw className="w-4 h-4" />
+            <span>Actualiser</span>
+          </button>
+
+          <button
+            onClick={exportToCSV}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-black bg-slate-900 hover:bg-slate-800 text-white shadow-xs transition-all cursor-pointer"
+          >
+            <Download className="w-4 h-4" />
+            <span>Exporter CSV</span>
           </button>
         </div>
       </div>
 
-      {/* QUICK SCORECARDS ROW */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500" />
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Recruteurs</span>
-          <div className="text-3xl font-black text-slate-900 mt-2 font-mono">{companies.length}</div>
+      {/* 2. KPI CARDS */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-wider text-slate-600">
+              Total Entreprises
+            </span>
+            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <Building2 className="w-5 h-5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-3xl font-black text-slate-900 font-mono tracking-tight">
+              {companies.length}
+            </div>
+            <p className="text-xs text-slate-600 font-semibold mt-2">
+              Recruteurs enregistrés
+            </p>
+          </div>
         </div>
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-violet-500" />
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Abonnés VIP Pro (39,99 €)</span>
-          <div className="text-3xl font-black text-purple-700 mt-2 font-mono">{vipCount}</div>
+
+        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-wider text-blue-600">
+              Abonnés Pro Illimité
+            </span>
+            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <Sparkles className="w-5 h-5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-3xl font-black text-blue-600 font-mono tracking-tight">
+              {vipCount}
+            </div>
+            <p className="text-xs text-blue-700 font-bold mt-2">
+              {(vipCount * 39.99).toFixed(2)} € MRR mensuel
+            </p>
+          </div>
         </div>
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-slate-500 to-slate-700" />
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Paiement à l&apos;Acte (4,99 €)</span>
-          <div className="text-3xl font-black text-slate-900 mt-2 font-mono">{companies.length - vipCount}</div>
-        </div>
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 to-emerald-500" />
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Transfrontaliers (BE / LU / CH)</span>
-          <div className="text-3xl font-black text-teal-700 mt-2 font-mono">
-            {companies.filter(c => c.country && c.country !== 'FR').length}
+
+        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-wider text-[#FF7A00]">
+              Paiement à l'Acte
+            </span>
+            <div className="w-10 h-10 rounded-2xl bg-orange-50 text-[#FF7A00] flex items-center justify-center">
+              <Zap className="w-5 h-5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-3xl font-black text-slate-900 font-mono tracking-tight">
+              {companies.length - vipCount}
+            </div>
+            <p className="text-xs text-slate-600 font-semibold mt-2">
+              Tarif 4,99 € par chauffeur
+            </p>
           </div>
         </div>
       </div>
 
-      {/* SEARCH & FILTERS BAR */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center gap-3">
-        <div className="relative flex-1 w-full">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Rechercher par nom d'entreprise, e-mail, SIRET, BCE, IDE..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-slate-900 bg-slate-50/60"
-          />
+      {/* 3. TABLEAU DES ENTREPRISES */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
+        
+        <div className="flex flex-col sm:flex-row gap-4 justify-between">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
+            <input
+              type="text"
+              placeholder="Rechercher par nom, email, SIRET, BCE..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="w-full pl-11 pr-4 py-2.5 border border-slate-200 rounded-2xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/20 bg-slate-50/50"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <select
+              value={filterCountry}
+              onChange={e => setFilterCountry(e.target.value)}
+              className="px-3.5 py-2.5 border border-slate-200 rounded-2xl text-xs font-bold text-slate-700 bg-slate-50/50 focus:outline-none cursor-pointer"
+            >
+              <option value="all">🌍 Tous les Pays</option>
+              <option value="FR">🇫🇷 France</option>
+              <option value="BE">🇧🇪 Belgique</option>
+              <option value="LU">🇱🇺 Luxembourg</option>
+              <option value="CH">🇨🇭 Suisse</option>
+            </select>
+
+            <select
+              value={filterPlan}
+              onChange={e => setFilterPlan(e.target.value)}
+              className="px-3.5 py-2.5 border border-slate-200 rounded-2xl text-xs font-bold text-slate-700 bg-slate-50/50 focus:outline-none cursor-pointer"
+            >
+              <option value="all">Toutes Formules</option>
+              <option value="premium_monthly">Pro Illimité (39,99€)</option>
+              <option value="pay_per_unlock">À l'acte (4,99€)</option>
+            </select>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <select
-            value={filterCountry}
-            onChange={e => setFilterCountry(e.target.value)}
-            className="px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold bg-white focus:outline-none cursor-pointer"
-          >
-            <option value="all">🌍 Tous les Pays</option>
-            <option value="FR">🇫🇷 France (SIRET)</option>
-            <option value="BE">🇧🇪 Belgique (BCE)</option>
-            <option value="LU">🇱🇺 Luxembourg (RCS)</option>
-            <option value="CH">🇨🇭 Suisse (IDE)</option>
-          </select>
-
-          <select
-            value={filterPlan}
-            onChange={e => setFilterPlan(e.target.value)}
-            className="px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold bg-white focus:outline-none cursor-pointer"
-          >
-            <option value="all">💳 Toutes les Formules</option>
-            <option value="premium_monthly">⭐ Pro Illimité (39,99 €)</option>
-            <option value="pay_per_unlock">⚡ Paiement à l&apos;Acte (4,99 €)</option>
-          </select>
-        </div>
-      </div>
-
-      {/* TABLE DES ENTREPRISES RECRUTEURS */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        {/* Table */}
         {filteredCompanies.length === 0 ? (
-          <div className="text-center py-16 space-y-2">
-            <Building2 className="h-10 w-10 text-slate-300 mx-auto" />
-            <p className="text-sm font-bold text-slate-700">Aucun recruteur trouvé</p>
-            <p className="text-xs text-slate-400">Modifiez vos critères de recherche.</p>
+          <div className="py-12 text-center text-xs text-slate-600">
+            Aucune entreprise trouvée.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200/80 text-slate-600 font-bold uppercase tracking-wider text-[10px]">
-                  <th className="py-3 px-4">Entreprise & SIRET</th>
-                  <th className="py-3 px-4">Contact</th>
-                  <th className="py-3 px-4">Formule</th>
-                  <th className="py-3 px-4 text-center">Pays</th>
-                  <th className="py-3 px-4 text-right">Inscrit le</th>
+                <tr className="border-b border-slate-100 text-slate-600 font-bold uppercase tracking-wider text-[10px]">
+                  <th className="py-3 px-3">Entreprise</th>
+                  <th className="py-3 px-3">Contact</th>
+                  <th className="py-3 px-3">Identifiant Légal</th>
+                  <th className="py-3 px-3 text-center">Pays</th>
+                  <th className="py-3 px-3 text-center">Formule</th>
+                  <th className="py-3 px-3 text-right">Inscription</th>
+                  <th className="py-3 px-3 text-right">Fiche</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
-                {filteredCompanies.map((c) => {
+                {filteredCompanies.map(c => {
                   const isVip = c.subscription_plan === 'premium_monthly' || c.subscription_plan === 'premium_plus_monthly';
-                  const countryCode = c.country || (c.bce ? 'BE' : 'FR');
+                  const country = c.country || (c.bce ? 'BE' : 'FR');
+                  const flag = country === 'BE' ? '🇧🇪' : country === 'LU' ? '🇱🇺' : country === 'CH' ? '🇨🇭' : '🇫🇷';
 
                   return (
-                    <tr key={c.id} className="hover:bg-slate-50/70 transition-colors">
-                      {/* Nom */}
-                      <td className="py-3.5 px-4">
+                    <tr key={c.id} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="py-3 px-3">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-xs shrink-0">
-                            {c.name?.charAt(0) || 'E'}
+                          <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-black text-xs shrink-0">
+                            <Building2 className="w-4 h-4" />
                           </div>
-                          <div>
-                            <div className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-                              <span>{c.name}</span>
-                              {isVip && (
-                                <span className="bg-purple-100 text-purple-800 text-[9px] font-extrabold px-1.5 py-0.2 rounded">
-                                  VIP PRO
-                                </span>
-                              )}
-                            </div>
-                            <span className="text-[10px] text-slate-400 font-mono">
-                              {c.siret ? `SIRET: ${c.siret}` : c.bce ? `BCE: ${c.bce}` : c.rcs_lux ? `RCS: ${c.rcs_lux}` : c.ide_ch ? `IDE: ${c.ide_ch}` : c.registration_number || 'Non renseigné'}
-                            </span>
-                          </div>
+                          <span className="font-black text-slate-900">{c.name || 'Sans nom'}</span>
                         </div>
                       </td>
 
-                      {/* Contact */}
-                      <td className="py-3.5 px-4">
-                        <div className="space-y-0.5">
-                          <div className="font-semibold text-slate-800 flex items-center gap-1">
-                            <Mail className="h-3 w-3 text-slate-400" />
-                            <span>{c.email}</span>
-                          </div>
-                          {c.phone && (
-                            <div className="text-[10px] text-slate-500 flex items-center gap-1 font-mono">
-                              <Phone className="h-2.5 w-2.5 text-slate-400" />
-                              <span>{c.phone}</span>
-                            </div>
-                          )}
-                        </div>
+                      <td className="py-3 px-3">
+                        <p className="font-medium text-slate-800">{c.email || '—'}</p>
+                        <p className="text-slate-600 text-[10px] font-mono">{c.phone || '—'}</p>
                       </td>
 
-                      {/* Formule */}
-                      <td className="py-3.5 px-4">
+                      <td className="py-3 px-3 font-mono text-slate-600">
+                        {c.siret || c.bce || c.rcs_lux || c.ide_ch || c.registration_number || '—'}
+                      </td>
+
+                      <td className="py-3 px-3 text-center">
+                        <span className="text-base">{flag}</span>
+                      </td>
+
+                      <td className="py-3 px-3 text-center">
                         {isVip ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-bold">
-                            <Sparkles className="h-2.5 w-2.5 fill-purple-500 text-purple-500" />
-                            Pro Illimité (39,99 €)
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-50 text-blue-700 border border-blue-200">
+                            Pro Illimité (39,99€)
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">
-                            <CreditCard className="h-2.5 w-2.5 text-slate-400" />
-                            À l&apos;acte (4,99 €)
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-orange-50 text-[#FF7A00] border border-orange-200">
+                            À l'acte (4,99€)
                           </span>
                         )}
                       </td>
 
-                      {/* Pays */}
-                      <td className="py-3.5 px-4 text-center">
-                        <span className="font-mono font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">
-                          {countryCode === 'FR' ? '🇫🇷 FR' : countryCode === 'BE' ? '🇧🇪 BE' : countryCode === 'LU' ? '🇱🇺 LU' : countryCode === 'CH' ? '🇨🇭 CH' : countryCode}
-                        </span>
+                      <td className="py-3 px-3 text-right font-mono text-slate-600">
+                        {c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '—'}
                       </td>
 
-                      {/* Date */}
-                      <td className="py-3.5 px-4 text-right text-[10px] text-slate-400 font-mono">
-                        {c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '—'}
+                      <td className="py-3 px-3 text-right">
+                        <a
+                          href={`/dashboard/admin/companies/${c.id}`}
+                          className="px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 transition-colors inline-flex items-center gap-1"
+                        >
+                          <span>Voir</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </a>
                       </td>
                     </tr>
                   );

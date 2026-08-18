@@ -355,167 +355,164 @@ export default function AdminChatPage() {
   const recruiterCount = conversations.filter((c) => c.user_role === 'recruiter').length;
 
   return (
-    <div className="w-full max-w-full space-y-4 pb-12 font-sans bg-slate-100/70 p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm overflow-hidden box-border">
+    <div className="space-y-8 font-sans pb-12">
       
-      {/* 1. EN-TÊTE SUPÉRIEURE DE PILOTAGE SUPPORT & TCHAT */}
-      <div className="w-full bg-slate-950 text-white px-4 py-2.5 rounded-xl flex flex-wrap items-center justify-between gap-3 shadow-md min-w-0">
-        <div className="flex items-center gap-3 flex-wrap min-w-0">
+      {/* 1. EN-TÊTE HERO SUPPORT TCHAT */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="space-y-2 z-10">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-black text-[11px] text-white">
-              TC
-            </div>
-            <span className="font-bold text-xs text-slate-200">
-              Support Client & Tchat Direct
+            <span className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-[11px] font-black uppercase tracking-wider border border-indigo-200/60 flex items-center gap-1.5">
+              <MessageSquare className="w-3.5 h-3.5" />
+              Messagerie Instantanée Client
             </span>
+            <span className="text-xs font-bold text-slate-600">• Chauffeurs & Transporteurs</span>
           </div>
-          <span className="text-slate-600 text-xs hidden sm:inline">|</span>
-          <span className="text-xs text-slate-300 font-medium truncate max-w-[280px] sm:max-w-none">
-            Échanges en Direct avec Chauffeurs & Entreprises
-          </span>
-          <span className="inline-flex items-center gap-1 bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            En Direct Supabase
-          </span>
+
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Support & Tchat en Direct
+          </h1>
+          <p className="text-sm text-slate-600 max-w-2xl leading-relaxed">
+            Échanges directs, assistance aux dépôts de documents et notifications automatiques par email.
+          </p>
         </div>
 
-        {/* Barre d'outils rapides */}
-        <div className="flex items-center gap-2 flex-wrap shrink-0">
+        <div className="flex flex-wrap items-center gap-3 z-10">
           <button
             onClick={() => {
               setShowNewModal(true);
               fetchUsersForChat();
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-black bg-gradient-to-r from-[#FF7A00] to-[#E56700] hover:from-[#E56700] hover:to-[#FF7A00] text-white shadow-md shadow-orange-500/25 transition-all hover:scale-[1.02] cursor-pointer"
           >
-            <Plus className="h-3.5 w-3.5" />
-            <span>Initier un tchat</span>
+            <Plus className="w-4 h-4" />
+            <span>Initier un Nouveau Tchat</span>
           </button>
 
           <button
             onClick={() => fetchConversations(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors cursor-pointer"
+            className="p-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
             title="Actualiser les messages"
           >
-            <RefreshCw className="h-3 w-3" />
-            <span className="hidden sm:inline">Actualiser</span>
+            <RefreshCw className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* 2. BANDEAU DE CONTEXTE */}
-      <div className="w-full bg-white px-4 py-2 rounded-xl border border-slate-200/80 flex items-center justify-between gap-3 text-xs shadow-2xs min-w-0">
-        <div className="flex items-center gap-2 flex-1 text-slate-400 min-w-0">
-          <HelpCircle className="h-4 w-4 text-slate-400 shrink-0" />
-          <span className="italic text-slate-500 truncate text-[11px] sm:text-xs">
-            Messagerie instantanée bidirectionnelle avec notifications e-mail automatiques et réponses types rapides.
-          </span>
-        </div>
-        <div className="flex items-center gap-1.5 shrink-0 text-slate-500 font-mono text-[11px]">
-          <strong>{filteredConversations.length}</strong> affichés / <strong>{conversations.length}</strong> total
-        </div>
-      </div>
-
-      {/* 3. HERO SCORECARDS KPI (4 COLONNES ÉQUILIBRÉES CLICQUABLES) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 w-full min-w-0">
+      {/* 2. KPI CARDS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         
-        {/* KPI 1 : Total Conversations */}
+        {/* Total Discussions */}
         <div
           onClick={() => setRoleFilter('all')}
-          className={`p-4 sm:p-5 rounded-xl border transition-all cursor-pointer min-w-0 ${
+          className={`rounded-3xl p-6 border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
             roleFilter === 'all'
-              ? 'bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-slate-900/10'
-              : 'bg-white text-slate-900 border-slate-200 shadow-2xs hover:border-slate-300'
+              ? 'bg-slate-950 text-white border-slate-950 shadow-md ring-2 ring-slate-900/10'
+              : 'bg-white text-slate-900 border-slate-200 shadow-xs hover:border-slate-300'
           }`}
         >
-          <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider opacity-80">
-            <span className="truncate">Total Discussions</span>
-            <MessageSquare className="h-4 w-4 shrink-0 ml-1" />
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-wider opacity-75">
+              Total Discussions
+            </span>
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${roleFilter === 'all' ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-700'}`}>
+              <MessageSquare className="w-5 h-5" />
+            </div>
           </div>
-          <div className="text-3xl sm:text-4xl font-black mt-2 tracking-tight font-mono">
-            {conversations.length}
-          </div>
-          <div className="mt-2.5 pt-2.5 border-t border-current/10 flex items-center justify-between text-xs opacity-80">
-            <span className="text-[11px]">Historique global</span>
-            <span className="font-bold text-[10px]">100%</span>
+          <div>
+            <div className="text-3xl font-black font-mono tracking-tight">
+              {conversations.length}
+            </div>
+            <p className="text-xs mt-2 opacity-75 font-semibold">
+              Historique global
+            </p>
           </div>
         </div>
 
-        {/* KPI 2 : En Cours */}
+        {/* En Cours (Amber) */}
         <div
           onClick={() => setRoleFilter('open')}
-          className={`p-4 sm:p-5 rounded-xl border transition-all cursor-pointer min-w-0 ${
+          className={`rounded-3xl p-6 border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
             roleFilter === 'open'
               ? 'bg-amber-500 text-white border-amber-600 shadow-md ring-2 ring-amber-500/20'
-              : 'bg-white text-slate-900 border-slate-200 shadow-2xs hover:border-amber-300'
+              : 'bg-white text-slate-900 border-slate-200 shadow-xs hover:border-amber-300'
           }`}
         >
-          <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-amber-600">
-            <span className="truncate">En Cours</span>
-            <Clock className="h-4 w-4 shrink-0 ml-1" />
-          </div>
-          <div className="text-3xl sm:text-4xl font-black text-amber-600 mt-2 tracking-tight font-mono">
-            {openCount}
-          </div>
-          <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span className="text-[11px]">En attente de réponse :</span>
-            <span className="font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded text-[10px]">
-              À traiter
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-wider opacity-90">
+              En Cours (Ouverts)
             </span>
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${roleFilter === 'open' ? 'bg-white/10 text-white' : 'bg-amber-50 text-amber-600'}`}>
+              <Clock className="w-5 h-5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-3xl font-black font-mono tracking-tight">
+              {openCount}
+            </div>
+            <p className="text-xs mt-2 opacity-90 font-semibold">
+              Réponse attendue
+            </p>
           </div>
         </div>
 
-        {/* KPI 3 : Chauffeurs */}
+        {/* Chauffeurs (Orange) */}
         <div
           onClick={() => setRoleFilter('candidate')}
-          className={`p-4 sm:p-5 rounded-xl border transition-all cursor-pointer min-w-0 ${
+          className={`rounded-3xl p-6 border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
             roleFilter === 'candidate'
-              ? 'bg-orange-500 text-white border-orange-600 shadow-md ring-2 ring-orange-500/20'
-              : 'bg-white text-slate-900 border-slate-200 shadow-2xs hover:border-orange-300'
+              ? 'bg-[#FF7A00] text-white border-[#FF7A00] shadow-md ring-2 ring-orange-500/20'
+              : 'bg-white text-slate-900 border-slate-200 shadow-xs hover:border-orange-300'
           }`}
         >
-          <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-orange-600">
-            <span className="truncate">Chauffeurs</span>
-            <User className="h-4 w-4 shrink-0 ml-1" />
-          </div>
-          <div className="text-3xl sm:text-4xl font-black text-orange-600 mt-2 tracking-tight font-mono">
-            {candidateCount}
-          </div>
-          <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span className="text-[11px]">Candidats conducteurs :</span>
-            <span className="font-bold text-orange-700 bg-orange-50 px-1.5 py-0.5 rounded text-[10px]">
-              Support CV & Docs
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-wider opacity-90">
+              Chauffeurs
             </span>
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${roleFilter === 'candidate' ? 'bg-white/10 text-white' : 'bg-orange-50 text-[#FF7A00]'}`}>
+              <User className="w-5 h-5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-3xl font-black font-mono tracking-tight">
+              {candidateCount}
+            </div>
+            <p className="text-xs mt-2 opacity-90 font-semibold">
+              Aide CV & Justificatifs
+            </p>
           </div>
         </div>
 
-        {/* KPI 4 : Entreprises */}
+        {/* Entreprises (Bleu) */}
         <div
           onClick={() => setRoleFilter('recruiter')}
-          className={`p-4 sm:p-5 rounded-xl border transition-all cursor-pointer min-w-0 ${
+          className={`rounded-3xl p-6 border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
             roleFilter === 'recruiter'
               ? 'bg-blue-600 text-white border-blue-700 shadow-md ring-2 ring-blue-600/20'
-              : 'bg-white text-slate-900 border-slate-200 shadow-2xs hover:border-blue-300'
+              : 'bg-white text-slate-900 border-slate-200 shadow-xs hover:border-blue-300'
           }`}
         >
-          <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-blue-600">
-            <span className="truncate">Entreprises</span>
-            <Building2 className="h-4 w-4 shrink-0 ml-1" />
-          </div>
-          <div className="text-3xl sm:text-4xl font-black text-blue-600 mt-2 tracking-tight font-mono">
-            {recruiterCount}
-          </div>
-          <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span className="text-[11px]">Transporteurs :</span>
-            <span className="font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded text-[10px]">
-              Déblocages & Facturation
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-wider opacity-90">
+              Entreprises
             </span>
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${roleFilter === 'recruiter' ? 'bg-white/10 text-white' : 'bg-blue-50 text-blue-600'}`}>
+              <Building2 className="w-5 h-5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-3xl font-black font-mono tracking-tight">
+              {recruiterCount}
+            </div>
+            <p className="text-xs mt-2 opacity-90 font-semibold">
+              Recrutement & Facturation
+            </p>
           </div>
         </div>
 
       </div>
 
-      {/* 4. INTERFACE PRINCIPALE DE TCHAT (GRILLE 12 COLONNES) */}
-      <div className="w-full bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[620px]">
+      {/* 3. INTERFACE PRINCIPALE DE TCHAT (GRILLE 12 COLONNES) */}
+      <div className="w-full bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[660px]">
         
         {/* COLONNE GAUCHE : LISTE DES CONVERSATIONS (5 COLS) */}
         <div className="lg:col-span-5 border-b lg:border-b-0 lg:border-r border-slate-200 flex flex-col bg-slate-50/50">

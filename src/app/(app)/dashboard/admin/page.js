@@ -39,6 +39,13 @@ import {
   PieChart,
   HelpCircle,
   FileText,
+  Activity,
+  ArrowRight,
+  ShieldAlert,
+  Calendar,
+  DollarSign,
+  AlertCircle,
+  Eye,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -68,8 +75,8 @@ export default function AdminDashboard() {
   const [pendingJobsList, setPendingJobsList] = useState([]);
   const [recentUnlocks, setRecentUnlocks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filterTimeframe, setFilterTimeframe] = useState('30 Jours'); // '7 Jours' | '30 Jours' | 'Année'
   const [searchQuery, setSearchQuery] = useState('');
+  const [quickFilter, setQuickFilter] = useState('all');
 
   const fetchAdminData = async () => {
     setLoading(true);
@@ -249,696 +256,642 @@ export default function AdminDashboard() {
       const { data: { session } } = await supabase.auth.getSession();
       const res = await fetch('/api/admin/telegram/test', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.access_token || ''}`,
-        },
+        headers: { Authorization: `Bearer ${session?.access_token || ''}` },
       });
-
       const data = await res.json();
-      if (data.success) {
-        toast.success('🚀 Test Telegram envoyé ! Vérifiez votre application Telegram.', { duration: 5000 });
+      if (res.ok && data.success) {
+        toast.success('🚀 Alerte Telegram envoyée avec succès sur votre téléphone !');
       } else {
-        toast.error(`⚠️ ${data.error || 'Erreur lors du test Telegram'}`, { duration: 6000 });
+        toast.error('Erreur Telegram : ' + (data.error?.description || data.error || 'Token non configuré'));
       }
-    } catch (err) {
-      console.error('Erreur test telegram:', err);
-      toast.error('Erreur de connexion au serveur.');
+    } catch (e) {
+      toast.error('Erreur de communication Telegram');
     } finally {
       setTestingTelegram(false);
     }
   };
 
-  // Calculations for visual widgets
-  const validationRate = stats.candidatesCount > 0
-    ? Math.round((stats.validatedCandidatesCount / stats.candidatesCount) * 100)
-    : 0;
+  // Filtrage des candidats pour la liste de traitement rapide
+  const filteredCandidates = useMemo(() => {
+    return allCandidates.filter(c => {
+      const nameMatch = (c.full_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (c.city || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (c.postal_code || '').includes(searchQuery);
 
-  // Calcul dynamique et 100% opérationnel de la courbe de croissance
-  const trendData = useMemo(() => {
-    const is7d = filterTimeframe === '7 Jours';
-    const is30d = filterTimeframe === '30 Jours';
-    const numPoints = is7d ? 7 : is30d ? 15 : 12;
+      if (!nameMatch) return false;
 
-    const width = 500;
-    const height = 140;
-    const step = width / (numPoints - 1);
-
-    const makePath = (pts) => {
-      if (!pts || pts.length === 0) return '';
-      return pts.reduce((acc, p, i, a) => {
-        if (i === 0) return `M ${p.x} ${p.y}`;
-        const prev = a[i - 1];
-        const cp1x = prev.x + (p.x - prev.x) / 2;
-        return `${acc} C ${cp1x} ${prev.y}, ${cp1x} ${p.y}, ${p.x} ${p.y}`;
-      }, '');
-    };
-
-    if (is7d || is30d) {
-      const days = [];
-      const now = new Date();
-      const spanDays = is7d ? 7 : 30;
-      const stepSize = is7d ? 1 : 2;
-
-      for (let i = spanDays - 1; i >= 0; i -= stepSize) {
-        const d = new Date();
-        d.setDate(now.getDate() - i);
-        const dayStr = d.toISOString().split('T')[0];
-        const dayLabel = is7d
-          ? d.toLocaleDateString('fr-FR', { weekday: 'short' })
-          : `${d.getDate()}/${d.getMonth() + 1}`;
-
-        const candCount = allCandidates.filter(c => c.created_at && c.created_at.startsWith(dayStr)).length;
-        const unlockCount = recentUnlocks.filter(u => u.created_at && u.created_at.startsWith(dayStr)).length;
-
-        days.push({
-          date: dayStr,
-          label: dayLabel,
-          candidates: candCount,
-          activity: candCount + unlockCount + (candCount > 0 ? 2 : 0),
-        });
+      if (quickFilter === 'pending') return !c.validated;
+      if (quickFilter === 'validated') return c.validated;
+      if (quickFilter === 'with_docs') {
+        return c.documents && Object.keys(c.documents).length > 0;
       }
-
-      const maxVal = Math.max(...days.map(d => Math.max(d.candidates, d.activity)), 3);
-
-      const ptsCand = days.map((d, i) => ({
-        x: i * (width / (days.length - 1)),
-        y: height - (d.candidates / maxVal) * (height - 30) - 15,
-        val: d.candidates,
-        label: d.label,
-      }));
-
-      const ptsAct = days.map((d, i) => ({
-        x: i * (width / (days.length - 1)),
-        y: height - (d.activity / maxVal) * (height - 30) - 15,
-        val: d.activity,
-        label: d.label,
-      }));
-
-      return {
-        pathCand: makePath(ptsCand),
-        pathAct: makePath(ptsAct),
-        ptsCand,
-        ptsAct,
-        labels: days.filter((_, idx) => is7d || idx % 2 === 0).map(d => d.label),
-        totalCand: allCandidates.length,
-      };
-    } else {
-      // 12 Mois
-      const months = [];
-      const now = new Date();
-      const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
-
-      for (let i = 11; i >= 0; i--) {
-        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const y = d.getFullYear();
-        const m = d.getMonth();
-        const monthKey = `${y}-${String(m + 1).padStart(2, '0')}`;
-
-        const candCount = allCandidates.filter(c => c.created_at && c.created_at.startsWith(monthKey)).length;
-        const unlockCount = recentUnlocks.filter(u => u.created_at && u.created_at.startsWith(monthKey)).length;
-
-        months.push({
-          monthKey,
-          label: monthNames[m],
-          candidates: candCount,
-          activity: candCount + unlockCount + (candCount > 0 ? 1 : 0),
-        });
-      }
-
-      const maxVal = Math.max(...months.map(m => Math.max(m.candidates, m.activity)), 4);
-
-      const ptsCand = months.map((m, i) => ({
-        x: i * step,
-        y: height - (m.candidates / maxVal) * (height - 30) - 15,
-        val: m.candidates,
-        label: m.label,
-      }));
-
-      const ptsAct = months.map((m, i) => ({
-        x: i * step,
-        y: height - (m.activity / maxVal) * (height - 30) - 15,
-        val: m.activity,
-        label: m.label,
-      }));
-
-      return {
-        pathCand: makePath(ptsCand),
-        pathAct: makePath(ptsAct),
-        ptsCand,
-        ptsAct,
-        labels: months.filter((_, idx) => idx % 2 === 0).map(m => m.label),
-        totalCand: allCandidates.length,
-      };
-    }
-  }, [filterTimeframe, allCandidates, recentUnlocks]);
-
-  // Segment breakdown: Specialities
-  const specialityCounts = useMemo(() => {
-    const counts = {
-      SPL: 0,
-      Tautliner: 0,
-      Frigo: 0,
-      ADR: 0,
-      Benne: 0,
-      Messagerie: 0,
-      Plateau: 0,
-    };
-    allCandidates.forEach(c => {
-      const prefs = Array.isArray(c.job_preferences) ? c.job_preferences : [];
-      const lics = Array.isArray(c.licenses) ? c.licenses : [];
-      if (lics.includes('SPL') || lics.includes('CE')) counts.SPL++;
-      if (prefs.some(p => /tautliner|bâché/i.test(p))) counts.Tautliner++;
-      if (prefs.some(p => /frigo|frais/i.test(p))) counts.Frigo++;
-      if (c.adr_basic || c.adr_tanker || prefs.some(p => /adr|citerne/i.test(p))) counts.ADR++;
-      if (prefs.some(p => /benne/i.test(p))) counts.Benne++;
-      if (prefs.some(p => /messagerie/i.test(p))) counts.Messagerie++;
-      if (prefs.some(p => /plateau/i.test(p))) counts.Plateau++;
+      return true;
     });
-    return counts;
-  }, [allCandidates]);
+  }, [allCandidates, searchQuery, quickFilter]);
 
-  const maxSpeciality = Math.max(...Object.values(specialityCounts), 1);
-
-  // Queue of candidates needing review
-  const pendingCandidatesQueue = useMemo(() => {
-    return allCandidates.filter(c => !c.validated);
-  }, [allCandidates]);
+  // Données de distribution géographique calculées
+  const totalCountry = (stats.franceCandidates + stats.belgiumCandidates + stats.luxembourgCandidates + stats.switzerlandCandidates) || 1;
+  const geoShare = {
+    fr: Math.round((stats.franceCandidates / totalCountry) * 100),
+    be: Math.round((stats.belgiumCandidates / totalCountry) * 100),
+    lu: Math.round((stats.luxembourgCandidates / totalCountry) * 100),
+    ch: Math.round((stats.switzerlandCandidates / totalCountry) * 100),
+  };
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[500px] gap-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-slate-200/80 p-8 shadow-xs">
-        <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center text-orange-500">
-          <RefreshCw className="h-6 w-6 animate-spin" />
+      <div className="flex flex-col items-center justify-center min-h-[500px] gap-4">
+        <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-[#FF7A00] animate-spin">
+          <RefreshCw className="w-6 h-6" />
         </div>
-        <div className="text-center space-y-1">
-          <p className="text-slate-900 text-sm font-bold">Chargement du Centre de Pilotage</p>
-          <p className="text-slate-400 text-xs">Synchronisation en direct avec la base Supabase...</p>
-        </div>
+        <p className="text-xs font-black uppercase tracking-widest text-slate-400">
+          Chargement du centre de contrôle...
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6 pb-12 font-sans">
+    <div className="space-y-8 font-sans pb-12">
       
-      {/* 1. HEADER DE PILOTAGE SAAS */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs">
-        <div className="space-y-1.5 min-w-0">
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              Tableau de bord
-            </h1>
-            <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Direct Supabase
+      {/* =========================================================
+          1. HEADER HERO DU TABLEAU DE BORD (Large, Pro, Spacieux)
+          ========================================================= */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="space-y-2 z-10">
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1 rounded-full bg-orange-50 text-[#FF7A00] text-[11px] font-black uppercase tracking-wider border border-orange-200/60 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" />
+              Pilotage SaaS FretTalent
             </span>
+            <span className="text-xs font-bold text-slate-600">• 4 Pays Actifs (FR, BE, LU, CH)</span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 max-w-2xl">
-            Vue consolidée des inscriptions, déblocages 4,99€, modération des pièces et revenus Stripe.
+
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Vue d'ensemble de la Plateforme
+          </h1>
+          <p className="text-sm text-slate-600 max-w-2xl leading-relaxed">
+            Suivi des validations chauffeurs en temps réel, modération des offres, flux de trésorerie Stripe et supervision Telegram.
           </p>
         </div>
 
-        {/* Barre d'outils et sélecteur */}
-        <div className="flex items-center gap-2.5 flex-wrap shrink-0">
-          {/* Segmented Timeframe Switcher */}
-          <div className="flex items-center p-1 bg-slate-100/90 rounded-xl border border-slate-200/60">
-            {[
-              { key: '7 Jours', label: '7J' },
-              { key: '30 Jours', label: '30J' },
-              { key: 'Année', label: '1 An' },
-            ].map(period => (
-              <button
-                key={period.key}
-                onClick={() => setFilterTimeframe(period.key)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  filterTimeframe === period.key
-                    ? 'bg-white text-slate-900 shadow-xs'
-                    : 'text-slate-500 hover:text-slate-900'
-                }`}
-              >
-                {period.label}
-              </button>
-            ))}
-          </div>
+        {/* Boutons d'actions rapides */}
+        <div className="flex flex-wrap items-center gap-3 z-10">
+          <button
+            onClick={fetchAdminData}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer"
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span>Actualiser</span>
+          </button>
 
           <button
             onClick={handleTestTelegram}
             disabled={testingTelegram}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-2xs"
-            title="Tester l'alerte sur votre robot Telegram"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-black bg-gradient-to-r from-[#FF7A00] to-[#E56700] hover:from-[#E56700] hover:to-[#FF7A00] text-white shadow-md shadow-orange-500/25 hover:scale-[1.02] transition-all cursor-pointer disabled:opacity-50"
           >
-            <Send className={`h-3.5 w-3.5 text-slate-500 ${testingTelegram ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Alerte Telegram</span>
+            <Send className="w-4 h-4" />
+            <span>{testingTelegram ? 'Test en cours...' : 'Tester Bot Telegram'}</span>
           </button>
+        </div>
+      </div>
+
+      {/* =========================================================
+          2. KPI CARDS : GRILLE LARGE (4 Cartes Maîtresses SaaS)
+          ========================================================= */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        {/* KPI 1 : Candidats Inscrits & En Attente (ALERTE ROUGE SI ATTENTE) */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-wider text-slate-600">
+              Total Chauffeurs
+            </span>
+            <div className="w-10 h-10 rounded-2xl bg-orange-50 text-[#FF7A00] flex items-center justify-center">
+              <Users className="w-5 h-5" />
+            </div>
+          </div>
+
+          <div>
+            <div className="text-3xl font-black text-slate-900 font-mono tracking-tight">
+              {stats.candidatesCount}
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              {stats.pendingCandidatesCount > 0 ? (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-red-50 text-[#E53935] border border-red-200">
+                  <ShieldAlert className="w-3 h-3" />
+                  {stats.pendingCandidatesCount} à certifier
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-emerald-50 text-[#43A047] border border-emerald-200">
+                  <CheckCircle2 className="w-3 h-3" />
+                  Tous certifiés
+                </span>
+              )}
+              <span className="text-[11px] text-slate-600 font-semibold">{stats.validatedCandidatesCount} certifiés 🛡️</span>
+            </div>
+          </div>
 
           <Link
-            href="/dashboard/admin/chat"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all shadow-xs shadow-orange-500/20"
+            href="/dashboard/admin/candidates"
+            className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#FF7A00] hover:text-[#E56700]"
           >
-            <MessageSquare className="h-3.5 w-3.5" />
-            <span>Support</span>
-            {stats.openSupportConvCount > 0 && (
-              <span className="bg-white text-orange-600 px-1.5 py-0.2 rounded-full font-black text-[10px]">
-                {stats.openSupportConvCount}
-              </span>
-            )}
+            <span>Gérer les dossiers chauffeurs</span>
+            <ArrowRight className="w-4 h-4" />
           </Link>
+        </div>
 
-          <button
-            onClick={fetchAdminData}
-            className="inline-flex items-center gap-1.5 p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 transition-all cursor-pointer shadow-2xs"
-            title="Actualiser les données"
+        {/* KPI 2 : Entreprises & Recruteurs */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-wider text-slate-600">
+              Entreprises Actives
+            </span>
+            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <Building2 className="w-5 h-5" />
+            </div>
+          </div>
+
+          <div>
+            <div className="text-3xl font-black text-slate-900 font-mono tracking-tight">
+              {stats.companiesCount}
+            </div>
+            <div className="flex items-center gap-2 mt-2 text-xs text-slate-600 font-semibold">
+              <span className="inline-flex items-center gap-1 text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full font-bold">
+                <Activity className="w-3 h-3 text-emerald-700" />
+                Transport & Logistique
+              </span>
+            </div>
+          </div>
+
+          <Link
+            href="/dashboard/admin/companies"
+            className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-700 hover:text-slate-950"
           >
-            <RefreshCw className="h-4 w-4" />
-          </button>
+            <span>Voir les comptes entreprises</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
-      </div>
 
-      {/* 2. 4 SCORECARDS KPIS (DESIGN MODERNE AVEC ACCENT TOP) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full min-w-0">
-        
-        {/* KPI 1 : Volume Chauffeurs */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-300 relative overflow-hidden group">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500" />
-          <div className="flex items-center justify-between text-slate-500 text-xs font-bold">
-            <span className="uppercase tracking-wider text-[11px]">Volume Chauffeurs</span>
-            <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Users className="h-4 w-4" />
+        {/* KPI 3 : Offres d'emploi & Modération */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-wider text-slate-600">
+              Offres d'Emploi
+            </span>
+            <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+              <Briefcase className="w-5 h-5" />
             </div>
           </div>
-          <div className="text-3xl sm:text-4xl font-black text-slate-900 mt-2 tracking-tight">
-            {stats.candidatesCount}
-          </div>
-          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span className="text-slate-500 text-[11px]">Dossiers validés</span>
-            <span className="font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 text-[10px]">
-              {stats.validatedCandidatesCount} ({validationRate}%)
-            </span>
-          </div>
-        </div>
 
-        {/* KPI 2 : Chiffre d'Affaires */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-300 relative overflow-hidden group">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500" />
-          <div className="flex items-center justify-between text-slate-500 text-xs font-bold">
-            <span className="uppercase tracking-wider text-[11px]">Chiffre d&apos;Affaires</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <CreditCard className="h-4 w-4" />
-            </div>
-          </div>
-          <div className="text-3xl sm:text-4xl font-black text-slate-900 mt-2 tracking-tight">
-            {stats.totalRevenue.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
-          </div>
-          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span className="text-slate-500 text-[11px]">Déblocages 4,99€</span>
-            <span className="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-full text-[10px]">
-              {stats.unlocksCount} ventes
-            </span>
-          </div>
-        </div>
-
-        {/* KPI 3 : Entreprises & Recruteurs */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-300 relative overflow-hidden group">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500" />
-          <div className="flex items-center justify-between text-slate-500 text-xs font-bold">
-            <span className="uppercase tracking-wider text-[11px]">Comptes Entreprises</span>
-            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Building2 className="h-4 w-4" />
-            </div>
-          </div>
-          <div className="text-3xl sm:text-4xl font-black text-slate-900 mt-2 tracking-tight">
-            {stats.companiesCount}
-          </div>
-          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span className="text-slate-500 text-[11px]">Annonces publiées</span>
-            <span className="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-full text-[10px]">
-              {stats.jobsCount} offres
-            </span>
-          </div>
-        </div>
-
-        {/* KPI 4 : Conformité Pièces */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-300 relative overflow-hidden group">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-violet-600" />
-          <div className="flex items-center justify-between text-slate-500 text-xs font-bold">
-            <span className="uppercase tracking-wider text-[11px]">Conformité Pièces</span>
-            <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <ShieldCheck className="h-4 w-4" />
-            </div>
-          </div>
-          <div className="text-3xl sm:text-4xl font-black text-slate-900 mt-2 tracking-tight">
-            {validationRate}
-            <span className="text-lg text-slate-400 font-normal"> / 100</span>
-          </div>
-          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span className="text-slate-500 text-[11px]">Justificatifs vérifiés</span>
-            <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 text-[10px]">
-              ● Dossiers audités
-            </span>
-          </div>
-        </div>
-
-      </div>
-
-      {/* 3. LIGNE CENTRALE : COURBE DYNAMIQUE + SPÉCIALITÉS */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full min-w-0">
-        
-        {/* COURBE DE CROISSANCE SAAS (7 COLS) */}
-        <div className="lg:col-span-7 min-w-0 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between overflow-hidden">
           <div>
-            <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-              <span className="text-slate-900 font-black text-sm normal-case">Tendances de Croissance</span>
-              <span className="text-slate-400 font-mono text-[11px]">Période : {filterTimeframe}</span>
+            <div className="text-3xl font-black text-slate-900 font-mono tracking-tight">
+              {stats.jobsCount}
             </div>
-            <div className="flex items-center gap-4 text-xs font-semibold text-slate-600 mb-4">
-              <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 bg-orange-500 rounded-full" /> Inscriptions Chauffeurs
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 bg-slate-400 rounded-full" /> Déblocages & Recherches
-              </span>
-            </div>
-          </div>
-
-          {/* Courbe SVG dynamique */}
-          <div className="h-44 w-full relative flex items-end overflow-hidden pt-2">
-            <svg viewBox="0 0 500 150" className="w-full h-full" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="candGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#f97316" stopOpacity="0.25" />
-                  <stop offset="100%" stopColor="#f97316" stopOpacity="0.0" />
-                </linearGradient>
-              </defs>
-
-              {/* Lignes de repère */}
-              <line x1="0" y1="20" x2="500" y2="20" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
-              <line x1="0" y1="70" x2="500" y2="70" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
-              <line x1="0" y1="120" x2="500" y2="120" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
-
-              {/* Courbe 1 : Inscriptions Chauffeurs */}
-              {trendData.pathCand && (
-                <path
-                  d={trendData.pathCand}
-                  fill="none"
-                  stroke="#f97316"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                />
+            <div className="flex items-center gap-2 mt-2">
+              {stats.pendingJobsCount > 0 ? (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-amber-50 text-amber-700 border border-amber-200">
+                  <Clock className="w-3 h-3" />
+                  {stats.pendingJobsCount} en attente
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <Check className="w-3 h-3" />
+                  Toutes validées
+                </span>
               )}
-
-              {/* Courbe 2 : Activité / Recherches */}
-              {trendData.pathAct && (
-                <path
-                  d={trendData.pathAct}
-                  fill="none"
-                  stroke="#94a3b8"
-                  strokeWidth="2"
-                  strokeDasharray="4 4"
-                />
-              )}
-
-              {/* Points interactifs */}
-              {trendData.ptsCand?.map((pt, idx) => (
-                <g key={`c-${idx}`}>
-                  <circle cx={pt.x} cy={pt.y} r="4" fill="#ffffff" stroke="#f97316" strokeWidth="2" />
-                </g>
-              ))}
-            </svg>
+            </div>
           </div>
 
-          {/* Axe X Labels */}
-          <div className="flex justify-between text-[11px] text-slate-400 font-mono pt-3 border-t border-slate-100 overflow-x-hidden">
-            {trendData.labels?.map((lbl, i) => (
-              <span key={i}>{lbl}</span>
-            ))}
-          </div>
+          <Link
+            href="/dashboard/admin/jobs"
+            className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-700 hover:text-slate-950"
+          >
+            <span>Modérer les annonces</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
 
-        {/* HISTOGRAMME PAR SPÉCIALITÉ (5 COLS) */}
-        <div className="lg:col-span-5 min-w-0 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between overflow-hidden">
+        {/* KPI 4 : Revenus Déblocages & Stripe */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-wider text-slate-600">
+              Déblocages & Recettes
+            </span>
+            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-[#43A047] flex items-center justify-center">
+              <DollarSign className="w-5 h-5" />
+            </div>
+          </div>
+
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-slate-900 font-black text-sm">Chauffeurs par Spécialité</h3>
-              <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">
-                Effectif total
+            <div className="text-3xl font-black text-slate-900 font-mono tracking-tight">
+              {stats.totalRevenue.toFixed(2)} €
+            </div>
+            <div className="flex items-center gap-2 mt-2 text-xs text-slate-600 font-semibold">
+              <span className="text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded-md">
+                {stats.unlocksCount} déblocages effectués
               </span>
             </div>
-
-            {/* Barres horizontales */}
-            <div className="space-y-3">
-              {[
-                { label: 'SPL / Permis CE', val: specialityCounts.SPL, gradient: 'from-orange-500 to-amber-500' },
-                { label: 'Tautliner / Bâché', val: specialityCounts.Tautliner, gradient: 'from-orange-400 to-amber-400' },
-                { label: 'Citerne & ADR', val: specialityCounts.ADR, gradient: 'from-blue-500 to-indigo-500' },
-                { label: 'Frigo / Froid', val: specialityCounts.Frigo, gradient: 'from-cyan-500 to-blue-400' },
-                { label: 'Benne TP / Céréale', val: specialityCounts.Benne, gradient: 'from-emerald-500 to-teal-400' },
-                { label: 'Messagerie / Distrib', val: specialityCounts.Messagerie, gradient: 'from-slate-400 to-slate-500' },
-              ].map((item, idx) => {
-                const pct = Math.max(10, Math.round((item.val / maxSpeciality) * 100));
-                return (
-                  <div key={idx} className="space-y-1.5 min-w-0">
-                    <div className="flex justify-between text-xs">
-                      <span className="font-semibold text-slate-700 text-[11px] truncate">{item.label}</span>
-                      <span className="font-mono text-slate-900 font-bold text-[11px] shrink-0">{item.val}</span>
-                    </div>
-                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full bg-gradient-to-r ${item.gradient} rounded-full transition-all duration-500`}
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
           </div>
 
-          <div className="pt-3 text-[11px] text-slate-400 font-medium text-right border-t border-slate-100 mt-4">
-            Répartition métier en temps réel
-          </div>
+          <Link
+            href="/dashboard/admin/finance"
+            className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-700 hover:text-slate-950"
+          >
+            <span>Consulter les finances</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
-
       </div>
 
-      {/* 4. LIGNE INFÉRIEURE : MODÉRATION 1-CLIC + RÉPARTITION 4 PAYS */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full min-w-0">
+      {/* =========================================================
+          3. GRILLE CENTRALE : STATISTIQUES GÉO & MODÉRATION RAPIDE
+          ========================================================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* FILE DE MODÉRATION PRIORITAIRE (7 COLS) */}
-        <div className="lg:col-span-7 min-w-0 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between overflow-hidden">
-          <div>
-            <div className="flex items-center justify-between mb-4">
+        {/* COLONNE GAUCHE (2/3) : GESTION RAPIDE DES CANDIDATS & VALIDATIONS */}
+        <div className="lg:col-span-2 space-y-6">
+          
+          <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-xs space-y-6">
+            
+            {/* Header de section */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
               <div>
-                <h3 className="text-slate-900 font-black text-sm">File de Modération Prioritaire</h3>
-                <p className="text-xs text-slate-400">Validation 1-clic des justificatifs</p>
+                <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                  <UserCheck className="w-5 h-5 text-[#FF7A00]" />
+                  Derniers Chauffeurs Inscrits & Documents
+                </h2>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  Certifiez les profils en 1 clic pour activer leur visibilité auprès des transporteurs.
+                </p>
+              </div>
+
+              {/* Filtres de statut */}
+              <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
+                {[
+                  { key: 'all', label: 'Tous' },
+                  { key: 'pending', label: 'À valider' },
+                  { key: 'validated', label: 'Certifiés' },
+                  { key: 'with_docs', label: 'Avec docs' },
+                ].map(f => (
+                  <button
+                    key={f.key}
+                    onClick={() => setQuickFilter(f.key)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      quickFilter === f.key
+                        ? 'bg-white text-slate-900 shadow-xs font-black'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Barre de recherche */}
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-600 absolute left-4 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Rechercher par nom, ville ou code postal..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full pl-11 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50/50 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:bg-white transition-all"
+              />
+            </div>
+
+            {/* Liste des candidats */}
+            <div className="divide-y divide-slate-100 max-h-[520px] overflow-y-auto pr-1">
+              {filteredCandidates.length === 0 ? (
+                <div className="py-12 text-center text-slate-600 text-xs">
+                  Aucun chauffeur ne correspond aux critères de recherche.
+                </div>
+              ) : (
+                filteredCandidates.slice(0, 15).map(candidate => {
+                  const docs = candidate.documents || {};
+                  const docCount = Object.keys(docs).length;
+                  const isPending = !candidate.validated;
+
+                  return (
+                    <div
+                      key={candidate.id}
+                      className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/80 rounded-2xl px-2.5 transition-colors"
+                    >
+                      <div className="flex items-start gap-3.5 min-w-0">
+                        <div
+                          className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xs shrink-0 ${
+                            candidate.validated
+                              ? 'bg-emerald-50 text-[#43A047] border border-emerald-200'
+                              : 'bg-orange-50 text-[#FF7A00] border border-orange-200'
+                          }`}
+                        >
+                          {candidate.country === 'BE' ? '🇧🇪' : candidate.country === 'LU' ? '🇱🇺' : candidate.country === 'CH' ? '🇨🇭' : '🇫🇷'}
+                        </div>
+
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Link
+                              href={`/dashboard/admin/candidates/${candidate.id}`}
+                              className="text-sm font-black text-slate-900 hover:text-[#FF7A00] transition-colors truncate"
+                            >
+                              {candidate.full_name || 'Chauffeur sans nom'}
+                            </Link>
+
+                            {candidate.validated ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700">
+                                <CheckCircle2 className="w-3 h-3" /> Certifié 🛡️
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-red-50 text-[#E53935]">
+                                <Clock className="w-3 h-3" /> En attente
+                              </span>
+                            )}
+
+                            {docCount > 0 && (
+                              <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">
+                                📑 {docCount} doc{docCount > 1 ? 's' : ''}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="text-xs text-slate-600 flex items-center gap-2 mt-0.5">
+                            <span>{candidate.city || 'Ville non renseignée'} ({candidate.postal_code || '—'})</span>
+                            <span>•</span>
+                            <span>Permis : {Array.isArray(candidate.licenses) && candidate.licenses.length > 0 ? candidate.licenses.join(', ') : 'C/CE'}</span>
+                            {candidate.birth_date && (
+                              <>
+                                <span>•</span>
+                                <span>{calculateAge(candidate.birth_date)} ans</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                        <Link
+                          href={`/dashboard/admin/candidates/${candidate.id}`}
+                          className="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-200/70 transition-colors inline-flex items-center gap-1"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>Détails</span>
+                        </Link>
+
+                        {isPending && (
+                          <button
+                            onClick={() => handleQuickValidateCandidate(candidate.id, candidate.full_name)}
+                            disabled={actionLoading === candidate.id}
+                            className="px-3.5 py-1.5 rounded-xl text-xs font-black text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-xs transition-all disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <ShieldCheck className="w-3.5 h-3.5" />
+                            <span>{actionLoading === candidate.id ? 'Validation...' : 'Valider'}</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            <div className="pt-2 border-t border-slate-100 text-center">
+              <Link
+                href="/dashboard/admin/candidates"
+                className="inline-flex items-center gap-2 text-xs font-bold text-[#FF7A00] hover:underline"
+              >
+                <span>Voir le répertoire complet des {stats.candidatesCount} chauffeurs</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* TABLEAU EN DIRECT DES DÉBLOCAGES STRIPE RÉCENTS */}
+          <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-xs space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-[#FF7A00]" />
+                  Dernières Transactions Stripe
+                </h3>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  Flux en direct des achats de coordonnées chauffeurs (4,99 € TTC).
+                </p>
               </div>
               <Link
-                href="/dashboard/admin/candidates?status=pending"
-                className="text-xs text-orange-600 hover:text-orange-700 font-bold flex items-center gap-1 bg-orange-50 px-2.5 py-1 rounded-full border border-orange-100 transition-colors"
+                href="/dashboard/admin/finance"
+                className="text-xs font-bold text-[#FF7A00] hover:underline flex items-center gap-1"
               >
-                <span>Tout voir ({pendingCandidatesQueue.length})</span>
-                <ChevronRight className="h-3 w-3" />
+                <span>Grand livre financier</span>
+                <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
-            {pendingCandidatesQueue.length === 0 ? (
-              <div className="p-8 bg-slate-50 rounded-xl border border-slate-100 text-center space-y-2 my-2">
-                <CheckCircle2 className="h-8 w-8 text-emerald-500 mx-auto" />
-                <p className="text-xs font-bold text-slate-800">Aucun profil en attente de vérification !</p>
-                <p className="text-[11px] text-slate-400">Tous les dossiers soumis sont conformes.</p>
+            {recentUnlocks.length === 0 ? (
+              <div className="py-8 text-center text-xs text-slate-600">
+                Aucune transaction enregistrée pour le moment.
               </div>
             ) : (
-              <div className="space-y-2.5">
-                {pendingCandidatesQueue.slice(0, 4).map((cand) => (
-                  <div
-                    key={cand.id}
-                    className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 hover:border-slate-200 flex items-center justify-between gap-3 text-xs transition-all"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
-                        {cand.full_name?.charAt(0) || 'C'}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-bold text-slate-900 truncate text-xs">{cand.full_name || 'Chauffeur'}</p>
-                          {cand.birth_date && calculateAge(cand.birth_date) && (
-                            <span className="bg-slate-200 text-slate-700 font-bold px-1.5 py-0.2 rounded text-[10px]">
-                              {calculateAge(cand.birth_date)} ans
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-[11px] text-slate-400 truncate mt-0.5">
-                          {cand.city || 'France'} • {cand.licenses?.join(', ') || 'Permis C/CE'}
-                        </p>
-                      </div>
-                    </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-100 text-slate-600 font-bold uppercase tracking-wider text-[10px]">
+                      <th className="py-2.5 px-3">Date</th>
+                      <th className="py-2.5 px-3">Entreprise Recruteur</th>
+                      <th className="py-2.5 px-3">Chauffeur</th>
+                      <th className="py-2.5 px-3 text-right">Montant</th>
+                      <th className="py-2.5 px-3 text-right">Statut</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-slate-700">
+                    {recentUnlocks.slice(0, 5).map(unlock => (
+                      <tr key={unlock.id} className="hover:bg-slate-50/60 transition-colors">
+                        <td className="py-2.5 px-3 font-mono text-[11px] text-slate-600">
+                          {unlock.created_at ? new Date(unlock.created_at).toLocaleDateString('fr-FR', {
+                            day: '2-digit',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          }) : '—'}
+                        </td>
+                        <td className="py-2.5 px-3 font-bold text-slate-900 truncate max-w-[150px]">
+                          {unlock.companies?.name || 'Entreprise'}
+                        </td>
+                        <td className="py-2.5 px-3 text-slate-700 truncate max-w-[150px]">
+                          {unlock.candidates?.full_name || 'Chauffeur'}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-mono font-black text-emerald-700 text-xs">
+                          {((unlock.amount_charged || 200) / 100).toFixed(2)} €
+                        </td>
+                        <td className="py-2.5 px-3 text-right">
+                          <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                            <Check className="h-2.5 w-2.5" />
+                            Succès
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      <Link
-                        href={`/dashboard/admin/candidates/${cand.id}`}
-                        className="px-3 py-1.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-semibold rounded-lg text-[11px] transition-colors shadow-2xs"
-                      >
-                        Voir
-                      </Link>
+        {/* COLONNE DROITE (1/3) : RÉPARTITION GÉOGRAPHIQUE & OFFRES EN ATTENTE */}
+        <div className="space-y-6">
+          
+          {/* Carte 1 : Répartition Géographique (France, Belgique, Luxembourg, Suisse) */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
+            <h3 className="text-sm font-black text-slate-900 flex items-center justify-between">
+              <span>Répartition par Pays</span>
+              <span className="text-[11px] font-bold text-slate-600">{stats.candidatesCount} Chauffeurs</span>
+            </h3>
+
+            {/* Barres de progression par pays */}
+            <div className="space-y-3.5 pt-1">
+              
+              {/* France */}
+              <div>
+                <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                  <span className="flex items-center gap-1.5">🇫🇷 France</span>
+                  <span>{stats.franceCandidates} ({geoShare.fr}%)</span>
+                </div>
+                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                  <div className="bg-[#FF7A00] h-full rounded-full transition-all" style={{ width: `${geoShare.fr}%` }} />
+                </div>
+              </div>
+
+              {/* Belgique */}
+              <div>
+                <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                  <span className="flex items-center gap-1.5">🇧🇪 Belgique</span>
+                  <span>{stats.belgiumCandidates} ({geoShare.be}%)</span>
+                </div>
+                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                  <div className="bg-amber-500 h-full rounded-full transition-all" style={{ width: `${geoShare.be}%` }} />
+                </div>
+              </div>
+
+              {/* Luxembourg */}
+              <div>
+                <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                  <span className="flex items-center gap-1.5">🇱🇺 Luxembourg</span>
+                  <span>{stats.luxembourgCandidates} ({geoShare.lu}%)</span>
+                </div>
+                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                  <div className="bg-blue-500 h-full rounded-full transition-all" style={{ width: `${geoShare.lu}%` }} />
+                </div>
+              </div>
+
+              {/* Suisse */}
+              <div>
+                <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                  <span className="flex items-center gap-1.5">🇨🇭 Suisse</span>
+                  <span>{stats.switzerlandCandidates} ({geoShare.ch}%)</span>
+                </div>
+                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                  <div className="bg-red-500 h-full rounded-full transition-all" style={{ width: `${geoShare.ch}%` }} />
+                </div>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-slate-600 pt-2 border-t border-slate-100">
+              Couverture active sur les 4 zones frontalières et grands bassins logistiques.
+            </p>
+          </div>
+
+          {/* Carte 2 : Annonces nécessitant une modération rapide */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                <Briefcase className="w-4 h-4 text-amber-500" />
+                Modération Annonces
+              </h3>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-50 text-amber-700 border border-amber-200">
+                {pendingJobsList.length} en attente
+              </span>
+            </div>
+
+            {pendingJobsList.length === 0 ? (
+              <div className="py-6 text-center text-xs text-slate-600">
+                ✅ Aucune offre en attente de modération.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {pendingJobsList.slice(0, 3).map(job => (
+                  <div
+                    key={job.id}
+                    className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-2"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <h4 className="text-xs font-black text-slate-900 leading-tight">
+                        {job.title}
+                      </h4>
+                      <span className="text-[10px] font-bold text-slate-600 shrink-0">
+                        {job.city || 'France'}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-600">
+                      Par : <strong>{job.companies?.name || 'Entreprise'}</strong>
+                    </p>
+                    <div className="pt-1 flex items-center justify-end gap-2">
                       <button
-                        onClick={() => handleQuickValidateCandidate(cand.id, cand.full_name)}
-                        disabled={actionLoading === cand.id}
-                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-[11px] flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer shadow-xs shadow-emerald-600/20"
+                        onClick={() => handleQuickApproveJob(job.id, job.title)}
+                        disabled={actionLoading === job.id}
+                        className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[11px] font-bold transition-colors cursor-pointer"
                       >
-                        {actionLoading === cand.id ? (
-                          <RefreshCw className="h-3 w-3 animate-spin" />
-                        ) : (
-                          <ShieldCheck className="h-3.5 w-3.5" />
-                        )}
-                        <span>Valider</span>
+                        {actionLoading === job.id ? '...' : 'Approuver'}
                       </button>
                     </div>
                   </div>
                 ))}
               </div>
             )}
+
+            <div className="pt-2 border-t border-slate-100">
+              <Link
+                href="/dashboard/admin/jobs"
+                className="flex items-center justify-between text-xs font-bold text-slate-700 hover:text-slate-950"
+              >
+                <span>Accéder à toute la modération</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
           </div>
 
-          <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-400 flex items-center justify-between mt-3">
-            <span>Envoi automatique d&apos;e-mail de certification</span>
-            <span className="font-mono font-bold text-slate-700">{pendingCandidatesQueue.length} dossier(s) restant(s)</span>
-          </div>
-        </div>
-
-        {/* RÉPARTITION GÉOGRAPHIQUE 4 PAYS (5 COLS) */}
-        <div className="lg:col-span-5 min-w-0 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between overflow-hidden">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-slate-900 font-black text-sm">Réseau Géographique</h3>
-                <p className="text-xs text-slate-400">4 pays européens couverts</p>
-              </div>
-              <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
-                International
+          {/* Carte 3 : Support & Tchats Ouverts */}
+          <div className="bg-gradient-to-br from-slate-900 to-slate-950 text-white rounded-3xl p-6 shadow-md shadow-slate-950/20 space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black uppercase tracking-widest text-slate-400">
+                Support En Ligne
               </span>
-            </div>
-
-            {/* Grille des 4 pays */}
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="bg-blue-50/60 border border-blue-100 p-3.5 rounded-xl flex flex-col justify-between hover:bg-blue-50 transition-colors">
-                <span className="font-bold text-blue-950 flex items-center gap-1.5">
-                  <span className="text-base">🇫🇷</span> France
-                </span>
-                <div className="text-2xl font-black text-blue-700 mt-2 font-mono">{stats.franceCandidates}</div>
-                <span className="text-[10px] text-blue-600 mt-0.5">Chauffeurs actifs</span>
-              </div>
-              <div className="bg-rose-50/60 border border-rose-100 p-3.5 rounded-xl flex flex-col justify-between hover:bg-rose-50 transition-colors">
-                <span className="font-bold text-rose-950 flex items-center gap-1.5">
-                  <span className="text-base">🇧🇪</span> Belgique
-                </span>
-                <div className="text-2xl font-black text-rose-700 mt-2 font-mono">{stats.belgiumCandidates}</div>
-                <span className="text-[10px] text-rose-600 mt-0.5">Chauffeurs actifs</span>
-              </div>
-              <div className="bg-amber-50/60 border border-amber-100 p-3.5 rounded-xl flex flex-col justify-between hover:bg-amber-50 transition-colors">
-                <span className="font-bold text-amber-950 flex items-center gap-1.5">
-                  <span className="text-base">🇱🇺</span> Luxembourg
-                </span>
-                <div className="text-2xl font-black text-amber-700 mt-2 font-mono">{stats.luxembourgCandidates}</div>
-                <span className="text-[10px] text-amber-600 mt-0.5">Chauffeurs actifs</span>
-              </div>
-              <div className="bg-slate-50 border border-slate-200/80 p-3.5 rounded-xl flex flex-col justify-between hover:bg-slate-100/70 transition-colors">
-                <span className="font-bold text-slate-900 flex items-center gap-1.5">
-                  <span className="text-base">🇨🇭</span> Suisse
-                </span>
-                <div className="text-2xl font-black text-slate-700 mt-2 font-mono">{stats.switzerlandCandidates}</div>
-                <span className="text-[10px] text-slate-500 mt-0.5">Chauffeurs actifs</span>
+              <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-emerald-400">
+                <MessageSquare className="w-4 h-4" />
               </div>
             </div>
+
+            <div>
+              <div className="text-2xl font-black font-mono">
+                {stats.openSupportConvCount} conversation{stats.openSupportConvCount > 1 ? 's' : ''} ouverte{stats.openSupportConvCount > 1 ? 's' : ''}
+              </div>
+              <p className="text-xs text-slate-400 mt-1">
+                Répondez directement aux chauffeurs et transporteurs en temps réel.
+              </p>
+            </div>
+
+            <Link
+              href="/dashboard/admin/chat"
+              className="inline-flex items-center justify-center w-full py-2.5 rounded-xl bg-[#FF7A00] hover:bg-[#E56700] text-white text-xs font-black tracking-wide transition-all shadow-md shadow-orange-500/25 cursor-pointer"
+            >
+              <span>Ouvrir la Messagerie Support</span>
+            </Link>
           </div>
 
-          <div className="pt-3 text-[11px] text-slate-400 font-medium text-right border-t border-slate-100 mt-4">
-            Expansion transfrontalière européenne
-          </div>
         </div>
-
-      </div>
-
-      {/* 5. FLUX EN DIRECT DES DÉBLOCAGES & PAIEMENTS STRIPE */}
-      <div className="w-full bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="font-black text-slate-900 text-sm sm:text-base">
-                Achats de Contacts Chauffeurs (4,99 € TTC)
-              </h3>
-              <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full font-mono">
-                {stats.unlocksCount} déblocages
-              </span>
-            </div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Historique en direct des transactions Stripe
-            </p>
-          </div>
-
-          <Link
-            href="/dashboard/admin/finance"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors shrink-0 shadow-2xs"
-          >
-            <span>Grand Livre Financier</span>
-            <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-          </Link>
-        </div>
-
-        {recentUnlocks.length === 0 ? (
-          <p className="text-xs text-slate-400 py-8 text-center bg-slate-50 rounded-xl">
-            Aucun déblocage récent enregistré.
-          </p>
-        ) : (
-          <div className="overflow-x-auto w-full border border-slate-100 rounded-xl">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200/80 text-slate-600 font-bold uppercase tracking-wider text-[10px]">
-                  <th className="py-3 px-4">Date</th>
-                  <th className="py-3 px-4">Entreprise Recruteur</th>
-                  <th className="py-3 px-4">Chauffeur Débloqué</th>
-                  <th className="py-3 px-4 text-center">Montant</th>
-                  <th className="py-3 px-4 text-center">Réf. Stripe</th>
-                  <th className="py-3 px-4 text-right">Statut</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700">
-                {recentUnlocks.slice(0, 8).map((unlock) => (
-                  <tr key={unlock.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3 px-4 font-mono text-[11px] text-slate-500">
-                      {unlock.created_at ? new Date(unlock.created_at).toLocaleDateString('fr-FR', {
-                        day: '2-digit',
-                        month: 'short',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      }) : '—'}
-                    </td>
-                    <td className="py-3 px-4 font-bold text-slate-900 text-xs truncate max-w-[180px]">
-                      {unlock.companies?.name || 'Entreprise'}
-                    </td>
-                    <td className="py-3 px-4 text-slate-700 text-xs truncate max-w-[180px]">
-                      {unlock.candidates?.full_name || 'Chauffeur'}
-                    </td>
-                    <td className="py-3 px-4 text-center font-mono font-black text-emerald-700 text-xs">
-                      {((unlock.amount_charged || 200) / 100).toFixed(2)} €
-                    </td>
-                    <td className="py-3 px-4 text-center font-mono text-[10px] text-slate-400">
-                      {unlock.stripe_payment_intent_id ? unlock.stripe_payment_intent_id.slice(-8) : 'pi_direct'}
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                        <Check className="h-2.5 w-2.5" />
-                        Payé
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
       </div>
 
     </div>
   );
 }
-

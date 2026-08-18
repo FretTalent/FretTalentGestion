@@ -513,153 +513,205 @@ export default function AdminPremiumDashboard() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6 pb-12 font-sans">
+    <div className="space-y-8 font-sans pb-12">
       
-      {/* 1. EN-TÊTE PRINCIPALE */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs">
-        <div>
+      {/* 1. HEADER HERO AUTO-CANDIDATURES */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="space-y-2 z-10">
           <div className="flex items-center gap-2">
-            <span className="bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full shadow-xs">
-              Forfait 19,99 €
+            <span className="px-3 py-1 rounded-full bg-orange-50 text-[#FF7A00] text-[11px] font-black uppercase tracking-wider border border-orange-200/60 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" />
+              Service Premium Chauffeur (19,99 €)
             </span>
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              Module Auto-Candidatures Premium
-            </span>
+            <span className="text-xs font-bold text-slate-600">• Rayon automatique 50 km</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 mt-1 tracking-tight">
-            Diffusion Auto-Candidatures & Registre Transporteurs (50 km)
+
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Diffusion Auto-Candidatures & Registre Transporteurs
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Gérez les chauffeurs souscrits, prévisualisez en direct le template d&apos;email envoyé, testez l&apos;envoi et alimentez votre carnet d&apos;adresses.
+          <p className="text-sm text-slate-600 max-w-2xl leading-relaxed">
+            Supervision des chauffeurs boostés, diffusion géociblée, accusés d'ouverture et carnet d'adresses d'entreprises.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="flex flex-wrap items-center gap-3 z-10">
           <button
             onClick={() => setActiveTab('preview')}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all shadow-xs shadow-orange-500/20 cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-black bg-gradient-to-r from-[#FF7A00] to-[#E56700] hover:from-[#E56700] hover:to-[#FF7A00] text-white shadow-md shadow-orange-500/25 transition-all hover:scale-[1.02] cursor-pointer"
           >
-            <Eye className="h-4 w-4" />
-            <span>Voir Template & Envoyer Test</span>
+            <Eye className="w-4 h-4" />
+            <span>Tester l'Aperçu Email</span>
           </button>
 
           <button
             onClick={handleOpenAddCompany}
-            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white transition-colors cursor-pointer"
           >
-            <Plus className="h-4 w-4 text-slate-600" />
+            <Plus className="w-4 h-4" />
             <span>Ajouter Entreprise</span>
           </button>
 
           <button
             onClick={handleRunRelances}
             disabled={runningRelance}
-            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer disabled:opacity-50"
             title="Exécuter les relances programmées à J+7"
           >
-            <Send className={`h-4 w-4 ${runningRelance ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Relances J+7</span>
+            <Send className={`w-4 h-4 ${runningRelance ? 'animate-spin' : ''}`} />
+            <span>Relances J+7</span>
           </button>
 
           <button
             onClick={fetchAllData}
-            className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+            className="p-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
             title="Actualiser les données"
           >
-            <RefreshCw className="h-4 w-4" />
+            <RefreshCw className="w-4 h-4" />
           </button>
         </div>
       </div>
 
       {/* 2. 4 SCORECARDS KPIS */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-amber-500" />
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Chauffeurs Souscrits</span>
-          <div className="text-3xl font-black text-slate-900 mt-2 font-mono">{candidatures.length}</div>
-          <span className="text-[11px] text-orange-600 font-bold mt-1 block">
-            {(candidatures.length * 19.99).toFixed(2)} € encaissés
-          </span>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500" />
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Entreprises au Registre</span>
-          <div className="text-3xl font-black text-blue-600 mt-2 font-mono">{entreprises.length}</div>
-          <span className="text-[11px] text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full inline-block mt-1 font-bold">
-            {entreprises.filter(e => e.is_partner).length} partenaires prioritaires
-          </span>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500" />
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Emails Candidatures Envoyés</span>
-          <div className="text-3xl font-black text-emerald-600 mt-2 font-mono">
-            {candidatures.reduce((acc, curr) => acc + (curr.sent_count || 0), 0)}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        {/* KPI 1 */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-wider text-slate-600">
+              Chauffeurs Boostés
+            </span>
+            <div className="w-10 h-10 rounded-2xl bg-orange-50 text-[#FF7A00] flex items-center justify-center">
+              <Users className="w-5 h-5" />
+            </div>
           </div>
-          <span className="text-[11px] text-slate-500 mt-1 block">Dans un rayon de 50 km</span>
+          <div>
+            <div className="text-3xl font-black text-slate-900 font-mono tracking-tight">
+              {candidatures.length}
+            </div>
+            <div className="flex items-center gap-2 mt-2 text-xs text-slate-600 font-semibold">
+              <span className="bg-orange-50 text-[#FF7A00] px-2 py-0.5 rounded-md font-bold">
+                {(candidatures.length * 19.99).toFixed(2)} € collectés
+              </span>
+            </div>
+          </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-violet-600" />
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Candidatures Ouvertes</span>
-          <div className="text-3xl font-black text-purple-600 mt-2 font-mono">
-            {candidatures.reduce((acc, curr) => acc + (curr.opened_count || 0), 0)}
+        {/* KPI 2 */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-wider text-slate-600">
+              Registre Transporteurs
+            </span>
+            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <Building2 className="w-5 h-5" />
+            </div>
           </div>
-          <span className="text-[11px] text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full inline-block mt-1 font-bold">
-            Accusés transmis par email
-          </span>
+          <div>
+            <div className="text-3xl font-black text-slate-900 font-mono tracking-tight">
+              {entreprises.length}
+            </div>
+            <div className="flex items-center gap-2 mt-2 text-xs text-slate-600 font-semibold">
+              <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md font-bold">
+                {entreprises.filter(e => e.is_partner).length} partenaires prioritaires
+              </span>
+            </div>
+          </div>
         </div>
+
+        {/* KPI 3 */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-wider text-slate-600">
+              Emails Transmis (50 km)
+            </span>
+            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-[#43A047] flex items-center justify-center">
+              <Send className="w-5 h-5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-3xl font-black text-slate-900 font-mono tracking-tight">
+              {candidatures.reduce((acc, curr) => acc + (curr.sent_count || 0), 0)}
+            </div>
+            <div className="flex items-center gap-2 mt-2 text-xs text-slate-600 font-semibold">
+              <span className="bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded-md font-bold">
+                Diffusions automatiques
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* KPI 4 */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-wider text-slate-600">
+              Lectures Recruteurs
+            </span>
+            <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center">
+              <Eye className="w-5 h-5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-3xl font-black text-slate-900 font-mono tracking-tight">
+              {candidatures.reduce((acc, curr) => acc + (curr.opened_count || 0), 0)}
+            </div>
+            <div className="flex items-center gap-2 mt-2 text-xs text-slate-600 font-semibold">
+              <span className="bg-purple-50 text-purple-700 px-2 py-0.5 rounded-md font-bold">
+                Accusés reçus
+              </span>
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      {/* 3. SÉLECTEUR D'ONGLETS */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 flex-wrap">
+      {/* 3. SÉLECTEUR D'ONGLETS MODERNE */}
+      <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl w-fit flex-wrap">
         <button
           onClick={() => setActiveTab('candidats')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             activeTab === 'candidats'
-              ? 'bg-slate-900 text-white shadow-xs'
-              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+              ? 'bg-white text-slate-900 shadow-xs font-black'
+              : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          <Users className="h-4 w-4" />
+          <Users className="w-4 h-4 text-[#FF7A00]" />
           <span>Chauffeurs Souscrits ({candidatures.length})</span>
         </button>
 
         <button
           onClick={() => setActiveTab('preview')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             activeTab === 'preview'
-              ? 'bg-orange-500 text-white shadow-xs shadow-orange-500/20'
-              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+              ? 'bg-white text-slate-900 shadow-xs font-black'
+              : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          <Eye className="h-4 w-4" />
-          <span>Simulation 50 km & Template Email (Live)</span>
+          <Eye className="w-4 h-4 text-blue-600" />
+          <span>Aperçu Email & Test</span>
         </button>
 
         <button
           onClick={() => setActiveTab('entreprises')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             activeTab === 'entreprises'
-              ? 'bg-slate-900 text-white shadow-xs'
-              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+              ? 'bg-white text-slate-900 shadow-xs font-black'
+              : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          <Building2 className="h-4 w-4" />
-          <span>Carnet d&apos;Adresses Entreprises ({entreprises.length})</span>
+          <Building2 className="w-4 h-4 text-emerald-600" />
+          <span>Carnet d'Entreprises ({entreprises.length})</span>
         </button>
 
         <button
           onClick={() => setActiveTab('journal')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             activeTab === 'journal'
-              ? 'bg-slate-900 text-white shadow-xs'
-              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+              ? 'bg-white text-slate-900 shadow-xs font-black'
+              : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          <Send className="h-4 w-4" />
-          <span>Journal des Envois & Tracking</span>
+          <Clock className="w-4 h-4 text-slate-600" />
+          <span>Journal d'Envois</span>
         </button>
       </div>
 

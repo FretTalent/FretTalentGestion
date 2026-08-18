@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { RefreshCw, Search, Trash2, FileText, Download, X } from 'lucide-react';
+import { RefreshCw, Search, Trash2, FileText, Download, X, Users, Shield, Building2, UserCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ConfirmModal from '@/components/ConfirmModal';
 
@@ -73,8 +73,10 @@ export default function AdminUsers() {
       setUsersList(
         usersList.map(u => (u.id === userId ? { ...u, role: newRole } : u)),
       );
+      toast.success('Rôle mis à jour avec succès');
     } catch (err) {
       console.error(err);
+      toast.error('Erreur lors du changement de rôle');
     } finally {
       setActionLoading(false);
     }
@@ -134,13 +136,17 @@ export default function AdminUsers() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <RefreshCw className="h-8 w-8 text-orange-500 animate-spin" />
+      <div className="flex flex-col items-center justify-center min-h-[500px] gap-4">
+        <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-[#FF7A00] animate-spin">
+          <RefreshCw className="w-6 h-6" />
+        </div>
+        <p className="text-xs font-black uppercase tracking-widest text-slate-400">
+          Chargement des profils d'utilisateurs...
+        </p>
       </div>
     );
   }
 
-  // Filtrage
   const filteredUsers = usersList.filter(usr => {
     const term = searchTerm.toLowerCase();
     let name = '';
@@ -157,64 +163,65 @@ export default function AdminUsers() {
     );
   });
 
-  // Groupement
   const groupedUsers = {
     recruiter: filteredUsers.filter(u => u.role === 'recruiter'),
     candidate: filteredUsers.filter(u => u.role === 'candidate'),
     admin: filteredUsers.filter(u => u.role === 'admin'),
   };
 
-  const renderTable = (users, title) => {
+  const renderTable = (users, title, badgeColor) => {
     if (users.length === 0) return null;
 
     return (
-      <div className="mb-8">
-        <h3 className="text-md font-bold text-slate-800 mb-4 px-2">
-          {title} ({users.length})
-        </h3>
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
-                  <th className="p-4">Utilisateur</th>
-                  <th className="p-4">Date d'inscription</th>
-                  <th className="p-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
-                {users.map(usr => {
-                  let displayName = 'Admin / Inconnu';
-                  if (usr.role === 'candidate' && usr.candidates) {
-                    displayName =
-                      usr.candidates.full_name || 'Candidat sans nom';
-                  } else if (usr.role === 'recruiter' && usr.companies) {
-                    displayName = usr.companies.name;
-                  }
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+            <span>{title}</span>
+            <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${badgeColor}`}>
+              {users.length}
+            </span>
+          </h3>
+        </div>
 
-                  return (
-                    <tr key={usr.id} className="hover:bg-slate-50/50">
-                      <td className="p-4">
-                        <div className="font-bold text-slate-800 text-sm">
-                          {displayName}
-                        </div>
-                        <div className="font-mono text-[10px] text-slate-400 mt-0.5">
-                          {usr.id}
-                        </div>
-                      </td>
-                      <td className="p-4 text-xs text-slate-500">
-                        {new Date(usr.created_at).toLocaleDateString('fr-FR')}
-                      </td>
-                      <td className="p-4 text-right space-x-2">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr className="border-b border-slate-100 text-slate-600 font-bold uppercase tracking-wider text-[10px]">
+                <th className="py-3 px-3">Identifiant & Nom</th>
+                <th className="py-3 px-3">Date d'inscription</th>
+                <th className="py-3 px-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-slate-700">
+              {users.map(usr => {
+                let displayName = 'Admin / Inconnu';
+                if (usr.role === 'candidate' && usr.candidates) {
+                  displayName = usr.candidates.full_name || 'Candidat sans nom';
+                } else if (usr.role === 'recruiter' && usr.companies) {
+                  displayName = usr.companies.name;
+                }
+
+                return (
+                  <tr key={usr.id} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="py-3 px-3">
+                      <div className="font-black text-slate-900 text-sm">{displayName}</div>
+                      <div className="font-mono text-[10px] text-slate-600 mt-0.5">{usr.id}</div>
+                    </td>
+                    <td className="py-3 px-3 font-mono text-slate-600">
+                      {new Date(usr.created_at).toLocaleDateString('fr-FR')}
+                    </td>
+                    <td className="py-3 px-3 text-right">
+                      <div className="flex items-center justify-end gap-2">
                         {usr.role === 'candidate' &&
                           usr.candidates?.documents &&
                           Object.keys(usr.candidates.documents).length > 0 && (
                             <button
                               onClick={() => setSelectedDocsUser(usr)}
-                              className="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors inline-flex items-center gap-1"
+                              className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-orange-50 text-[#FF7A00] hover:bg-orange-100 transition-colors inline-flex items-center gap-1 cursor-pointer"
                               title="Voir les documents"
                             >
-                              <FileText className="w-3 h-3" /> Docs
+                              <FileText className="w-3.5 h-3.5" />
+                              <span>Docs</span>
                             </button>
                           )}
                         {usr.role !== 'admin' && (
@@ -222,120 +229,114 @@ export default function AdminUsers() {
                             <button
                               disabled={actionLoading}
                               onClick={() => handleToggleRole(usr.id, usr.role)}
-                              className="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                              className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
                             >
-                              Basculer
+                              Basculer rôle
                             </button>
                             <button
                               disabled={actionLoading}
                               onClick={() => requestDelete(usr, displayName)}
-                              className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors inline-flex items-center justify-center"
-                              title="Supprimer le compte"
+                              className="p-1.5 rounded-xl text-slate-600 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                              title="Supprimer"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
                           </>
                         )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
     );
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900">
-            Utilisateurs inscrits
-          </h2>
-          <p className="text-sm text-slate-500 mt-1">
-            Gérez les comptes et les accès à la plateforme.
+    <div className="space-y-8 font-sans pb-12">
+      
+      {/* 1. HEADER HERO UTILISATEURS */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="space-y-2 z-10">
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-[11px] font-black uppercase tracking-wider border border-slate-200 flex items-center gap-1.5">
+              <Users className="w-3.5 h-3.5" />
+              Répertoire Global des Comptes
+            </span>
+            <span className="text-xs font-bold text-slate-600">• Auth & Droits d'accès</span>
+          </div>
+
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Gestion des Utilisateurs & Rôles
+          </h1>
+          <p className="text-sm text-slate-600 max-w-2xl leading-relaxed">
+            Supervision de tous les comptes authentifiés (Chauffeurs, Entreprises et Administrateurs) avec bascule de rôle en direct.
           </p>
         </div>
 
-        <div className="relative max-w-sm w-full">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-slate-400" />
-          </div>
+        <div className="flex flex-wrap items-center gap-3 z-10">
+          <button
+            onClick={fetchUsers}
+            className="p-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+            title="Actualiser"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* 2. RECHERCHE */}
+      <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs">
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
           <input
             type="text"
-            className="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-xl leading-5 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 sm:text-sm transition-all"
-            placeholder="Rechercher un nom, ID, rôle..."
+            placeholder="Rechercher par nom, UUID ou rôle..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
+            className="w-full pl-11 pr-4 py-2.5 border border-slate-200 rounded-2xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/20 bg-slate-50/50"
           />
         </div>
       </div>
 
-      <div>
-        {filteredUsers.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-3xl border border-slate-200 shadow-sm">
-            <p className="text-slate-500">Aucun utilisateur trouvé.</p>
-          </div>
-        ) : (
-          <>
-            {renderTable(groupedUsers.recruiter, '🏢 Entreprises')}
-            {renderTable(groupedUsers.candidate, '🚛 Candidats')}
-            {renderTable(groupedUsers.admin, '🛡️ Administrateurs')}
-          </>
-        )}
+      {/* 3. GROUPES */}
+      <div className="space-y-6">
+        {renderTable(groupedUsers.admin, 'Administrateurs', 'bg-purple-100 text-purple-800')}
+        {renderTable(groupedUsers.recruiter, 'Comptes Recruteurs', 'bg-blue-100 text-blue-800')}
+        {renderTable(groupedUsers.candidate, 'Comptes Chauffeurs', 'bg-orange-100 text-[#FF7A00]')}
       </div>
 
-      {/* Modal Documents Candidat */}
+      {/* MODAL PIÈCES DU CANDIDAT */}
       {selectedDocsUser && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 max-w-md w-full space-y-6">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-bold text-slate-900">
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-sm font-black text-slate-900">
                 Documents de {selectedDocsUser.candidates?.full_name}
               </h3>
-              <button
-                onClick={() => setSelectedDocsUser(null)}
-                className="p-2 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors text-slate-500"
-              >
+              <button onClick={() => setSelectedDocsUser(null)} className="p-1 rounded-lg text-slate-600 hover:text-slate-900">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-3">
-              {Object.entries(selectedDocsUser.candidates.documents).map(
-                ([key, doc]) => (
+            <div className="space-y-2 max-h-80 overflow-y-auto">
+              {Object.entries(selectedDocsUser.candidates?.documents || {}).map(([key, doc]) => (
+                <div key={key} className="p-3 bg-slate-50 rounded-2xl flex items-center justify-between gap-3 text-xs">
+                  <div className="min-w-0">
+                    <span className="font-bold text-slate-900 block truncate">{doc.name || key}</span>
+                    <span className="text-[10px] text-slate-600 font-mono">{key}</span>
+                  </div>
                   <button
-                    key={key}
                     onClick={() => handleDownloadDocument(doc.path)}
-                    className="w-full flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:border-orange-500 hover:shadow-sm transition-all text-left group"
+                    className="p-1.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 text-slate-700 transition-colors"
                   >
-                    <div className="flex items-center gap-3 overflow-hidden">
-                      <FileText className="h-5 w-5 text-orange-500 flex-shrink-0" />
-                      <div className="truncate">
-                        <span className="text-sm font-bold text-slate-700 block truncate uppercase">
-                          {key}
-                        </span>
-                        <span className="text-xs text-slate-400 block truncate">
-                          {doc.name}
-                        </span>
-                      </div>
-                    </div>
-                    <Download className="h-4 w-4 text-slate-300 group-hover:text-orange-500 flex-shrink-0" />
+                    <Download className="w-3.5 h-3.5" />
                   </button>
-                ),
-              )}
-            </div>
-
-            <div className="pt-2 flex justify-end">
-              <button
-                onClick={() => setSelectedDocsUser(null)}
-                className="px-4 py-2 bg-slate-900 text-white font-bold rounded-xl text-sm"
-              >
-                Fermer
-              </button>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -344,12 +345,14 @@ export default function AdminUsers() {
       <ConfirmModal
         isOpen={confirmModal.isOpen}
         title="Supprimer cet utilisateur ?"
-        message={`Êtes-vous sûr de vouloir supprimer définitivement le compte de "${confirmModal.user?.name}" ? Cette action est irréversible.`}
+        message={`Êtes-vous sûr de vouloir supprimer définitivement le compte de ${confirmModal.user?.name} ? Toutes ses données seront effacées.`}
+        confirmLabel="Supprimer"
+        cancelLabel="Annuler"
+        variant="danger"
         onConfirm={executeDelete}
         onCancel={() => setConfirmModal({ isOpen: false, user: null })}
-        variant="danger"
-        confirmText="Oui, supprimer"
       />
+
     </div>
   );
 }

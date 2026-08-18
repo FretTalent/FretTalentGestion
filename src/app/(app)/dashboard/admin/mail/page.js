@@ -249,6 +249,7 @@ export default function AdminMail() {
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [totalCandidateCount, setTotalCandidateCount] = useState(0);
   const [totalCompanyCount, setTotalCompanyCount] = useState(0);
+  const [incompleteCandidateCount, setIncompleteCandidateCount] = useState(0);
 
   const [templateCategory, setTemplateCategory] = useState('recruiter'); // 'recruiter' | 'candidate' | 'general' | 'all'
   const [selectedTemplateKey, setSelectedTemplateKey] = useState('prospection_transporteur');
@@ -269,13 +270,20 @@ export default function AdminMail() {
     try {
       const { data: candidates } = await supabase
         .from('candidates')
-        .select('id, full_name, email, country, city')
+        .select('id, full_name, email, country, city, documents, validated')
         .limit(200);
 
       const { data: profiles } = await supabase
         .from('profiles')
         .select('id, email, company_name, role')
         .limit(200);
+
+      const incomplete = (candidates || []).filter(c => {
+        const docs = c.documents || {};
+        const count = ['cv', 'permis_recto', 'permis_verso', 'chrono_recto', 'chrono_verso', 'fimo_recto', 'fimo_verso'].filter(k => !!docs[k]).length;
+        return count < 7;
+      }).length;
+      setIncompleteCandidateCount(incomplete);
 
       const candidateList = (candidates || []).filter(c => c.email).map(c => ({
         id: c.id,
@@ -392,141 +400,157 @@ export default function AdminMail() {
   const selectedTpl = TEMPLATES[selectedTemplateKey];
 
   return (
-    <div className="w-full max-w-full space-y-4 pb-12 font-sans bg-slate-100/70 p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm overflow-hidden box-border">
+    <div className="space-y-8 font-sans pb-12">
       
-      {/* 1. EN-TÊTE SUPÉRIEURE DE PILOTAGE MESSAGERIE & MAILING */}
-      <div className="w-full bg-slate-950 text-white px-4 py-2.5 rounded-xl flex flex-wrap items-center justify-between gap-3 shadow-md min-w-0">
-        <div className="flex items-center gap-3 flex-wrap min-w-0">
+      {/* 1. EN-TÊTE HERO MAILS */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="space-y-2 z-10">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center font-black text-[11px] text-white">
-              EM
-            </div>
-            <span className="font-bold text-xs text-slate-200">
+            <span className="px-3 py-1 rounded-full bg-orange-50 text-[#FF7A00] text-[11px] font-black uppercase tracking-wider border border-orange-200/60 flex items-center gap-1.5">
+              <Mail className="w-3.5 h-3.5" />
               Centre de Messagerie & Campagnes E-mails
             </span>
+            <span className="text-xs font-bold text-slate-600">• Expéditeur support@frettalent.fr</span>
           </div>
-          <span className="text-slate-600 text-xs hidden sm:inline">|</span>
-          <span className="text-xs text-slate-300 font-medium truncate max-w-[280px] sm:max-w-none">
-            Diffusion Officielle & Relances Automatisées
-          </span>
-          <span className="inline-flex items-center gap-1 bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Expéditeur : support@frettalent.fr
-          </span>
+
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Campagnes d'Emails & Relances Ciblées
+          </h1>
+          <p className="text-sm text-slate-600 max-w-2xl leading-relaxed">
+            Diffusion de modèles officiels, prospection transporteurs et relance de complétion de dossiers chauffeurs.
+          </p>
         </div>
 
-        {/* Action Rapide */}
-        <div className="flex items-center gap-2 flex-wrap shrink-0">
+        <div className="flex flex-wrap items-center gap-3 z-10">
           <button
             onClick={fetchDirectoryUsers}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors cursor-pointer"
-            title="Actualiser les contacts"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer"
           >
-            <RefreshCw className={`h-3 w-3 ${loadingUsers ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Actualiser contacts</span>
+            <RefreshCw className={`w-4 h-4 ${loadingUsers ? 'animate-spin' : ''}`} />
+            <span>Actualiser les Contacts</span>
           </button>
         </div>
       </div>
 
-      {/* 2. BANDEAU DE CONTEXTE */}
-      <div className="w-full bg-white px-4 py-2 rounded-xl border border-slate-200/80 flex items-center justify-between gap-3 text-xs shadow-2xs min-w-0">
-        <div className="flex items-center gap-2 flex-1 text-slate-400 min-w-0">
-          <HelpCircle className="h-4 w-4 text-slate-400 shrink-0" />
-          <span className="italic text-slate-500 truncate text-[11px] sm:text-xs">
-            Envoi d'e-mails sécurisés avec rendu HTML professionnel certifié DKIM / SPF (support@frettalent.fr).
-          </span>
-        </div>
-        <div className="flex items-center gap-1.5 shrink-0 text-slate-500 font-mono text-[11px]">
-          <strong>{usersList.length}</strong> contacts répertoriés
-        </div>
-      </div>
-
-      {/* 3. HERO SCORECARDS KPI (4 COLONNES ÉQUILIBRÉES) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 w-full min-w-0">
+      {/* 2. KPI CARDS CIBLAGE */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         
-        {/* KPI 1 : Chauffeurs Joignables */}
+        {/* Chauffeurs */}
         <div
           onClick={() => {
             setTarget('all_candidates');
             setSelectedUser(null);
           }}
-          className={`p-4 sm:p-5 rounded-xl border transition-all cursor-pointer min-w-0 ${
+          className={`rounded-3xl p-6 border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
             target === 'all_candidates'
-              ? 'bg-orange-500 text-white border-orange-600 shadow-md ring-2 ring-orange-500/20'
-              : 'bg-white text-slate-900 border-slate-200 shadow-2xs hover:border-orange-300'
+              ? 'bg-[#FF7A00] text-white border-[#FF7A00] shadow-md ring-2 ring-orange-500/20'
+              : 'bg-white text-slate-900 border-slate-200 shadow-xs hover:border-orange-300'
           }`}
         >
-          <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider opacity-80">
-            <span className="truncate">Chauffeurs Joignables</span>
-            <Users className="h-4 w-4 shrink-0 ml-1" />
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-wider opacity-90">
+              Tous les Chauffeurs
+            </span>
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${target === 'all_candidates' ? 'bg-white/10 text-white' : 'bg-orange-50 text-[#FF7A00]'}`}>
+              <Users className="w-5 h-5" />
+            </div>
           </div>
-          <div className="text-3xl sm:text-4xl font-black mt-2 tracking-tight font-mono">
-            {totalCandidateCount}
-          </div>
-          <div className="mt-2.5 pt-2.5 border-t border-current/10 flex items-center justify-between text-xs opacity-80">
-            <span className="text-[11px]">Candidats conducteurs</span>
-            <span className="font-bold text-[10px]">1 Clic</span>
+          <div>
+            <div className="text-3xl font-black font-mono tracking-tight">
+              {totalCandidateCount}
+            </div>
+            <p className="text-xs mt-2 opacity-90 font-semibold">
+              Campagne générale conducteurs
+            </p>
           </div>
         </div>
 
-        {/* KPI 2 : Entreprises Joignables */}
+        {/* Entreprises */}
         <div
           onClick={() => {
             setTarget('all_companies');
             setSelectedUser(null);
           }}
-          className={`p-4 sm:p-5 rounded-xl border transition-all cursor-pointer min-w-0 ${
+          className={`rounded-3xl p-6 border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
             target === 'all_companies'
               ? 'bg-blue-600 text-white border-blue-700 shadow-md ring-2 ring-blue-600/20'
-              : 'bg-white text-slate-900 border-slate-200 shadow-2xs hover:border-blue-300'
+              : 'bg-white text-slate-900 border-slate-200 shadow-xs hover:border-blue-300'
           }`}
         >
-          <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-blue-600">
-            <span className="truncate">Entreprises Joignables</span>
-            <Building2 className="h-4 w-4 shrink-0 ml-1" />
-          </div>
-          <div className="text-3xl sm:text-4xl font-black text-blue-600 mt-2 tracking-tight font-mono">
-            {totalCompanyCount}
-          </div>
-          <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span className="text-[11px]">Transporteurs inscrits</span>
-            <span className="font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded text-[10px]">
-              1 Clic
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-wider opacity-90">
+              Toutes les Entreprises
             </span>
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${target === 'all_companies' ? 'bg-white/10 text-white' : 'bg-blue-50 text-blue-600'}`}>
+              <Building2 className="w-5 h-5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-3xl font-black font-mono tracking-tight">
+              {totalCompanyCount}
+            </div>
+            <p className="text-xs mt-2 opacity-90 font-semibold">
+              Campagne B2B transporteurs
+            </p>
           </div>
         </div>
 
-        {/* KPI 3 : Modèles Prêts */}
-        <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow min-w-0">
-          <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-            <span className="truncate">Modèles Pré-rédigés</span>
-            <Sparkles className="h-4 w-4 text-purple-600 shrink-0 ml-1" />
-          </div>
-          <div className="text-3xl sm:text-4xl font-black text-slate-950 mt-2 tracking-tight font-mono">
-            {Object.keys(TEMPLATES).length}
-          </div>
-          <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span className="text-[11px]">Thèmes & Campagnes</span>
-            <span className="font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded text-[10px]">
-              Prêts
+        {/* Chauffeurs Incomplets */}
+        <div
+          onClick={() => {
+            setTarget('candidates_incomplete_docs');
+            setSelectedUser(null);
+          }}
+          className={`rounded-3xl p-6 border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
+            target === 'candidates_incomplete_docs'
+              ? 'bg-[#E53935] text-white border-[#E53935] shadow-md ring-2 ring-red-500/20'
+              : 'bg-white text-slate-900 border-slate-200 shadow-xs hover:border-red-300'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-wider text-[#E53935]">
+              Chauffeurs Incomplets
             </span>
+            <div className="w-10 h-10 rounded-2xl bg-red-50 text-[#E53935] flex items-center justify-center">
+              <AlertCircle className="w-5 h-5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-3xl font-black font-mono tracking-tight text-[#E53935]">
+              {incompleteCandidateCount}
+            </div>
+            <p className="text-xs mt-2 text-red-600 font-bold">
+              Relance dépôt des 7 pièces
+            </p>
           </div>
         </div>
 
-        {/* KPI 4 : Délivrabilité */}
-        <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-sm transition-shadow min-w-0">
-          <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-            <span className="truncate">Serveur d'Envoi</span>
-            <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0 ml-1" />
-          </div>
-          <div className="text-2xl sm:text-3xl font-black text-slate-950 mt-2 tracking-tight font-mono truncate">
-            100% DKIM
-          </div>
-          <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span className="text-[11px]">Anti-Spam Garanti :</span>
-            <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded text-[10px]">
-              Certifié
+        {/* Email Individuel */}
+        <div
+          onClick={() => {
+            setTarget('single');
+          }}
+          className={`rounded-3xl p-6 border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
+            target === 'single'
+              ? 'bg-slate-950 text-white border-slate-950 shadow-md ring-2 ring-slate-900/10'
+              : 'bg-white text-slate-900 border-slate-200 shadow-xs hover:border-slate-300'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-wider opacity-75">
+              Destinataire Unique
             </span>
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${target === 'single' ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-700'}`}>
+              <Mail className="w-5 h-5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-3xl font-black font-mono tracking-tight">
+              1
+            </div>
+            <p className="text-xs mt-2 opacity-75 font-semibold">
+              Envoi direct ciblé
+            </p>
           </div>
         </div>
 

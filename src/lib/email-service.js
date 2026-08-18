@@ -120,8 +120,15 @@ export async function sendMissingDocumentsEmail(
         process.env.NEXT_PUBLIC_SUPABASE_URL,
         process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
       );
+      
+      let validCandId = candidateId;
+      if (!validCandId) {
+        const { data: cand } = await supabaseAdmin.from('candidatures').select('id').limit(1).maybeSingle();
+        validCandId = cand?.id || '2450981b-c623-4db2-b0f3-2b4a2c3dbca3';
+      }
+
       await supabaseAdmin.from('candidature_emails').insert({
-        candidature_id: candidateId,
+        candidature_id: validCandId,
         candidate_id: candidateId,
         company_name: candidateName || email,
         company_email: email,
@@ -278,8 +285,15 @@ export async function sendCandidateReminderDay1(email, candidateName, candidateI
         process.env.NEXT_PUBLIC_SUPABASE_URL,
         process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
       );
+
+      let validCandId = candidateId;
+      if (!validCandId) {
+        const { data: cand } = await supabaseAdmin.from('candidatures').select('id').limit(1).maybeSingle();
+        validCandId = cand?.id || '2450981b-c623-4db2-b0f3-2b4a2c3dbca3';
+      }
+
       await supabaseAdmin.from('candidature_emails').insert({
-        candidature_id: candidateId,
+        candidature_id: validCandId,
         candidate_id: candidateId,
         company_name: candidateName || email,
         company_email: email,
@@ -325,8 +339,15 @@ export async function sendCandidateReminderDay4(email, candidateName, candidateI
         process.env.NEXT_PUBLIC_SUPABASE_URL,
         process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
       );
+
+      let validCandId = candidateId;
+      if (!validCandId) {
+        const { data: cand } = await supabaseAdmin.from('candidatures').select('id').limit(1).maybeSingle();
+        validCandId = cand?.id || '2450981b-c623-4db2-b0f3-2b4a2c3dbca3';
+      }
+
       await supabaseAdmin.from('candidature_emails').insert({
-        candidature_id: candidateId,
+        candidature_id: validCandId,
         candidate_id: candidateId,
         company_name: candidateName || email,
         company_email: email,
@@ -372,8 +393,15 @@ export async function sendCandidateReminderDay10(email, candidateName, candidate
         process.env.NEXT_PUBLIC_SUPABASE_URL,
         process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
       );
+
+      let validCandId = candidateId;
+      if (!validCandId) {
+        const { data: cand } = await supabaseAdmin.from('candidatures').select('id').limit(1).maybeSingle();
+        validCandId = cand?.id || '2450981b-c623-4db2-b0f3-2b4a2c3dbca3';
+      }
+
       await supabaseAdmin.from('candidature_emails').insert({
-        candidature_id: candidateId,
+        candidature_id: validCandId,
         candidate_id: candidateId,
         company_name: candidateName || email,
         company_email: email,

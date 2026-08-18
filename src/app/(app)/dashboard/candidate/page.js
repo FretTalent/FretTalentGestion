@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import AddressAutocomplete from '@/components/AddressAutocomplete';
@@ -30,7 +30,7 @@ import {
 } from 'lucide-react';
 import { validatePhoneNumber, validateAddress, COUNTRIES, calculateAge } from '@/lib/country';
 
-export default function CandidateDashboard() {
+function CandidateDashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -1253,5 +1253,19 @@ export default function CandidateDashboard() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function CandidateDashboard() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center h-64">
+          <RefreshCw className="h-8 w-8 text-orange-500 animate-spin" />
+        </div>
+      }
+    >
+      <CandidateDashboardContent />
+    </Suspense>
   );
 }

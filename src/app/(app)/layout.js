@@ -23,12 +23,12 @@ import {
   CreditCard,
   X,
   MessageSquare,
-  Bell,
+  Send,
   ExternalLink,
 } from 'lucide-react';
 
 const navCandidate = [
-  { href: '/dashboard/candidate', icon: Settings, label: 'Mon profil' },
+  { href: '/dashboard/candidate', icon: Truck, label: 'Mon profil' },
   {
     href: '/dashboard/candidate/documents',
     icon: FileText,
@@ -51,6 +51,8 @@ const navAdmin = [
   { href: '/dashboard/admin', icon: BarChart3, label: 'Tableau de bord' },
   { href: '/dashboard/admin/stats', icon: TrendingUp, label: 'Statistiques site' },
   { href: '/dashboard/admin/finance', icon: CreditCard, label: 'Finances & Stripe' },
+  { section: 'Auto-Candidatures (19,99 €)' },
+  { href: '/dashboard/admin/premium', icon: Send, label: 'Auto-Candidatures' },
   { section: 'Données & Modération' },
   { href: '/dashboard/admin/candidates', icon: Users, label: 'Candidats' },
   { href: '/dashboard/admin/companies', icon: Building2, label: 'Entreprises' },
@@ -65,6 +67,7 @@ const breadcrumbMap = {
   '/dashboard/admin': 'Tableau de bord',
   '/dashboard/admin/stats': 'Statistiques site',
   '/dashboard/admin/finance': 'Finances & Stripe',
+  '/dashboard/admin/premium': 'Auto-Candidatures 19,99 €',
   '/dashboard/admin/candidates': 'Candidats',
   '/dashboard/admin/companies': 'Entreprises',
   '/dashboard/admin/jobs': 'Modération annonces',

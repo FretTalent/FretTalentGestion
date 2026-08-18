@@ -26,16 +26,20 @@ import {
   Zap,
   Eye,
   AlertCircle,
+  Sparkles,
+  ExternalLink,
+  ChevronRight,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function AdminPremiumDashboard() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('candidats'); // 'candidats' | 'entreprises' | 'journal'
+  const [activeTab, setActiveTab] = useState('candidats'); // 'candidats' | 'preview' | 'entreprises' | 'journal'
   const [loading, setLoading] = useState(true);
 
   // Données
   const [candidatures, setCandidatures] = useState([]);
+  const [allCandidatesList, setAllCandidatesList] = useState([]);
   const [entreprises, setEntreprises] = useState([]);
   const [emailsLog, setEmailsLog] = useState([]);
   const [stats, setStats] = useState({
@@ -47,10 +51,19 @@ export default function AdminPremiumDashboard() {
     totalOpened: 0,
   });
 
-  // Filtres
+  // Filtres carnet d'adresses
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCountry, setFilterCountry] = useState('all');
   const [filterPartner, setFilterPartner] = useState('all');
+
+  // État onglet Prévisualisation & Simulation 50 km
+  const [previewCandidateId, setPreviewCandidateId] = useState('');
+  const [previewCompanyId, setPreviewCompanyId] = useState('');
+  const [previewData, setPreviewData] = useState(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [testEmailRecipient, setTestEmailRecipient] = useState('');
+  const [sendingTestEmail, setSendingTestEmail] = useState(false);
+  const [dispatchingLive, setDispatchingLive] = useState(false);
 
   // Modal Ajout/Modif Entreprise
   const [modalCompanyOpen, setModalCompanyOpen] = useState(false);
@@ -97,6 +110,7 @@ export default function AdminPremiumDashboard() {
         router.push('/login');
         return;
       }
+      setTestEmailRecipient(user.email || 'support@frettalent.fr');
 
       const { data: profile } = await supabase
         .from('profiles')
@@ -130,14 +144,25 @@ export default function AdminPremiumDashboard() {
       if (candsErr) console.warn('Erreur chargement candidatures:', candsErr);
       setCandidatures(candsData || []);
 
-      // 2. Récupérer le registre des entreprises
+      // 2. Récupérer tous les candidats pour le sélecteur de prévisualisation
+      const { data: allCands } = await supabase
+        .from('candidates')
+        .select('id, full_name, postal_code, city, licenses, experience_years')
+        .order('full_name', { ascending: true });
+      setAllCandidatesList(allCands || []);
+
+      if (allCands && allCands.length > 0 && !previewCandidateId) {
+        setPreviewCandidateId(candsData?.[0]?.candidate_id || allCands[0].id);
+      }
+
+      // 3. Récupérer le registre des entreprises
       const resEnt = await fetch('/api/admin/entreprises');
       if (resEnt.ok) {
         const entData = await resEnt.json();
         setEntreprises(entData.entreprises || []);
       }
 
-      // 3. Récupérer le journal des 100 derniers emails envoyés
+      // 4. Récupérer le journal des 100 derniers emails envoyés
       const { data: emailsData, error: emailsErr } = await supabase
         .from('candidature_emails')
         .select(`
@@ -150,7 +175,7 @@ export default function AdminPremiumDashboard() {
       if (emailsErr) console.warn('Erreur chargement logs emails:', emailsErr);
       setEmailsLog(emailsData || []);
 
-      // 4. Calculer les statistiques
+      // 5. Calculer les statistiques
       const totalSubs = candsData?.length || 0;
       const totalRev = totalSubs * 19.99;
       const totalComp = entreprises?.length || 0;
@@ -171,6 +196,102 @@ export default function AdminPremiumDashboard() {
       toast.error('Erreur lors du chargement des données.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Charger la prévisualisation du template d'email
+  const loadEmailPreview = async (candId, compId = '') => {
+    setPreviewLoading(true);
+    try {
+      const res = await fetch('/api/admin/premium/preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          candidateId: candId || previewCandidateId,
+          companyId: compId || previewCompanyId,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erreur chargement aperçu');
+      setPreviewData(data);
+    } catch (err) {
+      console.error('Erreur loadEmailPreview:', err);
+      toast.error('Impossible de générer l’aperçu de l’email.');
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'preview') {
+      loadEmailPreview(previewCandidateId, previewCompanyId);
+    }
+  }, [activeTab, previewCandidateId, previewCompanyId]);
+
+  // Envoyer un email de test à l'adresse de l'admin
+  const handleSendTestEmail = async () => {
+    if (!testEmailRecipient) {
+      toast.error('Veuillez renseigner une adresse email de réception.');
+      return;
+    }
+
+    setSendingTestEmail(true);
+    const toastId = toast.loading(`Envoi du test à ${testEmailRecipient}...`);
+    try {
+      const res = await fetch('/api/admin/premium/preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          candidateId: previewCandidateId,
+          companyId: previewCompanyId,
+          sendTestToEmail: testEmailRecipient,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.testSendResult?.error) {
+        throw new Error(data.testSendResult?.error || data.error || 'Erreur lors de l’envoi');
+      }
+
+      toast.success(`✉️ Email de test reçu avec succès dans votre boîte (${testEmailRecipient}) !`, { id: toastId });
+    } catch (err) {
+      toast.error(err.message || 'Échec de l’envoi de test', { id: toastId });
+    } finally {
+      setSendingTestEmail(false);
+    }
+  };
+
+  // Lancer la vraie diffusion aux entreprises trouvées dans les 50 km
+  const handleLaunchLiveDispatch = async () => {
+    if (!previewCandidateId) {
+      toast.error('Veuillez sélectionner un chauffeur.');
+      return;
+    }
+    const count = previewData?.nearbyCount || 0;
+    if (!confirm(`Confirmer la transmission immédiate de la candidature à ${count} entreprise(s) située(s) dans le rayon de 50 km ?`)) return;
+
+    setDispatchingLive(true);
+    const toastId = toast.loading(`Envoi en cours à ${count} transporteur(s)...`);
+    try {
+      const res = await fetch('/api/premium/send-candidature', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          candidateId: previewCandidateId,
+          amountPaid: 1999,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erreur lors de la diffusion');
+
+      toast.success(`🚀 Candidature transmise à ${data.companiesContacted || 0} entreprises dans un rayon de 50 km !`, { id: toastId });
+      fetchAllData();
+    } catch (err) {
+      toast.error(err.message || 'Erreur lors de la diffusion', { id: toastId });
+    } finally {
+      setDispatchingLive(false);
     }
   };
 
@@ -360,7 +481,7 @@ export default function AdminPremiumDashboard() {
     }
   };
 
-  // Filtrage du registre entreprises
+  // Filtrage du carnet d'adresses
   const filteredEntreprises = entreprises.filter(c => {
     const q = searchTerm.toLowerCase().trim();
     const matchesSearch =
@@ -406,20 +527,28 @@ export default function AdminPremiumDashboard() {
             </span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 mt-1 tracking-tight">
-            Gestion des Auto-Candidatures & Registre Transporteurs
+            Diffusion Auto-Candidatures & Registre Transporteurs (50 km)
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Supervisez les chauffeurs ayant commandé le pack 19,99 €, alimentez le carnet d&apos;adresses entreprises et suivez les ouvertures en temps réel.
+            Gérez les chauffeurs souscrits, prévisualisez en direct le template d&apos;email envoyé, testez l&apos;envoi et alimentez votre carnet d&apos;adresses.
           </p>
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
           <button
-            onClick={handleOpenAddCompany}
+            onClick={() => setActiveTab('preview')}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all shadow-xs shadow-orange-500/20 cursor-pointer"
           >
-            <Plus className="h-4 w-4" />
-            <span>Ajouter Entreprise au Registre</span>
+            <Eye className="h-4 w-4" />
+            <span>Voir Template & Envoyer Test</span>
+          </button>
+
+          <button
+            onClick={handleOpenAddCompany}
+            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-colors cursor-pointer"
+          >
+            <Plus className="h-4 w-4 text-slate-600" />
+            <span>Ajouter Entreprise</span>
           </button>
 
           <button
@@ -429,7 +558,7 @@ export default function AdminPremiumDashboard() {
             title="Exécuter les relances programmées à J+7"
           >
             <Send className={`h-4 w-4 ${runningRelance ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Lancer Relances J+7</span>
+            <span className="hidden sm:inline">Relances J+7</span>
           </button>
 
           <button
@@ -484,7 +613,7 @@ export default function AdminPremiumDashboard() {
       </div>
 
       {/* 3. SÉLECTEUR D'ONGLETS */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 flex-wrap">
         <button
           onClick={() => setActiveTab('candidats')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -495,6 +624,18 @@ export default function AdminPremiumDashboard() {
         >
           <Users className="h-4 w-4" />
           <span>Chauffeurs Souscrits ({candidatures.length})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('preview')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            activeTab === 'preview'
+              ? 'bg-orange-500 text-white shadow-xs shadow-orange-500/20'
+              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+          }`}
+        >
+          <Eye className="h-4 w-4" />
+          <span>Simulation 50 km & Template Email (Live)</span>
         </button>
 
         <button
@@ -547,7 +688,6 @@ export default function AdminPremiumDashboard() {
                 <tbody className="divide-y divide-slate-100 text-slate-700">
                   {candidatures.map((cand) => (
                     <tr key={cand.id} className="hover:bg-slate-50/70 transition-colors">
-                      {/* Chauffeur */}
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-2.5">
                           <div className="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-600 flex items-center justify-center font-bold text-xs shrink-0">
@@ -564,7 +704,6 @@ export default function AdminPremiumDashboard() {
                         </div>
                       </td>
 
-                      {/* Localisation */}
                       <td className="py-3.5 px-4">
                         <div className="font-semibold text-slate-800 flex items-center gap-1">
                           <MapPin className="h-3 w-3 text-slate-400" />
@@ -575,21 +714,18 @@ export default function AdminPremiumDashboard() {
                         </span>
                       </td>
 
-                      {/* Envois */}
                       <td className="py-3.5 px-4 text-center">
                         <span className="font-mono font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md">
                           {cand.sent_count || cand.target_companies_count || 0} envoyés
                         </span>
                       </td>
 
-                      {/* Ouvertures */}
                       <td className="py-3.5 px-4 text-center">
                         <span className="font-mono font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
                           {cand.opened_count || 0} vues
                         </span>
                       </td>
 
-                      {/* Date & Montant */}
                       <td className="py-3.5 px-4 text-center">
                         <div className="font-semibold text-slate-900 font-mono">19,99 €</div>
                         <div className="text-[10px] text-slate-400">
@@ -597,9 +733,19 @@ export default function AdminPremiumDashboard() {
                         </div>
                       </td>
 
-                      {/* Actions */}
                       <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => {
+                              setPreviewCandidateId(cand.candidate_id);
+                              setActiveTab('preview');
+                            }}
+                            className="px-2.5 py-1 bg-orange-50 hover:bg-orange-100 text-orange-600 rounded-lg text-[11px] font-bold transition-colors cursor-pointer"
+                            title="Voir l'aperçu du mail"
+                          >
+                            <Eye className="h-3 w-3 inline mr-1" />
+                            Aperçu
+                          </button>
                           <button
                             onClick={() => handleViewCandidatureDetails(cand)}
                             className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-bold transition-colors cursor-pointer"
@@ -608,7 +754,7 @@ export default function AdminPremiumDashboard() {
                           </button>
                           <button
                             onClick={() => handleTriggerDispatch(cand)}
-                            className="px-2.5 py-1 bg-orange-50 hover:bg-orange-100 text-orange-600 rounded-lg text-[11px] font-bold transition-colors cursor-pointer"
+                            className="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[11px] font-bold transition-colors cursor-pointer"
                             title="Relancer la diffusion"
                           >
                             ⚡ Diffuser
@@ -624,10 +770,211 @@ export default function AdminPremiumDashboard() {
         </div>
       )}
 
-      {/* ONGLET 2 : CARNET D'ADRESSES ENTREPRISES */}
+      {/* ONGLET 2 : SIMULATION & PRÉVISUALISATION DU TEMPLATE EMAIL EN DIRECT */}
+      {activeTab === 'preview' && (
+        <div className="space-y-6">
+          
+          {/* Panneau de configuration de la simulation */}
+          <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-orange-600 bg-orange-50 px-2.5 py-1 rounded-full border border-orange-200">
+                  Simulateur & Calculateur Rayon 50 km
+                </span>
+                <h2 className="text-lg font-black text-slate-900 mt-1.5">
+                  Sélection du Chauffeur & Ciblage des Entreprises
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Sélectionnez un profil pour calculer instantanément les transporteurs situés à 50 km et prévisualiser l&apos;email exact.
+                </p>
+              </div>
+
+              {/* Action Envoi Test / Diffusion */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-1.5 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
+                  <input
+                    type="email"
+                    placeholder="Votre email de test..."
+                    value={testEmailRecipient}
+                    onChange={e => setTestEmailRecipient(e.target.value)}
+                    className="px-3 py-1.5 text-xs font-semibold bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 w-48 sm:w-60"
+                  />
+                  <button
+                    onClick={handleSendTestEmail}
+                    disabled={sendingTestEmail || previewLoading}
+                    className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold transition-all cursor-pointer disabled:opacity-50 flex items-center gap-1.5 shrink-0"
+                  >
+                    <Send className={`h-3 w-3 ${sendingTestEmail ? 'animate-spin' : ''}`} />
+                    <span>{sendingTestEmail ? 'Envoi...' : 'M’envoyer un test'}</span>
+                  </button>
+                </div>
+
+                <button
+                  onClick={handleLaunchLiveDispatch}
+                  disabled={dispatchingLive || previewLoading || !previewData?.nearbyCount}
+                  className="px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-black transition-all shadow-md shadow-orange-500/20 cursor-pointer disabled:opacity-50 flex items-center gap-2"
+                >
+                  <Zap className={`h-4 w-4 ${dispatchingLive ? 'animate-spin' : ''}`} />
+                  <span>Diffuser aux {previewData?.nearbyCount || 0} entreprises (50 km)</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Sélecteurs */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-slate-100">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 uppercase block">
+                  👤 Chauffeur concerné :
+                </label>
+                <select
+                  value={previewCandidateId}
+                  onChange={e => setPreviewCandidateId(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-orange-500/20 cursor-pointer"
+                >
+                  {allCandidatesList.map(cand => (
+                    <option key={cand.id} value={cand.id}>
+                      {cand.full_name} — {cand.postal_code} {cand.city} ({(cand.licenses || []).join('/') || 'SPL'})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 uppercase block">
+                  🏢 Entreprise exemple pour l&apos;aperçu :
+                </label>
+                <select
+                  value={previewCompanyId}
+                  onChange={e => setPreviewCompanyId(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-orange-500/20 cursor-pointer"
+                >
+                  <option value="">-- Entreprise la plus proche du chauffeur --</option>
+                  {(previewData?.nearbyCompanies || []).map(comp => (
+                    <option key={comp.id} value={comp.id}>
+                      {comp.is_partner ? '⭐ [Partenaire] ' : ''}{comp.name} — {comp.postal_code} {comp.city} ({comp.distance_km} km)
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Grille 2 colonnes : Liste des entreprises 50 km & Rendu Visuel WYSIWYG de l'Email */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            {/* Colonne Gauche (5 cols) : Entreprises trouvées dans le rayon */}
+            <div className="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-black text-slate-900">
+                    Entreprises dans les 50 km ({previewData?.nearbyCount || 0})
+                  </h3>
+                  <p className="text-[11px] text-slate-400">
+                    Autour de {previewData?.candidate?.postal_code} {previewData?.candidate?.city}
+                  </p>
+                </div>
+                <span className="bg-emerald-50 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full border border-emerald-200 font-mono">
+                  {previewData?.nearbyCount || 0} cibles
+                </span>
+              </div>
+
+              {previewLoading ? (
+                <div className="py-12 text-center">
+                  <RefreshCw className="h-6 w-6 text-orange-500 animate-spin mx-auto" />
+                  <span className="text-xs text-slate-400 mt-2 block font-medium">Calcul Haversine en cours...</span>
+                </div>
+              ) : (previewData?.nearbyCompanies || []).length === 0 ? (
+                <div className="p-6 text-center bg-slate-50 rounded-xl space-y-2">
+                  <Building2 className="h-8 w-8 text-slate-300 mx-auto" />
+                  <p className="text-xs font-bold text-slate-700">Aucune entreprise dans les 50 km</p>
+                  <p className="text-[11px] text-slate-400">
+                    Ajoutez des entreprises dans l&apos;onglet Carnet d&apos;adresses pour ce secteur.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
+                  {previewData.nearbyCompanies.map((comp) => (
+                    <div
+                      key={comp.id}
+                      onClick={() => setPreviewCompanyId(comp.id)}
+                      className={`p-3 rounded-xl border transition-all cursor-pointer ${
+                        previewCompanyId === comp.id || (!previewCompanyId && previewData.targetCompany?.id === comp.id)
+                          ? 'border-orange-500 bg-orange-50/50 shadow-xs'
+                          : 'border-slate-100 bg-slate-50/60 hover:bg-slate-100/80'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold text-slate-900 flex items-center gap-1.5">
+                          <span>{comp.name}</span>
+                          {comp.is_partner && (
+                            <span className="text-[9px] bg-amber-100 text-amber-800 font-extrabold px-1.5 py-0.2 rounded">
+                              ⭐ Partenaire
+                            </span>
+                          )}
+                        </span>
+                        <span className="font-mono font-bold text-orange-600 bg-white px-2 py-0.5 rounded border border-orange-200/60 text-[11px]">
+                          {comp.distance_km} km
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-slate-500 mt-1 flex items-center justify-between">
+                        <span>📍 {comp.postal_code} {comp.city}</span>
+                        <span className="font-mono text-[10px] text-slate-400">{comp.email}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Colonne Droite (7 cols) : Aperçu Visuel WYSIWYG de l'Email */}
+            <div className="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-800">Aperçu Réel du Mail Destinataire</span>
+                    <span className="text-[10px] bg-purple-50 text-purple-700 font-bold px-2 py-0.5 rounded-full border border-purple-200">
+                      HTML React Email
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Objet : ⭐ Candidature Directe : {previewData?.candidate?.full_name} ({(previewData?.candidate?.licenses || ['SPL']).join('/')}) à {previewData?.targetCompany?.distance_km || 14} km
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-1 text-[11px] font-bold text-slate-500 font-mono">
+                  <span>Pixel Tracking :</span>
+                  <span className="text-emerald-600 font-extrabold">Actif (1x1)</span>
+                </div>
+              </div>
+
+              {/* Conteneur Iframe / Rendu */}
+              {previewLoading ? (
+                <div className="py-24 text-center">
+                  <RefreshCw className="h-8 w-8 text-orange-500 animate-spin mx-auto" />
+                  <span className="text-xs text-slate-400 mt-2 block font-medium">Génération de l&apos;aperçu en cours...</span>
+                </div>
+              ) : previewData?.html ? (
+                <div className="rounded-xl border border-slate-200 overflow-hidden bg-slate-100/60 p-2 sm:p-4">
+                  <iframe
+                    title="Aperçu Email Candidature"
+                    srcDoc={previewData.html}
+                    className="w-full h-[620px] rounded-lg bg-white border border-slate-200 shadow-sm"
+                  />
+                </div>
+              ) : (
+                <div className="py-16 text-center text-slate-400 text-xs">
+                  Impossible d&apos;afficher le template d&apos;email.
+                </div>
+              )}
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ONGLET 3 : CARNET D'ADRESSES ENTREPRISES */}
       {activeTab === 'entreprises' && (
         <div className="space-y-4">
-          {/* Barre recherche */}
           <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center gap-3">
             <div className="relative flex-1 w-full">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -665,7 +1012,6 @@ export default function AdminPremiumDashboard() {
             </div>
           </div>
 
-          {/* Tableau des entreprises stockées */}
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
             {filteredEntreprises.length === 0 ? (
               <div className="text-center py-16 space-y-2">
@@ -762,14 +1108,14 @@ export default function AdminPremiumDashboard() {
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={() => handleOpenEditCompany(comp)}
-                              className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                              className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
                               title="Modifier"
                             >
                               <Edit2 className="h-3.5 w-3.5" />
                             </button>
                             <button
                               onClick={() => handleDeleteCompany(comp)}
-                              className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition-colors"
+                              className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition-colors cursor-pointer"
                               title="Supprimer"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
@@ -786,7 +1132,7 @@ export default function AdminPremiumDashboard() {
         </div>
       )}
 
-      {/* ONGLET 3 : JOURNAL DES ENVOIS & TRACKING */}
+      {/* ONGLET 4 : JOURNAL DES ENVOIS & TRACKING */}
       {activeTab === 'journal' && (
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
           {emailsLog.length === 0 ? (
@@ -890,10 +1236,10 @@ export default function AdminPremiumDashboard() {
             </button>
 
             <h2 className="text-lg font-black text-slate-900 mb-1">
-              {editingCompany ? 'Modifier l’Entreprise' : 'Ajouter une Entreprise au Registre'}
+              {editingCompany ? 'Modifier l’Entreprise' : 'Ajouter une Entreprise au Carnet'}
             </h2>
             <p className="text-xs text-slate-500 mb-5">
-              Ces coordonnées seront stockées dans votre carnet d&apos;adresses pour les ciblages automatiques à 50 km.
+              Ces coordonnées seront stockées dans votre registre pour les ciblages automatiques à 50 km.
             </p>
 
             <form onSubmit={handleSaveCompany} className="space-y-4">

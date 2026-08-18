@@ -21,6 +21,7 @@ export default function MarketingEmail({
   message = 'Voici un message de FretTalent.',
   ctaText = 'Découvrir',
   ctaLink = 'https://frettalent.fr',
+  trackingUrl,
 }) {
   const baseUrl =
     process.env.NEXT_PUBLIC_BASE_URL ||
@@ -101,6 +102,17 @@ export default function MarketingEmail({
               &copy; {new Date().getFullYear()} FretTalent. Tous droits
               réservés.
             </Text>
+
+            {/* Pixel transparent de tracking d'ouverture */}
+            {trackingUrl && (
+              <Img
+                src={trackingUrl}
+                alt=""
+                width="1"
+                height="1"
+                style={{ display: 'none', width: '1px', height: '1px', opacity: 0 }}
+              />
+            )}
           </Container>
         </Body>
       </Tailwind>

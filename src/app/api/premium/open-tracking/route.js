@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { sendCandidateApplicationOpenedEmail } from '@/lib/email-service';
-import { sendTelegramCandidatureOpenedNotification } from '@/lib/telegram';
+import { sendTelegramCandidatureOpenedNotification, notifyTelegramEmailOpened } from '@/lib/telegram';
 
 // GIF transparent 1x1 pixel encodé en base64
 const TRANSPARENT_1X1_GIF = Buffer.from(
@@ -135,13 +135,28 @@ export async function GET(req) {
           });
         }
 
-        // D. Notification Telegram Admin
+        // D. Notification Telegram Admin pour la candidature
         await sendTelegramCandidatureOpenedNotification({
           companyName: emailRecord.company_name,
           companyCity,
           candidateName: candidate?.full_name || 'Chauffeur',
         });
       }
+
+      // 5. NOTIFICATION TELEGRAM UNIVERSELLE POUR TOUTE OUVERTURE D'EMAIL (Entreprise, Chauffeur, Autre)
+      const recipientRole = emailRecord.entreprise_id || emailRecord.company_name ? 'recruiter' : 'candidate';
+      await notifyTelegramEmailOpened({
+        recipientEmail: emailRecord.company_email || (emailRecord.entreprise_id ? 'Entreprise' : 'Destinataire'),
+        recipientName: emailRecord.company_name || 'Destinataire',
+        recipientRole,
+        companyName: emailRecord.company_name,
+        candidateName: emailRecord.candidate_id ? 'Chauffeur ciblé' : undefined,
+        emailSubject: `Candidature & Documents Chauffeur (50 km)`,
+        emailType: 'Auto-Candidature Premium',
+        openCount: (emailRecord.open_count || 0) + 1,
+        ip,
+        userAgent,
+      });
     } catch (err) {
       console.error('[Open-Tracking] Erreur traitement:', err);
     }

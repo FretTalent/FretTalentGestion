@@ -85,25 +85,45 @@ export async function POST(req) {
       );
     }
 
-    // 3. Rendu du Template React Email
-    const htmlBody = await render(
-      <MarketingEmail
-        type={type}
-        title={title}
-        message={message}
-        ctaText={ctaText}
-        ctaLink={ctaLink}
-      />,
-    );
-
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.frettalent.fr';
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'FretTalent <support@frettalent.fr>';
 
-    // 4. Envoi via Resend (Domaine vérifié DKIM / SPF)
+    // 4. Envoi via Resend avec token unique de tracking pour Telegram
     let sentCount = 0;
     const errors = [];
 
     for (const email of recipientEmails) {
       try {
+        const trackingToken = `mail-${Math.random().toString(36).substring(2, 12)}${Date.now().toString(36)}`;
+        const trackingUrl = `${baseUrl}/api/premium/open-tracking?t=${trackingToken}`;
+
+        // Rendu personnalisé avec le pixel de tracking pour chaque destinataire
+        const htmlBody = await render(
+          <MarketingEmail
+            type={type}
+            title={title}
+            message={message}
+            ctaText={ctaText}
+            ctaLink={ctaLink}
+            trackingUrl={trackingUrl}
+          />,
+        );
+
+        // Sauvegarder dans candidature_emails pour le tracking et l'alerte Telegram
+        try {
+          await supabaseAdmin.from('candidature_emails').insert({
+            candidature_id: user.id, // ID admin
+            candidate_id: user.id,
+            company_name: email,
+            company_email: email,
+            tracking_token: trackingToken,
+            status: 'sent',
+            sent_at: new Date().toISOString(),
+          });
+        } catch (dbErr) {
+          console.warn('[Admin Mail] Warning enregistrement token tracking:', dbErr.message);
+        }
+
         const { error: resendError } = await resend.emails.send({
           from: fromEmail,
           to: email,

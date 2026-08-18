@@ -612,6 +612,53 @@ export async function sendTelegramCandidatureOpenedNotification({
   return sendTelegramMessage(telegramMsg);
 }
 
+/**
+ * Alerte Telegram Admin UNIVERSELLE : Un email envoyé a été ouvert (Entreprise, Chauffeur ou Contact)
+ */
+export async function notifyTelegramEmailOpened({
+  recipientEmail,
+  recipientName,
+  recipientRole = 'unknown', // 'candidate' | 'recruiter' | 'contact' | 'unknown'
+  emailSubject,
+  emailType,
+  companyName,
+  candidateName,
+  openCount = 1,
+  ip,
+  userAgent,
+}) {
+  const roleBadge =
+    recipientRole === 'recruiter'
+      ? '🏢 Entreprise / Recruteur'
+      : recipientRole === 'candidate'
+      ? '🚛 Chauffeur / Candidat'
+      : recipientRole === 'contact'
+      ? '👤 Contact Externe'
+      : '✉️ Destinataire';
+
+  const countBadge = openCount > 1 ? ` (Ouverture N°${openCount})` : ' 🟢 Première lecture';
+
+  const details = [];
+  if (companyName) details.push(`🏢 <b>Entreprise :</b> ${escapeHtml(companyName)}`);
+  if (candidateName) details.push(`👤 <b>Chauffeur :</b> ${escapeHtml(candidateName)}`);
+  if (emailSubject) details.push(`📌 <b>Objet :</b> ${escapeHtml(emailSubject)}`);
+  if (emailType) details.push(`🏷️ <b>Type :</b> <code>${escapeHtml(emailType)}</code>`);
+
+  const detailsBlock = details.length > 0 ? `\n${details.join('\n')}` : '';
+
+  const telegramMsg = `📬 <b>EMAIL OUVERT &amp; LU !</b>${countBadge}
+━━━━━━━━━━━━━━━━━━━━
+${roleBadge}
+📧 <b>Destinataire :</b> ${escapeHtml(recipientName ? `${recipientName} <${recipientEmail}>` : recipientEmail || 'Inconnu')}
+${detailsBlock}
+⏱ <b>Heure de lecture :</b> ${new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}
+━━━━━━━━━━━━━━━━━━━━
+🌐 <i>FretTalent Tracking Système</i>`;
+
+  return sendTelegramMessage(telegramMsg);
+}
+
+
 
 
 function escapeHtml(text) {

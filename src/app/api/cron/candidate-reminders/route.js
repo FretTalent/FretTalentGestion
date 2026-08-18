@@ -8,6 +8,12 @@ import {
 
 export async function GET(req) {
   try {
+    // Vérification de sécurité du cron si CRON_SECRET est configuré
+    const authHeader = req.headers.get('authorization');
+    if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    }
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -20,7 +26,7 @@ export async function GET(req) {
     // Récupérer tous les candidats non validés
     const { data: candidates, error } = await supabaseAdmin
       .from('candidates')
-      .select('id, full_name, email, created_at, validated, documents, is_active')
+      .select('id, full_name, email, created_at, validated, documents, is_active, reminders_count, last_reminder_step')
       .eq('validated', false);
 
     if (error) {
@@ -54,23 +60,29 @@ export async function GET(req) {
       const daysElapsed = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
       const name = candidate.full_name || 'Chauffeur';
+      const lastStep = candidate.last_reminder_step || 0;
 
       let sent = false;
-      if (daysElapsed >= 10) {
+      let newStep = lastStep;
+
+      if (daysElapsed >= 10 && lastStep < 10) {
         // J+10 : Rappel bienveillant pour maximiser les contacts recruteurs (compte maintenu actif)
         await sendCandidateReminderDay10(candidate.email, name);
         results.day10_sent.push({ email: candidate.email, days: daysElapsed });
         sent = true;
-      } else if (daysElapsed >= 4) {
+        newStep = 10;
+      } else if (daysElapsed >= 4 && lastStep < 4) {
         // J+4 : Deuxième rappel opportunités
         await sendCandidateReminderDay4(candidate.email, name);
         results.day4_sent.push({ email: candidate.email, days: daysElapsed });
         sent = true;
-      } else if (daysElapsed >= 1) {
+        newStep = 4;
+      } else if (daysElapsed >= 1 && lastStep < 1) {
         // J+1 : Premier rappel bienveillant
         await sendCandidateReminderDay1(candidate.email, name);
         results.day1_sent.push({ email: candidate.email, days: daysElapsed });
         sent = true;
+        newStep = 1;
       }
 
       if (sent) {
@@ -78,6 +90,7 @@ export async function GET(req) {
           .from('candidates')
           .update({
             reminders_count: (candidate.reminders_count || 0) + 1,
+            last_reminder_step: newStep,
             last_reminded_at: new Date().toISOString(),
           })
           .eq('id', candidate.id);

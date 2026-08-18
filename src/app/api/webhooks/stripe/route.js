@@ -33,6 +33,7 @@ export async function POST(req) {
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
+        const session = event.data.object;
         // 1. Gestion de l'Auto-Candidature Premium pour les chauffeurs (19,99 €)
         if (session.metadata?.type === 'auto_candidature_premium') {
           const candidateId = session.metadata?.candidate_id || session.client_reference_id;

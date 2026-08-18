@@ -64,6 +64,7 @@ export async function POST(req) {
         },
       ],
       mode: 'payment',
+      allow_promotion_codes: true,
       customer_email: candidate.email || user.email,
       client_reference_id: user.id,
       metadata: {

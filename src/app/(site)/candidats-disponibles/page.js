@@ -657,7 +657,7 @@ export default function CandidatsDisponiblesPage() {
                           <div className="flex items-center gap-1.5 shrink-0">
                             {c.isPremium && (
                               <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-xs flex items-center gap-1">
-                                ⭐ Premium 48h
+                                ⭐ En Vedette (1 sem)
                               </span>
                             )}
                             {c.fullVerified ? (

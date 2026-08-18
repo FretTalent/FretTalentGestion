@@ -183,7 +183,7 @@ export async function POST(req) {
         .eq('id', candidatureId);
     }
 
-    // 8. Activer le Badge Premium pour le chauffeur pendant 48 heures
+    // 8. Activer le Badge Étoile Premium pour le chauffeur pendant 1 semaine (7 jours)
     await supabaseAdmin
       .from('premium_badges')
       .insert({
@@ -191,7 +191,7 @@ export async function POST(req) {
         candidature_id: candidatureId || null,
         is_active: true,
         starts_at: new Date().toISOString(),
-        expires_at: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(), // +48h
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 semaine (7 jours)
       });
 
     // 9. Envoi d'un email de confirmation au chauffeur

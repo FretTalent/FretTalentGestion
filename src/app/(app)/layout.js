@@ -25,12 +25,19 @@ import {
   MessageSquare,
   Send,
   Sparkles,
+  Zap,
+  Star,
   Bell,
   ExternalLink,
 } from 'lucide-react';
 
 const navCandidate = [
   { href: '/dashboard/candidate', icon: Truck, label: 'Mon profil' },
+  {
+    href: '/dashboard/candidate/cv-rapide',
+    icon: Zap,
+    label: 'CV Rapide (19,99€)',
+  },
   {
     href: '/dashboard/candidate/documents',
     icon: FileText,
@@ -77,6 +84,7 @@ const breadcrumbMap = {
   '/dashboard/admin/mail': 'Gestion mails',
   '/dashboard/admin/users': 'Utilisateurs',
   '/dashboard/candidate': 'Mon profil',
+  '/dashboard/candidate/cv-rapide': 'CV Rapide (19,99 €)',
   '/dashboard/candidate/documents': 'Mes documents',
   '/dashboard/candidate/support': 'Support',
   '/dashboard/recruiter': 'Recherche',

@@ -483,6 +483,8 @@ export default function RecruiterDashboard() {
                   <option value="Frigo">Frigo</option>
                   <option value="Plateau">Plateau</option>
                   <option value="Porte-char">Porte-char</option>
+                  <option value="Porte-voiture">Porte-voiture</option>
+                  <option value="Convoi exceptionnel">Convoi exceptionnel</option>
                   <option value="Ampiroll">Ampiroll</option>
                   <option value="Messagerie">Messagerie</option>
                 </select>

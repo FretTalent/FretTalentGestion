@@ -90,6 +90,8 @@ export default function CandidateDashboard() {
     'Frigo',
     'Plateau',
     'Porte-char',
+    'Porte-voiture',
+    'Convoi exceptionnel',
     'Ampiroll',
     'Messagerie',
   ];

@@ -457,11 +457,16 @@ function AdminCandidatesContent() {
             >
               <option value="all">Toutes Spécialités</option>
               <option value="Benne">Benne</option>
-              <option value="Taut">Tautliner</option>
+              <option value="Tautliner">Tautliner</option>
               <option value="Citerne">Citerne</option>
               <option value="Citerne ADR">Citerne ADR</option>
               <option value="Frigo">Frigo</option>
               <option value="Plateau">Plateau</option>
+              <option value="Porte-char">Porte-char</option>
+              <option value="Porte-voiture">Porte-voiture</option>
+              <option value="Convoi exceptionnel">Convoi exceptionnel</option>
+              <option value="Ampiroll">Ampiroll</option>
+              <option value="Messagerie">Messagerie</option>
             </select>
           </div>
         </div>

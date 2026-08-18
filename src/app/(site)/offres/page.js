@@ -338,7 +338,9 @@ export default function PublicJobsList() {
           if (selectedSpecialty === 'BENNE' && !/benne|tp|travaux\s*publics|enrobé/i.test(fullText)) return false;
           if (selectedSpecialty === 'TAUTLINER' && !/tautliner|bâché|bache|savoyarde/i.test(fullText)) return false;
           if (selectedSpecialty === 'CITERNE' && !/citerne|pulvé|vrac|liquide/i.test(fullText)) return false;
-          if (selectedSpecialty === 'PLATEAU' && !/plateau|convoi\s*exceptionnel/i.test(fullText)) return false;
+          if (selectedSpecialty === 'PLATEAU' && !/plateau/i.test(fullText)) return false;
+          if (selectedSpecialty === 'PORTE_VOITURE' && !/porte[\s-]*voiture|auto/i.test(fullText)) return false;
+          if (selectedSpecialty === 'CONVOI' && !/convoi|porte[\s-]*char|exceptionnel/i.test(fullText)) return false;
           if (selectedSpecialty === 'MESSAGERIE' && !/messagerie|distribution|livraison/i.test(fullText)) return false;
         }
 
@@ -573,6 +575,8 @@ export default function PublicJobsList() {
                 <option value="BENNE">Benne / TP</option>
                 <option value="CITERNE">Citerne / Vrac</option>
                 <option value="PLATEAU">Plateau</option>
+                <option value="PORTE_VOITURE">Porte-voiture</option>
+                <option value="CONVOI">Convoi exceptionnel</option>
                 <option value="MESSAGERIE">Messagerie</option>
               </select>
             </div>

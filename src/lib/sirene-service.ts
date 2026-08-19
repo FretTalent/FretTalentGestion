@@ -140,7 +140,7 @@ export async function fetchTransportCompaniesFromSirene(
 
     if (enrichEmails) {
       try {
-        const enriched = await enrichCompanyEmail(nomEntreprise, item.siren);
+        const enriched = await enrichCompanyEmail(nomEntreprise, item.siren, undefined, city, postalCode);
         if (enriched.email) email = enriched.email;
         if (enriched.phone) phone = enriched.phone;
       } catch (err) {

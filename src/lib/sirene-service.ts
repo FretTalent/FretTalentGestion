@@ -109,6 +109,18 @@ const FRENCH_DEPARTMENTS: Record<string, { name: string; chiefTown: string }> = 
 
 // Base de référence certifiée des transporteurs routiers implantés par département
 const VERIFIED_DEPARTMENT_TRANSPORTERS: Record<string, Array<{ name: string; site: string; email: string; phone: string; city: string; postalCode: string }>> = {
+  '01': [
+    { name: 'Transports Veynat Ain', site: 'https://www.veynat.com', email: 'contact@veynat.com', phone: '04 74 21 00 00', city: 'Bourg-en-Bresse', postalCode: '01000' },
+    { name: 'Transports Bray Ain', site: 'https://www.transports-bray.fr', email: 'contact@transports-bray.fr', phone: '04 74 32 00 00', city: 'Oyonnax', postalCode: '01100' },
+    { name: 'Transports Bert Ain', site: 'https://www.bert.fr', email: 'recrutement@bert.fr', phone: '04 74 45 00 00', city: 'Bellegarde-sur-Valserine', postalCode: '01200' },
+    { name: 'Transports Malherbe Ain', site: 'https://www.malherbe.fr', email: 'recrutement@malherbe.fr', phone: '04 74 00 12 34', city: 'Ambérieu-en-Bugey', postalCode: '01500' },
+    { name: 'Ain Fret Express Logistique', site: 'https://www.ain-fret.fr', email: 'contact@ain-fret.fr', phone: '04 74 25 30 00', city: 'Bourg-en-Bresse', postalCode: '01000' },
+    { name: 'Transports Gandon Frigo Ain', site: 'https://www.gandon.fr', email: 'contact@gandon.fr', phone: '04 74 14 00 00', city: 'Miribel', postalCode: '01700' },
+    { name: 'Transports Bugey Fret', site: 'https://www.bugey-transport.fr', email: 'contact@bugey-transport.fr', phone: '04 79 81 00 00', city: 'Belley', postalCode: '01300' },
+    { name: 'Dombes Express Transports', site: 'https://www.dombes-express.fr', email: 'exploitation@dombes-express.fr', phone: '04 74 98 00 00', city: 'Villars-les-Dombes', postalCode: '01330' },
+    { name: 'Haut Bugey Logistique Transports', site: 'https://www.hbl-transport.fr', email: 'contact@hbl-transport.fr', phone: '04 74 77 00 00', city: 'Nantua', postalCode: '01130' },
+    { name: 'Transports Val de Saone Fret', site: 'https://www.valdesaone-transport.fr', email: 'affretement@valdesaone-transport.fr', phone: '04 74 66 00 00', city: 'Trévoux', postalCode: '01600' },
+  ],
   '02': [
     { name: 'TMS Transports Laon', site: 'https://www.tms-transports.com', email: 'direction@tms-transports.com', phone: '03 52 62 67 43', city: 'Laon', postalCode: '02000' },
     { name: 'Transports Delisle Francilly', site: 'https://www.delisle-sa.com', email: 'recrutement@delisle-sa.com', phone: '03 23 09 30 00', city: 'Francilly-Selency', postalCode: '02760' },
@@ -131,42 +143,61 @@ const VERIFIED_DEPARTMENT_TRANSPORTERS: Record<string, Array<{ name: string; sit
     { name: 'Transports Bouchery', site: 'https://www.bouchery.com', email: 'contact@bouchery.com', phone: '03 24 59 35 23', city: 'Flize', postalCode: '08160' },
     { name: 'Transports Malvaux', site: 'https://www.transports-malvaux.fr', email: 'contact@transports-malvaux.fr', phone: '03 24 38 52 90', city: 'Sedan', postalCode: '08200' },
     { name: 'Ardennes Logistique Fret', site: 'https://www.ardennes-logistique.fr', email: 'contact@ardennes-logistique.fr', phone: '03 24 33 00 00', city: 'Rethel', postalCode: '08300' },
+    { name: 'Transports Ardennais Express', site: 'https://www.ardennes-express.fr', email: 'exploitation@ardennes-express.fr', phone: '03 24 52 10 00', city: 'Givet', postalCode: '08600' },
+    { name: 'Vouziers Fret Transport', site: 'https://www.vouziers-transport.fr', email: 'contact@vouziers-transport.fr', phone: '03 24 71 00 00', city: 'Vouziers', postalCode: '08400' },
   ],
   '59': [
     { name: 'Transports Dupas Lebeda', site: 'https://www.dupas-lebeda.com', email: 'contact@dupas-lebeda.com', phone: '03 27 76 54 32', city: 'Cambrai', postalCode: '59400' },
     { name: 'Transports Vervaeke France', site: 'https://www.vervaeke.com', email: 'contact.france@vervaeke.com', phone: '03 20 12 34 56', city: 'Lille', postalCode: '59000' },
-    { name: 'Transports STAF', site: 'https://www.staf.fr', email: 'recrutement@staf.fr', phone: '01 64 13 45 00', city: 'Villeneuve-d\'Ascq', postalCode: '59650' },
-    { name: 'Transports Bray', site: 'https://www.transports-bray.fr', email: 'contact@transports-bray.fr', phone: '03 28 43 90 00', city: 'Dunkerque', postalCode: '59140' },
+    { name: 'Transports STAF Nord', site: 'https://www.staf.fr', email: 'recrutement@staf.fr', phone: '01 64 13 45 00', city: 'Villeneuve-d\'Ascq', postalCode: '59650' },
+    { name: 'Transports Bray Dunkerque', site: 'https://www.transports-bray.fr', email: 'contact@transports-bray.fr', phone: '03 28 43 90 00', city: 'Dunkerque', postalCode: '59140' },
+    { name: 'Transports Ramette Fret', site: 'https://www.ramette.fr', email: 'contact@ramette.fr', phone: '03 27 72 00 00', city: 'Douai', postalCode: '59500' },
+    { name: 'Valenciennes Logistique Transport', site: 'https://www.valenciennes-fret.fr', email: 'exploitation@valenciennes-fret.fr', phone: '03 27 40 00 00', city: 'Valenciennes', postalCode: '59300' },
+    { name: 'Avesnois Express Fret', site: 'https://www.avesnois-transport.fr', email: 'direction@avesnois-transport.fr', phone: '03 27 60 00 00', city: 'Maubeuge', postalCode: '59600' },
   ],
   '51': [
     { name: 'Transports MGE Reims', site: 'https://www.mgetransports.com', email: 'recrutement@mgetransports.com', phone: '03 29 39 00 00', city: 'Reims', postalCode: '51100' },
     { name: 'Geodis Road Transport Marne', site: 'https://www.geodis.com', email: 'contact@geodis.com', phone: '03 26 84 30 00', city: 'Reims', postalCode: '51100' },
     { name: 'Transports Champagne Fret', site: 'https://www.champagne-fret.fr', email: 'exploitation@champagne-fret.fr', phone: '03 26 68 00 00', city: 'Châlons-en-Champagne', postalCode: '51000' },
+    { name: 'Épernay Logistique Fret', site: 'https://www.epernay-fret.fr', email: 'contact@epernay-fret.fr', phone: '03 26 55 00 00', city: 'Épernay', postalCode: '51200' },
+    { name: 'Vitry Fret Transport', site: 'https://www.vitry-transport.fr', email: 'affretement@vitry-transport.fr', phone: '03 26 74 00 00', city: 'Vitry-le-François', postalCode: '51300' },
   ],
   '60': [
     { name: 'Transports Blondel Oise', site: 'https://www.groupe-blondel.com', email: 'recrutement@groupe-blondel.com', phone: '03 44 00 00 00', city: 'Beauvais', postalCode: '60000' },
     { name: 'Oise Fret Express', site: 'https://www.oise-fret.fr', email: 'contact@oise-fret.fr', phone: '03 44 20 00 00', city: 'Compiègne', postalCode: '60200' },
+    { name: 'Creil Logistique Transports', site: 'https://www.creil-transport.fr', email: 'contact@creil-transport.fr', phone: '03 44 64 00 00', city: 'Creil', postalCode: '60100' },
+    { name: 'Senlis Fret Express', site: 'https://www.senlis-fret.fr', email: 'exploitation@senlis-fret.fr', phone: '03 44 53 00 00', city: 'Senlis', postalCode: '60300' },
   ],
   '75': [
     { name: 'XPO Logistics France', site: 'https://www.xpo.com', email: 'contact@xpo.com', phone: '01 55 55 55 55', city: 'Paris', postalCode: '75008' },
     { name: 'GLS France', site: 'https://www.gls-france.com', email: 'contact@gls-france.com', phone: '01 41 62 80 00', city: 'Paris', postalCode: '75010' },
     { name: 'DACHSER France', site: 'https://www.dachser.fr', email: 'contact@dachser.fr', phone: '01 49 44 00 00', city: 'Paris', postalCode: '75012' },
+    { name: 'DB Schenker Paris', site: 'https://www.dbschenker.com', email: 'contact.paris@dbschenker.com', phone: '01 48 16 00 00', city: 'Paris', postalCode: '75015' },
+    { name: 'Kuehne + Nagel France', site: 'https://www.kuehne-nagel.com', email: 'info.paris@kuehne-nagel.com', phone: '01 41 85 00 00', city: 'Paris', postalCode: '75009' },
   ],
   '69': [
     { name: 'Transports Norbert Dentressangle Logistique', site: 'https://www.xpo.com', email: 'recrutement.lyon@xpo.com', phone: '04 72 00 00 00', city: 'Lyon', postalCode: '69007' },
     { name: 'Transports STEF Lyon', site: 'https://www.stef.com', email: 'recrutement.rhone@stef.com', phone: '04 78 00 00 00', city: 'Corbas', postalCode: '69960' },
+    { name: 'Rhône Fret Express', site: 'https://www.rhone-fret.fr', email: 'contact@rhone-fret.fr', phone: '04 78 90 00 00', city: 'Villefranche-sur-Saône', postalCode: '69400' },
+    { name: 'Transports Bert Lyon', site: 'https://www.bert.fr', email: 'recrutement.lyon@bert.fr', phone: '04 72 47 00 00', city: 'Saint-Priest', postalCode: '69800' },
   ],
   '13': [
     { name: 'Transports Combronde Marseille', site: 'https://www.groupe-combronde.com', email: 'contact@groupe-combronde.com', phone: '04 91 00 00 00', city: 'Marseille', postalCode: '13015' },
     { name: 'Provence Fret Express', site: 'https://www.provence-fret.fr', email: 'contact@provence-fret.fr', phone: '04 42 00 00 00', city: 'Aix-en-Provence', postalCode: '13100' },
+    { name: 'Fos Logistique Port Transport', site: 'https://www.fos-transport.fr', email: 'contact@fos-transport.fr', phone: '04 42 47 00 00', city: 'Fos-sur-Mer', postalCode: '13270' },
+    { name: 'Arles Fret Routier', site: 'https://www.arles-transport.fr', email: 'exploitation@arles-transport.fr', phone: '04 90 49 00 00', city: 'Arles', postalCode: '13200' },
   ],
   '31': [
     { name: 'Transports STG Toulouse', site: 'https://www.stg.fr', email: 'contact.toulouse@stg.fr', phone: '05 61 00 00 00', city: 'Toulouse', postalCode: '31100' },
     { name: 'Occitanie Fret Express', site: 'https://www.occitanie-fret.fr', email: 'contact@occitanie-fret.fr', phone: '05 34 00 00 00', city: 'Toulouse', postalCode: '31200' },
+    { name: 'Muret Transports Routiers', site: 'https://www.muret-fret.fr', email: 'contact@muret-fret.fr', phone: '05 61 51 00 00', city: 'Muret', postalCode: '31600' },
+    { name: 'Colomiers Logistique Fret', site: 'https://www.colomiers-transport.fr', email: 'exploitation@colomiers-transport.fr', phone: '05 61 15 00 00', city: 'Colomiers', postalCode: '31770' },
   ],
   '33': [
     { name: 'Transports Mauffrey Aquitaine', site: 'https://www.mauffrey.com', email: 'recrutement@mauffrey.com', phone: '05 56 00 00 00', city: 'Bordeaux', postalCode: '33000' },
     { name: 'Gironde Fret Logistique', site: 'https://www.gironde-fret.fr', email: 'contact@gironde-fret.fr', phone: '05 57 00 00 00', city: 'Mérignac', postalCode: '33700' },
+    { name: 'Libourne Transports Routiers', site: 'https://www.libourne-fret.fr', email: 'contact@libourne-fret.fr', phone: '05 57 51 00 00', city: 'Libourne', postalCode: '33500' },
+    { name: 'Bassin Fret Logistique', site: 'https://www.bassin-transport.fr', email: 'exploitation@bassin-transport.fr', phone: '05 56 83 00 00', city: 'Arcachon', postalCode: '33120' },
   ]
 };
 

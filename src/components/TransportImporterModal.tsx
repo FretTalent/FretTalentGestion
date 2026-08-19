@@ -62,7 +62,7 @@ export default function TransportImporterModal({
     '52.29A',
   ]);
   const [department, setDepartment] = useState<string>('');
-  const [perPage, setPerPage] = useState<number>(50);
+  const [perPage, setPerPage] = useState<number>(25);
   const [enrichEmails, setEnrichEmails] = useState<boolean>(true);
 
   // Stats & Historique
@@ -365,9 +365,9 @@ export default function TransportImporterModal({
                   onChange={(e) => setPerPage(Number(e.target.value))}
                   className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-slate-900/10 cursor-pointer"
                 >
-                  <option value={25}>25 entreprises / page</option>
-                  <option value={50}>50 entreprises / page (Recommandé)</option>
-                  <option value={100}>100 entreprises / page (Rapide)</option>
+                  <option value={10}>10 entreprises / lot</option>
+                  <option value={20}>20 entreprises / lot</option>
+                  <option value={25}>25 entreprises / lot (Max officiel)</option>
                 </select>
               </div>
 

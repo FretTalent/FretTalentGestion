@@ -60,8 +60,10 @@ export async function fetchTransportCompaniesFromSirene(
     enrichEmails = true,
   } = options;
 
+  // L'API officielle gouv.fr limite strictement `per_page` entre 1 et 25
+  const safePerPage = Math.min(Math.max(Number(perPage) || 25, 1), 25);
   const nafParam = nafCodes.join(',');
-  let url = `https://recherche-entreprises.api.gouv.fr/search?activite_principale=${nafParam}&page=${page}&per_page=${perPage}&etat_administratif=A`;
+  let url = `https://recherche-entreprises.api.gouv.fr/search?activite_principale=${nafParam}&page=${page}&per_page=${safePerPage}&etat_administratif=A`;
 
   // Gestion robuste du département
   if (department && typeof department === 'string' && department.trim() !== '') {

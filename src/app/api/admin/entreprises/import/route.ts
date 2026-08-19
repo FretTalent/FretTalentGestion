@@ -96,7 +96,7 @@ export async function POST(req: Request) {
     const {
       nafCodes = TRANSPORT_NAF_CODES,
       page = 1,
-      perPage = 50,
+      perPage = 25,
       department,
       enrichEmails = true,
     } = body;
@@ -105,7 +105,7 @@ export async function POST(req: Request) {
     const sireneResult = await fetchTransportCompaniesFromSirene({
       nafCodes: Array.isArray(nafCodes) && nafCodes.length > 0 ? nafCodes : TRANSPORT_NAF_CODES,
       page: Number(page) || 1,
-      perPage: Math.min(Number(perPage) || 50, 100),
+      perPage: Math.min(Number(perPage) || 25, 25),
       department: department ? String(department).trim() : undefined,
       enrichEmails: enrichEmails !== false,
     });

@@ -189,9 +189,9 @@ async function findEmailViaDropcontact(
 }
 
 /**
- * 5. Moteur d'Extraction Web Officiel & Facebook (100% Gratuit & Autonome)
- * Détecte le site internet réel de l'entreprise ou sa page Facebook officielle
- * et extrait les véritables adresses e-mails (Contact / Recrutement / RH / Direction)
+ * 5. Moteur d'Extraction Web Officiel & Recrutement Strict (100% Réel & Certifié)
+ * RÈGLE STRICTE : AUCUN EMAIL PRÉDICTIF OU FICTIF
+ * Ne valide un email QUE s'il est PHYSIQUEMENT EXTRAIT du site web de l'entreprise (Page Recrutement, Contact ou Mentions Légales)
  */
 async function scrapeOfficialWebsiteAndFacebook(
   companyName: string,
@@ -201,96 +201,107 @@ async function scrapeOfficialWebsiteAndFacebook(
   const clean = sanitizeCompanyName(companyName);
   if (!clean || clean.length < 3) return null;
 
-  // 1. Liste des domaines potentiels du site officiel de l'entreprise
+  // Liste des domaines potentiels du site officiel de l'entreprise
   const domainCandidates = [
+    `${clean}-sa.com`,
+    `${clean}-sa.fr`,
     `${clean}.fr`,
     `${clean}.com`,
     `transports-${clean}.fr`,
-    `${clean}-transports.fr`,
+    `transports-${clean}.com`,
     `${clean}-transport.fr`,
+    `${clean}-transports.fr`,
+    `${clean}-transports.com`,
     `${clean}-logistique.fr`,
     `groupe-${clean}.fr`,
+    `groupe-${clean}.com`,
     `${clean}transport.fr`,
     `${clean}transports.fr`,
     `${clean}.eu`,
   ];
 
-  for (const domain of domainCandidates.slice(0, 5)) {
+  for (const domain of domainCandidates) {
     const isLive = await isDomainMailActive(domain);
-    if (isLive) {
-      try {
-        // Tenter d'inspecter rapidement les pages de contact et d'accueil en parallèle avec un timeout court de 1500ms
-        const pagesToTest = [
-          `https://www.${domain}`,
-          `https://www.${domain}/contact`,
-          `https://www.${domain}/recrutement`,
-        ];
+    if (!isLive) continue;
 
-        const fetchPromises = pagesToTest.map(url =>
-          fetch(url, {
+    try {
+      // Pages clés à inspecter pour extraire l'email réel
+      const pagesToTest = [
+        `https://www.${domain}/recrutement/`,
+        `https://www.${domain}/recrutement`,
+        `https://www.${domain}/nous-rejoindre/`,
+        `https://www.${domain}/nous-rejoindre`,
+        `https://www.${domain}/contact/`,
+        `https://www.${domain}/contact`,
+        `https://www.${domain}/mentions-legales/`,
+        `https://www.${domain}`,
+        `https://${domain}`,
+      ];
+
+      for (const pageUrl of pagesToTest) {
+        try {
+          const pageRes = await fetch(pageUrl, {
             headers: {
               'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-              Accept: 'text/html',
+              Accept: 'text/html,application/xhtml+xml',
             },
-            signal: AbortSignal.timeout(1500),
-          })
-            .then(res => (res.ok ? res.text() : ''))
-            .catch(() => '')
-        );
-
-        const htmlResults = await Promise.all(fetchPromises);
-        const combinedHtml = htmlResults.join(' ');
-
-        if (combinedHtml) {
-          const emails = combinedHtml.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) || [];
-          const validEmails = emails.filter(em => {
-            const emLower = em.toLowerCase();
-            const emDomain = emLower.split('@')[1];
-            return (
-              (emDomain === domain || emDomain === `www.${domain}` || emDomain.includes(clean)) &&
-              !emLower.includes('.png') &&
-              !emLower.includes('.jpg') &&
-              !emLower.includes('.webp') &&
-              !emLower.includes('wix') &&
-              !emLower.includes('wordpress') &&
-              !emLower.includes('sentry') &&
-              !emLower.includes('example')
-            );
+            signal: AbortSignal.timeout(2000),
           });
 
-          if (validEmails.length > 0) {
-            const priorityEmail = validEmails.find(em =>
-              em.toLowerCase().includes('recrut') ||
-              em.toLowerCase().includes('rh') ||
-              em.toLowerCase().includes('job') ||
-              em.toLowerCase().includes('exploitation') ||
-              em.toLowerCase().includes('contact')
-            ) || validEmails[0];
+          if (pageRes.ok) {
+            const html = await pageRes.text();
+            const emails = html.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) || [];
+            
+            // Filtre strict : L'email doit appartenir au domaine réel de l'entreprise
+            const validEmails = emails.filter(em => {
+              const emLower = em.toLowerCase();
+              const emDomain = emLower.split('@')[1];
+              return (
+                (emDomain === domain || emDomain === `www.${domain}` || emDomain.includes(clean)) &&
+                !emLower.includes('.png') &&
+                !emLower.includes('.jpg') &&
+                !emLower.includes('.webp') &&
+                !emLower.includes('wix') &&
+                !emLower.includes('wordpress') &&
+                !emLower.includes('sentry') &&
+                !emLower.includes('example') &&
+                !emLower.includes('prestashop')
+              );
+            });
 
-            return {
-              email: priorityEmail.toLowerCase(),
-              source: 'official_website_scraped',
-            };
+            if (validEmails.length > 0) {
+              // Priorité aux emails de recrutement ou RH
+              const priorityEmail = validEmails.find(em =>
+                em.toLowerCase().includes('recrut') ||
+                em.toLowerCase().includes('rh') ||
+                em.toLowerCase().includes('job') ||
+                em.toLowerCase().includes('exploitation') ||
+                em.toLowerCase().includes('direction') ||
+                em.toLowerCase().includes('contact')
+              ) || validEmails[0];
+
+              return {
+                email: priorityEmail.toLowerCase(),
+                source: 'official_website_scraped',
+              };
+            }
           }
+        } catch (pageErr) {
+          // Timeout ou 404 sur cette sous-page
         }
-
-        // Si le nom de domaine possède des serveurs MX 100% actifs
-        return {
-          email: `contact@${domain}`,
-          source: 'dns_mx_verified',
-        };
-      } catch (domErr) {
-        // Continuer sur le candidat suivant
       }
+    } catch (domErr) {
+      // Ignorer
     }
   }
 
+  // Si AUCUN e-mail réel n'a été trouvé sur leur site web, on renvoie NULL (l'entreprise ne sera PAS importée)
   return null;
 }
 
 /**
  * Fonction Principale d'enrichissement d'email professionnel
- * Priorité : Hunter.io ➔ Abstract ➔ Clearbit ➔ Dropcontact ➔ Crawler Web Officiel & DNS Réel
+ * RÈGLE ABSOLUE : 100% RÉEL CERTIFIÉ (AUCUN EMAIL FICTIF)
  */
 export async function enrichCompanyEmail(
   companyName: string,
@@ -323,12 +334,12 @@ export async function enrichCompanyEmail(
     return dropcontactResult;
   }
 
-  // 5. Crawler Web Officiel & Scanner DNS MX Réel (100% Gratuit, Réel & Sans Inscription)
+  // 5. Crawler Web Officiel Réel (Extraction stricte depuis le site web officiel)
   const webResult = await scrapeOfficialWebsiteAndFacebook(companyName, city, postalCode);
   if (webResult?.email) {
     return webResult;
   }
 
-  // Si aucun serveur email réel n'est joignable, renvoyer null (non importé)
+  // AUCUN EMAIL ESTIMÉ OU FICTIF : L'entreprise est ignorée
   return { email: null, phone: null, source: null };
 }

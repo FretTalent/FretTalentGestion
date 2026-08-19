@@ -1,10 +1,20 @@
-# https://www.robotstxt.org/robotstxt.html
+# FretTalent robots.txt
+# https://www.frettalent.fr
+
 User-agent: *
 Allow: /
 
-# Disallow private/admin routes
+# Exclude private dashboards & API routes
 Disallow: /dashboard/
 Disallow: /api/
+Disallow: /auth/
 
-# Sitemap
+# Allow Googlebot & Google Discover
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+# Sitemap Index
 Sitemap: https://www.frettalent.fr/sitemap.xml

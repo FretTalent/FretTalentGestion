@@ -160,7 +160,7 @@ export async function POST(req: Request) {
         }
 
         // Insertion dans la table entreprises
-        const { error: insertError } = await supabaseAdmin.from('entreprises').insert({
+        let { error: insertError } = await supabaseAdmin.from('entreprises').insert({
           name: comp.nom_entreprise,
           email: comp.email.trim().toLowerCase(),
           phone: comp.telephone || null,
@@ -178,6 +178,34 @@ export async function POST(req: Request) {
           validation_status: status,
           validation_details: comp.validation_details || null,
         });
+
+        // Fallback de sécurité si la table Supabase n'a pas encore les colonnes email_score/validation_status créées
+        if (
+          insertError &&
+          (insertError.message.includes('column') ||
+            insertError.message.includes('schema cache') ||
+            insertError.message.includes('email_score') ||
+            insertError.message.includes('validation_status'))
+        ) {
+          const fallbackRes = await supabaseAdmin.from('entreprises').insert({
+            name: comp.nom_entreprise,
+            email: comp.email.trim().toLowerCase(),
+            phone: comp.telephone || null,
+            siret: comp.siret || null,
+            address: comp.adresse || `Zone d'activité transport`,
+            postal_code: comp.code_postal || '02000',
+            city: comp.ville || 'France',
+            country: 'FR',
+            latitude: comp.latitude || 49.5641,
+            longitude: comp.longitude || 3.6199,
+            is_partner: false,
+            specialties: ['Transport Routier de Fret', 'Messagerie & Logistique'],
+            notes: comp.site_web
+              ? `Site officiel: ${comp.site_web} (Score: ${score} pts)`
+              : `Importé via Robot d'Extraction Directe (Score: ${score} pts)`,
+          });
+          insertError = fallbackRes.error;
+        }
 
         if (insertError) {
           console.error('[Direct Importer] Erreur insertion:', insertError.message);

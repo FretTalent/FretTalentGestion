@@ -99,39 +99,67 @@ export async function GET(req) {
       })
       .eq('id', emailRecord.id);
 
-    // 4. Déterminer les détails et le rôle du destinataire
-    const isCandidateEmail = emailRecord.candidate_id && !emailRecord.entreprise_id && (emailRecord.company_name?.includes('@') || !emailRecord.company_name || token.startsWith('remind-') || token.startsWith('doc-'));
-    const isRecruiterEmail = !!emailRecord.entreprise_id || (!isCandidateEmail && !!emailRecord.company_name);
-
+    // 4. Déterminer les détails et le rôle du destinataire avec recherche approfondie du nom
     let recipientEmail = emailRecord.company_email || (emailRecord.company_name?.includes('@') ? emailRecord.company_name : '');
-    let recipientName = emailRecord.company_name || 'Destinataire';
-    let recipientRole = isCandidateEmail ? 'candidate' : (isRecruiterEmail ? 'recruiter' : 'external');
-    let emailType = 'Auto-Candidature Premium';
-    let emailSubject = 'Candidature & Documents Chauffeur (50 km)';
+    let recipientName = emailRecord.company_name || '';
+    let recipientRole = 'candidate';
+    let emailType = 'Notification FretTalent';
+    let emailSubject = 'Email FretTalent';
 
-    // Si c'est une relance ou un email candidat
-    if (token.startsWith('remind-') || token.startsWith('doc-') || isCandidateEmail) {
-      recipientRole = 'candidate';
-      emailType = token.startsWith('remind-') ? 'Relance Documents Chauffeur' : (token.startsWith('doc-') ? 'Documents Manquants' : 'Notification Chauffeur');
-      emailSubject = token.startsWith('remind-') ? 'Activez votre badge Chauffeur Vérifié 🚛' : 'Action requise : Documents manquants ⚠️';
-      
-      if ((!recipientEmail || !recipientName || recipientName === 'Destinataire') && emailRecord.candidate_id) {
-        const { data: cand } = await supabaseAdmin
-          .from('candidates')
-          .select('full_name, email')
-          .eq('id', emailRecord.candidate_id)
-          .maybeSingle();
-        if (cand) {
-          recipientEmail = cand.email || recipientEmail;
-          recipientName = cand.full_name || recipientName;
+    // Recherche par candidate_id si présent
+    if (emailRecord.candidate_id) {
+      const { data: cand } = await supabaseAdmin
+        .from('candidates')
+        .select('full_name, email')
+        .eq('id', emailRecord.candidate_id)
+        .maybeSingle();
+      if (cand) {
+        if (!recipientEmail) recipientEmail = cand.email;
+        if (!recipientName || recipientName.includes('@') || recipientName === 'Destinataire') {
+          recipientName = cand.full_name || cand.email;
         }
       }
     }
 
-    // Si c'est un mail marketing ou admin
-    if (token.startsWith('mail-')) {
+    // Recherche par email si le nom n'est toujours pas trouvé ou est une adresse email
+    if ((!recipientName || recipientName.includes('@') || recipientName === 'Destinataire') && recipientEmail) {
+      const { data: candByEmail } = await supabaseAdmin
+        .from('candidates')
+        .select('full_name')
+        .eq('email', recipientEmail)
+        .maybeSingle();
+      if (candByEmail?.full_name) {
+        recipientName = candByEmail.full_name;
+        recipientRole = 'candidate';
+      } else {
+        const { data: compByEmail } = await supabaseAdmin
+          .from('companies')
+          .select('name')
+          .eq('email', recipientEmail)
+          .maybeSingle();
+        if (compByEmail?.name) {
+          recipientName = compByEmail.name;
+          recipientRole = 'recruiter';
+        }
+      }
+    }
+
+    // Type et sujet précis selon le token
+    if (token.startsWith('remind-')) {
+      recipientRole = 'candidate';
+      emailType = 'Relance Documents Chauffeur';
+      emailSubject = 'Activez votre badge Chauffeur Vérifié 🚛';
+    } else if (token.startsWith('doc-')) {
+      recipientRole = 'candidate';
+      emailType = 'Documents Manquants';
+      emailSubject = 'Action requise : Documents manquants ⚠️';
+    } else if (token.startsWith('mail-')) {
       emailType = 'Campagne / Email Admin';
       emailSubject = 'Message de l\'équipe FretTalent';
+    } else if (emailRecord.entreprise_id) {
+      recipientRole = 'recruiter';
+      emailType = 'Auto-Candidature Premium';
+      emailSubject = 'Candidature & Documents Chauffeur (50 km)';
     }
 
     // 5. Si c'est une candidature envoyée à une entreprise (flow Auto-Candidature standard)

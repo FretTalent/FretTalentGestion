@@ -121,6 +121,32 @@ export async function POST(req) {
         const trackingToken = `mail-${Math.random().toString(36).substring(2, 12)}${Date.now().toString(36)}`;
         const trackingUrl = `${baseUrl}/api/premium/open-tracking?t=${trackingToken}`;
 
+        // Identifier le nom et prénom ou raison sociale du destinataire
+        let recipientDisplayName = email;
+        let matchedCandidateId = null;
+        let matchedCompanyId = null;
+
+        const { data: candInfo } = await supabaseAdmin
+          .from('candidates')
+          .select('id, full_name, email')
+          .eq('email', email)
+          .maybeSingle();
+
+        if (candInfo) {
+          recipientDisplayName = candInfo.full_name || email;
+          matchedCandidateId = candInfo.id;
+        } else {
+          const { data: compInfo } = await supabaseAdmin
+            .from('companies')
+            .select('id, name, email')
+            .eq('email', email)
+            .maybeSingle();
+          if (compInfo) {
+            recipientDisplayName = compInfo.name || email;
+            matchedCompanyId = compInfo.id;
+          }
+        }
+
         // Rendu personnalisé avec le pixel de tracking pour chaque destinataire
         const htmlBody = await render(
           <MarketingEmail
@@ -133,12 +159,13 @@ export async function POST(req) {
           />,
         );
 
-        // Sauvegarder dans candidature_emails pour le tracking et l'alerte Telegram
+        // Sauvegarder dans candidature_emails avec le nom et prénom pour le tracking et l'alerte Telegram
         try {
           await supabaseAdmin.from('candidature_emails').insert({
             candidature_id: validCandidatureId,
-            candidate_id: user.id,
-            company_name: email,
+            candidate_id: matchedCandidateId,
+            entreprise_id: matchedCompanyId,
+            company_name: recipientDisplayName,
             company_email: email,
             tracking_token: trackingToken,
             status: 'sent',

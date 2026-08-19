@@ -205,7 +205,7 @@ export default function AdminCompanies() {
             Comptes & Registre Entreprises
           </h1>
           <p className="text-sm text-slate-600 max-w-2xl leading-relaxed">
-            Consultez la liste des entreprises de transport importées (utilisées pour la Candidature Rapide 19,99€) ainsi que les comptes recruteurs inscrits.
+            Consultez la liste des entreprises de transport ainsi que les comptes recruteurs inscrits.
           </p>
         </div>
 

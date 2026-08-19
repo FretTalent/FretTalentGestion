@@ -35,11 +35,6 @@ import {
 const navCandidate = [
   { href: '/dashboard/candidate', icon: Truck, label: 'Mon profil' },
   {
-    href: '/dashboard/candidate/cv-rapide',
-    icon: Zap,
-    label: 'CV Rapide (19,99€)',
-  },
-  {
     href: '/dashboard/candidate/documents',
     icon: FileText,
     label: 'Mes documents',
@@ -62,7 +57,6 @@ const navAdminHorizontal = [
   { href: '/dashboard/admin', icon: LayoutDashboard, label: 'Tableau de bord' },
   { href: '/dashboard/admin/stats', icon: TrendingUp, label: 'Statistiques site' },
   { href: '/dashboard/admin/finance', icon: CreditCard, label: 'Finances & Stripe' },
-  { href: '/dashboard/admin/premium', icon: Send, label: 'Auto-Candidatures', badgeKey: null },
   { href: '/dashboard/admin/candidates', icon: Users, label: 'Candidats', badgeKey: 'pendingCandidates', badgeColor: '#E53935' },
   { href: '/dashboard/admin/companies', icon: Building2, label: 'Entreprises' },
   { href: '/dashboard/admin/jobs', icon: Briefcase, label: 'Modération annonces', badgeKey: 'pendingJobs', badgeColor: '#FF7A00' },
@@ -75,7 +69,6 @@ const breadcrumbMap = {
   '/dashboard/admin': 'Tableau de bord',
   '/dashboard/admin/stats': 'Statistiques site',
   '/dashboard/admin/finance': 'Finances & Stripe',
-  '/dashboard/admin/premium': 'Auto-Candidatures 19,99 €',
   '/dashboard/admin/candidates': 'Candidats',
   '/dashboard/admin/companies': 'Entreprises',
   '/dashboard/admin/jobs': 'Modération annonces',
@@ -83,7 +76,6 @@ const breadcrumbMap = {
   '/dashboard/admin/mail': 'Gestion mails',
   '/dashboard/admin/users': 'Utilisateurs',
   '/dashboard/candidate': 'Mon profil',
-  '/dashboard/candidate/cv-rapide': 'CV Rapide (19,99 €)',
   '/dashboard/candidate/documents': 'Mes documents',
   '/dashboard/candidate/support': 'Support',
   '/dashboard/recruiter': 'Recherche',

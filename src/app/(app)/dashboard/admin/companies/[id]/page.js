@@ -57,7 +57,7 @@ export default function CompanyProfile() {
         return;
       }
 
-      // 1. Essai de récupération dans la table 'entreprises' (Carnet Candidature Rapide 19,99€)
+      // 1. Essai de récupération dans la table 'entreprises'
       const { data: entData } = await supabase
         .from('entreprises')
         .select('*')

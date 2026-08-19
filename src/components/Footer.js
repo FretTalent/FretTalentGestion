@@ -6,17 +6,17 @@ export default function Footer() {
       {/* Subtle top ambient glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[120px] bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
         
         {/* Main Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 pb-14 border-b border-slate-800/80">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 pb-10 border-b border-slate-800/80">
           
           {/* Col 1 : Logo & Brand (4 cols on lg) */}
           <div className="lg:col-span-4 space-y-5">
             <Link href="/" className="inline-block group">
               <img
                 src="/logo.png"
-                alt="FretTalent - Recrutement Chauffeurs Routiers France & Belgique"
+                alt="FretTalent - Recrutement Chauffeurs Routiers France & Europe"
                 className="h-14 md:h-16 w-auto object-contain brightness-0 invert group-hover:opacity-90 transition-opacity"
               />
             </Link>
@@ -58,7 +58,6 @@ export default function Footer() {
               Plateforme & Opportunités
             </h4>
             <ul className="space-y-2.5 text-sm">
-              {/* Candidats Disponibles (EN ORANGE) */}
               <li>
                 <Link
                   href="/candidats-disponibles"
@@ -71,7 +70,6 @@ export default function Footer() {
                 </Link>
               </li>
 
-              {/* Offres d'emploi (EN ORANGE) */}
               <li>
                 <Link
                   href="/offres"
@@ -107,7 +105,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Col 3 : Informations & Membres (2 cols on lg) */}
+          {/* Col 3 : Navigation */}
           <div className="lg:col-span-2 space-y-4">
             <h4 className="text-xs font-black text-white uppercase tracking-wider">
               Navigation
@@ -147,7 +145,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Col 4 : Légal & Conformité (3 cols on lg) */}
+          {/* Col 4 : Légal */}
           <div className="lg:col-span-3 space-y-4">
             <h4 className="text-xs font-black text-white uppercase tracking-wider">
               Légal & Sécurité
@@ -160,17 +158,17 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/legal/cgu" className="hover:text-white transition-colors">
-                  Conditions Générales d&apos;Utilisation (CGU)
+                  CGU
                 </Link>
               </li>
               <li>
                 <Link href="/legal/cgv" className="hover:text-white transition-colors">
-                  Conditions Générales de Vente (CGV)
+                  CGV
                 </Link>
               </li>
               <li>
                 <Link href="/legal/confidentialite" className="hover:text-white transition-colors">
-                  Politique de confidentialité
+                  Confidentialité
                 </Link>
               </li>
               <li>
@@ -183,8 +181,33 @@ export default function Footer() {
 
         </div>
 
+        {/* NOUVELLE SECTION MAILLAGE SEO EN PIED DE PAGE */}
+        <div className="pt-4 pb-8 border-b border-slate-800/80 space-y-4">
+          <h4 className="text-xs font-black text-white uppercase tracking-wider">
+            🚛 Spécialités, Métiers & Zones de Recrutement SEO
+          </h4>
+          
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 text-xs">
+            <Link href="/chauffeur-spl" className="hover:text-orange-400 transition-colors">Chauffeur SPL (Permis CE)</Link>
+            <Link href="/chauffeur-pl" className="hover:text-orange-400 transition-colors">Chauffeur PL (Permis C)</Link>
+            <Link href="/chauffeur-adr" className="hover:text-orange-400 transition-colors">Chauffeur ADR</Link>
+            <Link href="/chauffeur-frigo" className="hover:text-orange-400 transition-colors">Chauffeur Frigo</Link>
+            <Link href="/chauffeur-benne" className="hover:text-orange-400 transition-colors">Chauffeur Benne</Link>
+            <Link href="/emploi-chauffeur" className="hover:text-orange-400 transition-colors">Offres Emploi Chauffeur</Link>
+            <Link href="/recrutement-transport" className="hover:text-orange-400 transition-colors">Recrutement Transport</Link>
+            <Link href="/transporteurs-france" className="hover:text-orange-400 transition-colors">Transporteurs France</Link>
+            <Link href="/transport-routier" className="hover:text-orange-400 transition-colors">Transport Routier (TRM)</Link>
+            <Link href="/messagerie" className="hover:text-orange-400 transition-colors">Messagerie Express</Link>
+            <Link href="/fret-express" className="hover:text-orange-400 transition-colors">Fret Express</Link>
+            <Link href="/chauffeur-spl-hauts-de-france" className="hover:text-orange-400 transition-colors">Chauffeur SPL Hauts-de-France</Link>
+            <Link href="/chauffeur-spl-aisne" className="hover:text-orange-400 transition-colors">Chauffeur SPL Aisne (02)</Link>
+            <Link href="/transporteurs-hauts-de-france" className="hover:text-orange-400 transition-colors">Transporteurs Hauts-de-France</Link>
+            <Link href="/transporteurs-aisne" className="hover:text-orange-400 transition-colors">Transporteurs Aisne (02)</Link>
+          </div>
+        </div>
+
         {/* Footer Bottom Bar */}
-        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
+        <div className="pt-4 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
           <p className="text-slate-500 text-center md:text-left">
             &copy; {new Date().getFullYear()} FretTalent. Tous droits réservés. Plateforme de mise en relation directe transport & logistique.
           </p>

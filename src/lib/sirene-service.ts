@@ -42,7 +42,6 @@ export interface SireneFetchResult {
 export const TRANSPORT_NAF_CODES = [
   '49.41A', // Transports routiers de fret interurbains
   '49.41B', // Transports routiers de fret de proximité
-  '49.39A', // Transports routiers réguliers de voyageurs
   '52.10A', // Entreposage et stockage frigorifique
   '52.29A', // Messagerie, fret express
 ];

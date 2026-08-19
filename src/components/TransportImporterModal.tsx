@@ -43,7 +43,6 @@ interface ImportHistoryItem {
 const NAF_OPTIONS = [
   { code: '49.41A', label: '49.41A — Transports routiers de fret interurbains' },
   { code: '49.41B', label: '49.41B — Transports routiers de fret de proximité' },
-  { code: '49.39A', label: '49.39A — Transports routiers réguliers de voyageurs' },
   { code: '52.10A', label: '52.10A — Entreposage et stockage frigorifique' },
   { code: '52.29A', label: '52.29A — Messagerie, fret express' },
 ];

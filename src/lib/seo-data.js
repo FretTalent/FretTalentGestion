@@ -147,103 +147,280 @@ export const seoPagesData = {
         a: "Un chauffeur PL débute en moyenne entre 1 900 € et 2 300 € net par mois, selon les primes de panier, d'assiduité et la région d'exercice."
       },
       {
-        q: "Peut-on passer du permis C au permis CE rapidement ?",
-        a: "Oui, après l'obtention du permis C, il est possible de suivre la formation au permis CE (ou une FIMO passerelle) pour évoluer vers la conduite de véhicules Super Poids Lourds (SPL)."
-      }
-    ]
-  },
-
-  'chauffeur-adr': {
+        q: "Peut-on passer du permis C au permis CE rapide  'chauffeur-adr': {
     slug: 'chauffeur-adr',
-    metaTitle: 'Chauffeur ADR / Transport Matières Dangereuses | Emplois FretTalent',
-    metaDescription: 'Offres d’emploi et profil de chauffeurs routiers certifiés ADR (Matières Dangereuses de base, Citerne, Chimique, Gaz). Contact direct.',
+    metaTitle: 'Chauffeur ADR / Transport Matières Dangereuses | Offres & Recrutement FretTalent',
+    metaDescription: 'Guide complet du métier de chauffeur routier ADR (Matières Dangereuses de base, Citerne, Chimique, Gaz). Règlementation, valise ADR, salaires, comparatifs et offres d’emploi directes sans intérim.',
     h1: 'Recrutement & Emploi Chauffeur ADR (Transport Matières Dangereuses)',
-    subtitle: 'Postes et candidats qualifiés ADR de base, ADR citerne et produits chimiques dangereux sur toute la France.',
-    badgeText: 'Spécialisation • Transport ADR',
+    subtitle: 'Accédez aux offres d’emploi et candidatures pour conducteurs routiers qualifiés ADR de Base, ADR Citerne Pétrolière et Produits Chimiques partout en France.',
+    badgeText: 'Spécialisation • Transport ADR / Chimique',
     keyTakeaways: [
-      "Attestation de formation ADR de Base ou Citerne valide",
-      "Connaissances des classes de danger (1 à 9) et protocoles de sécurité",
-      "Primes de risque et rémunérations supérieures à la moyenne",
-      "Embauche directe par les spécialistes de la chimie et pétrole"
+      "Attestation de formation ADR de Base ou Citerne (gaz/chimie/pétrole) valide",
+      "Maîtrise de la classification des matières dangereuses (Classes 1 à 9)",
+      "Conformité des équipements : valise ADR, extincteurs, panneaux oranges UN",
+      "Grille salariale attractive : 2 500 € à 3 800 € net/mois (primes de risque incluses)"
     ],
     sections: [
       {
-        h2: "Le Transport Routier de Matières Dangereuses (ADR) en France",
-        content: "Le transport par route de marchandises dangereuses est encadré par l'Accord européen relatif au transport international des marchandises dangereuses par route (ADR). Le chauffeur ADR est un spécialiste hautement qualifié formé pour transporter des produits inflammables, toxiques, corrosifs, gazeux ou chimiques en toute sécurité.",
+        h2: "Le Transport Routier de Matières Dangereuses (ADR) : Réglementation & Exigences",
+        content: "Le transport par route de marchandises dangereuses est soumis à une réglementation européenne stricte intitulée Accord ADR (Accord européen relatif au transport international des marchandises dangereuses par route). Le conducteur routier ADR est un professionnel hautement spécialisé responsable de l'acheminement sécurisé de produits chimiques, carburants, gaz liquides, matières corrosives ou comburantes. Face à la technicité du métier et aux normes environnementales et de sécurité incendie, les transporteurs routiers recherchent en permanence des chauffeurs rigoureux titulaires d'une attestation ADR à jour.",
         subsections: [
           {
-            h3: "Les Différentes Certifications ADR",
-            content: "L'attestation ADR de Base permet de transporter des marchandises dangereuses en colis ou vrac solide. L'extension ADR Citerne (spécialisation produits pétroliers ou chimiques) est indispensable pour la conduite de camions citernes."
+            h3: "La Classification Internationale des Matières Dangereuses (Classes 1 à 9)",
+            content: "Le chauffeur ADR manipule des marchandises réparties en 9 classes de danger : Classe 3 (Liquides inflammables comme l'essence et le fioul), Classe 2 (Gaz inflammables et toxiques), Classe 8 (Matières corrosives), Classe 6 (Matières toxiques), Classe 4 (Solides inflammables), Classe 5 (Comburants), ainsi que les classes spéciales 1 (Explosifs) et 7 (Radioactifs)."
           },
           {
-            h3: "Consignes de Sécurité & Équipements Obligatoires",
-            content: "Le chauffeur ADR contrôle le panneau orange numéroté, l'extincteur vérifié, la valise ADR (masque à gaz, combinaison, kit de neutralisation des fuites) et respecte scrupuleusement les consignes écrites de sécurité."
+            h3: "Les Différents Niveaux de Certifications ADR",
+            content: "La formation ADR de Base est le socle obligatoire pour transporter des colis ou vracs solides dangereux. Elle doit être complétée par des spécialisations spécifiques : ADR Citerne (transports pétroliers et produits chimiques en citerne), ADR Citerne Gaz (GLP, GNL, azote liquide), ou les spécialisations Classe 1 (Explosifs) et Classe 7 (Radioactifs)."
+          }
+        ]
+      },
+      {
+        h2: "Consignes de Sécurité, Signalisation UN & Valise ADR Obligatoire",
+        content: "Avant chaque départ, le chauffeur routier certifié ADR effectue un contrôle rigoureux du camion porteur ou de l'ensemble routier articulé. Il s'assure du bon positionnement des panneaux oranges d'avertissement et des plaques-étiquettes de danger sur le véhicule.",
+        subsections: [
+          {
+            h3: "Lecture des Panneaux Oranges Numérotés (Code UN & Danger)",
+            content: "Le panneau orange rectangulaire comporte deux numéros majeurs : le numéro d'identification du danger (code Kemler en haut, ex: 33 pour liquide très inflammable) et le numéro d'identification de la matière (numéro UN en bas, ex: 1203 pour le carburant automobile ou 1202 pour le gazole)."
+          },
+          {
+            h3: "La Valise ADR & Équipements de Protection Individuelle (EPI)",
+            content: "Le camion doit embarquer l'équipement réglementaire composé d'extincteurs contrôlés, de cale de roue, de signaux d'avertissement autonomes (triangles ou feux clignotants), d'un kit de protection individuelle (masque d'évacuation d'urgence, lunettes étanches, gants de protection chimique, bavette d'obturation d'égout et bac collecteur)."
+          }
+        ]
+      },
+      {
+        h2: "Grille Salariale & Rémunération du Chauffeur ADR en 2026",
+        content: "En raison des risques encourus et de la haute technicité exigée, les chauffeurs routiers titulaires de la qualification ADR bénéficient d'un taux horaire et de primes conventionnelles nettement supérieures au transport régional standard. La rémunération est renforcée par les indemnités de repas, les primes d'astreinte, de lavage de citerne et de manipulation de produits dangereux.",
+        subsections: [
+          {
+            h3: "Salaire Moyen Chauffeur ADR Citerne vs Colis",
+            content: "Un chauffeur ADR de Base perçoit en moyenne entre 2 200 € et 2 700 € net/mois. Un conducteur ADR Citerne pétrolière ou chimique expérimenté effectuant du grand ruban ou du transport de nuit peut atteindre 3 200 € à 3 800 € net par mois."
+          },
+          {
+            h3: "Perspectives de Carrière & Évolutions",
+            content: "Un conducteur ADR aguerri peut évoluer vers des postes de conseiller à la sécurité transport (CSTD), responsable d'exploitation de dépôt pétrolier/chimique ou formateur agréé en centre FIMO/ADR."
           }
         ]
       }
     ],
+    comparisonTable: {
+      title: "Tableau Comparatif des Qualifications & Spécialisations ADR",
+      headers: ["Spécialisation", "ADR de Base", "ADR Citerne Pétrolière", "ADR Citerne Chimique / Gaz"],
+      rows: [
+        ["Types de Fret", "Colis, fûts, conteneurs, vrac solide", "Carburants, fioul, gazole, kérosène", "Acides, gaz liquides (GPL/GNL), solvants"],
+        ["Véhicules Utilisés", "Bâché (Tautliner), Fourgon, Porteur", "Tracteur + Citerne compartimentée", "Citerne inox/aluminium spécialisée"],
+        ["Niveau de Formation", "Stage de base (3 jours)", "Stage de base + Spécialisation Citerne", "Stage de base + Citernes Gaz / Chimie"],
+        ["Primes & Rémunération", "Standard + Prime ADR (2 200 € - 2 700 €)", "Élevée + Prime volucompteur (2 800 € - 3 400 €)", "Très élevée + Primes risques (3 000 € - 3 800 €)"],
+        ["Contrôles Principaux", "Arrimage, étiquetage colis, extincteurs", "Test d'étanchéité, dépotage à la pompe", "Pression de citerne, purges, EPI étanches"]
+      ]
+    },
     faqs: [
       {
-        q: "Quelle est la durée de validité du certificat ADR ?",
-        a: "Le certificat ADR a une durée de validité de 5 ans. Il doit être renouvelé par un stage de recyclage et un examen réussi avant sa date d'échéance."
+        q: "Quelle est la durée de validité du certificat de formation ADR ?",
+        a: "Le certificat ADR est valable 5 ans. Pour prolonger sa validité, le conducteur doit suivre un stage de recyclage ADR d'une durée de 2 jours et réussir le QCM de contrôle avant l'échéance indiquée sur sa carte."
+      },
+      {
+        q: "Quelle est la différence entre la plaque orange vierge et la plaque orange numérotée ?",
+        a: "La plaque orange vierge (sans numéro) indique que le véhicule transporte des marchandises dangereuses en colis (ex: camions bâchés). La plaque orange numérotée (avec le code Kemler et le numéro UN) est obligatoire pour les transports en citerne ou vrac."
+      },
+      {
+        q: "Quel est le matériel obligatoire dans la valise ADR ?",
+        a: "La valise ADR contient obligatoirement un liquide de rincage pour les yeux, une baudrier haute visibilité, une lampe de poche anti-déflagrante, une paire de gants de protection, des lunettes de sécurité, un masque d'évacuation, un pelle, une plaque d'obturation d'égout et un bac plastique récepteur."
+      },
+      {
+        q: "Faut-il le permis CE pour passer le certificat ADR ?",
+        a: "Non, la formation ADR de Base est accessible dès lors que vous êtes titulaire du permis C (porteur poids lourd) ou du permis CE (Super Poids Lourd) et de la FIMO/FCO Marchandises."
+      },
+      {
+        q: "Comment trouver un emploi de chauffeur ADR sans intermédiaire ?",
+        a: "FretTalent met en relation directe les chauffeurs certifiés ADR avec les entreprises du secteur pétrolier et chimique. Créez votre profil gratuitement et recevez des propositions d'embauche en CDI/CDD direct."
       }
     ]
   },
 
   'chauffeur-frigo': {
     slug: 'chauffeur-frigo',
-    metaTitle: 'Chauffeur Frigo (Transport Frigorifique) | Emplois FretTalent',
-    metaDescription: 'Recrutement chauffeur routier frigo (sous température dirigée). Transport agroalimentaire, viande, surgelés et produits frais.',
-    h1: 'Emploi Chauffeur Frigo (Transport Sous Température Dirigée)',
-    subtitle: 'Rejoignez les acteurs du transport frigorifique agroalimentaire et chaîne du froid partout en France.',
+    metaTitle: 'Chauffeur Frigo (Transport Frigorifique) | Offres & Recrutement FretTalent',
+    metaDescription: 'Guide métier du chauffeur routier frigorifique. Température dirigée (frais, surgelés, viandes, légumes), agrément ATP, groupe froid Carrier/Thermo King, salaires et offres d’emploi directes.',
+    h1: 'Emploi & Recrutement Chauffeur Frigo (Transport Sous Température Dirigée)',
+    subtitle: 'Rejoignez les acteurs majeurs du transport frigorifique agroalimentaire, de la viande et de la chaîne du froid partout en France.',
     badgeText: 'Spécialisation • Transport Frigorifique',
     keyTakeaways: [
-      "Gestion rigoureuse du groupe frigorifique et enregistreurs de température",
-      "Agrément sanitaire ATP et désinfection de la caisse frigo",
-      "Liaisons Rungis, centrales d'achat et grande distribution",
-      "Nombreuses primes de nuit et horaires décalés"
+      "Maîtrise des groupes frigorifiques (Carrier, Thermo King, mono/multi-température)",
+      "Agrément sanitaire ATP et traçabilité de la température (enregistreur Datacold)",
+      "Liaisons Rungis, MIN, centrales d'achat et Grande Distribution",
+      "Rémunération attractive avec primes de nuit, de week-end et casse-croûte"
     ],
     sections: [
       {
-        h2: "Les Spécificités du Transport Frigorifique Agroalimentaire",
-        content: "Le conducteur frigorifique assure la livraison de marchandises sous température dirigée (produits frais, surgelés, viandes pendues, produits pharmaceutiques). Il est le garant du respect absolu de la chaîne du froid, d'une traçabilité irréprochable et des règles d'hygiène alimentaire (HACCP).",
+        h2: "Le Transport Frigorifique Agroalimentaire : Rôle & Exigences Sanitaires",
+        content: "Le conducteur frigorifique joue un rôle vital dans l'approvisionnement alimentaire de la population. Il assure l'acheminement sécurisé des denrées périssables (produits laitiers, légumes frais, fruits, viande pendue, poisson, plats préparés) et surgelés, ainsi que des produits pharmaceutiques sensibles. Sa responsabilité première est de garantir le maintien ininterrompu de la chaîne du froid, de l'enlèvement chez le producteur jusqu'à la livraison sur quai récepteur.",
         subsections: [
           {
-            h3: "Supervision du Groupe Froid & Enregistreur",
-            content: "Avant chaque départ, le chauffeur vérifie le niveau de carburant du groupe auxiliaire, sélectionne le point de consigne (-20°C pour le surgelé, +2°C à +4°C pour le frais) et s'assure du bon fonctionnement de l'enregistreur de température."
+            h3: "Les Classes de Température Dirigée (Frais vs Surgelé)",
+            content: "Le chauffeur frigo règle son groupe thermique selon les consignes : Produits Frais (+2°C à +4°C), Produits Surgelés et Glaces (-20°C à -25°C), Bananes et Produits Exotiques (+12°C à +14°C), Viande fraîche pendue (+0°C à +2°C)."
+          },
+          {
+            h3: "L'Agrément Sanitaire ATP & Hygiène des Caisses Frigo",
+            content: "Toutes les caisses frigorifiques doivent posséder un attestation de conformité technique ATP (Accord relatif aux Transports internationaux de denrées Périssables) valide. Le chauffeur veille à la propreté et à la désinfection régulière de la caisse isotherme avant chaque chargement."
+          }
+        ]
+      },
+      {
+        h2: "Exploitation du Groupe Froid, Enregistreur de Température & Matériel",
+        content: "La conduite d'une semi-remorque frigorifique (13,60m) ou d'un porteur frigo exige la parfaite maîtrise des commandes du moteur thermique auxiliaire (de marques référentes comme Carrier Transicold ou Thermo King).",
+        subsections: [
+          {
+            h3: "Supervision du Groupe Thermal & Décrassage",
+            content: "Avant la mise à quai, le conducteur effectue la pré-descente en température de la caisse frigo. Pendant le trajet, il contrôle la température de soufflage, le dégivrage automatique du moteur et le niveau du réservoir de gazole dédié au groupe frigorifique."
+          },
+          {
+            h3: "Traçabilité & Impression du Ticket de Température (Datacold)",
+            content: "À l'arrivée chez le client, l'enregistreur électronique de température (ex: Datacold ou Transcan) permet d'imprimer la courbe de température du voyage attestant du respect des normes lors du déchargement."
+          }
+        ]
+      },
+      {
+        h2: "Horaires de Travail, Rungis & Rémunération du Chauffeur Frigo en 2026",
+        content: "Le transport frigorifique est caractérisé par un fonctionnement en continu (24h/24 et 7j/7) afin d'approvisionner les étals de la grande distribution avant l'ouverture. Les chauffeurs bénéficient de nombreuses primes conventionnelles venant majorer leur salaire net.",
+        subsections: [
+          {
+            h3: "Livraisons Nocturnes & Centrales d'Achat",
+            content: "Les départs s'effectuent fréquemment en cours de nuit (entre 2h et 5h du matin) pour acheminer le fret depuis les Marchés d'Intérêt National (MIN de Rungis, Lomme, Lyon-Corbas) vers les centrales d'achat de la grande distribution."
+          },
+          {
+            h3: "Salaire Moyen Chauffeur Frigo (Régional & Grand Ruban)",
+            content: "Le salaire moyen d'un chauffeur frigo s'établit entre 2 300 € et 2 800 € net/mois en régional, et peut atteindre 3 000 € à 3 500 € net/mois en grand ruban national ou international avec les majorations de nuit et frais de route."
           }
         ]
       }
     ],
+    comparisonTable: {
+      title: "Tableau Comparatif des Typologies de Transport Frigorifique",
+      headers: ["Segment", "Transport Produit Frais", "Transport Surgelé (-20°C)", "Transport Viande Pendue", "Transport Pharma (+15°C/+25°C)"],
+      rows: [
+        ["Température Consigne", "+2°C à +4°C", "-20°C à -25°C", "0°C à +2°C", "+15°C à +25°C ou +2°C/+8°C"],
+        ["Équipement Caisse", "Semi-remorque isotherme standard", "Caisse renforcée forte isolation", "Caisse équipée de rails à viande au toit", "Caisse certifiée CERTIPHARM / GDP"],
+        ["Horaires Clés", "Nuit et tôt le matin", "Jour et Nuit réguliers", "Très tôt le matin (abattoirs)", "Heures de jour (livraison hôpitaux)"],
+        ["Contraintes Majeures", "Créneaux horaires très courts", "Risque de décongélation immédiat", "Effort physique au penderie/crochets", "Sécurité renforcée et enregistreurs étalonnés"]
+      ]
+    },
     faqs: [
       {
-        q: "Les chauffeurs frigo travaillent-ils souvent la nuit ?",
-        a: "Oui, la logistique de distribution agroalimentaire impose des livraisons très tôt le matin pour approvisionner les centrales et supermarchés dès l'ouverture."
+        q: "Qu'est-ce que l'attestation de conformité sanitaire ATP pour une remorque frigo ?",
+        a: "L'attestation ATP est délivrée par Cemafroid. Elle certifie la capacité d'isolation thermique de la caisse et la puissance du groupe frigorifique. Elle est obligatoire pour transporter des denrées périssables au-delà de 50 kilomètres sans rupture de température."
+      },
+      {
+        q: "Comment réagir en cas d'alarme ou de panne du groupe frigorifique ?",
+        a: "Le chauffeur doit immédiatement se garer en sécurité, vérifier le niveau de gazole du groupe, contrôler la fermeture des portes, contacter son exploitant transport et enclencher la procédure de secours ou l'intervention d'un dépanneur Carrier/Thermo King H24."
+      },
+      {
+        q: "Pourquoi le transport frigo nécessite-t-il souvent de travailler la nuit ?",
+        a: "Pour garantir la fraîcheur optimale des aliments (viande, légumes, produits laitiers), les produits récoltés ou abattus la veille doivent être livrés en plateforme logistique pendant la nuit afin d'être en rayon dès 8h du matin."
+      },
+      {
+        q: "Quel permis est nécessaire pour conduire un camion frigo ?",
+        a: "Le permis C convient pour les camionnettes et porteurs frigo rigides. Le permis CE (Super Poids Lourd) est nécessaire pour conduire des semi-remorques frigorifiques de 44 tonnes."
+      },
+      {
+        q: "Comment postuler aux offres de chauffeur frigo sur FretTalent ?",
+        a: "Créez votre profil conducteur en indiquant vos permis, FIMO et votre expérience sur groupe frigo. Les transporteurs agroalimentaires partenaires vous contacteront directement sans frais d'agence."
       }
     ]
   },
 
   'chauffeur-benne': {
     slug: 'chauffeur-benne',
-    metaTitle: 'Chauffeur Benne (Travaux Publics & Vrac) | Emploi FretTalent',
-    metaDescription: 'Postes de conducteur poids lourd et SPL benne (TP, céréalière, ferraille, enrobé, enrochement). Recrutement direct.',
-    h1: 'Recrutement & Emploi Chauffeur Benne (TP & Vrac)',
-    subtitle: 'Offres d’emploi pour conducteurs de camion benne TP, benne céréalière et vrac industriel.',
+    metaTitle: 'Chauffeur Benne (Travaux Publics & Vrac) | Offres & Recrutement FretTalent',
+    metaDescription: 'Guide du métier de conducteur poids lourd et SPL benne (TP, céréalière, ferraille, enrobé, enrochement). Manœuvres de bennage, CACES TP, salaires et recrutements directs.',
+    h1: 'Recrutement & Emploi Chauffeur Benne (TP, Carrière & Vrac Agricole)',
+    subtitle: 'Consultez les opportunités d’emploi pour chauffeurs benne TP, benne céréalière, enrobé et vrac industriel sur toute la France.',
     badgeText: 'Spécialisation • Transport Benne & TP',
     keyTakeaways: [
-      "Permis C ou CE + FIMO/FCO",
-      "Maîtrise des manœuvres de bennage en carrière et chantier TP",
-      "Respect des limites de charge par essieu",
-      "Retour quotidien au domicile la plupart du temps"
+      "Permis C ou CE + FIMO/FCO Marchandises",
+      "Maîtrise des manœuvres de bennage en carrière, centrale d'enrobé et chantier TP",
+      "Bâchage automatique Cramaro et contrôle de la planéité du sol",
+      "Retour quotidien au domicile garanti dans 90% des postes régionaux"
     ],
     sections: [
       {
-        h2: "La Conduite de Camion Benne : Chantiers & Carrières",
-        content: "Le conducteur de camion benne (benne TP, benne céréalière, benne ferraille ou enrobé) évolue sur les chantiers de terrassement, de voirie (VRD) ou dans le transport de produits agricoles vrac. Ce métier demande une excellente maîtrise des manœuvres hors-route et une vigilance accrue lors du bennage.",
+        h2: "Le Métier de Chauffeur Benne : Chantiers, Carrières & Agriculture",
+        content: "Le conducteur de camion benne (en version porteur 6x4, 8x4 ou semi-remorque 2 essieux / 3 essieux) évolue dans l'univers des travaux publics, de la voirie (VRD), de l'environnement ou du vrac agricole. Ce métier exige un excellent coup de volant pour naviguer sur des terrains accidentés, dans les centrales d'enrobé chaud, les carrières d'extraction ou les exploitations agricoles.",
         subsections: [
           {
-            h3: "Bennage en Sécurité & Stabilisation",
-            content: "Avant toute manœuvre de vidage, le chauffeur s'assure de la stabilité du sol, vérifie l'absence de câbles électriques aériens et contrôle le déverrouillage de la porte arrière de la benne."
+            h3: "Les Différents Types de Bennes & Matériaux Transportés",
+            content: "Benne TP Acier (transport de blocs d'enrochement, gravats, terre), Benne Aluminium (gravillons, sable, céréales, engrais vrac), Benne Calorifugée (enrobé à chaud pour bitume routier), Benne Ferraille (recyclage, métaux, déchetterie)."
+          },
+          {
+            h3: "Conduite Hors-Route & Adaptation au Terrain",
+            content: "Le chauffeur benne doit savoir engager le blocage de différentiel, gérer la motricité sur sol boueux ou instable et adapter sa conduite aux fortes pentes des carrières."
+          }
+        ]
+      },
+      {
+        h2: "Consignes de Sécurité lors du Bennage & Bâchage",
+        content: "Le bennage d'une semi-remorque élevée à plusieurs mètres de hauteur représente une manœuvre délicate nécessitant une vigilance absolue pour prévenir le renversement du camion.",
+        subsections: [
+          {
+            h3: "Règles d'Or avant de Benner (Planéité & Lignes Électriques)",
+            content: "Le chauffeur doit impérativement s'assurer que le camion est parfaitement à plat, vérifier l'absence d'obstacles au-dessus du camion (câbles électriques HTA/HTB, structures métalliques), déverrouiller les crochets de porte arrière et ne jamais déplacer le véhicule pendant que la benne est levée."
+          },
+          {
+            h3: "Systèmes de Bâchage Automatique (Cramaro / Marcolin)",
+            content: "Pour éviter l'envol de gravillons ou de poussières sur voie publique, les bennes sont équipées de bâches électriques télécommandées. Le chauffeur contrôle l'étanchéité de la bâche avant de prendre la route."
+          }
+        ]
+      },
+      {
+        h2: "Gestion des Charges, Pesée aux Essieux & Rémunération en 2026",
+        content: "Le transport de vrac impose une gestion rigoureuse de la masse totale en charge pour éviter les amendes de surcharge au niveau du pesage des essieux.",
+        subsections: [
+          {
+            h3: "Pesée en Carrière & Tolérances de Surcharge",
+            content: "Au chargement sous la trémie ou par pelle mécanique, le chauffeur effectue un passage sur le pont-bascule. Il s'assure que le poids total ne dépasse pas 32 tonnes (porteur 8x4) ou 44 tonnes (ensemble articulé)."
+          },
+          {
+            h3: "Salaire Moyen & Cadre de Travail (Retour Domicile)",
+            content: "Un chauffeur benne TP perçoit en moyenne entre 2 100 € et 2 700 € net/mois. Ce secteur offre l'avantage majeur d'assurer un retour quotidien au domicile la plupart du temps, avec des horaires de journée réguliers."
+          }
+        ]
+      }
+    ],
+    comparisonTable: {
+      title: "Tableau Comparatif des Différents Modèles de Camions Bennes",
+      headers: ["Modèle", "Benne TP Acier (8x4 / Semi)", "Benne Céréalière Aluminium", "Benne Enrobé Calorifugée"],
+      rows: [
+        ["Matériaux Transportés", "Terre, pierre, enrochement, gravats", "Blé, maïs, engrais, pulpes, granulés", "Enrobé bitumineux à chaud (160°C)"],
+        ["Matériau Caisse", "Acier Hardox ultra-résistant aux chocs", "Aluminium léger pour max charge utile", "Acier/Alu avec isolation thermique"],
+        ["Capacité Utile", "20 à 28 tonnes utiles", "26 à 30 tonnes utiles", "24 à 28 tonnes utiles"],
+        ["Secteurs d'Activité", "BTP, Terrassement, Carrières", "Coopératives agricoles, Négoce vrac", "Chantiers routiers, Autoroutes"],
+        ["Manutention Spécifique", "Vérification blocage de crochets", "Nettoyage balai & trappe à grain", "Vidage au finisseur routier à vitesse lente"]
+      ]
+    },
+    faqs: [
+      {
+        q: "Le CACES engins est-il obligatoire pour conduire un camion benne TP ?",
+        a: "Non, la possession du permis C ou CE avec FIMO/FCO est suffisante pour conduire le camion benne sur route et sur chantier. Cependant, posséder le CACES R482 catégorie F (engins de chantier) est apprécié si vous devez occasionnellement charger vous-même votre camion."
+      },
+      {
+        q: "Quels sont les principaux risques d'accident lors du bennage ?",
+        a: "Le risque principal est le renversement latéral du camion en cas de sol instable ou non plat, le choc avec une ligne électrique aérienne haute tension, ou la non-ouverture de la porte arrière sous la pression des matériaux."
+      },
+      {
+        q: "Quelle est la différence entre une benne en acier et une benne en aluminium ?",
+        a: "La benne acier (type Hardox) est très solide et conçue pour résister au choc des gros blocs de roche ou démolition. La benne aluminium est plus légère, ce qui permet d'augmenter la charge utile nette de marchandise (idéal pour le sable, le gravier fin ou les céréales)."
+      },
+      {
+        q: "Est-ce qu'un chauffeur benne rentre tous les soirs chez lui ?",
+        a: "Oui, dans plus de 90% des cas, le chauffeur benne TP ou carrière travaille en régional sur des chantiers locaux et rentre chaque soir à son domicile."
+      },
+      {
+        q: "Comment trouver des offres de chauffeur benne directes sur FretTalent ?",
+        a: "Inscrivez-vous gratuitement sur FretTalent, indiquez vos permis et vos CACES éventuels. Les entreprises de TP, carrières et transporteurs vrac vous contacteront en direct pour des postes en CDI ou CDD."
+      }
+    ]
+  }, porte arrière de la benne."
           }
         ]
       }

@@ -60,13 +60,56 @@ export async function GET(req) {
     }
 
     if (!emailRecord) {
-      console.log(`[Open-Tracking] Token non répertorié : ${token}`);
+      console.log(`[Open-Tracking] Token non répertorié en DB : ${token}`);
+      
+      let fallbackName = 'Chauffeur / Candidat';
+      let fallbackEmail = '';
+      let fallbackSubject = 'Email FretTalent';
+      let fallbackType = 'Notification FretTalent';
+
+      // 1. Si le token contient un email encodé en base64 (-c-...)
+      if (token.includes('-c-')) {
+        try {
+          const parts = token.split('-c-');
+          if (parts[1]) {
+            const rawB64 = parts[1].split('-')[0];
+            // Ajouter le padding base64 si nécessaire
+            const paddedB64 = rawB64.padEnd(rawB64.length + (4 - rawB64.length % 4) % 4, '=');
+            const decodedEmail = Buffer.from(paddedB64, 'base64').toString('utf-8');
+            if (decodedEmail && decodedEmail.includes('@')) {
+              fallbackEmail = decodedEmail;
+              const { data: cand } = await supabaseAdmin
+                .from('candidates')
+                .select('full_name')
+                .eq('email', decodedEmail)
+                .maybeSingle();
+              if (cand?.full_name) {
+                fallbackName = cand.full_name;
+              } else {
+                fallbackName = decodedEmail.split('@')[0];
+              }
+            }
+          }
+        } catch (e) {}
+      }
+
+      if (token.startsWith('remind-')) {
+        fallbackSubject = 'Activez votre badge Chauffeur Vérifié 🚛';
+        fallbackType = 'Relance Documents Chauffeur';
+      } else if (token.startsWith('doc-')) {
+        fallbackSubject = 'Action requise : Documents manquants ⚠️';
+        fallbackType = 'Documents Manquants';
+      } else if (token.startsWith('mail-')) {
+        fallbackSubject = 'Message de l\'équipe FretTalent';
+        fallbackType = 'Campagne / Email Admin';
+      }
+
       await notifyTelegramEmailOpened({
-        recipientEmail: 'Destinataire',
-        recipientName: 'Destinataire',
+        recipientEmail: fallbackEmail || 'Destinataire',
+        recipientName: fallbackName,
         recipientRole: 'candidate',
-        emailSubject: 'Email / Relance FretTalent',
-        emailType: 'Email FretTalent',
+        emailSubject: fallbackSubject,
+        emailType: fallbackType,
         openCount: 1,
         ip,
         userAgent,

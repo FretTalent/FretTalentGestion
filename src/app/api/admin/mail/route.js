@@ -118,7 +118,8 @@ export async function POST(req) {
 
     for (const email of recipientEmails) {
       try {
-        const trackingToken = `mail-${Math.random().toString(36).substring(2, 12)}${Date.now().toString(36)}`;
+        const emailB64 = Buffer.from(email).toString('base64').replace(/=/g, '');
+        const trackingToken = `mail-c-${emailB64}-${Math.random().toString(36).substring(2, 8)}`;
         const trackingUrl = `${baseUrl}/api/premium/open-tracking?t=${trackingToken}`;
 
         // Identifier le nom et prénom ou raison sociale du destinataire

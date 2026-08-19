@@ -110,7 +110,8 @@ export async function sendMissingDocumentsEmail(
 ) {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.frettalent.fr';
-    const trackingToken = `doc-${Math.random().toString(36).substring(2, 12)}${Date.now().toString(36)}`;
+    const emailB64 = Buffer.from(email).toString('base64').replace(/=/g, '');
+    const trackingToken = `doc-c-${emailB64}-${Math.random().toString(36).substring(2, 8)}`;
     const trackingUrl = `${baseUrl}/api/premium/open-tracking?t=${trackingToken}`;
 
     // Enregistrer dans candidature_emails pour le tracking d'ouverture
@@ -272,7 +273,8 @@ export async function sendSupportNewMessageUser({
 export async function sendCandidateReminderDay1(email, candidateName, candidateId = null) {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.frettalent.fr';
-    const trackingToken = `remind-${Math.random().toString(36).substring(2, 12)}${Date.now().toString(36)}`;
+    const emailB64 = Buffer.from(email).toString('base64').replace(/=/g, '');
+    const trackingToken = `remind-c-${emailB64}-${Math.random().toString(36).substring(2, 8)}`;
     const trackingUrl = `${baseUrl}/api/premium/open-tracking?t=${trackingToken}`;
 
     // Enregistrer pour le tracking Telegram
@@ -324,7 +326,8 @@ export async function sendCandidateReminderDay1(email, candidateName, candidateI
 export async function sendCandidateReminderDay4(email, candidateName, candidateId = null) {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.frettalent.fr';
-    const trackingToken = `remind-${Math.random().toString(36).substring(2, 12)}${Date.now().toString(36)}`;
+    const emailB64 = Buffer.from(email).toString('base64').replace(/=/g, '');
+    const trackingToken = `remind-c-${emailB64}-${Math.random().toString(36).substring(2, 8)}`;
     const trackingUrl = `${baseUrl}/api/premium/open-tracking?t=${trackingToken}`;
 
     try {
@@ -375,7 +378,8 @@ export async function sendCandidateReminderDay4(email, candidateName, candidateI
 export async function sendCandidateReminderDay10(email, candidateName, candidateId = null) {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.frettalent.fr';
-    const trackingToken = `remind-${Math.random().toString(36).substring(2, 12)}${Date.now().toString(36)}`;
+    const emailB64 = Buffer.from(email).toString('base64').replace(/=/g, '');
+    const trackingToken = `remind-c-${emailB64}-${Math.random().toString(36).substring(2, 8)}`;
     const trackingUrl = `${baseUrl}/api/premium/open-tracking?t=${trackingToken}`;
 
     try {

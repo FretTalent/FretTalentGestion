@@ -61,6 +61,23 @@ export async function POST(req) {
         .split(',')
         .map(e => e.trim())
         .filter(e => e);
+    } else if (target === 'candidates_incomplete_docs') {
+      // Cibler UNIQUEMENT les chauffeurs non validés avec documents incomplets
+      const { data: candidates } = await supabaseAdmin
+        .from('candidates')
+        .select('email, documents, validated')
+        .eq('validated', false); // Exclut strictement TOUS les candidats déjà validés
+
+      if (candidates && candidates.length > 0) {
+        recipientEmails = candidates
+          .filter(c => {
+            if (!c.email) return false;
+            const docs = c.documents || {};
+            const count = ['cv', 'permis_recto', 'permis_verso', 'chrono_recto', 'chrono_verso', 'fimo_recto', 'fimo_verso'].filter(k => !!docs[k]).length;
+            return count < 7;
+          })
+          .map(c => c.email.trim());
+      }
     } else if (target === 'all_candidates' || target === 'all_companies') {
       const roleFilter =
         target === 'all_candidates' ? 'candidate' : 'recruiter';

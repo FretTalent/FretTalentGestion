@@ -278,27 +278,38 @@ export default function AdminMail() {
         .select('id, name, email, country, city')
         .limit(300);
 
-      const incomplete = (candidates || []).filter(c => {
+      const incompleteCandidates = (candidates || []).filter(c => {
+        if (c.validated) return false; // Ne JAMAIS inclure les candidats déjà validés
         const docs = c.documents || {};
         const count = ['cv', 'permis_recto', 'permis_verso', 'chrono_recto', 'chrono_verso', 'fimo_recto', 'fimo_verso'].filter(k => !!docs[k]).length;
         return count < 7;
-      }).length;
-      setIncompleteCandidateCount(incomplete);
+      });
+      setIncompleteCandidateCount(incompleteCandidates.length);
 
-      const candidateList = (candidates || []).filter(c => c.email).map(c => ({
-        id: c.id,
-        name: c.full_name || 'Chauffeur',
-        email: c.email,
-        role: 'candidate',
-        city: c.city || 'France',
-        country: c.country || 'FR',
-      }));
+      const candidateList = (candidates || []).filter(c => c.email).map(c => {
+        const docs = c.documents || {};
+        const docCount = ['cv', 'permis_recto', 'permis_verso', 'chrono_recto', 'chrono_verso', 'fimo_recto', 'fimo_verso'].filter(k => !!docs[k]).length;
+        const isIncomplete = !c.validated && docCount < 7;
+
+        return {
+          id: c.id,
+          name: c.full_name || 'Chauffeur',
+          email: c.email,
+          role: 'candidate',
+          validated: !!c.validated,
+          isIncomplete,
+          city: c.city || 'France',
+          country: c.country || 'FR',
+        };
+      });
 
       const recruiterProfiles = (companies || []).filter(p => p.email).map(p => ({
         id: p.id,
         name: p.name || 'Entreprise',
         email: p.email,
         role: 'recruiter',
+        validated: true,
+        isIncomplete: false,
         city: p.city || '',
         country: p.country || 'FR',
       }));
@@ -402,6 +413,7 @@ export default function AdminMail() {
   const filteredUsers = usersList.filter(u => {
     if (userRoleFilter === 'candidate' && u.role !== 'candidate') return false;
     if (userRoleFilter === 'recruiter' && u.role !== 'recruiter') return false;
+    if (userRoleFilter === 'candidate_incomplete' && (u.role !== 'candidate' || !u.isIncomplete)) return false;
     if (userSearchQuery.trim()) {
       const q = userSearchQuery.toLowerCase();
       return (
@@ -727,19 +739,24 @@ export default function AdminMail() {
             {/* Annuaire de recherche si Contact Spécifique */}
             {target === 'specific' && (
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                  <span>Choisir un chauffeur ou une entreprise dans l'annuaire :</span>
-                  <div className="flex items-center gap-1 text-[10px]">
-                    {['all', 'candidate', 'recruiter'].map((role) => (
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-bold text-slate-700">
+                  <span>Choisir un destinataire dans l'annuaire :</span>
+                  <div className="flex flex-wrap items-center gap-1 text-[10px]">
+                    {[
+                      { key: 'all', label: 'Tous' },
+                      { key: 'candidate_incomplete', label: '⚠️ Incomplets non validés' },
+                      { key: 'candidate', label: 'Chauffeurs' },
+                      { key: 'recruiter', label: 'Entreprises' },
+                    ].map((f) => (
                       <button
-                        key={role}
+                        key={f.key}
                         type="button"
-                        onClick={() => setUserRoleFilter(role)}
+                        onClick={() => setUserRoleFilter(f.key)}
                         className={`px-2 py-0.5 rounded font-bold transition-colors cursor-pointer ${
-                          userRoleFilter === role ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 border border-slate-200'
+                          userRoleFilter === f.key ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 border border-slate-200'
                         }`}
                       >
-                        {role === 'all' ? 'Tous' : role === 'candidate' ? 'Chauffeurs' : 'Entreprises'}
+                        {f.label}
                       </button>
                     ))}
                   </div>
@@ -782,17 +799,30 @@ export default function AdminMail() {
                               ({u.email})
                             </span>
                           </div>
-                          <span
-                            className={`text-[9px] px-1.5 py-0.2 rounded shrink-0 font-bold ${
-                              isSelected
-                                ? 'bg-white/20 text-white'
-                                : u.role === 'candidate'
-                                ? 'bg-orange-100 text-orange-700'
-                                : 'bg-blue-100 text-blue-700'
-                            }`}
-                          >
-                            {u.role === 'candidate' ? 'Chauffeur' : 'Entreprise'}
-                          </span>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            {u.role === 'candidate' && (
+                              u.validated ? (
+                                <span className="text-[9px] px-1.5 py-0.2 rounded font-black bg-emerald-100 text-emerald-800">
+                                  Validé ✓
+                                </span>
+                              ) : (
+                                <span className="text-[9px] px-1.5 py-0.2 rounded font-black bg-rose-100 text-rose-800">
+                                  Incomplet
+                                </span>
+                              )
+                            )}
+                            <span
+                              className={`text-[9px] px-1.5 py-0.2 rounded font-bold ${
+                                isSelected
+                                  ? 'bg-white/20 text-white'
+                                  : u.role === 'candidate'
+                                  ? 'bg-orange-100 text-orange-700'
+                                  : 'bg-blue-100 text-blue-700'
+                              }`}
+                            >
+                              {u.role === 'candidate' ? 'Chauffeur' : 'Entreprise'}
+                            </span>
+                          </div>
                         </div>
                       );
                     })

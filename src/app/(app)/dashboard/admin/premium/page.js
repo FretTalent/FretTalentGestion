@@ -31,11 +31,13 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import TransportImporterModal from '@/components/TransportImporterModal';
 
 export default function AdminPremiumDashboard() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('candidats'); // 'candidats' | 'preview' | 'entreprises' | 'journal'
   const [loading, setLoading] = useState(true);
+  const [modalImportOpen, setModalImportOpen] = useState(false);
 
   // Données
   const [candidatures, setCandidatures] = useState([]);
@@ -535,6 +537,14 @@ export default function AdminPremiumDashboard() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 z-10">
+          <button
+            onClick={() => setModalImportOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-black bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-emerald-600 text-white shadow-md shadow-emerald-600/25 transition-all hover:scale-[1.02] cursor-pointer"
+          >
+            <Download className="w-4 h-4" />
+            <span>Importer Transporteurs (France)</span>
+          </button>
+
           <button
             onClick={() => setActiveTab('preview')}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-black bg-gradient-to-r from-[#FF7A00] to-[#E56700] hover:from-[#E56700] hover:to-[#FF7A00] text-white shadow-md shadow-orange-500/25 transition-all hover:scale-[1.02] cursor-pointer"
@@ -1546,6 +1556,15 @@ export default function AdminPremiumDashboard() {
           </div>
         </div>
       )}
+
+      {/* MODALE IMPORTATEUR D'ENTREPRISES DE TRANSPORT (SIRENE) */}
+      <TransportImporterModal
+        isOpen={modalImportOpen}
+        onClose={() => setModalImportOpen(false)}
+        onImportCompleted={() => {
+          fetchAllData();
+        }}
+      />
 
     </div>
   );

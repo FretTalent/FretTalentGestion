@@ -179,21 +179,22 @@ export default function AppLayout({ children }) {
   if (isAdmin) {
     return (
       <div className="min-h-screen font-sans flex flex-col" style={{ background: '#F8FAFC' }}>
-        {/* TOP HEADER ADMIN HORIZONTAL : 2 NIVEAUX PROPRES, ZÉRO DÉBORDEMENT */}
-        <header className="sticky top-0 z-50 bg-white border-b border-slate-200/90 shadow-xs backdrop-blur-md bg-white/95">
-          {/* Ligne 1 : Logo, Statut, Liens utiles & Profil */}
-          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-4 border-b border-slate-100">
+        {/* TOP HEADER ADMIN HORIZONTAL : PLEINE LARGEUR, DESIGN PRO & TRÈS LISIBLE */}
+        <header className="sticky top-0 z-50 bg-white border-b border-slate-200/90 shadow-sm backdrop-blur-md bg-white/95 w-full">
+          {/* Ligne 1 : Brand & Profil */}
+          <div className="w-full px-4 sm:px-8 py-3 flex items-center justify-between gap-4 border-b border-slate-100">
             {/* Logo FretTalent */}
             <div className="flex items-center gap-3">
-              <Link href="/dashboard/admin" className="flex items-center gap-2.5 group">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#FF7A00] to-[#E56700] flex items-center justify-center text-white shadow-sm shadow-orange-500/20 group-hover:scale-105 transition-transform">
-                  <Truck className="w-4.5 h-4.5" />
+              <Link href="/dashboard/admin" className="flex items-center gap-3 group">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#FF7A00] to-[#E56700] flex items-center justify-center text-white shadow-md shadow-orange-500/25 group-hover:scale-105 transition-transform">
+                  <Truck className="w-5 h-5" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-lg font-black text-slate-900 tracking-tight leading-none">
+                  <span className="text-xl font-black text-slate-900 tracking-tight leading-none">
                     Fret<span className="text-[#FF7A00]">Talent</span>
                   </span>
-                  <span className="text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mt-0.5">
+                  <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mt-1 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
                     Console Administration
                   </span>
                 </div>
@@ -203,7 +204,7 @@ export default function AppLayout({ children }) {
             {/* Actions rapides droite */}
             <div className="flex items-center gap-3">
               {/* Badge En Direct */}
-              <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/70 text-emerald-800 text-xs font-bold">
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-black">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span>En direct</span>
               </div>
@@ -212,25 +213,25 @@ export default function AppLayout({ children }) {
               <Link
                 href="/"
                 target="_blank"
-                className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-950 bg-slate-100 hover:bg-slate-200/70 transition-colors"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-950 bg-slate-100 hover:bg-slate-200 transition-colors"
               >
                 <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
                 <span>Voir le site</span>
               </Link>
 
               {/* Profil & Déconnexion */}
-              <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#FF7A00] to-[#E56700] text-white flex items-center justify-center font-black text-xs shadow-xs">
+              <div className="flex items-center gap-2.5 pl-3 border-l border-slate-200">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#FF7A00] to-[#E56700] text-white flex items-center justify-center font-black text-xs shadow-xs">
                   ⚡
                 </div>
                 <div className="hidden md:flex flex-col text-left">
                   <span className="text-xs font-black text-slate-900 leading-tight">Admin Master</span>
-                  <span className="text-[10px] text-slate-500 font-medium truncate max-w-[130px]">{userEmail}</span>
+                  <span className="text-[11px] text-slate-500 font-bold truncate max-w-[140px]">{userEmail}</span>
                 </div>
                 <button
                   onClick={handleSignOut}
                   title="Se déconnecter"
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                  className="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -238,9 +239,9 @@ export default function AppLayout({ children }) {
             </div>
           </div>
 
-          {/* Ligne 2 : Barre de Navigation des 9 Modules (Aérée, Défilement fluide sans masquer aucun bouton) */}
-          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1.5 overflow-x-auto no-scrollbar">
-            <nav className="flex items-center gap-1.5 min-w-max">
+          {/* Ligne 2 : Navigation Pleine Largeur (9 Onglets bien espacés, police agrandie, flex-wrap propre) */}
+          <div className="w-full px-4 sm:px-8 py-2 bg-slate-50/60">
+            <nav className="flex flex-wrap items-center gap-2">
               {navAdminHorizontal.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href || (item.href !== '/dashboard/admin' && pathname.startsWith(item.href));
@@ -250,21 +251,21 @@ export default function AppLayout({ children }) {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-[13px] font-bold transition-all ${
                       isActive
-                        ? 'bg-orange-500 text-white shadow-xs font-extrabold'
-                        : 'text-slate-600 hover:text-slate-950 hover:bg-slate-100/80 font-bold'
+                        ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20 font-black'
+                        : 'text-slate-700 bg-white hover:text-slate-950 hover:bg-slate-100 border border-slate-200/80 shadow-2xs'
                     }`}
                   >
                     <Icon
-                      className={`w-3.5 h-3.5 transition-colors ${
+                      className={`w-4 h-4 transition-colors ${
                         isActive ? 'text-white' : 'text-slate-500'
                       }`}
                     />
                     <span>{item.label}</span>
                     {badgeCount > 0 && (
                       <span
-                        className={`px-1.5 py-0.2 rounded-full text-[10px] font-black leading-none ${
+                        className={`px-2 py-0.5 rounded-full text-[11px] font-black leading-none ${
                           isActive ? 'bg-white text-orange-600' : 'bg-red-500 text-white'
                         }`}
                       >
@@ -276,64 +277,10 @@ export default function AppLayout({ children }) {
               })}
             </nav>
           </div>
-
-          {/* Menu Déroulant Mobile / Tablette pour Admin */}
-          {adminMenuOpen && (
-            <div className="xl:hidden border-t border-slate-200 bg-white px-4 py-3 shadow-lg space-y-1">
-              {navAdminHorizontal.map((item) => {
-                const Icon = item.icon;
-                const isActive = pathname === item.href;
-                const badgeCount = item.badgeKey ? adminCounts[item.badgeKey] : 0;
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setAdminMenuOpen(false)}
-                    className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                      isActive
-                        ? 'bg-orange-50 text-[#FF7A00]'
-                        : 'text-slate-700 hover:bg-slate-50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <Icon className="w-4 h-4" />
-                      <span>{item.label}</span>
-                    </div>
-                    {badgeCount > 0 && (
-                      <span
-                        className="px-2 py-0.5 rounded-full text-[10px] font-black text-white"
-                        style={{ backgroundColor: item.badgeColor || '#FF7A00' }}
-                      >
-                        {badgeCount}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-                <Link
-                  href="/"
-                  target="_blank"
-                  className="flex items-center gap-2 text-xs font-bold text-slate-600 py-2"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  <span>Accéder au site public</span>
-                </Link>
-                <button
-                  onClick={handleSignOut}
-                  className="flex items-center gap-1.5 text-xs font-bold text-red-600 py-2"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>Déconnexion</span>
-                </button>
-              </div>
-            </div>
-          )}
         </header>
 
-        {/* CONTENU PRINCIPAL PARFAITEMENT CALIBRÉ POUR TOUS LES ÉCRANS */}
-        <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 overflow-x-hidden">
+        {/* CONTENU PRINCIPAL PLEINE LARGEUR & LISIBLE */}
+        <main className="flex-1 w-full px-4 sm:px-8 py-6">
           {children}
         </main>
 

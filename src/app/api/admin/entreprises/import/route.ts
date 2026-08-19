@@ -13,7 +13,7 @@ function getAdminSupabase() {
   );
 }
 
-const ADMIN_EMAILS = ['support@frettalent.fr', 'gabin77700@gmail.com', 'gnri02270@gmail.com'];
+const ADMIN_EMAILS = ['support@frettalent.fr'];
 
 async function verifyAdminAuth(req: Request) {
   const supabaseAdmin = getAdminSupabase();
@@ -23,7 +23,7 @@ async function verifyAdminAuth(req: Request) {
     const serverSupabase = await createServerClient();
     const { data: { user } } = await serverSupabase.auth.getUser();
     if (user) {
-      if (ADMIN_EMAILS.includes(user.email?.toLowerCase() || '')) return { authorized: true, user };
+      if (user.email?.toLowerCase() === 'support@frettalent.fr') return { authorized: true, user };
       const { data: profile } = await supabaseAdmin.from('profiles').select('role').eq('id', user.id).maybeSingle();
       if (profile?.role === 'admin') return { authorized: true, user };
     }
@@ -35,7 +35,7 @@ async function verifyAdminAuth(req: Request) {
     const token = authHeader.replace('Bearer ', '');
     const { data: { user } } = await supabaseAdmin.auth.getUser(token);
     if (user) {
-      if (ADMIN_EMAILS.includes(user.email?.toLowerCase() || '')) return { authorized: true, user };
+      if (user.email?.toLowerCase() === 'support@frettalent.fr') return { authorized: true, user };
       const { data: profile } = await supabaseAdmin.from('profiles').select('role').eq('id', user.id).maybeSingle();
       if (profile?.role === 'admin') return { authorized: true, user };
     }

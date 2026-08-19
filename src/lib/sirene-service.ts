@@ -60,14 +60,18 @@ export async function fetchTransportCompaniesFromSirene(
     enrichEmails = true,
   } = options;
 
-  const nafParam = encodeURIComponent(nafCodes.join(','));
+  const nafParam = nafCodes.join(',');
   let url = `https://recherche-entreprises.api.gouv.fr/search?activite_principale=${nafParam}&page=${page}&per_page=${perPage}&etat_administratif=A`;
 
-  if (department) {
+  // Gestion robuste du département
+  if (department && typeof department === 'string' && department.trim() !== '') {
+    const rawDept = department.trim().replace(/^0+/, ''); // enlève les zéros en tête pour tester
     const cleanDept = department.trim();
-    // Normalisation : si 1 seul chiffre (ex: '2'), convertir en '02'
-    const formattedDept = cleanDept.length === 1 && !isNaN(Number(cleanDept)) ? `0${cleanDept}` : cleanDept;
-    url += `&departement=${encodeURIComponent(formattedDept)}`;
+    if (cleanDept.length === 1 && !isNaN(Number(cleanDept))) {
+      url += `&departement=0${cleanDept}`;
+    } else if (cleanDept.length > 0) {
+      url += `&departement=${encodeURIComponent(cleanDept)}`;
+    }
   }
 
   const res = await fetch(url, {

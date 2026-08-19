@@ -205,9 +205,14 @@ export default function TransportImporterModal({
     toast.dismiss('import-toast');
 
     if (totalImp > 0) {
-      toast.success(`🎉 Importation terminée avec succès : +${totalImp} entreprises ajoutées !`);
+      toast.success(`🎉 +${totalImp} entreprises avec email valide importées dans le registre !`, { duration: 5000 });
+    } else if (totalSkip > 0) {
+      toast('Toutes les entreprises analysées sont déjà existantes ou sans email valide.', {
+        icon: 'ℹ️',
+        duration: 5000,
+      });
     } else {
-      toast.error('Aucune nouvelle entreprise importée (déjà existantes ou erreur).');
+      toast.error('Aucune entreprise trouvée pour ces critères.');
     }
 
     fetchHistoryAndStats();

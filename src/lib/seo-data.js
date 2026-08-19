@@ -426,17 +426,6 @@ export const seoPagesData = {
         a: "Inscrivez-vous gratuitement sur FretTalent, indiquez vos permis et vos CACES éventuels. Les entreprises de TP, carrières et transporteurs vrac vous contacteront en direct pour des postes en CDI ou CDD."
       }
     ]
-  }, porte arrière de la benne."
-          }
-        ]
-      }
-    ],
-    faqs: [
-      {
-        q: "Le CACES engins est-il obligatoire pour être chauffeur benne TP ?",
-        a: "Le permis C/CE suffit pour la conduite. Le CACES R482 (engins de chantier) est néanmoins un avantage précieux pour utiliser des chargeuses sur chantier."
-      }
-    ]
   },
 
   'emploi-chauffeur': {

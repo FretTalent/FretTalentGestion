@@ -708,10 +708,11 @@ export default function AdminMail() {
             </div>
 
             {/* Sélecteur de mode d'envoi */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
               {[
                 { value: 'all_candidates', label: '🚚 Tous les Chauffeurs', desc: `${totalCandidateCount} conducteurs` },
-                { value: 'all_companies', label: '🏢 Toutes les Entreprises', desc: `${totalCompanyCount} transporteurs` },
+                { value: 'candidates_incomplete_docs', label: '⚠️ Chauffeurs Incomplets', desc: `${incompleteCandidateCount} non validés` },
+                { value: 'all_companies', label: '🏢 Toutes Entreprises', desc: `${totalCompanyCount} transporteurs` },
                 { value: 'specific', label: '🎯 Contact Spécifique', desc: 'Choix dans la liste ou saisie' },
               ].map(opt => {
                 const isActive = target === opt.value;
@@ -725,12 +726,14 @@ export default function AdminMail() {
                     }}
                     className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                       isActive
-                        ? 'border-slate-900 bg-slate-900 text-white shadow-xs'
+                        ? opt.value === 'candidates_incomplete_docs'
+                          ? 'border-red-600 bg-red-600 text-white shadow-xs'
+                          : 'border-slate-900 bg-slate-900 text-white shadow-xs'
                         : 'border-slate-200 bg-slate-50/60 hover:bg-white text-slate-800'
                     }`}
                   >
                     <p className="text-xs font-bold">{opt.label}</p>
-                    <p className={`text-[10px] mt-0.5 ${isActive ? 'text-slate-300' : 'text-slate-400'}`}>{opt.desc}</p>
+                    <p className={`text-[10px] mt-0.5 ${isActive ? 'text-white/80' : 'text-slate-400'}`}>{opt.desc}</p>
                   </button>
                 );
               })}
@@ -751,7 +754,19 @@ export default function AdminMail() {
                       <button
                         key={f.key}
                         type="button"
-                        onClick={() => setUserRoleFilter(f.key)}
+                        onClick={() => {
+                          setUserRoleFilter(f.key);
+                          if (f.key === 'candidate_incomplete') {
+                            const incompleteEmails = usersList
+                              .filter(u => u.role === 'candidate' && u.isIncomplete && u.email)
+                              .map(u => u.email)
+                              .join(', ');
+                            if (incompleteEmails) {
+                              setSpecificEmails(incompleteEmails);
+                              toast.success(`${usersList.filter(u => u.role === 'candidate' && u.isIncomplete).length} e-mails incomplets insérés automatiquement !`);
+                            }
+                          }
+                        }}
                         className={`px-2 py-0.5 rounded font-bold transition-colors cursor-pointer ${
                           userRoleFilter === f.key ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 border border-slate-200'
                         }`}
@@ -761,6 +776,26 @@ export default function AdminMail() {
                     ))}
                   </div>
                 </div>
+
+                {userRoleFilter === 'candidate_incomplete' && (
+                  <div className="flex items-center justify-between bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-xs text-red-800 font-bold">
+                    <span>⚠️ {usersList.filter(u => u.role === 'candidate' && u.isIncomplete).length} chauffeurs non validés avec documents manquants</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const incompleteEmails = usersList
+                          .filter(u => u.role === 'candidate' && u.isIncomplete && u.email)
+                          .map(u => u.email)
+                          .join(', ');
+                        setSpecificEmails(incompleteEmails);
+                        toast.success('Adresses e-mails insérées !');
+                      }}
+                      className="px-2.5 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-[10px] font-black cursor-pointer shadow-xs"
+                    >
+                      Insérer tous les e-mails ({usersList.filter(u => u.role === 'candidate' && u.isIncomplete).length})
+                    </button>
+                  </div>
+                )}
 
                 {/* Champ de recherche dans l'annuaire */}
                 <div className="relative">

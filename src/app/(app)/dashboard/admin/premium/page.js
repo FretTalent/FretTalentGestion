@@ -1170,10 +1170,11 @@ export default function AdminPremiumDashboard() {
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={() => handleOpenEditCompany(comp)}
-                              className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
-                              title="Modifier"
+                              className="px-2.5 py-1.5 rounded-lg bg-orange-50 hover:bg-orange-100 text-[#FF7A00] font-bold text-xs transition-colors cursor-pointer flex items-center gap-1"
+                              title="Voir la fiche détaillée & modifier"
                             >
-                              <Edit2 className="h-3.5 w-3.5" />
+                              <Eye className="h-3.5 w-3.5" />
+                              <span>Fiche</span>
                             </button>
                             <button
                               onClick={() => handleDeleteCompany(comp)}

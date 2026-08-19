@@ -192,17 +192,17 @@ export default function TransportImporterModal({
         page++;
 
         // Pause de 200ms entre les requêtes pour respecter les quotas API SIRENE
-        await new Promise((r) => setTimeout(r, 200));
       } catch (err: any) {
         console.error(`Erreur sur le lot ${page}:`, err);
-        errorsAccumulator.push(`Lot ${page}: ${err.message}`);
+        const errMsg = err.message || 'Erreur réseau ou serveur';
+        errorsAccumulator.push(`Lot ${page}: ${errMsg}`);
         setSessionErrors([...errorsAccumulator]);
+        toast.error(`Erreur sur le lot ${page} : ${errMsg}`, { id: 'import-toast', duration: 6000 });
         break;
       }
     }
 
     setIsRunning(false);
-    toast.dismiss('import-toast');
 
     if (totalImp > 0) {
       toast.success(`🎉 +${totalImp} entreprises avec email valide importées dans le registre !`, { duration: 5000 });
@@ -211,7 +211,7 @@ export default function TransportImporterModal({
         icon: 'ℹ️',
         duration: 5000,
       });
-    } else {
+    } else if (errorsAccumulator.length === 0) {
       toast.error('Aucune entreprise trouvée pour ces critères.');
     }
 

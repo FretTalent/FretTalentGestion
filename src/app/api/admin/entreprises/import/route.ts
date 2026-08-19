@@ -18,7 +18,18 @@ const ADMIN_EMAILS = ['support@frettalent.fr', 'gabin77700@gmail.com', 'gnri0227
 async function verifyAdminAuth(req: Request) {
   const supabaseAdmin = getAdminSupabase();
 
-  // 1. Essai via Header Authorization Bearer
+  // 1. Essai via Cookie de session Supabase (Standard Next.js)
+  try {
+    const serverSupabase = await createServerClient();
+    const { data: { user } } = await serverSupabase.auth.getUser();
+    if (user) {
+      if (ADMIN_EMAILS.includes(user.email?.toLowerCase() || '')) return { authorized: true, user };
+      const { data: profile } = await supabaseAdmin.from('profiles').select('role').eq('id', user.id).maybeSingle();
+      if (profile?.role === 'admin') return { authorized: true, user };
+    }
+  } catch (e) {}
+
+  // 2. Essai via Header Authorization Bearer
   const authHeader = req.headers.get('authorization');
   if (authHeader) {
     const token = authHeader.replace('Bearer ', '');
@@ -29,17 +40,6 @@ async function verifyAdminAuth(req: Request) {
       if (profile?.role === 'admin') return { authorized: true, user };
     }
   }
-
-  // 2. Essai via Cookie de session Supabase
-  try {
-    const serverSupabase = await createServerClient();
-    const { data: { user } } = await serverSupabase.auth.getUser();
-    if (user) {
-      if (ADMIN_EMAILS.includes(user.email?.toLowerCase() || '')) return { authorized: true, user };
-      const { data: profile } = await supabaseAdmin.from('profiles').select('role').eq('id', user.id).maybeSingle();
-      if (profile?.role === 'admin') return { authorized: true, user };
-    }
-  } catch (e) {}
 
   return { authorized: false, user: null };
 }

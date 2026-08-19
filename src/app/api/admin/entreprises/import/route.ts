@@ -98,7 +98,7 @@ export async function POST(req: Request) {
       page = 1,
       perPage = 50,
       department,
-      enrichEmails = false,
+      enrichEmails = true,
     } = body;
 
     // 1. Récupération des entreprises depuis l'API SIRENE officielle
@@ -107,7 +107,7 @@ export async function POST(req: Request) {
       page: Number(page) || 1,
       perPage: Math.min(Number(perPage) || 50, 100),
       department: department ? String(department).trim() : undefined,
-      enrichEmails: Boolean(enrichEmails),
+      enrichEmails: enrichEmails !== false,
     });
 
     const { companies, totalResults, hasMore } = sireneResult;

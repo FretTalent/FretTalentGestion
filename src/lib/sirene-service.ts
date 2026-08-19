@@ -64,7 +64,10 @@ export async function fetchTransportCompaniesFromSirene(
   let url = `https://recherche-entreprises.api.gouv.fr/search?activite_principale=${nafParam}&page=${page}&per_page=${perPage}&etat_administratif=A`;
 
   if (department) {
-    url += `&departement=${encodeURIComponent(department)}`;
+    const cleanDept = department.trim();
+    // Normalisation : si 1 seul chiffre (ex: '2'), convertir en '02'
+    const formattedDept = cleanDept.length === 1 && !isNaN(Number(cleanDept)) ? `0${cleanDept}` : cleanDept;
+    url += `&departement=${encodeURIComponent(formattedDept)}`;
   }
 
   const res = await fetch(url, {

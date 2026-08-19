@@ -212,35 +212,39 @@ export async function fetchTransportCompaniesFromSirene(
 
   // 1. Si des transporteurs vérifiés existent pour ce département dans l'annuaire rapide, les inclure en priorité
   if (cleanDept && VERIFIED_DEPARTMENT_TRANSPORTERS[cleanDept]) {
-    for (const item of VERIFIED_DEPARTMENT_TRANSPORTERS[cleanDept]) {
-      const scoreResult = await verifyAndScoreCompanyEmail({
-        companyName: item.name,
-        email: item.email,
-        websiteUrl: item.site,
-        sireneCity: item.city,
-        isExtractedDirectlyFromSite: true,
-      });
+    const verifiedItems = VERIFIED_DEPARTMENT_TRANSPORTERS[cleanDept];
+    const scoredVerified = await Promise.all(
+      verifiedItems.map(async (item) => {
+        const scoreResult = await verifyAndScoreCompanyEmail({
+          companyName: item.name,
+          email: item.email,
+          websiteUrl: item.site,
+          sireneCity: item.city,
+          isExtractedDirectlyFromSite: true,
+        });
 
-      companies.push({
-        nom_entreprise: item.name,
-        email: item.email,
-        telephone: item.phone,
-        siret: null,
-        siren: null,
-        pays: 'FR',
-        adresse: `Zone Logistique et Fret - ${item.city}`,
-        code_postal: item.postalCode,
-        ville: item.city,
-        latitude: null,
-        longitude: null,
-        partenaire: false,
-        code_naf: '49.41A',
-        site_web: item.site,
-        email_score: scoreResult.score,
-        validation_status: scoreResult.status,
-        validation_details: scoreResult.details,
-      });
-    }
+        return {
+          nom_entreprise: item.name,
+          email: item.email,
+          telephone: item.phone,
+          siret: null,
+          siren: null,
+          pays: 'FR',
+          adresse: `Zone Logistique et Fret - ${item.city}`,
+          code_postal: item.postalCode,
+          ville: item.city,
+          latitude: null,
+          longitude: null,
+          partenaire: false,
+          code_naf: '49.41A',
+          site_web: item.site,
+          email_score: scoreResult.score,
+          validation_status: scoreResult.status,
+          validation_details: scoreResult.details,
+        };
+      })
+    );
+    companies.push(...scoredVerified);
   }
 
   // 2. EXTRACTION DYNAMIQUE EN DIRECT de TOUTES les entreprises de transport du département via l'API officielle
@@ -262,14 +266,9 @@ export async function fetchTransportCompaniesFromSirene(
       const data = await res.json();
       const results = data.results || [];
 
-      for (const item of results) {
+      const dynamicPromises = results.map(async (item: any) => {
         const name = item.nom_raison_sociale || item.nom_complet || '';
-        if (!name || name.length < 3) continue;
-
-        // Éviter les doublons avec la liste prioritaire
-        if (companies.some(c => c.nom_entreprise.toLowerCase().includes(name.toLowerCase().substring(0, 8)))) {
-          continue;
-        }
+        if (!name || name.length < 3) return null;
 
         const etablissement = item.matching_etablissements?.[0] || item.siege || {};
         const city = etablissement.libelle_commune || item.siege?.libelle_commune || 'France';
@@ -296,13 +295,14 @@ export async function fetchTransportCompaniesFromSirene(
             `${clean}-sa.com`,
           ];
 
-          for (const d of candidates) {
-            if (await isDomainMailActive(d)) {
-              email = `contact@${d}`;
-              site = `https://www.${d}`;
-              isDirectMatch = true;
-              break;
-            }
+          const checks = await Promise.all(
+            candidates.map(async d => ({ domain: d, live: await isDomainMailActive(d) }))
+          );
+          const found = checks.find(c => c.live);
+          if (found) {
+            email = `contact@${found.domain}`;
+            site = `https://www.${found.domain}`;
+            isDirectMatch = true;
           }
         }
 
@@ -316,7 +316,7 @@ export async function fetchTransportCompaniesFromSirene(
           isExtractedDirectlyFromSite: isDirectMatch,
         });
 
-        companies.push({
+        return {
           nom_entreprise: name,
           email: email.toLowerCase(),
           telephone: `03 ${cleanDept || '01'} ${Math.floor(10 + Math.random() * 89)} ${Math.floor(10 + Math.random() * 89)} ${Math.floor(10 + Math.random() * 89)}`,
@@ -334,7 +334,15 @@ export async function fetchTransportCompaniesFromSirene(
           email_score: scoreResult.score,
           validation_status: scoreResult.status,
           validation_details: scoreResult.details,
-        });
+        };
+      });
+
+      const dynamicResults = await Promise.all(dynamicPromises);
+      for (const comp of dynamicResults) {
+        if (!comp) continue;
+        if (!companies.some(c => c.nom_entreprise.toLowerCase().includes(comp.nom_entreprise.toLowerCase().substring(0, 8)))) {
+          companies.push(comp);
+        }
       }
     }
   } catch (apiErr) {

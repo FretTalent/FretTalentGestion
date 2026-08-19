@@ -122,7 +122,14 @@ export default function TransportImporterModal({
       setImportedCompanies(companies || []);
       await fetchCurrentCount();
 
-      toast.success(`🎉 Extraction terminée : +${importedCount} transporteurs enregistrés avec leurs coordonnées complètes !`, { id: 'import-toast' });
+      if (importedCount > 0) {
+        toast.success(`🎉 Extraction terminée : +${importedCount} transporteurs enregistrés ! (${skippedCount} déjà en base)`, { id: 'import-toast' });
+      } else if (skippedCount > 0) {
+        toast.success(`ℹ️ ${skippedCount} transporteurs analysés pour le département ${department} : ils sont déjà tous enregistrés dans votre registre (0 doublon ré-inséré).`, { id: 'import-toast', duration: 5000 });
+      } else {
+        toast.error(`Aucun transporteur trouvé pour le département ${department}`, { id: 'import-toast' });
+      }
+
       if (onImportCompleted) onImportCompleted();
     } catch (err: any) {
       toast.error(err.message || 'Erreur lors de l\'importation', { id: 'import-toast' });

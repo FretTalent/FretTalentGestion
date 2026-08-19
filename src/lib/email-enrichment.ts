@@ -257,7 +257,10 @@ export async function verifyAndScoreCompanyEmail(params: {
 export async function isDomainMailActive(domain: string): Promise<boolean> {
   if (!domain || domain.length < 4 || !domain.includes('.')) return false;
   try {
-    const mxRecords = await resolveMxAsync(domain);
+    const mxRecords = await Promise.race([
+      resolveMxAsync(domain),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('DNS Timeout')), 1000)),
+    ]);
     return Array.isArray(mxRecords) && mxRecords.length > 0;
   } catch (err) {
     return false;

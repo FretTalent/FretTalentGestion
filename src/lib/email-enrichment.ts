@@ -206,116 +206,96 @@ async function scrapeOfficialWebsiteAndFacebook(
 
   const department = postalCode ? postalCode.substring(0, 2) : '';
 
-  // Liste des domaines potentiels du site officiel de l'entreprise
+  // Liste des domaines les plus probables du site officiel
   const domainCandidates = [
     `${clean}-sa.com`,
-    `${clean}-sa.fr`,
     `${clean}.fr`,
     `${clean}.com`,
     `transports-${clean}.fr`,
     `transports-${clean}.com`,
     `${clean}-transport.fr`,
     `${clean}-transports.fr`,
-    `${clean}-transports.com`,
-    `${clean}-logistique.fr`,
     `groupe-${clean}.fr`,
-    `groupe-${clean}.com`,
-    `${clean}transport.fr`,
-    `${clean}transports.fr`,
-    `${clean}.eu`,
   ];
 
-  for (const domain of domainCandidates) {
-    const isLive = await isDomainMailActive(domain);
-    if (!isLive) continue;
+  // 1. Vérification DNS MX ultra-rapide en parallèle
+  const mxResults = await Promise.all(
+    domainCandidates.map(async d => ({ domain: d, live: await isDomainMailActive(d) }))
+  );
+  const liveDomains = mxResults.filter(r => r.live).map(r => r.domain);
 
+  if (liveDomains.length === 0) return null;
+
+  // 2. Inspection concurrente des domaines actifs avec timeout strict de 1200ms
+  for (const domain of liveDomains.slice(0, 3)) {
     try {
-      // Pages clés à inspecter pour extraire l'email réel
       const pagesToTest = [
         `https://www.${domain}/recrutement/`,
-        `https://www.${domain}/recrutement`,
-        `https://www.${domain}/nous-rejoindre/`,
-        `https://www.${domain}/nous-rejoindre`,
         `https://www.${domain}/contact/`,
-        `https://www.${domain}/contact`,
-        `https://www.${domain}/mentions-legales/`,
         `https://www.${domain}`,
-        `https://${domain}`,
       ];
 
-      for (const pageUrl of pagesToTest) {
-        try {
-          const pageRes = await fetch(pageUrl, {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-              Accept: 'text/html,application/xhtml+xml',
-            },
-            signal: AbortSignal.timeout(2000),
-          });
+      const pagePromises = pagesToTest.map(url =>
+        fetch(url, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            Accept: 'text/html',
+          },
+          signal: AbortSignal.timeout(1200),
+        })
+          .then(res => (res.ok ? res.text() : ''))
+          .catch(() => '')
+      );
 
-          if (pageRes.ok) {
-            const html = await pageRes.text();
-            const htmlLower = html.toLowerCase();
+      const htmlResults = await Promise.all(pagePromises);
+      const combinedHtml = htmlResults.join(' ');
+      if (!combinedHtml) continue;
 
-            // Vérification anti-homonyme géographique :
-            // La page web ou les mentions légales doivent correspondre à l'implantation (Code Postal, Ville ou Département)
-            const matchesGeo =
-              !postalCode ||
-              htmlLower.includes(postalCode) ||
-              (city && htmlLower.includes(city.toLowerCase())) ||
-              (department && htmlLower.includes(department));
+      const htmlLower = combinedHtml.toLowerCase();
 
-            if (!matchesGeo && !pageUrl.includes('/recrutement')) {
-              // Si le site web appartient visiblement à une autre entreprise homonyme hors zone, on ignore
-              continue;
-            }
+      // Vérification anti-homonyme géographique
+      const matchesGeo =
+        !postalCode ||
+        htmlLower.includes(postalCode) ||
+        (city && htmlLower.includes(city.toLowerCase())) ||
+        (department && htmlLower.includes(department));
 
-            const emails = html.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) || [];
+      const emails = combinedHtml.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) || [];
 
-            // Filtre strict : L'email doit appartenir au domaine réel de l'entreprise
-            const validEmails = emails.filter(em => {
-              const emLower = em.toLowerCase();
-              const emDomain = emLower.split('@')[1];
-              return (
-                (emDomain === domain || emDomain === `www.${domain}` || emDomain.includes(clean)) &&
-                !emLower.includes('.png') &&
-                !emLower.includes('.jpg') &&
-                !emLower.includes('.webp') &&
-                !emLower.includes('wix') &&
-                !emLower.includes('wordpress') &&
-                !emLower.includes('sentry') &&
-                !emLower.includes('example') &&
-                !emLower.includes('prestashop')
-              );
-            });
+      const validEmails = emails.filter(em => {
+        const emLower = em.toLowerCase();
+        const emDomain = emLower.split('@')[1];
+        return (
+          (emDomain === domain || emDomain === `www.${domain}` || emDomain.includes(clean)) &&
+          !emLower.includes('.png') &&
+          !emLower.includes('.jpg') &&
+          !emLower.includes('.webp') &&
+          !emLower.includes('wix') &&
+          !emLower.includes('wordpress') &&
+          !emLower.includes('sentry') &&
+          !emLower.includes('example')
+        );
+      });
 
-            if (validEmails.length > 0) {
-              // Priorité aux emails de recrutement ou RH
-              const priorityEmail = validEmails.find(em =>
-                em.toLowerCase().includes('recrut') ||
-                em.toLowerCase().includes('rh') ||
-                em.toLowerCase().includes('job') ||
-                em.toLowerCase().includes('exploitation') ||
-                em.toLowerCase().includes('direction') ||
-                em.toLowerCase().includes('contact')
-              ) || validEmails[0];
+      if (validEmails.length > 0) {
+        const priorityEmail = validEmails.find(em =>
+          em.toLowerCase().includes('recrut') ||
+          em.toLowerCase().includes('rh') ||
+          em.toLowerCase().includes('job') ||
+          em.toLowerCase().includes('exploitation') ||
+          em.toLowerCase().includes('contact')
+        ) || validEmails[0];
 
-              return {
-                email: priorityEmail.toLowerCase(),
-                source: 'official_website_scraped',
-              };
-            }
-          }
-        } catch (pageErr) {
-          // Timeout ou 404 sur cette sous-page
-        }
+        return {
+          email: priorityEmail.toLowerCase(),
+          source: 'official_website_scraped',
+        };
       }
     } catch (domErr) {
       // Ignorer
     }
   }
 
-  // Si AUCUN e-mail réel n'a été trouvé sur leur site web, on renvoie NULL (l'entreprise ne sera PAS importée)
   return null;
 }
 

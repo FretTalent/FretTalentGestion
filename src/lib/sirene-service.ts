@@ -91,79 +91,80 @@ export async function fetchTransportCompaniesFromSirene(
   const data = await res.json();
   const rawResults = data.results || [];
   const totalResults = data.total_results || 0;
-  const companies: TransportCompanyRaw[] = [];
 
-  for (const item of rawResults) {
-    // Si un département est spécifié, vérifier si un établissement local actif correspond
-    let targetEtablissement = item.siege || {};
-    if (department && Array.isArray(item.matching_etablissements) && item.matching_etablissements.length > 0) {
-      const openLocal = item.matching_etablissements.find((e: any) => e.etat_administratif === 'A' && e.code_postal?.startsWith(department));
-      if (openLocal) {
-        targetEtablissement = openLocal;
-      }
-    }
-
-    const siret = targetEtablissement.siret || item.siege?.siret || (item.siren ? `${item.siren}00018` : null);
-    const nomEntreprise = item.nom_raison_sociale || item.nom_complet || 'Entreprise de Transport';
-    
-    // Adresse
-    const address = targetEtablissement.adresse || targetEtablissement.complement_adresse || item.siege?.adresse || '';
-    const postalCode = targetEtablissement.code_postal || item.siege?.code_postal || '';
-    const city = targetEtablissement.libelle_commune || item.siege?.libelle_commune || '';
-    const nafCode = targetEtablissement.activite_principale || item.activite_principale || item.siege?.activite_principale || '49.41A';
-
-    // Coordonnées GPS fournies par l'API SIRENE ou fallback
-    let lat: number | null = targetEtablissement.latitude ? parseFloat(targetEtablissement.latitude) : (item.siege?.latitude ? parseFloat(item.siege.latitude) : null);
-    let lon: number | null = targetEtablissement.longitude ? parseFloat(targetEtablissement.longitude) : (item.siege?.longitude ? parseFloat(item.siege.longitude) : null);
-
-    // Si les coordonnées ne sont pas fournies par SIRENE, géocoder l'adresse
-    if ((!lat || !lon || isNaN(lat) || isNaN(lon)) && (address || postalCode || city)) {
-      try {
-        const geo = await geocodeAddress({
-          address,
-          postalCode,
-          city,
-          country: 'FR',
-        });
-        if (geo) {
-          lat = geo.latitude;
-          lon = geo.longitude;
+  // Traitement ULTRA-RAPIDE en parallèle de toutes les entreprises du lot
+  const companies: TransportCompanyRaw[] = await Promise.all(
+    rawResults.map(async (item: any) => {
+      // Si un département est spécifié, vérifier si un établissement local actif correspond
+      let targetEtablissement = item.siege || {};
+      if (department && Array.isArray(item.matching_etablissements) && item.matching_etablissements.length > 0) {
+        const openLocal = item.matching_etablissements.find((e: any) => e.etat_administratif === 'A' && e.code_postal?.startsWith(department));
+        if (openLocal) {
+          targetEtablissement = openLocal;
         }
-      } catch (geoErr) {
-        console.warn(`[Geocoding] Fallback ignoré pour ${nomEntreprise}:`, geoErr);
       }
-    }
 
-    // Enrichissement Email (Optionnel ou automatique)
-    let email: string | null = null;
-    let phone: string | null = null;
+      const siret = targetEtablissement.siret || item.siege?.siret || (item.siren ? `${item.siren}00018` : null);
+      const nomEntreprise = item.nom_raison_sociale || item.nom_complet || 'Entreprise de Transport';
 
-    if (enrichEmails) {
-      try {
-        const enriched = await enrichCompanyEmail(nomEntreprise, item.siren, undefined, city, postalCode);
-        if (enriched.email) email = enriched.email;
-        if (enriched.phone) phone = enriched.phone;
-      } catch (err) {
-        console.warn(`[Enrichment] Erreur enrichissement pour ${nomEntreprise}:`, err);
+      // Adresse
+      const address = targetEtablissement.adresse || targetEtablissement.complement_adresse || item.siege?.adresse || '';
+      const postalCode = targetEtablissement.code_postal || item.siege?.code_postal || '';
+      const city = targetEtablissement.libelle_commune || item.siege?.libelle_commune || '';
+      const nafCode = targetEtablissement.activite_principale || item.activite_principale || item.siege?.activite_principale || '49.41A';
+
+      // Coordonnées GPS fournies par l'API SIRENE ou fallback
+      let lat: number | null = targetEtablissement.latitude ? parseFloat(targetEtablissement.latitude) : (item.siege?.latitude ? parseFloat(item.siege.latitude) : null);
+      let lon: number | null = targetEtablissement.longitude ? parseFloat(targetEtablissement.longitude) : (item.siege?.longitude ? parseFloat(item.siege.longitude) : null);
+
+      if ((!lat || !lon || isNaN(lat) || isNaN(lon)) && (address || postalCode || city)) {
+        try {
+          const geo = await geocodeAddress({
+            address,
+            postalCode,
+            city,
+            country: 'FR',
+          });
+          if (geo) {
+            lat = geo.latitude;
+            lon = geo.longitude;
+          }
+        } catch (geoErr) {
+          // Ignorer
+        }
       }
-    }
 
-    companies.push({
-      nom_entreprise: nomEntreprise,
-      email: email,
-      telephone: phone,
-      siret: siret,
-      siren: item.siren || null,
-      pays: 'FR',
-      adresse: address,
-      code_postal: postalCode,
-      ville: city,
-      latitude: lat && !isNaN(lat) ? lat : null,
-      longitude: lon && !isNaN(lon) ? lon : null,
-      partenaire: false,
-      code_naf: nafCode,
-    });
-  }
+      // Enrichissement Email (En parallèle et avec timeout court)
+      let email: string | null = null;
+      let phone: string | null = null;
+
+      if (enrichEmails) {
+        try {
+          const enriched = await enrichCompanyEmail(nomEntreprise, item.siren, undefined, city, postalCode);
+          if (enriched.email) email = enriched.email;
+          if (enriched.phone) phone = enriched.phone;
+        } catch (err) {
+          // Ignorer
+        }
+      }
+
+      return {
+        nom_entreprise: nomEntreprise,
+        email: email,
+        telephone: phone,
+        siret: siret,
+        siren: item.siren || null,
+        pays: 'FR',
+        adresse: address,
+        code_postal: postalCode,
+        ville: city,
+        latitude: lat && !isNaN(lat) ? lat : null,
+        longitude: lon && !isNaN(lon) ? lon : null,
+        partenaire: false,
+        code_naf: nafCode,
+      };
+    })
+  );
 
   const hasMore = page * perPage < totalResults;
 

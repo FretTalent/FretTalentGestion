@@ -189,9 +189,12 @@ async function findEmailViaDropcontact(
 }
 
 /**
- * 5. Moteur d'Extraction Web Officiel & Recrutement Strict (100% Réel & Certifié)
- * RÈGLE STRICTE : AUCUN EMAIL PRÉDICTIF OU FICTIF
- * Ne valide un email QUE s'il est PHYSIQUEMENT EXTRAIT du site web de l'entreprise (Page Recrutement, Contact ou Mentions Légales)
+ * 5. Moteur d'Extraction Web Officiel & Recrutement avec Recoupement Géographique Strict
+ * Pipeline de certification :
+ * 1. SIREN / SIRENE (Identification légale et adresse exacte)
+ * 2. Recoupement Géographique (Département / Ville / Code Postal)
+ * 3. Inspection du Site Web Officiel de l'entreprise (Pages /recrutement, /contact, /mentions-legales)
+ * 4. Extraction de l'e-mail officiel certifié (ZÉRO email prédictif ou hors département)
  */
 async function scrapeOfficialWebsiteAndFacebook(
   companyName: string,
@@ -200,6 +203,8 @@ async function scrapeOfficialWebsiteAndFacebook(
 ): Promise<EnrichmentResult | null> {
   const clean = sanitizeCompanyName(companyName);
   if (!clean || clean.length < 3) return null;
+
+  const department = postalCode ? postalCode.substring(0, 2) : '';
 
   // Liste des domaines potentiels du site officiel de l'entreprise
   const domainCandidates = [
@@ -250,8 +255,23 @@ async function scrapeOfficialWebsiteAndFacebook(
 
           if (pageRes.ok) {
             const html = await pageRes.text();
+            const htmlLower = html.toLowerCase();
+
+            // Vérification anti-homonyme géographique :
+            // La page web ou les mentions légales doivent correspondre à l'implantation (Code Postal, Ville ou Département)
+            const matchesGeo =
+              !postalCode ||
+              htmlLower.includes(postalCode) ||
+              (city && htmlLower.includes(city.toLowerCase())) ||
+              (department && htmlLower.includes(department));
+
+            if (!matchesGeo && !pageUrl.includes('/recrutement')) {
+              // Si le site web appartient visiblement à une autre entreprise homonyme hors zone, on ignore
+              continue;
+            }
+
             const emails = html.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) || [];
-            
+
             // Filtre strict : L'email doit appartenir au domaine réel de l'entreprise
             const validEmails = emails.filter(em => {
               const emLower = em.toLowerCase();

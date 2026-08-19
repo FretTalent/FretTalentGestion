@@ -85,19 +85,27 @@ export async function fetchTransportCompaniesFromSirene(
   const companies: TransportCompanyRaw[] = [];
 
   for (const item of rawResults) {
-    const siege = item.siege || {};
-    const siret = siege.siret || (item.siren ? `${item.siren}00018` : null);
+    // Si un département est spécifié, vérifier si un établissement local actif correspond
+    let targetEtablissement = item.siege || {};
+    if (department && Array.isArray(item.matching_etablissements) && item.matching_etablissements.length > 0) {
+      const openLocal = item.matching_etablissements.find((e: any) => e.etat_administratif === 'A' && e.code_postal?.startsWith(department));
+      if (openLocal) {
+        targetEtablissement = openLocal;
+      }
+    }
+
+    const siret = targetEtablissement.siret || item.siege?.siret || (item.siren ? `${item.siren}00018` : null);
     const nomEntreprise = item.nom_raison_sociale || item.nom_complet || 'Entreprise de Transport';
     
     // Adresse
-    const address = siege.adresse || siege.complement_adresse || '';
-    const postalCode = siege.code_postal || '';
-    const city = siege.libelle_commune || '';
-    const nafCode = item.activite_principale || siege.activite_principale || '49.41A';
+    const address = targetEtablissement.adresse || targetEtablissement.complement_adresse || item.siege?.adresse || '';
+    const postalCode = targetEtablissement.code_postal || item.siege?.code_postal || '';
+    const city = targetEtablissement.libelle_commune || item.siege?.libelle_commune || '';
+    const nafCode = targetEtablissement.activite_principale || item.activite_principale || item.siege?.activite_principale || '49.41A';
 
     // Coordonnées GPS fournies par l'API SIRENE ou fallback
-    let lat: number | null = siege.latitude ? parseFloat(siege.latitude) : null;
-    let lon: number | null = siege.longitude ? parseFloat(siege.longitude) : null;
+    let lat: number | null = targetEtablissement.latitude ? parseFloat(targetEtablissement.latitude) : (item.siege?.latitude ? parseFloat(item.siege.latitude) : null);
+    let lon: number | null = targetEtablissement.longitude ? parseFloat(targetEtablissement.longitude) : (item.siege?.longitude ? parseFloat(item.siege.longitude) : null);
 
     // Si les coordonnées ne sont pas fournies par SIRENE, géocoder l'adresse
     if ((!lat || !lon || isNaN(lat) || isNaN(lon)) && (address || postalCode || city)) {

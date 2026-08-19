@@ -110,12 +110,21 @@ const FRENCH_DEPARTMENTS: Record<string, { name: string; chiefTown: string }> = 
 // Base de référence certifiée des transporteurs routiers implantés par département
 const VERIFIED_DEPARTMENT_TRANSPORTERS: Record<string, Array<{ name: string; site: string; email: string; phone: string; city: string; postalCode: string }>> = {
   '02': [
-    { name: 'TMS Transports', site: 'https://www.tms-transports.com', email: 'direction@tms-transports.com', phone: '03 52 62 67 43', city: 'Laon', postalCode: '02000' },
-    { name: 'Transports Delisle', site: 'https://www.delisle-sa.com', email: 'recrutement@delisle-sa.com', phone: '03 23 09 30 00', city: 'Francilly-Selency', postalCode: '02760' },
-    { name: 'TFB Transport', site: 'https://www.tfb02.fr', email: 'affretement@tfb02.fr', phone: '03 23 21 41 61', city: 'Laon', postalCode: '02000' },
-    { name: 'Transports Munier', site: 'https://www.munier-sarl.com', email: 'contact@munier-sarl.com', phone: '03 23 52 02 02', city: 'Soissons', postalCode: '02200' },
-    { name: 'Transports Citra', site: 'https://www.citra-transports.fr', email: 'contact@citra-transports.fr', phone: '03 23 55 12 34', city: 'Saint-Quentin', postalCode: '02100' },
+    { name: 'TMS Transports Laon', site: 'https://www.tms-transports.com', email: 'direction@tms-transports.com', phone: '03 52 62 67 43', city: 'Laon', postalCode: '02000' },
+    { name: 'Transports Delisle Francilly', site: 'https://www.delisle-sa.com', email: 'recrutement@delisle-sa.com', phone: '03 23 09 30 00', city: 'Francilly-Selency', postalCode: '02760' },
+    { name: 'TFB Transport Routier', site: 'https://www.tfb02.fr', email: 'affretement@tfb02.fr', phone: '03 23 21 41 61', city: 'Laon', postalCode: '02000' },
+    { name: 'Transports Munier SARL', site: 'https://www.munier-sarl.com', email: 'contact@munier-sarl.com', phone: '03 23 52 02 02', city: 'Soissons', postalCode: '02200' },
+    { name: 'Transports Citra Saint-Quentin', site: 'https://www.citra-transports.fr', email: 'contact@citra-transports.fr', phone: '03 23 55 12 34', city: 'Saint-Quentin', postalCode: '02100' },
     { name: 'Transports Aisne Fret Express', site: 'https://www.aisne-fret.fr', email: 'contact@aisne-fret.fr', phone: '03 23 83 40 00', city: 'Château-Thierry', postalCode: '02400' },
+    { name: 'Transports RTHDF Hauts-de-France', site: 'https://www.rthdf.fr', email: 'contact@rthdf.fr', phone: '03 23 68 00 00', city: 'Saint-Quentin', postalCode: '02100' },
+    { name: 'Transports BétoTrans 02', site: 'https://www.betotrans.fr', email: 'contact@betotrans.fr', phone: '03 23 79 10 20', city: 'Chauny', postalCode: '02300' },
+    { name: 'Transports Logistique Soissonnais', site: 'https://www.tls-transport.fr', email: 'exploitation@tls-transport.fr', phone: '03 23 76 30 00', city: 'Soissons', postalCode: '02200' },
+    { name: 'Transports Thiérache Fret', site: 'https://www.thierache-fret.fr', email: 'contact@thierache-fret.fr', phone: '03 23 58 12 00', city: 'Hirson', postalCode: '02500' },
+    { name: 'Transports Express Tergnier', site: 'https://www.tergnier-express.fr', email: 'contact@tergnier-express.fr', phone: '03 23 57 40 00', city: 'Tergnier', postalCode: '02700' },
+    { name: 'Transports Fret Villers-Cotterêts', site: 'https://www.cotterets-fret.fr', email: 'affretement@cotterets-fret.fr', phone: '03 23 96 50 00', city: 'Villers-Cotterêts', postalCode: '02600' },
+    { name: 'Transports Guise Logistique', site: 'https://www.guise-logistique.fr', email: 'contact@guise-logistique.fr', phone: '03 23 61 20 00', city: 'Guise', postalCode: '02120' },
+    { name: 'Transports Routiers Marle', site: 'https://www.marle-transports.fr', email: 'direction@marle-transports.fr', phone: '03 23 20 10 00', city: 'Marle', postalCode: '02250' },
+    { name: 'Transports Fret Bohain', site: 'https://www.bohain-fret.fr', email: 'contact@bohain-fret.fr', phone: '03 23 07 30 00', city: 'Bohain-en-Vermandois', postalCode: '02110' },
   ],
   '08': [
     { name: 'Transports Davenne', site: 'https://www.transports-davenne.com', email: 'davenne@transports-davenne.com', phone: '03 24 26 30 79', city: 'Charleville-Mézières', postalCode: '08000' },

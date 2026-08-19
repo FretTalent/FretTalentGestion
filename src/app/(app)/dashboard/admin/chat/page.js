@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import {
   MessageSquare,
@@ -27,11 +27,13 @@ import {
 import ConfirmModal from '@/components/ConfirmModal';
 import toast from 'react-hot-toast';
 
-export default function AdminChatPage() {
+function AdminChatContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const targetConvId = searchParams.get('convId');
 
   const [conversations, setConversations] = useState([]);
-  const [activeConvId, setActiveConvId] = useState(null);
+  const [activeConvId, setActiveConvId] = useState(targetConvId || null);
   const [messages, setMessages] = useState([]);
   const [loadingConv, setLoadingConv] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
@@ -98,7 +100,9 @@ export default function AdminChatPage() {
         });
 
         if (data.conversations.length > 0) {
-          if (!keepActive || !activeConvId) {
+          if (targetConvId && data.conversations.some(c => c.id === targetConvId)) {
+            setActiveConvId(targetConvId);
+          } else if (!keepActive || !activeConvId) {
             setActiveConvId(data.conversations[0].id);
           }
         }
@@ -1045,5 +1049,22 @@ export default function AdminChatPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function AdminChatPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-col items-center justify-center min-h-[500px] gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center animate-spin">
+            <RefreshCw className="w-5 h-5" />
+          </div>
+          <span className="text-xs font-bold text-slate-500">Chargement de la messagerie...</span>
+        </div>
+      }
+    >
+      <AdminChatContent />
+    </Suspense>
   );
 }

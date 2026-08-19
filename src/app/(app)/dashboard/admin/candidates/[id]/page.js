@@ -24,6 +24,9 @@ import {
   Bell,
   Send,
   Zap,
+  MessageSquare,
+  Sparkles,
+  X,
 } from 'lucide-react';
 import { calculateAge } from '@/lib/country';
 
@@ -56,6 +59,12 @@ export default function CandidateAdminProfile() {
   const [resendingEmail, setResendingEmail] = useState(false);
   const [confirmingEmail, setConfirmingEmail] = useState(false);
 
+  // Modal d'envoi de Tchat direct (Rubrique Support)
+  const [showChatModal, setShowChatModal] = useState(false);
+  const [chatSubject, setChatSubject] = useState('');
+  const [chatMessage, setChatMessage] = useState('');
+  const [sendingChat, setSendingChat] = useState(false);
+
   // Configuration Modal de Confirmation Moderne
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
@@ -71,6 +80,49 @@ export default function CandidateAdminProfile() {
 
   const closeConfirmModal = () => {
     setConfirmModal(prev => ({ ...prev, isOpen: false, loading: false }));
+  };
+
+  const handleOpenChat = () => {
+    setChatSubject(`Échange avec ${candidate?.full_name || 'le candidat'}`);
+    setChatMessage(`Bonjour ${candidate?.full_name || ''},\n\n`);
+    setShowChatModal(true);
+  };
+
+  const handleSendChatSubmit = async (e) => {
+    e.preventDefault();
+    if (!chatSubject.trim() || !chatMessage.trim()) {
+      toast.error('Veuillez renseigner un objet et un message.');
+      return;
+    }
+
+    setSendingChat(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('/api/support/conversations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.access_token || ''}`,
+        },
+        body: JSON.stringify({
+          targetUserId: candidate.id,
+          subject: chatSubject.trim(),
+          message: chatMessage.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Erreur lors de l'ouverture du tchat");
+
+      toast.success('Conversation ouverte dans la rubrique Support !');
+      setShowChatModal(false);
+      // Redirection directe vers la rubrique support pour poursuivre la conversation
+      router.push(`/dashboard/admin/chat?convId=${data.conversation.id}`);
+    } catch (err) {
+      toast.error(err.message || 'Impossible d’ouvrir la conversation');
+    } finally {
+      setSendingChat(false);
+    }
   };
 
   const handleSendReminder = () => {
@@ -433,6 +485,15 @@ export default function CandidateAdminProfile() {
             <span>{(candidate.reminders_count || 0)} relance{(candidate.reminders_count || 0) > 1 ? 's' : ''}</span>
           </div>
 
+          {/* Bouton Envoyer un tchat direct (Support) */}
+          <button
+            onClick={handleOpenChat}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition-all shadow-sm cursor-pointer"
+          >
+            <MessageSquare className="h-4 w-4" />
+            <span>Envoyer un message / Tchat</span>
+          </button>
+
           {!allRequiredUploaded && candidate.email && (
             <button
               onClick={handleSendReminder}
@@ -590,6 +651,17 @@ export default function CandidateAdminProfile() {
                     Aucune relance envoyée
                   </p>
                 )}
+              </div>
+
+              {/* Bouton Démarrer une conversation / Tchat Support */}
+              <div className="pt-2">
+                <button
+                  onClick={handleOpenChat}
+                  className="w-full py-2.5 px-4 rounded-2xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 font-extrabold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs hover:shadow-xs"
+                >
+                  <MessageSquare className="h-4 w-4 text-indigo-600" />
+                  <span>Démarrer un tchat (Rubrique Support)</span>
+                </button>
               </div>
             </div>
           </div>
@@ -994,6 +1066,97 @@ export default function CandidateAdminProfile() {
         onConfirm={confirmModal.onConfirm}
         onCancel={closeConfirmModal}
       />
+
+      {/* MODALE D'ENVOI DE TCHAT DIRECT REPERCUTÉE DANS LE SUPPORT */}
+      {showChatModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-200 relative animate-in fade-in zoom-in duration-200">
+            <button
+              onClick={() => setShowChatModal(false)}
+              className="absolute top-5 right-5 p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-11 h-11 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+                <MessageSquare className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-slate-900 leading-tight">
+                  Envoyer un message / Tchat
+                </h3>
+                <p className="text-xs text-slate-500 font-medium mt-0.5">
+                  La conversation sera répercutée et suivie dans la <strong className="text-indigo-600">Rubrique Support</strong>.
+                </p>
+              </div>
+            </div>
+
+            {/* Fiche destinataire */}
+            <div className="mb-4 p-3 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-orange-100 flex items-center justify-center font-black text-orange-600 text-sm">
+                {candidate.full_name?.charAt(0)?.toUpperCase() || '?'}
+              </div>
+              <div className="min-w-0">
+                <div className="text-xs font-black text-slate-900 truncate">
+                  {candidate.full_name || 'Chauffeur sans nom'}
+                </div>
+                <div className="text-[11px] text-slate-500 truncate">
+                  {candidate.email || 'Email non renseigné'}
+                </div>
+              </div>
+            </div>
+
+            <form onSubmit={handleSendChatSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
+                  Objet du tchat / Sujet
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={chatSubject}
+                  onChange={(e) => setChatSubject(e.target.value)}
+                  placeholder="Ex: Précision sur votre dossier, proposition..."
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
+                  Votre message
+                </label>
+                <textarea
+                  required
+                  rows={4}
+                  value={chatMessage}
+                  onChange={(e) => setChatMessage(e.target.value)}
+                  placeholder="Écrivez votre message à ce candidat..."
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowChatModal(false)}
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  disabled={sendingChat}
+                  className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black shadow-md shadow-indigo-500/25 hover:scale-[1.02] transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>{sendingChat ? 'Ouverture...' : 'Envoyer & Ouvrir dans Support'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

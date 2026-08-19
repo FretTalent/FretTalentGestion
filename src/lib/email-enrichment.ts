@@ -428,9 +428,9 @@ async function findEmailViaDropcontact(
  * 1. SIREN / SIRENE (Identification légale et adresse exacte)
  * 2. Recoupement Géographique (Département / Ville / Code Postal)
  * 3. Inspection du Site Web Officiel de l'entreprise (Pages /recrutement, /contact, /mentions-legales)
- * 4. Extraction de l'e-mail officiel certifié (ZÉRO email prédictif ou hors département)
+ * 4. Extraction de l'e-mail officiel certifié (ZÉRO email prédictif)
  */
-async function scrapeOfficialWebsiteAndFacebook(
+export async function scrapeOfficialWebsiteAndFacebook(
   companyName: string,
   city?: string,
   postalCode?: string

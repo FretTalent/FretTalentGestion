@@ -31,7 +31,6 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import TransportImporterModal from '@/components/TransportImporterModal';
 
 export default function AdminPremiumDashboard() {
   const router = useRouter();
@@ -597,11 +596,6 @@ export default function AdminPremiumDashboard() {
           <div>
             <div className="text-3xl font-black text-slate-900 font-mono tracking-tight">
               {candidatures.length}
-            </div>
-            <div className="flex items-center gap-2 mt-2 text-xs text-slate-600 font-semibold">
-              <span className="bg-orange-50 text-[#FF7A00] px-2 py-0.5 rounded-md font-bold">
-                {(candidatures.length * 19.99).toFixed(2)} € collectés
-              </span>
             </div>
           </div>
         </div>
@@ -1557,15 +1551,6 @@ export default function AdminPremiumDashboard() {
           </div>
         </div>
       )}
-
-      {/* MODALE IMPORTATEUR D'ENTREPRISES DE TRANSPORT (SIRENE) */}
-      <TransportImporterModal
-        isOpen={modalImportOpen}
-        onClose={() => setModalImportOpen(false)}
-        onImportCompleted={() => {
-          fetchAllData();
-        }}
-      />
 
     </div>
   );

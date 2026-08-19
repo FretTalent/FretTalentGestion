@@ -6,7 +6,7 @@
  */
 
 import { geocodeAddress } from './geo';
-import { isDomainMailActive, verifyAndScoreCompanyEmail } from './email-enrichment';
+import { isDomainMailActive, verifyAndScoreCompanyEmail, scrapeOfficialWebsiteAndFacebook } from './email-enrichment';
 
 export interface TransportCompanyRaw {
   nom_entreprise: string;

@@ -179,108 +179,31 @@ export default function AppLayout({ children }) {
   if (isAdmin) {
     return (
       <div className="min-h-screen font-sans flex flex-col" style={{ background: '#F8FAFC' }}>
-        {/* TOP HEADER ADMIN HORIZONTAL FIXE, CLAIR & TRÈS LISIBLE */}
-        <header className="sticky top-0 z-50 bg-white border-b border-slate-200/90 shadow-sm backdrop-blur-md bg-white/95">
-          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-4">
-            
-            {/* Logo FretTalent & Badge console */}
-            <div className="flex items-center gap-3 flex-shrink-0">
-              <Link href="/dashboard/admin" className="flex items-center gap-3 group">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#FF7A00] to-[#E56700] flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
-                  <Truck className="w-5 h-5" />
+        {/* TOP HEADER ADMIN HORIZONTAL : 2 NIVEAUX PROPRES, ZÉRO DÉBORDEMENT */}
+        <header className="sticky top-0 z-50 bg-white border-b border-slate-200/90 shadow-xs backdrop-blur-md bg-white/95">
+          {/* Ligne 1 : Logo, Statut, Liens utiles & Profil */}
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-4 border-b border-slate-100">
+            {/* Logo FretTalent */}
+            <div className="flex items-center gap-3">
+              <Link href="/dashboard/admin" className="flex items-center gap-2.5 group">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#FF7A00] to-[#E56700] flex items-center justify-center text-white shadow-sm shadow-orange-500/20 group-hover:scale-105 transition-transform">
+                  <Truck className="w-4.5 h-4.5" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xl font-black text-slate-900 tracking-tight leading-none">
+                  <span className="text-lg font-black text-slate-900 tracking-tight leading-none">
                     Fret<span className="text-[#FF7A00]">Talent</span>
                   </span>
-                  <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mt-1 flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
-                    Admin Console
+                  <span className="text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mt-0.5">
+                    Console Administration
                   </span>
                 </div>
               </Link>
             </div>
 
-            {/* Barre de navigation principale (Desktop) : grand confort visuel et excellente lisibilité */}
-            <nav className="hidden 2xl:flex items-center gap-1.5 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200/90">
-              {navAdminHorizontal.map((item) => {
-                const Icon = item.icon;
-                const isActive = pathname === item.href || (item.href !== '/dashboard/admin' && pathname.startsWith(item.href));
-                const badgeCount = item.badgeKey ? adminCounts[item.badgeKey] : 0;
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`relative flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-[13px] transition-all whitespace-nowrap ${
-                      isActive
-                        ? 'bg-white text-slate-950 shadow-sm font-black border border-slate-200/70'
-                        : 'text-slate-700 hover:text-slate-950 hover:bg-white/70 font-bold'
-                    }`}
-                  >
-                    <Icon
-                      className={`w-4 h-4 transition-colors ${
-                        isActive ? 'text-[#FF7A00]' : 'text-slate-500'
-                      }`}
-                    />
-                    <span>{item.label}</span>
-                    {badgeCount > 0 && (
-                      <span
-                        className="px-2 py-0.5 rounded-full text-[11px] font-black text-white leading-none shadow-xs"
-                        style={{ backgroundColor: item.badgeColor || '#FF7A00' }}
-                      >
-                        {badgeCount}
-                      </span>
-                    )}
-                    {isActive && (
-                      <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-6 h-1 bg-[#FF7A00] rounded-full shadow-xs" />
-                    )}
-                  </Link>
-                );
-              })}
-            </nav>
-
-            {/* Barre condensée pour écrans intermédiaires (XL) */}
-            <nav className="hidden xl:flex 2xl:hidden items-center gap-1 bg-slate-100/90 p-1 rounded-2xl border border-slate-200/90">
-              {navAdminHorizontal.map((item) => {
-                const Icon = item.icon;
-                const isActive = pathname === item.href || (item.href !== '/dashboard/admin' && pathname.startsWith(item.href));
-                const badgeCount = item.badgeKey ? adminCounts[item.badgeKey] : 0;
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    title={item.label}
-                    className={`relative flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs transition-all whitespace-nowrap ${
-                      isActive
-                        ? 'bg-white text-slate-950 shadow-sm font-black border border-slate-200/70'
-                        : 'text-slate-700 hover:text-slate-950 hover:bg-white/70 font-bold'
-                    }`}
-                  >
-                    <Icon
-                      className={`w-4 h-4 transition-colors ${
-                        isActive ? 'text-[#FF7A00]' : 'text-slate-500'
-                      }`}
-                    />
-                    <span>{item.label.split(' ')[0]}</span>
-                    {badgeCount > 0 && (
-                      <span
-                        className="px-1.5 py-0.5 rounded-full text-[10px] font-black text-white leading-none shadow-xs"
-                        style={{ backgroundColor: item.badgeColor || '#FF7A00' }}
-                      >
-                        {badgeCount}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
-            </nav>
-
-            {/* Menu droit : Statut live, lien site public, notifications et profil */}
-            <div className="flex items-center gap-3 flex-shrink-0">
+            {/* Actions rapides droite */}
+            <div className="flex items-center gap-3">
               {/* Badge En Direct */}
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-800 text-xs font-black shadow-2xs">
+              <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/70 text-emerald-800 text-xs font-bold">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span>En direct</span>
               </div>
@@ -289,39 +212,69 @@ export default function AppLayout({ children }) {
               <Link
                 href="/"
                 target="_blank"
-                className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-950 bg-slate-100 hover:bg-slate-200/80 transition-colors border border-slate-200/60"
+                className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-950 bg-slate-100 hover:bg-slate-200/70 transition-colors"
               >
                 <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
                 <span>Voir le site</span>
               </Link>
 
-              {/* Menu Hamburger pour mobile/tablette */}
-              <button
-                onClick={() => setAdminMenuOpen(!adminMenuOpen)}
-                className="xl:hidden p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
-                aria-label="Menu"
-              >
-                {adminMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </button>
-
               {/* Profil & Déconnexion */}
-              <div className="flex items-center gap-2.5 pl-3 border-l border-slate-200">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#FF7A00] to-[#E56700] text-white flex items-center justify-center font-black text-xs shadow-sm">
+              <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#FF7A00] to-[#E56700] text-white flex items-center justify-center font-black text-xs shadow-xs">
                   ⚡
                 </div>
                 <div className="hidden md:flex flex-col text-left">
                   <span className="text-xs font-black text-slate-900 leading-tight">Admin Master</span>
-                  <span className="text-[11px] text-slate-500 font-bold truncate max-w-[130px]">{userEmail}</span>
+                  <span className="text-[10px] text-slate-500 font-medium truncate max-w-[130px]">{userEmail}</span>
                 </div>
                 <button
                   onClick={handleSignOut}
                   title="Se déconnecter"
-                  className="p-2 rounded-xl text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
             </div>
+          </div>
+
+          {/* Ligne 2 : Barre de Navigation des 9 Modules (Aérée, Défilement fluide sans masquer aucun bouton) */}
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1.5 overflow-x-auto no-scrollbar">
+            <nav className="flex items-center gap-1.5 min-w-max">
+              {navAdminHorizontal.map((item) => {
+                const Icon = item.icon;
+                const isActive = pathname === item.href || (item.href !== '/dashboard/admin' && pathname.startsWith(item.href));
+                const badgeCount = item.badgeKey ? adminCounts[item.badgeKey] : 0;
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                      isActive
+                        ? 'bg-orange-500 text-white shadow-xs font-extrabold'
+                        : 'text-slate-600 hover:text-slate-950 hover:bg-slate-100/80 font-bold'
+                    }`}
+                  >
+                    <Icon
+                      className={`w-3.5 h-3.5 transition-colors ${
+                        isActive ? 'text-white' : 'text-slate-500'
+                      }`}
+                    />
+                    <span>{item.label}</span>
+                    {badgeCount > 0 && (
+                      <span
+                        className={`px-1.5 py-0.2 rounded-full text-[10px] font-black leading-none ${
+                          isActive ? 'bg-white text-orange-600' : 'bg-red-500 text-white'
+                        }`}
+                      >
+                        {badgeCount}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+            </nav>
           </div>
 
           {/* Menu Déroulant Mobile / Tablette pour Admin */}

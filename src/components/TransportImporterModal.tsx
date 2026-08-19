@@ -289,47 +289,61 @@ export default function TransportImporterModal({
           {importedCompanies.length > 0 && (
             <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-3">
               <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center justify-between">
-                <span>Transporteurs détectés et enregistrés ({importedCompanies.length})</span>
-                <span className="text-emerald-600 font-bold text-[11px]">✓ Coordonnées 100% complètes</span>
+                <span>Transporteurs détectés et analysés ({importedCompanies.length})</span>
+                <span className="text-emerald-600 font-bold text-[11px]">✓ Scoring MX, SIRENE & Web</span>
               </h3>
 
               <div className="divide-y divide-slate-100 max-h-60 overflow-y-auto">
-                {importedCompanies.map((c, idx) => (
-                  <div key={idx} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-                    <div className="space-y-1">
-                      <div className="font-black text-slate-900 flex items-center gap-2">
-                        <span>{c.name}</span>
-                        <span className="px-1.5 py-0.5 rounded bg-orange-100 text-[#FF7A00] font-bold text-[10px]">
-                          {c.postalCode} {c.city}
-                        </span>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-3 text-slate-500 font-medium text-[11px]">
-                        <span className="flex items-center gap-1 text-slate-800 font-bold">
-                          <Mail className="w-3.5 h-3.5 text-emerald-600" />
-                          {c.email}
-                        </span>
-                        {c.phone && (
-                          <span className="flex items-center gap-1 text-slate-600">
-                            <Phone className="w-3.5 h-3.5 text-blue-500" />
-                            {c.phone}
+                {importedCompanies.map((c, idx) => {
+                  const isValidated = c.validationStatus === 'validated' || (c.score && c.score >= 70);
+                  return (
+                    <div key={idx} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                      <div className="space-y-1">
+                        <div className="font-black text-slate-900 flex flex-wrap items-center gap-2">
+                          <span>{c.name}</span>
+                          <span className="px-1.5 py-0.5 rounded bg-orange-100 text-[#FF7A00] font-bold text-[10px]">
+                            {c.postalCode} {c.city}
                           </span>
-                        )}
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase border flex items-center gap-1 ${
+                              isValidated
+                                ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                                : 'bg-amber-100 text-amber-800 border-amber-300'
+                            }`}
+                          >
+                            <span>{c.score || 0} pts</span>
+                            <span>•</span>
+                            <span>{isValidated ? 'Validé' : 'Revue Manuelle'}</span>
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-3 text-slate-500 font-medium text-[11px]">
+                          <span className="flex items-center gap-1 text-slate-800 font-bold">
+                            <Mail className="w-3.5 h-3.5 text-emerald-600" />
+                            {c.email}
+                          </span>
+                          {c.phone && (
+                            <span className="flex items-center gap-1 text-slate-600">
+                              <Phone className="w-3.5 h-3.5 text-blue-500" />
+                              {c.phone}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
 
-                    {c.site && (
-                      <a
-                        href={c.site}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-[11px] font-bold text-[#FF7A00] hover:underline self-start sm:self-center"
-                      >
-                        <Globe className="w-3.5 h-3.5" />
-                        <span>Site Web</span>
-                      </a>
-                    )}
-                  </div>
-                ))}
+                      {c.site && (
+                        <a
+                          href={c.site}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-[11px] font-bold text-[#FF7A00] hover:underline self-start sm:self-center"
+                        >
+                          <Globe className="w-3.5 h-3.5" />
+                          <span>Site Web</span>
+                        </a>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

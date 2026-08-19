@@ -6,7 +6,7 @@
  */
 
 import { geocodeAddress } from './geo';
-import { isDomainMailActive } from './email-enrichment';
+import { isDomainMailActive, verifyAndScoreCompanyEmail } from './email-enrichment';
 
 export interface TransportCompanyRaw {
   nom_entreprise: string;
@@ -23,6 +23,9 @@ export interface TransportCompanyRaw {
   partenaire: boolean;
   code_naf: string;
   site_web?: string | null;
+  email_score?: number;
+  validation_status?: 'validated' | 'pending_review';
+  validation_details?: any;
 }
 
 export interface SireneFetchOptions {
@@ -209,7 +212,15 @@ export async function fetchTransportCompaniesFromSirene(
 
   // 1. Si des transporteurs vérifiés existent pour ce département dans l'annuaire rapide, les inclure en priorité
   if (cleanDept && VERIFIED_DEPARTMENT_TRANSPORTERS[cleanDept]) {
-    VERIFIED_DEPARTMENT_TRANSPORTERS[cleanDept].forEach(item => {
+    for (const item of VERIFIED_DEPARTMENT_TRANSPORTERS[cleanDept]) {
+      const scoreResult = await verifyAndScoreCompanyEmail({
+        companyName: item.name,
+        email: item.email,
+        websiteUrl: item.site,
+        sireneCity: item.city,
+        isExtractedDirectlyFromSite: true,
+      });
+
       companies.push({
         nom_entreprise: item.name,
         email: item.email,
@@ -225,8 +236,11 @@ export async function fetchTransportCompaniesFromSirene(
         partenaire: false,
         code_naf: '49.41A',
         site_web: item.site,
+        email_score: scoreResult.score,
+        validation_status: scoreResult.status,
+        validation_details: scoreResult.details,
       });
-    });
+    }
   }
 
   // 2. EXTRACTION DYNAMIQUE EN DIRECT de TOUTES les entreprises de transport du département via l'API officielle
@@ -271,6 +285,7 @@ export async function fetchTransportCompaniesFromSirene(
 
         let email = `contact@${clean || 'transport'}.fr`;
         let site = `https://www.${clean || 'transport'}.fr`;
+        let isDirectMatch = false;
 
         if (clean && clean.length >= 3) {
           const candidates = [
@@ -285,10 +300,21 @@ export async function fetchTransportCompaniesFromSirene(
             if (await isDomainMailActive(d)) {
               email = `contact@${d}`;
               site = `https://www.${d}`;
+              isDirectMatch = true;
               break;
             }
           }
         }
+
+        // Calcul du score de fiabilisation strict
+        const scoreResult = await verifyAndScoreCompanyEmail({
+          companyName: name,
+          email,
+          websiteUrl: site,
+          sireneAddress: address,
+          sireneCity: city,
+          isExtractedDirectlyFromSite: isDirectMatch,
+        });
 
         companies.push({
           nom_entreprise: name,
@@ -305,6 +331,9 @@ export async function fetchTransportCompaniesFromSirene(
           partenaire: false,
           code_naf: etablissement.activite_principale || '49.41A',
           site_web: site,
+          email_score: scoreResult.score,
+          validation_status: scoreResult.status,
+          validation_details: scoreResult.details,
         });
       }
     }

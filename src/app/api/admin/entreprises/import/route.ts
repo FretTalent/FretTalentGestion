@@ -115,10 +115,14 @@ export async function POST(req: Request) {
     let importedCount = 0;
     let skippedCount = 0;
     let emailsFoundCount = 0;
+    let validatedCount = 0;
+    let pendingReviewCount = 0;
     const errors: string[] = [];
 
     // 2. Traitement et insertion par lots dans le registre officiel (entreprises)
-    // RÈGLE : Insertion propre de chaque transporteur avec Nom, E-mail, Téléphone, Ville, GPS
+    // RÈGLE STRICTE : Evaluation du score (MX, site, domaine, Jaro-Winkler, adresse)
+    // score >= 70 -> Validé pour insertion ('validated')
+    // score < 70 -> Mis en attente de revue manuelle ('pending_review')
     for (const comp of companies) {
       try {
         if (!comp.nom_entreprise) {
@@ -146,7 +150,16 @@ export async function POST(req: Request) {
           continue;
         }
 
-        // Insertion dans la table entreprises (utilisée par la Candidature Rapide 19,99€)
+        const score = comp.email_score ?? 0;
+        const status = comp.validation_status ?? (score >= 70 ? 'validated' : 'pending_review');
+
+        if (status === 'validated') {
+          validatedCount++;
+        } else {
+          pendingReviewCount++;
+        }
+
+        // Insertion dans la table entreprises
         const { error: insertError } = await supabaseAdmin.from('entreprises').insert({
           name: comp.nom_entreprise,
           email: comp.email.trim().toLowerCase(),
@@ -161,6 +174,9 @@ export async function POST(req: Request) {
           is_partner: false,
           specialties: ['Transport Routier de Fret', 'Messagerie & Logistique'],
           notes: comp.site_web ? `Site officiel: ${comp.site_web}` : 'Importé via Robot d\'Extraction Directe',
+          email_score: score,
+          validation_status: status,
+          validation_details: comp.validation_details || null,
         });
 
         if (insertError) {
@@ -187,6 +203,8 @@ export async function POST(req: Request) {
           perPage,
           totalResults,
           department,
+          validatedCount,
+          pendingReviewCount,
           sampleImported: companies.slice(0, 5).map((c) => c.nom_entreprise),
           errors: errors.slice(0, 5),
         },
@@ -205,6 +223,8 @@ export async function POST(req: Request) {
         importedCount,
         skippedCount,
         emailsFoundCount,
+        validatedCount,
+        pendingReviewCount,
         hasMore,
         errors,
         companies: companies.map(c => ({
@@ -213,7 +233,10 @@ export async function POST(req: Request) {
           phone: c.telephone,
           city: c.ville,
           postalCode: c.code_postal,
-          site: c.site_web
+          site: c.site_web,
+          score: c.email_score || 0,
+          validationStatus: c.validation_status || 'pending_review',
+          validationDetails: c.validation_details || null,
         }))
       },
     });

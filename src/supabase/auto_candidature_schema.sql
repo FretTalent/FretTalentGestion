@@ -63,11 +63,16 @@ CREATE TABLE IF NOT EXISTS public.entreprises (
     notes TEXT,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     
-    -- Métriques
+    -- Métriques & Validation
     candidatures_received_count INTEGER NOT NULL DEFAULT 0,
     candidatures_opened_count INTEGER NOT NULL DEFAULT 0,
     last_candidature_received_at TIMESTAMPTZ,
     
+    -- Score et statut de vérification email
+    email_score INTEGER DEFAULT 0,
+    validation_status VARCHAR(30) DEFAULT 'pending_review',
+    validation_details JSONB,
+
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

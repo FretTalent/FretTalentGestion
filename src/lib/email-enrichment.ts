@@ -14,10 +14,241 @@ import { promisify } from 'util';
 
 const resolveMxAsync = promisify(dns.resolveMx);
 
-interface EnrichmentResult {
+export interface EnrichmentResult {
   email: string | null;
   phone?: string | null;
   source?: string | null;
+  score?: number;
+  validationStatus?: 'validated' | 'pending_review';
+  validationDetails?: any;
+}
+
+const GENERIC_EMAIL_DOMAINS = new Set([
+  'gmail.com',
+  'googlemail.com',
+  'yahoo.com',
+  'yahoo.fr',
+  'hotmail.com',
+  'hotmail.fr',
+  'outlook.com',
+  'outlook.fr',
+  'live.com',
+  'live.fr',
+  'orange.fr',
+  'wanadoo.fr',
+  'free.fr',
+  'sfr.fr',
+  'laposte.net',
+  'icloud.com',
+  'aol.com',
+  'neuf.fr',
+  'bbox.fr',
+]);
+
+/**
+ * Calcul de la distance / similarité de Jaro-Winkler (Retourne un score entre 0.0 et 1.0)
+ */
+export function jaroWinklerSimilarity(s1: string, s2: string): number {
+  const str1 = (s1 || '').toLowerCase().trim();
+  const str2 = (s2 || '').toLowerCase().trim();
+  if (str1 === str2) return 1.0;
+  if (!str1 || !str2) return 0.0;
+
+  const len1 = str1.length;
+  const len2 = str2.length;
+  const matchDistance = Math.floor(Math.max(len1, len2) / 2) - 1;
+
+  const s1Matches = new Array(len1).fill(false);
+  const s2Matches = new Array(len2).fill(false);
+
+  let matches = 0;
+  let transpositions = 0;
+
+  for (let i = 0; i < len1; i++) {
+    const start = Math.max(0, i - matchDistance);
+    const end = Math.min(i + matchDistance + 1, len2);
+
+    for (let j = start; j < end; j++) {
+      if (s2Matches[j]) continue;
+      if (str1[i] !== str2[j]) continue;
+      s1Matches[i] = true;
+      s2Matches[j] = true;
+      matches++;
+      break;
+    }
+  }
+
+  if (matches === 0) return 0.0;
+
+  let k = 0;
+  for (let i = 0; i < len1; i++) {
+    if (!s1Matches[i]) continue;
+    while (!s2Matches[k]) k++;
+    if (str1[i] !== str2[k]) transpositions++;
+    k++;
+  }
+
+  const jaro = (matches / len1 + matches / len2 + (matches - transpositions / 2) / matches) / 3;
+
+  // Calcul du préfixe commun (maximum 4 caractères)
+  let prefix = 0;
+  const p = 0.1; // Facteur d'échelle standard
+  for (let i = 0; i < Math.min(4, len1, len2); i++) {
+    if (str1[i] === str2[i]) prefix++;
+    else break;
+  }
+
+  return jaro + prefix * p * (1 - jaro);
+}
+
+export interface EmailVerificationScoreResult {
+  score: number;
+  status: 'validated' | 'pending_review';
+  isEliminated: boolean;
+  mxVerified: boolean;
+  details: {
+    mxScore: number;
+    directScrapeScore: number;
+    domainMatchScore: number;
+    jaroWinklerScore: number;
+    addressMatchScore: number;
+    genericPenalty: number;
+    jaroWinklerSimilarity: number;
+    emailDomain: string;
+    websiteDomain: string | null;
+  };
+}
+
+/**
+ * Moteur de Vérification & Scoring Strict des Emails d'Entreprise
+ * RÈGLES DE VALIDATION (Seuil strict score >= 70 pour validation immédiate)
+ * 1. MX Record vérifié (dns.resolveMx) : +20 pts (Élimination immédiate si absent / 0 pt)
+ * 2. E-mail extrait directement sur le site officiel : +30 pts
+ * 3. Domaine de l'e-mail correspondant au site officiel : +25 pts
+ * 4. Similarité Nom d'entreprise ↔ Nom de domaine (Jaro-Winkler ≥ 75%) : +15 pts
+ * 5. Adresse / Ville identique entre SIRENE et le site : +10 pts
+ * 6. Pénalité domaine générique (gmail, orange, etc.) sans corroboration : -20 pts
+ */
+export async function verifyAndScoreCompanyEmail(params: {
+  companyName: string;
+  email: string;
+  websiteUrl?: string | null;
+  sireneAddress?: string | null;
+  sireneCity?: string | null;
+  siteHtml?: string | null;
+  isExtractedDirectlyFromSite?: boolean;
+}): Promise<EmailVerificationScoreResult> {
+  const {
+    companyName,
+    email,
+    websiteUrl,
+    sireneAddress,
+    sireneCity,
+    siteHtml = '',
+    isExtractedDirectlyFromSite = false,
+  } = params;
+
+  const emailLower = (email || '').toLowerCase().trim();
+  const emailDomain = emailLower.includes('@') ? emailLower.split('@')[1] : '';
+
+  // Extraction propre du domaine du site officiel
+  let websiteDomain: string | null = null;
+  if (websiteUrl) {
+    try {
+      const cleanUrl = websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`;
+      websiteDomain = new URL(cleanUrl).hostname.replace(/^www\./, '').toLowerCase();
+    } catch {
+      websiteDomain = websiteUrl.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].toLowerCase();
+    }
+  }
+
+  // 1. Vérification DNS MX Record (Élimination immédiate si absent)
+  const mxVerified = await isDomainMailActive(emailDomain);
+  const mxScore = mxVerified ? 20 : 0;
+
+  if (!mxVerified) {
+    return {
+      score: 0,
+      status: 'pending_review',
+      isEliminated: true,
+      mxVerified: false,
+      details: {
+        mxScore: 0,
+        directScrapeScore: 0,
+        domainMatchScore: 0,
+        jaroWinklerScore: 0,
+        addressMatchScore: 0,
+        genericPenalty: 0,
+        jaroWinklerSimilarity: 0,
+        emailDomain,
+        websiteDomain,
+      },
+    };
+  }
+
+  // 2. E-mail extrait directement sur le site officiel (+30 pts)
+  const directScrapeScore = isExtractedDirectlyFromSite ? 30 : 0;
+
+  // 3. Domaine de l'e-mail correspondant au site officiel (+25 pts)
+  let domainMatchScore = 0;
+  if (
+    websiteDomain &&
+    emailDomain &&
+    (emailDomain === websiteDomain ||
+      websiteDomain.endsWith(`.${emailDomain}`) ||
+      emailDomain.endsWith(`.${websiteDomain}`))
+  ) {
+    domainMatchScore = 25;
+  }
+
+  // 4. Similarité Nom d'entreprise ↔ Nom de domaine (Jaro-Winkler ≥ 75% -> +15 pts)
+  const cleanCompName = sanitizeCompanyName(companyName);
+  const cleanDomainName = (websiteDomain || emailDomain || '').split('.')[0].replace(/[^a-z0-9]/g, '');
+  const sim = jaroWinklerSimilarity(cleanCompName, cleanDomainName);
+  const jaroWinklerScore = sim >= 0.75 ? 15 : 0;
+
+  // 5. Adresse / Ville identique entre SIRENE et le site (+10 pts)
+  let addressMatchScore = 0;
+  if (siteHtml && (sireneCity || sireneAddress)) {
+    const htmlLower = siteHtml.toLowerCase();
+    const cityLower = (sireneCity || '').toLowerCase().trim();
+    if (cityLower && cityLower.length > 2 && htmlLower.includes(cityLower)) {
+      addressMatchScore = 10;
+    } else if (sireneAddress && sireneAddress.length > 5 && htmlLower.includes(sireneAddress.toLowerCase().trim())) {
+      addressMatchScore = 10;
+    }
+  }
+
+  // 6. Pénalité domaine générique (gmail, orange, etc.) sans corroboration (-20 pts)
+  let genericPenalty = 0;
+  const isGeneric = GENERIC_EMAIL_DOMAINS.has(emailDomain);
+  const isCorroborated = isExtractedDirectlyFromSite || domainMatchScore > 0;
+  if (isGeneric && !isCorroborated) {
+    genericPenalty = -20;
+  }
+
+  // Score total combiné
+  const rawScore = mxScore + directScrapeScore + domainMatchScore + jaroWinklerScore + addressMatchScore + genericPenalty;
+  const totalScore = Math.max(0, rawScore);
+  const status: 'validated' | 'pending_review' = totalScore >= 70 ? 'validated' : 'pending_review';
+
+  return {
+    score: totalScore,
+    status,
+    isEliminated: false,
+    mxVerified: true,
+    details: {
+      mxScore,
+      directScrapeScore,
+      domainMatchScore,
+      jaroWinklerScore,
+      addressMatchScore,
+      genericPenalty,
+      jaroWinklerSimilarity: Math.round(sim * 100) / 100,
+      emailDomain,
+      websiteDomain,
+    },
+  };
 }
 
 /**

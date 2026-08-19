@@ -143,13 +143,14 @@ export default function Header() {
               </button>
 
               {seoDropdownOpen && (
-                <div className="absolute top-full -left-20 xl:-left-10 mt-3 w-[720px] bg-white/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 shadow-[0_20px_60px_-15px_rgba(15,23,42,0.15)] p-6 z-50 animate-in fade-in slide-in-from-top-3 duration-200">
-                  
-                  {/* Subtle top indicator arrow */}
-                  <div className="absolute -top-2 left-28 w-4 h-4 bg-white border-t border-l border-slate-200/90 rotate-45" />
+                <div className="absolute top-full -left-20 xl:-left-10 pt-2 z-50 w-[720px] animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="bg-white/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 shadow-[0_20px_60px_-15px_rgba(15,23,42,0.15)] p-6 relative">
+                    
+                    {/* Subtle top indicator arrow */}
+                    <div className="absolute -top-2 left-28 w-4 h-4 bg-white border-t border-l border-slate-200/90 rotate-45" />
 
-                  {/* Mega Menu Grid - 3 Columns */}
-                  <div className="grid grid-cols-3 gap-6 relative z-10">
+                    {/* Mega Menu Grid - 3 Columns */}
+                    <div className="grid grid-cols-3 gap-6 relative z-10">
                     {seoCategories.map((category) => {
                       const CategoryIcon = category.icon;
                       return (
@@ -205,6 +206,7 @@ export default function Header() {
                     </Link>
                   </div>
 
+                  </div>
                 </div>
               )}
             </div>

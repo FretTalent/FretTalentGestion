@@ -3,7 +3,9 @@ import * as React from 'react';
 import BaseLayout from './BaseLayout';
 
 const baseUrl =
-  process.env.NEXT_PUBLIC_BASE_URL || 'https://www.frettalent.com';
+  process.env.NEXT_PUBLIC_APP_URL ||
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  'https://www.frettalent.fr';
 
 export default function MissingDocuments({ candidateName, missingList, trackingUrl }) {
   return (

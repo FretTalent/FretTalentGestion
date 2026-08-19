@@ -3,7 +3,9 @@ import * as React from 'react';
 import BaseLayout from './BaseLayout';
 
 const baseUrl =
-  process.env.NEXT_PUBLIC_BASE_URL || 'https://www.frettalent.com';
+  process.env.NEXT_PUBLIC_APP_URL ||
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  'https://www.frettalent.fr';
 
 export default function NewCandidateNotification({
   candidateName,
@@ -40,7 +42,7 @@ export default function NewCandidateNotification({
       <Section style={btnContainer}>
         <Button
           style={button}
-          href={`${baseUrl}/dashboard/admin/candidats/${candidateId}`}
+          href={`${baseUrl}/dashboard/admin/candidates/${candidateId}`}
         >
           Voir le profil
         </Button>

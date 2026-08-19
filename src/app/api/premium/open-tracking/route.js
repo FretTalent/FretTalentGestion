@@ -78,15 +78,40 @@ export async function GET(req) {
             const decodedEmail = Buffer.from(paddedB64, 'base64').toString('utf-8');
             if (decodedEmail && decodedEmail.includes('@')) {
               fallbackEmail = decodedEmail;
+              
+              // 1. Chercher dans candidates
               const { data: cand } = await supabaseAdmin
                 .from('candidates')
                 .select('full_name')
                 .eq('email', decodedEmail)
                 .maybeSingle();
+
               if (cand?.full_name) {
                 fallbackName = cand.full_name;
               } else {
-                fallbackName = decodedEmail.split('@')[0];
+                // 2. Chercher dans companies
+                const { data: comp } = await supabaseAdmin
+                  .from('companies')
+                  .select('name')
+                  .eq('email', decodedEmail)
+                  .maybeSingle();
+
+                if (comp?.name) {
+                  fallbackName = comp.name;
+                } else {
+                  // 3. Chercher dans profiles
+                  const { data: prof } = await supabaseAdmin
+                    .from('profiles')
+                    .select('full_name')
+                    .eq('email', decodedEmail)
+                    .maybeSingle();
+
+                  if (prof?.full_name) {
+                    fallbackName = prof.full_name;
+                  } else {
+                    fallbackName = decodedEmail;
+                  }
+                }
               }
             }
           }

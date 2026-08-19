@@ -646,10 +646,16 @@ export async function notifyTelegramEmailOpened({
 
   const detailsBlock = details.length > 0 ? `\n${details.join('\n')}` : '';
 
+  const displayRecipient = recipientName && recipientEmail && recipientName !== recipientEmail && recipientName !== 'Destinataire' && recipientName !== 'Chauffeur / Candidat'
+    ? `<b>${escapeHtml(recipientName)}</b> &lt;<code>${escapeHtml(recipientEmail)}</code>&gt;`
+    : recipientEmail
+    ? `<code>${escapeHtml(recipientEmail)}</code>`
+    : `<b>${escapeHtml(recipientName || 'Destinataire')}</b>`;
+
   const telegramMsg = `📬 <b>EMAIL OUVERT &amp; LU !</b>${countBadge}
 ━━━━━━━━━━━━━━━━━━━━
 ${roleBadge}
-📧 <b>Destinataire :</b> ${escapeHtml(recipientName ? `${recipientName} <${recipientEmail}>` : recipientEmail || 'Inconnu')}
+📧 <b>Destinataire :</b> ${displayRecipient}
 ${detailsBlock}
 ⏱ <b>Heure de lecture :</b> ${new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}
 ━━━━━━━━━━━━━━━━━━━━

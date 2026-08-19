@@ -181,7 +181,7 @@ export default function AppLayout({ children }) {
       <div className="min-h-screen font-sans flex flex-col" style={{ background: '#F8FAFC' }}>
         {/* TOP HEADER ADMIN HORIZONTAL FIXE, CLAIR & TRÈS LISIBLE */}
         <header className="sticky top-0 z-50 bg-white border-b border-slate-200/90 shadow-sm backdrop-blur-md bg-white/95">
-          <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-4">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-4">
             
             {/* Logo FretTalent & Badge console */}
             <div className="flex items-center gap-3 flex-shrink-0">
@@ -379,8 +379,8 @@ export default function AppLayout({ children }) {
           )}
         </header>
 
-        {/* CONTENU PRINCIPAL FULL-WIDTH ADMINISTRATEUR */}
-        <main className="flex-1 w-full max-w-[1720px] mx-auto p-4 sm:p-6 lg:p-8">
+        {/* CONTENU PRINCIPAL PARFAITEMENT CALIBRÉ POUR TOUS LES ÉCRANS */}
+        <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 overflow-x-hidden">
           {children}
         </main>
 

@@ -19,6 +19,10 @@ import {
   Clock,
   FileText,
   Search,
+  Check,
+  X,
+  HelpCircle,
+  TrendingUp,
 } from 'lucide-react';
 
 export default function SeoLandingTemplate({
@@ -26,6 +30,8 @@ export default function SeoLandingTemplate({
   subtitle,
   badgeText = "Recrutement & Emploi Transport Routier",
   sections = [],
+  comparisonTable = null,
+  keyTakeaways = [],
   faqs = [],
   jsonLd = [],
   relatedLinks = [],
@@ -143,8 +149,28 @@ export default function SeoLandingTemplate({
         </div>
       </section>
 
-      {/* CONTENU SEO DÉTAILLÉ (SECTIONS H2 / H3 / TEXTE 500 - 1500 MOTS) */}
-      <section className="py-16 md:py-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+      {/* BLOC POINTS CLÉS À RETENIR (KEY TAKEAWAYS) */}
+      {keyTakeaways && keyTakeaways.length > 0 && (
+        <section className="pt-12 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-orange-50/80 border border-orange-200/80 rounded-3xl p-6 sm:p-8 space-y-4">
+            <div className="flex items-center gap-2 text-orange-800 font-black text-sm uppercase tracking-wider">
+              <Award className="w-5 h-5 text-orange-500" />
+              <span>Points Clés & Synthèse Légale</span>
+            </div>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm font-semibold text-slate-800">
+              {keyTakeaways.map((item, kIdx) => (
+                <li key={kIdx} className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4.5 h-4.5 text-orange-500 shrink-0 mt-0.5" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      {/* CONTENU SEO DÉTAILLÉ (SECTIONS H2 / H3 / TEXTE 1000 - 1500 MOTS) */}
+      <section className="py-16 md:py-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         {sections.map((section, sIdx) => (
           <article key={sIdx} className="space-y-6">
             
@@ -163,7 +189,7 @@ export default function SeoLandingTemplate({
 
             {/* SUBSECTIONS H3 */}
             {section.subsections && section.subsections.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                 {section.subsections.map((sub, subIdx) => (
                   <div
                     key={subIdx}
@@ -187,6 +213,47 @@ export default function SeoLandingTemplate({
           </article>
         ))}
       </section>
+
+      {/* TABLEAU COMPARATIF DÉTAILLÉ (COMPARISON TABLE) */}
+      {comparisonTable && (
+        <section className="py-12 bg-slate-50 border-y border-slate-200">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <div className="text-center space-y-2">
+              <span className="text-xs font-black text-orange-600 uppercase tracking-widest bg-orange-100 px-3 py-1 rounded-full">
+                Analyse Comparative
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-950">
+                {comparisonTable.title}
+              </h2>
+            </div>
+
+            <div className="overflow-x-auto bg-white rounded-2xl border border-slate-200 shadow-xs">
+              <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                <thead>
+                  <tr className="bg-slate-900 text-white">
+                    {comparisonTable.headers.map((h, hIdx) => (
+                      <th key={hIdx} className="px-5 py-4 font-black uppercase tracking-wider text-xs">
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200 font-medium text-slate-700">
+                  {comparisonTable.rows.map((row, rIdx) => (
+                    <tr key={rIdx} className={rIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'}>
+                      {row.map((cell, cIdx) => (
+                        <td key={cIdx} className={`px-5 py-4 ${cIdx === 0 ? 'font-bold text-slate-950' : ''}`}>
+                          {cell}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* SECTION MAILLAGE INTERNE INTELLIGENT (SEO LINKS MESH) */}
       <section className="py-16 bg-slate-50 border-t border-slate-200">

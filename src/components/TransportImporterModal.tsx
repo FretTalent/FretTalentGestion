@@ -246,9 +246,9 @@ export default function TransportImporterModal({
         <div className="p-6 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white flex items-center justify-between border-b border-slate-700">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-orange-500/20 text-[#FF7A00] text-[10px] font-black uppercase tracking-wider border border-orange-500/30 flex items-center gap-1">
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-wider border border-emerald-500/30 flex items-center gap-1">
                 <Sparkles className="w-3 h-3" />
-                API SIRENE & Gouv.fr
+                Robot Web Direct & Google
               </span>
               <span className="text-xs text-slate-300 font-bold">
                 • Registre Candidature Rapide (19,99 €)
@@ -256,7 +256,7 @@ export default function TransportImporterModal({
             </div>
             <h2 className="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-2">
               <Building2 className="w-6 h-6 text-[#FF7A00]" />
-              <span>Importateur Autonome d'Entreprises de Transport</span>
+              <span>Robot d'Extraction Web des Entreprises de Transport</span>
             </h2>
           </div>
 

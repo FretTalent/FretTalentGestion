@@ -282,12 +282,15 @@ export async function GET(req) {
     }
 
     // 6. NOTIFICATION TELEGRAM UNIVERSELLE POUR TOUTE OUVERTURE D'EMAIL
+    const cleanFinalName = recipientName && recipientName !== 'Destinataire' && recipientName !== 'Chauffeur / Candidat' ? recipientName : '';
+    const cleanFinalEmail = recipientEmail || '';
+
     await notifyTelegramEmailOpened({
-      recipientEmail: recipientEmail || 'gnri02270@gmail.com',
-      recipientName,
+      recipientEmail: cleanFinalEmail,
+      recipientName: cleanFinalName,
       recipientRole,
-      companyName: isRecruiterEmail ? emailRecord.company_name : undefined,
-      candidateName: isCandidateEmail ? recipientName : undefined,
+      companyName: recipientRole === 'recruiter' ? (cleanFinalName || undefined) : undefined,
+      candidateName: recipientRole === 'candidate' ? (cleanFinalName || undefined) : undefined,
       emailSubject,
       emailType,
       openCount: currentOpenCount,

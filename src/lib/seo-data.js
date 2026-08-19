@@ -147,7 +147,13 @@ export const seoPagesData = {
         a: "Un chauffeur PL débute en moyenne entre 1 900 € et 2 300 € net par mois, selon les primes de panier, d'assiduité et la région d'exercice."
       },
       {
-        q: "Peut-on passer du permis C au permis CE rapide  'chauffeur-adr': {
+        q: "Peut-on passer du permis C au permis CE rapidement ?",
+        a: "Oui, après l'obtention du permis C, il est possible de suivre la formation au permis CE (ou une FIMO passerelle) pour évoluer vers la conduite de véhicules Super Poids Lourds (SPL)."
+      }
+    ]
+  },
+
+  'chauffeur-adr': {
     slug: 'chauffeur-adr',
     metaTitle: 'Chauffeur ADR / Transport Matières Dangereuses | Offres & Recrutement FretTalent',
     metaDescription: 'Guide complet du métier de chauffeur routier ADR (Matières Dangereuses de base, Citerne, Chimique, Gaz). Règlementation, valise ADR, salaires, comparatifs et offres d’emploi directes sans intérim.',

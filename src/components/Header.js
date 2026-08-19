@@ -36,16 +36,21 @@ export default function Header() {
   ];
 
   const seoQuickLinks = [
-    { name: 'Chauffeur SPL', path: '/chauffeur-spl' },
-    { name: 'Chauffeur PL', path: '/chauffeur-pl' },
+    { name: 'Chauffeur SPL (Permis CE)', path: '/chauffeur-spl' },
+    { name: 'Chauffeur PL (Permis C)', path: '/chauffeur-pl' },
     { name: 'Chauffeur ADR', path: '/chauffeur-adr' },
     { name: 'Chauffeur Frigo', path: '/chauffeur-frigo' },
     { name: 'Chauffeur Benne', path: '/chauffeur-benne' },
-    { name: 'Emploi Chauffeur', path: '/emploi-chauffeur' },
+    { name: 'Offres Emploi Chauffeur', path: '/emploi-chauffeur' },
     { name: 'Recrutement Transport', path: '/recrutement-transport' },
     { name: 'Transporteurs France', path: '/transporteurs-france' },
+    { name: 'Transport Routier (TRM)', path: '/transport-routier' },
+    { name: 'Messagerie & Distribution', path: '/messagerie' },
+    { name: 'Fret Express', path: '/fret-express' },
     { name: 'Chauffeur SPL Hauts-de-France', path: '/chauffeur-spl-hauts-de-france' },
     { name: 'Chauffeur SPL Aisne (02)', path: '/chauffeur-spl-aisne' },
+    { name: 'Transporteurs Hauts-de-France', path: '/transporteurs-hauts-de-france' },
+    { name: 'Transporteurs Aisne (02)', path: '/transporteurs-aisne' },
   ];
 
   return (

@@ -181,30 +181,7 @@ export default function Footer() {
 
         </div>
 
-        {/* NOUVELLE SECTION MAILLAGE SEO EN PIED DE PAGE */}
-        <div className="pt-4 pb-8 border-b border-slate-800/80 space-y-4">
-          <h4 className="text-xs font-black text-white uppercase tracking-wider">
-            🚛 Spécialités, Métiers & Zones de Recrutement SEO
-          </h4>
-          
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 text-xs">
-            <Link href="/chauffeur-spl" className="hover:text-orange-400 transition-colors">Chauffeur SPL (Permis CE)</Link>
-            <Link href="/chauffeur-pl" className="hover:text-orange-400 transition-colors">Chauffeur PL (Permis C)</Link>
-            <Link href="/chauffeur-adr" className="hover:text-orange-400 transition-colors">Chauffeur ADR</Link>
-            <Link href="/chauffeur-frigo" className="hover:text-orange-400 transition-colors">Chauffeur Frigo</Link>
-            <Link href="/chauffeur-benne" className="hover:text-orange-400 transition-colors">Chauffeur Benne</Link>
-            <Link href="/emploi-chauffeur" className="hover:text-orange-400 transition-colors">Offres Emploi Chauffeur</Link>
-            <Link href="/recrutement-transport" className="hover:text-orange-400 transition-colors">Recrutement Transport</Link>
-            <Link href="/transporteurs-france" className="hover:text-orange-400 transition-colors">Transporteurs France</Link>
-            <Link href="/transport-routier" className="hover:text-orange-400 transition-colors">Transport Routier (TRM)</Link>
-            <Link href="/messagerie" className="hover:text-orange-400 transition-colors">Messagerie Express</Link>
-            <Link href="/fret-express" className="hover:text-orange-400 transition-colors">Fret Express</Link>
-            <Link href="/chauffeur-spl-hauts-de-france" className="hover:text-orange-400 transition-colors">Chauffeur SPL Hauts-de-France</Link>
-            <Link href="/chauffeur-spl-aisne" className="hover:text-orange-400 transition-colors">Chauffeur SPL Aisne (02)</Link>
-            <Link href="/transporteurs-hauts-de-france" className="hover:text-orange-400 transition-colors">Transporteurs Hauts-de-France</Link>
-            <Link href="/transporteurs-aisne" className="hover:text-orange-400 transition-colors">Transporteurs Aisne (02)</Link>
-          </div>
-        </div>
+
 
         {/* Footer Bottom Bar */}
         <div className="pt-4 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">

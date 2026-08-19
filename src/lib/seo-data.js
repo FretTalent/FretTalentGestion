@@ -430,66 +430,179 @@ export const seoPagesData = {
 
   'emploi-chauffeur': {
     slug: 'emploi-chauffeur',
-    metaTitle: 'Offres d’Emploi Chauffeur Routier & Poids Lourd | FretTalent',
-    metaDescription: 'Consultez des centaines d’offres d’emploi de chauffeur routier SPL, PL, messagerie et régional. Candidature directe sans agence.',
+    metaTitle: 'Offres d’Emploi Chauffeur Routier & Poids Lourd | Recrutement FretTalent',
+    metaDescription: 'Trouvez votre emploi de chauffeur routier SPL, PL, messagerie ou régional. Candidature directe sans agence d’intérim, rémunérations, conseils et offres actualisées en CDI/CDD.',
     h1: 'Offres d’Emploi Chauffeur Routier & Poids Lourd en France',
-    subtitle: 'Postulez directement auprès des entreprises de transport qui recrutent près de chez vous.',
-    badgeText: 'Emploi • Candidature Directe',
+    subtitle: 'Postulez directement auprès des entreprises de transport qui recrutent des conducteurs qualifiés près de chez vous.',
+    badgeText: 'Emploi • Candidature Directe 0% Intérim',
     keyTakeaways: [
-      "Accès 100% gratuit pour tous les candidats conducteurs",
-      "Mise en relation directe avec les responsables d'exploitation",
-      "Contrats CDI, CDD et missions saisonnières",
-      "Couverture nationale et transfrontalière (BE, CH, LU)"
+      "Accès 100% gratuit pour tous les chauffeurs candidats",
+      "Mise en relation directe avec les responsables d'exploitation transport",
+      "Contrats CDI, CDD et missions de saisonniers sur tout le territoire",
+      "Couverture nationale et transfrontalière (Belgique, Suisse, Luxembourg)"
     ],
     sections: [
       {
-        h2: "Comment Trouver le Poste de Chauffeur Routier Idéal ?",
-        content: "Le secteur du transport routier fait face à une forte demande de conducteurs qualifiés. Que vous préfériez les lignes régulières avec retour quotidien chez vous ou le grand ruban national, FretTalent simplifie vos démarches d'embauche.",
+        h2: "Le Marché de l'Emploi de Conducteur Routier en France en 2026",
+        content: "Le secteur du transport routier de marchandises (TRM) fait face à une pénurie structurelle de conducteurs qualifiés en France et en Europe. Avec plus de 50 000 postes à pourvoir chaque année, la profession de chauffeur routier offre des perspectives d'embauche rapides et durables. Que vous recherchiez un poste en régional avec retour quotidien à votre domicile ou des missions en grand ruban national/international, les opportunités n'ont jamais été aussi nombreuses.",
         subsections: [
           {
-            h3: "Créez un Profil Attractif",
-            content: "Renseignez vos permis, vos spécialisations (ADR, Frigo, Benne, Grue auxiliaire) et téléchargez vos justificatifs officiels pour rassurer les recruteurs."
+            h3: "La Diversité des Typologies de Postes Proposés",
+            content: "Du conducteur SPL tautliner grand ruban au chauffeur PL livreur en messagerie urbaine, en passant par les conducteurs spécialisés en citerne ADR, frigo agroalimentaire ou benne travaux publics, chaque chauffeur trouve la spécialité adaptée à son rythme de vie."
+          },
+          {
+            h3: "Du CDI Immédiat au Contrat de Saison",
+            content: "Les transporteurs favorisent désormais l'embauche directe en CDI afin de fidéliser leurs équipes routières. Des opportunités en CDD et contrats saisonniers (campagnes betteravières, céréalières, pics e-commerce) sont également disponibles."
+          }
+        ]
+      },
+      {
+        h2: "Comment Réussir sa Candidature & Valoriser son Profil Chauffeur",
+        content: "Sur un marché du recrutement en forte tension, la réactivité et la clarté de votre dossier font la différence auprès des exploitants transport.",
+        subsections: [
+          {
+            h3: "La Constitution d'un Dossier Candidat Conforme",
+            content: "Téléchargez des visuels lisibles de votre permis de conduire (C ou CE), de votre carte de qualification FIMO/FCO Marchandises valide et de votre carte de conducteur chronotachygraphe numérique à jour."
+          },
+          {
+            h3: "Mettre en Avant vos Spécialisations & Habilitations",
+            content: "Indiquez clairement vos diplômes complémentaires : attestation ADR de base ou citerne, CACES grue auxiliaire, CACES engins de chantier, expérience sur groupe frigo Carrier/Thermo King ou conduite de hayon."
+          }
+        ]
+      },
+      {
+        h2: "Grilles Salariales, Primes & Avantages par Spécialité",
+        content: "La rémunération brute du chauffeur routier est encadrée par la Convention Collective Nationale des Transports Routiers (IDCC 1600), complétée par de multiples indemnités conventionnelles non imposables.",
+        subsections: [
+          {
+            h3: "Composantes du Salaire Net",
+            content: "Le salaire net mensuel comprend le taux horaire conventionnel (selon coefficient 138M, 150M), les heures supplémentaires (majorées à 25% et 50%), les indemnités de frais de route (repas du midi à ~15€, repas du soir, découché à ~48€) et les primes de travail de nuit ou de week-end."
+          },
+          {
+            h3: "Niveaux de Salaire Moyens Observés",
+            content: "Livreur PL Messagerie : 1 900 € à 2 400 € net/mois. Chauffeur SPL Régional : 2 200 € à 2 700 € net/mois. Chauffeur SPL Grand Ruban : 2 600 € à 3 400 € net/mois. Chauffeur ADR Citerne : 2 800 € à 3 800 € net/mois."
           }
         ]
       }
     ],
+    comparisonTable: {
+      title: "Tableau d'Orientation des Métiers du Transport Routier",
+      headers: ["Métier", "Permis Requis", "Rythme de Conduite", "Manutention", "Salaire Net Moyen"],
+      rows: [
+        ["Livreur Messagerie VL/PL", "Permis B ou C", "Urbain / Régional (Retour soir)", "Chargement/déchargement colis au hayon", "1 900 € - 2 400 €"],
+        ["Conducteur SPL Régional", "Permis CE + FIMO", "Régional (Retour domicile quotidien)", "Mise à quai, sanglage palettes", "2 200 € - 2 700 €"],
+        ["Conducteur SPL Grand Ruban", "Permis CE + FIMO", "National / Europe (Nuits en cabine)", "Principalement conduite longue distance", "2 600 € - 3 400 €"],
+        ["Conducteur ADR Citerne", "Permis CE + ADR Citerne", "Régional ou National", "Dépotage de liquides / gaz en sécurité", "2 800 € - 3 800 €"]
+      ]
+    },
     faqs: [
       {
-        q: "Comment postuler aux offres sur FretTalent ?",
-        a: "Inscrivez-vous gratuitement, complétez votre profil chauffeur et contactez directement les employeurs en 1 clic."
+        q: "Comment postuler gratuitement aux offres d'emploi sur FretTalent ?",
+        a: "Inscrivez-vous gratuitement sur FretTalent, créez votre profil chauffeur en 2 minutes et entrez en contact direct par téléphone ou message avec les recruteurs transport."
+      },
+      {
+        q: "Quels sont les documents obligatoires pour postuler auprès d'un transporteur ?",
+        a: "Vous devez fournir un permis de conduire valide (C ou CE), votre carte de qualification FIMO/FCO Marchandises à jour et votre carte de conducteur pour le chronotachygraphe numérique."
+      },
+      {
+        q: "Un jeune conducteur débutant peut-il trouver un contrat en CDI rapidement ?",
+        a: "Oui, la pénurie de conducteurs incitent les transporteurs à embaucher des débutants sortant de FIMO ou Titre Professionnel et à assurer un accompagnement en doublon lors de la prise de poste."
+      },
+      {
+        q: "Quelle est la différence entre un poste en régional et un poste grand ruban ?",
+        a: "Le poste régional garantit un retour du conducteur à son domicile chaque soir. Le poste grand ruban implique des découchés (nuits passées dans la couchette de la cabine) indemnisés par des primes d'éloignement."
+      },
+      {
+        q: "Les chauffeurs résidant en Belgique ou Suisse peuvent-ils s'inscrire ?",
+        a: "Absolument, FretTalent couvre la France, la Belgique, la Suisse et le Luxembourg pour faciliter les recrutements transfrontaliers."
       }
     ]
   },
 
   'recrutement-transport': {
     slug: 'recrutement-transport',
-    metaTitle: 'Recrutement Transport Routier | Plateforme Recruteurs FretTalent',
-    metaDescription: 'La 1ère plateforme de recrutement direct de chauffeurs poids lourds et SPL sans frais d’intérim ni commissions.',
-    h1: 'Plateforme de Recrutement Transport Routier de Marchandises',
-    subtitle: 'Recrutez vos conducteurs routiers qualifiés rapidement et réduisez vos coûts d’embauche.',
-    badgeText: 'Recruteurs • Solution 0% Commission',
+    metaTitle: 'Plateforme de Recrutement Transport Routier | FretTalent Recruteurs',
+    metaDescription: 'La 1ère plateforme de recrutement direct de chauffeurs poids lourds et SPL. CVthèque vérifiée, carte interactive des profils et 0% commission d’intérim.',
+    h1: 'Plateforme de Recrutement Direct Transport Routier de Marchandises',
+    subtitle: 'Recrutez vos conducteurs routiers qualifiés rapidement et supprimez vos frais d’intérim traditionnels.',
+    badgeText: 'Recruteurs • Solution Directe 0% Commission',
     keyTakeaways: [
-      "Suppression des commissions d'intérim (économies immédiates)",
-      "Vérification préalable des permis C/CE et FIMO/FCO",
-      "Accès illimité à la CVthèque chauffeurs qualifiés",
-      "Gestion simplifiée des annonces d'emploi"
+      "Suppression des commissions d'intérim (économies financières immédiates)",
+      "Vérification préalable des permis C/CE, FIMO/FCO et cartes chronotachygraphes",
+      "Accès à la CVthèque interactive des chauffeurs disponibles par région",
+      "Publication et gestion illimitée des offres d'emploi transport"
     ],
     sections: [
       {
-        h2: "Optimisez vos Processus de Recrutement dans le Transport",
-        content: "FretTalent met en relation directe les transporteurs routiers de marchandises avec des conducteurs professionnels vérifiés. Réduisez vos délais de vacance de poste et vos budgets de recrutement.",
+        h2: "Digitalisez & Simplifiez vos Recrutements de Conducteurs Routiers",
+        content: "Face à la pénurie de main-d'œuvre dans le secteur des transports et à l'explosion des coûts de facturation des agences d'intérim (coefficients à 2.0+), FretTalent propose une alternative moderne et rentable. Notre plateforme met en relation directe les entreprises de transport routier avec une communauté de chauffeurs professionnels titulaires des permis Poids Lourd et Super Poids Lourd.",
         subsections: [
           {
-            h3: "Carte Interactive des Compétences",
-            content: "Visualisez en temps réel les chauffeurs disponibles dans votre zone géographique avec le détail de leurs permis et diplômes."
+            h3: "Accès Instantané à la CVthèque Géolocalisée",
+            content: "Consultez en temps réel les profils de chauffeurs en recherche active près de vos dépôts logistiques et filiales régionales."
+          },
+          {
+            h3: "Réduction du Temps de Vacance des Camions",
+            content: "Contactez directement les conducteurs par téléphone ou e-mail pour pourvoir rapidement un volant vacant et éviter l'immobilisation de vos ensembles routiers."
+          }
+        ]
+      },
+      {
+        h2: "Vérification des Documents Officiels & Sécurisation des Embauches",
+        content: "Pour garantir un recrutement 100% conforme au code des transports et aux exigences des assureurs flottes, FretTalent intègre des outils de contrôle documentaire.",
+        subsections: [
+          {
+            h3: "Contrôle des Permis & Cartes de Qualification",
+            content: "Accédez aux visuels scannés des permis de conduire (C, CE), attestations FIMO/FCO Marchandises, cartes chronotachygraphes numériques et diplômes ADR pour valider l'habilitation du candidat avant l'embauche."
+          },
+          {
+            h3: "Transparence & Direct Recruteur - Chauffeur",
+            content: "Pas de contrat de mise à disposition complexe. Vous signez directement vos contrats de travail en CDI, CDD ou contrat de saison avec vos nouveaux salariés."
+          }
+        ]
+      },
+      {
+        h2: "Analyse des Économies Financières pour les Transporteurs",
+        content: "Le recours systématique à l'intérim pèse lourdement sur les marges opérationnelles des transporteurs routiers.",
+        subsections: [
+          {
+            h3: "Comparatif Budgétaire Embauche Directe vs Intérim",
+            content: "Pour un chauffeur SPL rémunéré 2 500 € brut/mois, une agence d'intérim facturera environ 5 000 € à 5 500 €/mois au transporteur. Sur FretTalent, votre abonnement fixe vous permet de recruter autant de chauffeurs en CDI/CDD que nécessaire sans aucun surcoût."
           }
         ]
       }
     ],
+    comparisonTable: {
+      title: "Comparatif des Solutions de Recrutement Transport",
+      headers: ["Critère", "Plateforme Directe FretTalent", "Agence d'Intérim Traditionnelle", "Cabinets de Recrutement Généralistes"],
+      rows: [
+        ["Modèle Économique", "Abonnement fixe (0% commission)", "Facturation horaire coef 1.9 à 2.2", "Honoraires au % du salaire annuel (15-20%)"],
+        ["Vérification des Documents", "Visuels Permis/FIMO/Chrono vérifiés", "Vérification basique agence", "Contrôle des références"],
+        ["Type de Contrats", "Embauche directe en CDI / CDD", "Contrats de mission temporaires", "Principalement CDI cadre/maîtrise"],
+        ["Délai de Mise en Relation", "Instantané (Contact direct 1-click)", "24h à 72h selon vivier", "Plusieurs semaines"],
+        ["Spécialisation Métier", "100% Transport Routier de Marchandises", "Généraliste (Industrie, BTP, etc.)", "Tertiaire et cadres"]
+      ]
+    },
     faqs: [
       {
-        q: "Comment s'inscrire en tant qu'entreprise de transport ?",
-        a: "Renseignez votre SIRET ou SIREN sur l'espace recruteur FretTalent pour accéder immédiatement aux profils de conducteurs."
+        q: "Comment s'inscrire en tant qu'entreprise de transport sur FretTalent ?",
+        a: "Renseignez votre numéro SIRET/SIREN sur l'espace recruteur FretTalent pour valider votre compte entreprise et accéder immédiatement aux profils de conducteurs."
+      },
+      {
+        q: "Comment sont vérifiés les permis et qualifications des chauffeurs ?",
+        a: "Les candidats mettent en ligne les scans de leurs permis C/CE, FIMO/FCO et carte chronotachygraphe. Les recruteurs peuvent consulter ces justificatifs certifiés."
+      },
+      {
+        q: "Y a-t-il des frais cachés lors de l'embauche d'un candidat ?",
+        a: "Non, FretTalent ne prélève aucune commission sur vos embauches. Vous recrutez en direct autant de conducteurs que souhaité."
+      },
+      {
+        q: "Puis-je diffuser des offres d'emploi pour plusieurs filiales ?",
+        a: "Oui, la plateforme vous permet de publier des annonces ciblées par agence, dépôt logistique ou secteur géographique."
+      },
+      {
+        q: "Comment contacter directement un chauffeur disponible ?",
+        a: "Une fois connecté à votre espace recruteur, cliquez sur la fiche du conducteur disponible pour afficher son numéro de téléphone et lui envoyer un message direct."
       }
     ]
   },
@@ -497,32 +610,87 @@ export const seoPagesData = {
   'transporteurs-france': {
     slug: 'transporteurs-france',
     metaTitle: 'Annuaire & Réseau des Transporteurs Routiers de France | FretTalent',
-    metaDescription: 'Découvrez les entreprises de transport routier de marchandises implantées en France et leurs besoins en recrutement.',
+    metaDescription: 'Annuaire et guide complet du réseau des entreprises de transport routier en France (PME, grands groupes, spécialistes). Opportunités d’emploi et recrutement direct.',
     h1: 'Réseau National des Transporteurs Routiers de France',
-    subtitle: 'Mise en relation entre transporteurs routiers français et conducteurs professionnels qualifiés.',
+    subtitle: 'Mise en relation directe entre transporteurs routiers français et conducteurs professionnels qualifiés.',
     badgeText: 'Réseau • Transport Routier France',
     keyTakeaways: [
-      "Plus de 40 000 entreprises de transport routier en France",
-      "Diversité des flottes : du camion remorque au porteur léger",
-      "Besoins continus en recrutement sur tout le territoire",
-      "Synergie entre PME locales et grands groupes"
+      "Plus de 40 000 entreprises de transport routier en activité en France",
+      "Diversité des flottes : du camion porteur 19t aux ensembles 44t et convois spéciaux",
+      "Maillage géographique complet couvrant toutes les régions métropolitaines",
+      "Synergie entre PME familiales de proximité et grands groupes nationaux"
     ],
     sections: [
       {
-        h2: "Le Panorama des Transporteurs Routiers en France",
-        content: "Le transport de fret routier est la colonne vertébrale de l'économie française. FretTalent répertorie les entreprises de transport et facilite la connexion entre employeurs et candidats.",
+        h2: "Le Panorama du Tissu des Transporteurs Routiers Français",
+        content: "Le réseau des transporteurs routiers français constitue le poumon économique de la chaîne d'approvisionnement nationale. Avec près de 88% des marchandises acheminées par la route en France, les entreprises de transport routier de marchandises (TRM) emploient plus de 400 000 salariés et génèrent un chiffre d'affaires annuel de plusieurs dizaines de milliards d'euros.",
         subsections: [
           {
-            h3: "Maillage Territorial Dense",
-            content: "De l'Île-de-France aux grandes régions logistiques, découvrez les sociétés de transport actives près de chez vous."
+            h3: "Des PME Familiales aux Acteurs Majeurs du Transport",
+            content: "Le paysage français est composé à 80% de PME et TPE régionales ancrées dans leurs territoires, côtoyant les leaders du transport et de la logistique contractuelle."
+          },
+          {
+            h3: "Spécialisation des Flottes & Métiers",
+            content: "Les transporteurs se structurent par spécialité : transporteurs en bâché tautliner, spécialistes du froid agroalimentaire, transporteurs de produits liquides pétroliers et chimiques, entreprises de bennes TP et négoce vrac."
+          }
+        ]
+      },
+      {
+        h2: "La Transition Écologique & l'Évolution des Flottes des Transporteurs",
+        content: "Les transporteurs routiers français investissent massivement dans la décarbonation de leurs flottes de poids lourds pour répondre aux objectifs climatiques et aux exigences des Zones à Faibles Émissions (ZFE-m).",
+        subsections: [
+          {
+            h3: "Énergies Alternatives : GNV, BioGNV, B100 & Électrique",
+            content: "L'acquisition de camions fonctionnant au Gaz Naturel Véhicule (GNV), au carburant végétal B100 ou à l'hydrogène modifie la conduite et exige des conducteurs formés à l'éco-conduite."
+          },
+          {
+            h3: "Labels Objectif CO2 & Chartes d'Engagement",
+            content: "De nombreuses entreprises du réseau FretTalent sont engagées dans le programme EVE (Objectif CO2) visant à réduire l'empreinte carbone au kilomètre parcouru."
+          }
+        ]
+      },
+      {
+        h2: "Relation Directe & Recrutement au Cœur du Réseau FretTalent",
+        content: "FretTalent valorise les transporteurs français en leur offrant une vitrine dédiée pour promouvoir leur marque employeur et attirer les meilleurs conducteurs.",
+        subsections: [
+          {
+            h3: "Valorisation de la Marque Employeur",
+            content: "Chaque entreprise de transport dispose d'un profil présentant sa flotte (âge des camions, équipements de cabine), ses valeurs et ses offres d'emploi disponibles."
           }
         ]
       }
     ],
+    comparisonTable: {
+      title: "Analyse des Typologies d'Entreprises de Transport en France",
+      headers: ["Structure", "PME Transporteur Familial", "Groupe National / Européen", "Transporteur Niche Spécialisé"],
+      rows: [
+        ["Taille de Flotte", "5 à 50 camions", "200 à +3 000 camions", "10 à 100 camions spécialisés"],
+        ["Ambiance de Travail", "Proximité, management familial", "Procédures structurées, outils digitaux", "Haite technicité, rigueur sécurité"],
+        ["Matériel & Flotte", "Camions attribués souvent récents", "Renouvellement automatique 3-4 ans", "Véhicules sur-mesure (citernes, bennes)"],
+        ["Rayon d'Action", "Majoritairement Régional & National", "National & Transfrontalier Europe", "Ciblé selon les dépôts industriels"],
+        ["Avantages Chauffeurs", "Retour domicile fréquent, écoute", "Comité d'entreprise, formations régulières", "Primes de risque et rémunération élevée"]
+      ]
+    },
     faqs: [
       {
-        q: "Comment faire référencer ma société de transport ?",
-        a: "Créez votre compte entreprise sur FretTalent pour être référencé dans notre réseau et publier vos opportunités."
+        q: "Comment trouver une entreprise de transport qui recrute dans ma région ?",
+        a: "Consultez l'annuaire des transporteurs et les offres d'emploi sur FretTalent en filtrant par département ou région (ex: Hauts-de-France, Île-de-France)."
+      },
+      {
+        q: "Comment faire référencer sa société de transport sur FretTalent ?",
+        a: "Inscrivez-vous sur l'espace recruteur en saisissant votre SIRET pour créer gratuitement la fiche de votre entreprise de transport."
+      },
+      {
+        q: "Les transporteurs français financent-ils le renouvellement de la FCO ?",
+        a: "Oui, dans le cadre de la formation professionnelle continue, l'entreprise de transport prend en charge le coût de la FCO (Formation Continue Obligatoire) de ses conducteurs salariés."
+      },
+      {
+        q: "Quels sont les équipements cabine privilégiés par les transporteurs ?",
+        a: "Les camions récents sont équipés de cabines grand confort avec climatisation autonome de nuit, réfrigérateur de cabine, sièges pneumatiques chauffants et régulateur de vitesse adaptatif."
+      },
+      {
+        q: "Comment entrer en contact avec le responsable d'exploitation d'un transporteur ?",
+        a: "Via FretTalent, vous pouvez envoyer directement votre profil ou contacter le responsable par téléphone sans passer par des intermédiaires."
       }
     ]
   },
@@ -628,33 +796,91 @@ export const seoPagesData = {
 
   'chauffeur-spl-hauts-de-france': {
     slug: 'chauffeur-spl-hauts-de-france',
-    metaTitle: 'Chauffeur SPL Hauts-de-France | Emploi & Recrutement FretTalent',
-    metaDescription: 'Offres d’emploi et conducteurs SPL (Permis CE) en Hauts-de-France (Lille, Amiens, Saint-Quentin, Dunkerque).',
+    metaTitle: 'Chauffeur SPL Hauts-de-France | Offres & Recrutement FretTalent',
+    metaDescription: 'Offres d’emploi et candidats conducteurs routiers SPL (Permis CE) en Hauts-de-France (Lille, Dunkerque, Amiens, Saint-Quentin, Arras). Guide régional et recrutements directs.',
     h1: 'Recrutement & Emploi Chauffeur SPL en Hauts-de-France',
-    subtitle: 'Consultez les offres et candidats conducteurs routiers Super Poids Lourd dans le Nord, le Pas-de-Calais, l’Aisne, l’Oise et la Somme.',
+    subtitle: 'Consultez les offres d’emploi et candidatures de chauffeurs routiers Super Poids Lourd dans le Nord (59), le Pas-de-Calais (62), l’Aisne (02), la Somme (80) et l’Oise (60).',
     badgeText: 'Région • Hauts-de-France (59, 62, 02, 60, 80)',
     keyTakeaways: [
-      "Carrefour logistique européen majeur (A1, A26, A16, Delta 3)",
-      "Forte concentration de plateformes e-commerce et grande distribution",
-      "Transport transfrontalier actif vers la Belgique et le Royaume-Uni",
-      "Recrutement direct de chauffeurs SPL en CDI et régional"
+      "1er hub logistique et routier de France (Autoroutes A1, A26, A16, A2)",
+      "Plateforme bimodal majeur Delta 3 Dourges et zones logistiques e-commerce",
+      "Flux routiers intenses vers les ports de Dunkerque/Calais, la Belgique et le Royaume-Uni",
+      "Opportunités massives en régional (retour quotidien) et grand ruban"
     ],
     sections: [
       {
-        h2: "Les Hauts-de-France : Cœur Battant de la Logistique & du Transport SPL",
-        content: "La région Hauts-de-France est le premier hub logistique de France. En raison de sa situation géographique privilégiée à proximité des ports de Dunkerque et Calais et au croisement des autoroutes A1, A26 et A16, les besoins en conducteurs Super Poids Lourd y sont intenses.",
+        h2: "Les Hauts-de-France : 1er Carrefour Logistique & Routier de France",
+        content: "Idéalement positionnée au cœur du triangle économique Paris-Londres-Bruxelles, la région Hauts-de-France héberge une densité exceptionnelle de plateformes logistiques, de centrales d'achat de la grande distribution et d'entreprises de transport routier de marchandises. La demande en chauffeurs routiers Super Poids Lourd (SPL - Permis CE) y est l'une des plus élevées d'Europe.",
         subsections: [
           {
-            h3: "Bassins d'Emploi Majeurs",
-            content: "Lille Métropole, le bassin minier (Dourges, Lens, Douai), le port de Dunkerque, l'Aisne (Saint-Quentin) et la Somme (Amiens) recrutent en continu."
+            h3: "Les Grands Axes Autoroutiers de la Région",
+            content: "L'autoroute A1 (axe Paris-Lille), l'A26 (Autoroute des Anglais Calais-Reims), l'A16 (Littoral) et l'A2 (vers la Belgique) constituent des artères vitales où transitent quotidiennement des dizaines de milliers d'ensembles routiers."
+          },
+          {
+            h3: "Plateformes Logistiques & Ports Maritimes",
+            content: "Le terminal multimodal Delta 3 à Dourges, les zones logistiques de Douai-Sin-le-Noble, Saint-Quentin, Creil-Oise et les complexes portuaires de Dunkerque et Calais créent un besoin permanent de conducteurs SPL qualifiés."
+          }
+        ]
+      },
+      {
+        h2: "Les Bassins d'Emploi Majeurs pour Chauffeurs SPL dans les 5 Départements",
+        content: "La région offre une grande diversité d'opportunités réparties sur ses cinq départements.",
+        subsections: [
+          {
+            h3: "Nord (59) & Pas-de-Calais (62)",
+            content: "La Métropole Européenne de Lille (MEL), Seclin, Lesquin, Arras, Lens, Valenciennes et Dunkerque concentrent les transports en messagerie palettisée, port-conteneurs et frigorifique."
+          },
+          {
+            h3: "Aisne (02), Somme (80) & Oise (60)",
+            content: "Saint-Quentin, Laon et Soissons (02), Amiens (80), Compiègne et Senlis (60) offrent de nombreux postes en benne agricole/TP, transport agroalimentaire et liaisons quotidiennes vers l'Île-de-France."
+          }
+        ]
+      },
+      {
+        h2: "Typologies de Transports & Rémunérations en Hauts-de-France",
+        content: "Les conditions de rémunération des conducteurs SPL en Hauts-de-France bénéficient du volume d'activité et des primes de nuit et d'éloignement.",
+        subsections: [
+          {
+            h3: "Régional vs Transfrontalier Belgique / Angleterre",
+            content: "De nombreux postes régionaux permettent un retour chaque soir au domicile. Les lignes transfrontalières vers la Belgique (Courtrai, Gand, Bruxelles) ou l'Angleterre (via ferry/Eurotunnel) offrent des indemnités de frais de route revalorisées."
+          },
+          {
+            h3: "Salaire Moyen Chauffeur SPL Régional & National",
+            content: "Un chauffeur SPL perçoit entre 2 300 € et 2 800 € net/mois en régional et jusqu'à 3 200 € à 3 600 € net/mois en grand ruban transfrontalier."
           }
         ]
       }
     ],
+    comparisonTable: {
+      title: "Comparatif des Bassins d'Emploi SPL en Hauts-de-France",
+      headers: ["Bassin d'Emploi", "Spécialités Dominantes", "Axes Routiers Majeurs", "Type de Lignes", "Salaire Net Moyen"],
+      rows: [
+        ["Lille / Lesquin / Seclin (59)", "Messagerie, E-commerce, Frigo", "A1, A25, A23", "Régional & Navettes nuit", "2 300 € - 2 800 €"],
+        ["Dunkerque / Calais (59/62)", "Porte-conteneur, Ferry UK, ADR", "A16, A26", "Transfrontalier & Portuaire", "2 600 € - 3 500 €"],
+        ["Saint-Quentin / Laon (02)", "Benne agricole, Citerne, Tautliner", "A26, RN2", "Régional & Liaison Paris", "2 200 € - 2 700 €"],
+        ["Amiens / Roye (80)", "Logistique grande distribution, Frigo", "A1, A16, A29", "Régional & National", "2 300 € - 2 900 €"]
+      ]
+    },
     faqs: [
       {
-        q: "Quels types de lignes SPL prédominent en Hauts-de-France ?",
-        a: "On retrouve principalement des lignes régulières de messagerie palettisée vers Paris et la Belgique, ainsi que du transport frigorifique agroalimentaire."
+        q: "Pourquoi la région Hauts-de-France recrute-t-elle autant de chauffeurs SPL ?",
+        a: "En raison de sa position géographique stratégique au nord de Paris, proche du Royaume-Uni et du Benelux, et de la concentration exceptionnelle de hubs logistiques e-commerce et agroalimentaires."
+      },
+      {
+        q: "Y a-t-il des postes de chauffeur SPL avec retour tous les soirs chez soi ?",
+        a: "Oui, plus de 60% des offres publiées en Hauts-de-France concernent des tournées régionales ou des navettes de nuit régulières garantissant le retour quotidien au domicile."
+      },
+      {
+        q: "Faut-il parler anglais pour faire du transport vers l'Angleterre depuis Calais/Dunkerque ?",
+        a: "Des notions de base sont appréciées pour les formalités douanières au port, mais la maîtrise du français et des consignes de sécurité transport suffit pour la plupart des lignes."
+      },
+      {
+        q: "Quel est le salaire d'un conducteur SPL grand ruban en Hauts-de-France ?",
+        a: "En incluant les primes de découché, de repas et de nuit, un chauffeur SPL grand ruban gagne en moyenne entre 2 800 € et 3 500 € net par mois."
+      },
+      {
+        q: "Comment postuler directement auprès des transporteurs des Hauts-de-France ?",
+        a: "Créez votre profil chauffeur sur FretTalent, indiquez votre département (59, 62, 02, 60, 80) et contactez directement les responsables de recrutement."
       }
     ]
   },

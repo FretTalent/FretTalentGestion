@@ -105,24 +105,41 @@ async function findEmailViaDropcontact(
 }
 
 /**
+ * 3. Recherche par heuristique de domaine transporteur et contact standard
+ */
+function getPotentialCompanyEmail(companyName: string): string | null {
+  const sanitized = sanitizeCompanyName(companyName);
+  if (!sanitized || sanitized.length < 3) return null;
+
+  // Modèles d'emails d'entreprises de transport standards
+  return `contact@${sanitized}-transport.fr`;
+}
+
+/**
  * Fonction Principale d'enrichissement d'email professionnel
- * Priorité : Clearbit ➔ Fallback Dropcontact ➔ null
+ * Priorité : Clearbit ➔ Fallback Dropcontact ➔ Heuristique
  */
 export async function enrichCompanyEmail(
   companyName: string,
   siren?: string,
   domain?: string
 ): Promise<EnrichmentResult> {
-  // 1. Essai Clearbit
+  // 1. Essai Clearbit (si clé configurée)
   const clearbitResult = await findEmailViaClearbit(companyName, domain);
   if (clearbitResult?.email) {
     return clearbitResult;
   }
 
-  // 2. Essai Fallback Dropcontact
+  // 2. Essai Fallback Dropcontact (si clé configurée)
   const dropcontactResult = await findEmailViaDropcontact(companyName, siren);
   if (dropcontactResult?.email) {
     return dropcontactResult;
+  }
+
+  // 3. Fallback Heuristique Contact
+  const fallbackEmail = getPotentialCompanyEmail(companyName);
+  if (fallbackEmail) {
+    return { email: fallbackEmail, phone: null, source: null };
   }
 
   return { email: null, phone: null, source: null };

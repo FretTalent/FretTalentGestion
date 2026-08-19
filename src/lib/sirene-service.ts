@@ -57,7 +57,7 @@ export async function fetchTransportCompaniesFromSirene(
     page = 1,
     perPage = 25,
     department,
-    enrichEmails = false,
+    enrichEmails = true,
   } = options;
 
   const nafParam = encodeURIComponent(nafCodes.join(','));

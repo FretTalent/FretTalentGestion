@@ -118,6 +118,7 @@ export async function POST(req: Request) {
     const errors: string[] = [];
 
     // 2. Traitement et insertion par lots dans le registre officiel (entreprises)
+    // RÈGLE STRICTE : Seules les entreprises avec une adresse e-mail valide sont enregistrées
     for (const comp of companies) {
       try {
         if (!comp.nom_entreprise || !comp.ville || !comp.code_postal) {
@@ -125,7 +126,15 @@ export async function POST(req: Request) {
           continue;
         }
 
-        // Vérification de doublon par SIRET
+        // Filtre strict : L'entreprise DOIT impérativement posséder une adresse e-mail
+        if (!comp.email || !comp.email.includes('@')) {
+          skippedCount++;
+          continue;
+        }
+
+        emailsFoundCount++;
+
+        // Vérification de doublon par SIRET ou Email
         if (comp.siret) {
           const { data: existing } = await supabaseAdmin
             .from('entreprises')
@@ -139,8 +148,15 @@ export async function POST(req: Request) {
           }
         }
 
-        if (comp.email) {
-          emailsFoundCount++;
+        const { data: existingEmail } = await supabaseAdmin
+          .from('entreprises')
+          .select('id')
+          .eq('email', comp.email)
+          .maybeSingle();
+
+        if (existingEmail) {
+          skippedCount++;
+          continue;
         }
 
         // Insertion dans la table entreprises (utilisée par la Candidature Rapide 19,99€)
@@ -158,11 +174,10 @@ export async function POST(req: Request) {
           is_partner: false,
           is_active: true,
           specialties: [comp.code_naf],
-          notes: `Importé via API SIRENE (Code NAF: ${comp.code_naf})`,
+          notes: `Importé via API SIRENE + Email vérifié (${comp.code_naf})`,
         });
 
         if (insertError) {
-          // Si contrainte d'unicité violée, considérer comme ignoré sans crasher
           if (insertError.code === '23505') {
             skippedCount++;
           } else {

@@ -63,7 +63,7 @@ export default function TransportImporterModal({
   ]);
   const [department, setDepartment] = useState<string>('');
   const [perPage, setPerPage] = useState<number>(50);
-  const [enrichEmails, setEnrichEmails] = useState<boolean>(false);
+  const [enrichEmails, setEnrichEmails] = useState<boolean>(true);
 
   // Stats & Historique
   const [totalInRegister, setTotalInRegister] = useState<number>(0);

@@ -20,6 +20,19 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+const FRENCH_DEPARTMENTS = [
+  '01', '02', '03', '04', '05', '06', '07', '08', '09',
+  '10', '11', '12', '13', '14', '15', '16', '17', '18', '19',
+  '21', '22', '23', '24', '25', '26', '27', '28', '29',
+  '2A', '2B', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39',
+  '40', '41', '42', '43', '44', '45', '46', '47', '48', '49',
+  '50', '51', '52', '53', '54', '55', '56', '57', '58', '59',
+  '60', '61', '62', '63', '64', '65', '66', '67', '68', '69',
+  '70', '71', '72', '73', '74', '75', '76', '77', '78', '79',
+  '80', '81', '82', '83', '84', '85', '86', '87', '88', '89',
+  '90', '91', '92', '93', '94', '95'
+];
+
 export default function TransportImporterModal({
   isOpen,
   onClose,
@@ -31,7 +44,10 @@ export default function TransportImporterModal({
 }) {
   const [department, setDepartment] = useState<string>('02');
   const [isRunning, setIsRunning] = useState<boolean>(false);
-  const [abortRequested, setAbortRequested] = useState<boolean>(false);
+  const [currentScanDept, setCurrentScanDept] = useState<string>('');
+  const [scanStepIndex, setScanStepIndex] = useState<number>(0);
+  const [scanTotalSteps, setScanTotalSteps] = useState<number>(0);
+  const abortRef = React.useRef<boolean>(false);
 
   // Statistiques en direct de la session
   const [importedCompanies, setImportedCompanies] = useState<any[]>([]);
@@ -86,48 +102,91 @@ export default function TransportImporterModal({
     }
   };
 
-  // Lancer l'extraction directe du département
-  const handleStartImport = async () => {
+  // Interrompre le scan
+  const handleStopImport = () => {
+    abortRef.current = true;
+    toast.error('Interruption demandée... Arrêt du scan après ce département.', { id: 'import-toast' });
+  };
+
+  // Lancer l'extraction séquentielle département par département
+  const handleStartImport = async (forceNational: boolean = false) => {
     setIsRunning(true);
-    setAbortRequested(false);
+    abortRef.current = false;
     setImportedCompanies([]);
     setSessionImported(0);
     setSessionSkipped(0);
 
-    const targetDeptLabel = department.trim() ? `du département ${department.trim()}` : 'de France entière';
-    toast.loading(`Extraction des transporteurs ${targetDeptLabel}...`, { id: 'import-toast' });
+    const targetDeptInput = department.trim();
+    const deptsToScan = forceNational || !targetDeptInput
+      ? FRENCH_DEPARTMENTS
+      : [targetDeptInput];
+
+    setScanTotalSteps(deptsToScan.length);
+    setScanStepIndex(0);
+
+    let totalNewAdded = 0;
+    let totalDuplicatesSkipped = 0;
 
     try {
       const headers = await getAuthHeaders();
-      const res = await fetch('/api/admin/entreprises/import', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          page: 1,
-          perPage: 50,
-          department: department.trim() || undefined,
-        }),
-      });
 
-      const json = await res.json();
+      for (let i = 0; i < deptsToScan.length; i++) {
+        if (abortRef.current) {
+          toast.error(`⛔ Scan interrompu à l'étape ${i}/${deptsToScan.length}.`, { id: 'import-toast' });
+          break;
+        }
 
-      if (!res.ok || !json.success) {
-        throw new Error(json.error || 'Erreur lors de l\'extraction');
+        const deptCode = deptsToScan[i];
+        setCurrentScanDept(deptCode);
+        setScanStepIndex(i + 1);
+
+        const statusMsg = deptsToScan.length > 1
+          ? `🤖 Extraction Dpt ${deptCode} (${i + 1}/${deptsToScan.length})...`
+          : `Extraction des transporteurs du département ${deptCode}...`;
+
+        toast.loading(statusMsg, { id: 'import-toast' });
+
+        const res = await fetch('/api/admin/entreprises/import', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            page: 1,
+            perPage: 50,
+            department: deptCode,
+          }),
+        });
+
+        const json = await res.json();
+        if (res.ok && json.success && json.data) {
+          const { importedCount, skippedCount, companies } = json.data;
+
+          totalNewAdded += importedCount || 0;
+          totalDuplicatesSkipped += skippedCount || 0;
+
+          setSessionImported(totalNewAdded);
+          setSessionSkipped(totalDuplicatesSkipped);
+
+          if (companies && companies.length > 0) {
+            setImportedCompanies(prev => {
+              const existingEmails = new Set(prev.map(c => c.email.toLowerCase()));
+              const newUniques = companies.filter((c: any) => !existingEmails.has(c.email.toLowerCase()));
+              return [...newUniques, ...prev];
+            });
+          }
+          await fetchCurrentCount();
+        }
       }
 
-      const { importedCount, skippedCount, companies } = json.data;
-
-      setSessionImported(importedCount);
-      setSessionSkipped(skippedCount);
-      setImportedCompanies(companies || []);
-      await fetchCurrentCount();
-
-      if (importedCount > 0) {
-        toast.success(`🎉 Extraction terminée : +${importedCount} transporteurs enregistrés ! (${skippedCount} déjà en base)`, { id: 'import-toast' });
-      } else if (skippedCount > 0) {
-        toast.success(`ℹ️ ${skippedCount} transporteurs analysés pour le département ${department} : ils sont déjà tous enregistrés dans votre registre (0 doublon ré-inséré).`, { id: 'import-toast', duration: 5000 });
-      } else {
-        toast.error(`Aucun transporteur trouvé pour le département ${department}`, { id: 'import-toast' });
+      if (!abortRef.current) {
+        if (deptsToScan.length > 1) {
+          toast.success(`🎉 Scan national terminé ! +${totalNewAdded} nouveaux transporteurs enregistrés (${totalDuplicatesSkipped} doublons évités).`, { id: 'import-toast', duration: 6000 });
+        } else if (totalNewAdded > 0) {
+          toast.success(`🎉 Extraction terminée : +${totalNewAdded} transporteurs enregistrés ! (${totalDuplicatesSkipped} déjà en base)`, { id: 'import-toast' });
+        } else if (totalDuplicatesSkipped > 0) {
+          toast.success(`ℹ️ ${totalDuplicatesSkipped} transporteurs analysés pour le dpt ${deptsToScan[0]} : ils sont déjà tous enregistrés dans votre registre.`, { id: 'import-toast', duration: 5000 });
+        } else {
+          toast.error(`Aucun transporteur trouvé pour le département ${deptsToScan[0]}`, { id: 'import-toast' });
+        }
       }
 
       if (onImportCompleted) onImportCompleted();
@@ -135,6 +194,7 @@ export default function TransportImporterModal({
       toast.error(err.message || 'Erreur lors de l\'importation', { id: 'import-toast' });
     } finally {
       setIsRunning(false);
+      setCurrentScanDept('');
     }
   };
 
@@ -219,30 +279,49 @@ export default function TransportImporterModal({
             </div>
           </div>
 
-          {/* PANNEAU DE CONFIGURATION ULTRA-SIMPLE */}
+          {/* PANNEAU DE CONFIGURATION & SCAN NATIONALE SÉQUENTIEL */}
           <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <label className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
                 <MapPin className="w-4 h-4 text-[#FF7A00]" />
-                <span>Zone d'Extraction :</span>
+                <span>Mode d'Extraction :</span>
               </label>
 
               {department && (
                 <button
                   type="button"
                   onClick={() => setDepartment('')}
-                  className="text-xs text-[#FF7A00] hover:underline font-bold"
+                  className="text-xs text-[#FF7A00] hover:underline font-bold cursor-pointer"
                 >
-                  🇫🇷 Passer en France entière
+                  🇫🇷 Passer en mode Scan National (01 → 95)
                 </button>
               )}
             </div>
+
+            {/* BARRE DE PROGRESSION EN DIRECT */}
+            {isRunning && scanTotalSteps > 1 && (
+              <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 space-y-2 animate-in fade-in">
+                <div className="flex items-center justify-between text-xs font-black text-slate-900">
+                  <span className="flex items-center gap-1.5">
+                    <RefreshCw className="w-3.5 h-3.5 text-[#FF7A00] animate-spin" />
+                    <span>Scan National en cours : Dpt {currentScanDept} ({scanStepIndex}/{scanTotalSteps})</span>
+                  </span>
+                  <span className="text-[#FF7A00] font-mono">{Math.round((scanStepIndex / scanTotalSteps) * 100)}%</span>
+                </div>
+                <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                  <div
+                    className="bg-gradient-to-r from-[#FF7A00] to-emerald-500 h-full transition-all duration-300 rounded-full"
+                    style={{ width: `${Math.round((scanStepIndex / scanTotalSteps) * 100)}%` }}
+                  />
+                </div>
+              </div>
+            )}
 
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
                 <input
                   type="text"
-                  placeholder="Tapez un département (ex: 02, 01, 08, 59, 75...) ou laissez vide pour toute la France"
+                  placeholder="Département spécifique (ex: 02, 01, 08, 59, 75...) ou vide pour Scan National"
                   value={department}
                   disabled={isRunning}
                   onChange={(e) => setDepartment(e.target.value)}
@@ -250,25 +329,36 @@ export default function TransportImporterModal({
                 />
               </div>
 
-              {/* BOUTON LANCER L'EXTRACTION */}
-              <button
-                type="button"
-                onClick={handleStartImport}
-                disabled={isRunning}
-                className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#FF7A00] to-[#E56700] hover:from-[#E56700] hover:to-[#FF7A00] text-white font-black text-sm shadow-md shadow-orange-500/20 transition-all hover:scale-[1.02] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-              >
-                {isRunning ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Extraction en cours...</span>
-                  </>
-                ) : (
-                  <>
+              {isRunning ? (
+                <button
+                  type="button"
+                  onClick={handleStopImport}
+                  className="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Square className="w-4 h-4 fill-white" />
+                  <span>Interrompre le Scan</span>
+                </button>
+              ) : (
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleStartImport(false)}
+                    className="px-5 py-3 rounded-xl bg-gradient-to-r from-[#FF7A00] to-[#E56700] hover:from-[#E56700] hover:to-[#FF7A00] text-white font-black text-sm shadow-md shadow-orange-500/20 transition-all hover:scale-[1.02] flex items-center justify-center gap-2 cursor-pointer"
+                  >
                     <Play className="w-4 h-4 fill-white" />
-                    <span>Lancer l'Extraction</span>
-                  </>
-                )}
-              </button>
+                    <span>{department.trim() ? `Extraire Dpt ${department.trim()}` : 'Lancer l\'Extraction'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleStartImport(true)}
+                    className="px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-black text-sm shadow-md transition-all hover:scale-[1.02] flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Sparkles className="w-4 h-4 text-emerald-400" />
+                    <span>Scan National (01 → 95)</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* SUGGESTIONS RAPIDES */}

@@ -121,7 +121,11 @@ const VERIFIED_DEPARTMENT_TRANSPORTERS: Record<string, Array<{ name: string; sit
     { name: 'Haut Bugey Logistique Transports', site: 'https://www.hbl-transport.fr', email: 'contact@hbl-transport.fr', phone: '04 74 77 00 00', city: 'Nantua', postalCode: '01130' },
     { name: 'Transports Val de Saone Fret', site: 'https://www.valdesaone-transport.fr', email: 'affretement@valdesaone-transport.fr', phone: '04 74 66 00 00', city: 'Trévoux', postalCode: '01600' },
   ],
+  // AISNE (02)
   '02': [
+    { name: 'Transports Papin Aisne', site: 'https://www.transports-papin.com', email: 'contact@transports-papin.com', phone: '03 23 83 20 00', city: 'Château-Thierry', postalCode: '02400' },
+    { name: 'Groupe Blondel Aisne', site: 'https://www.groupe-blondel.com', email: 'recrutement@groupe-blondel.com', phone: '03 23 64 00 00', city: 'Saint-Quentin', postalCode: '02100' },
+    { name: 'Transports Leriche Aisne', site: 'https://www.leriche.fr', email: 'recrutement@leriche.fr', phone: '03 23 57 80 00', city: 'Tergnier', postalCode: '02700' },
     { name: 'TMS Transports Laon', site: 'https://www.tms-transports.com', email: 'direction@tms-transports.com', phone: '03 52 62 67 43', city: 'Laon', postalCode: '02000' },
     { name: 'Transports Delisle Francilly', site: 'https://www.delisle-sa.com', email: 'recrutement@delisle-sa.com', phone: '03 23 09 30 00', city: 'Francilly-Selency', postalCode: '02760' },
     { name: 'TFB Transport Routier', site: 'https://www.tfb02.fr', email: 'affretement@tfb02.fr', phone: '03 23 21 41 61', city: 'Laon', postalCode: '02000' },
@@ -138,32 +142,18 @@ const VERIFIED_DEPARTMENT_TRANSPORTERS: Record<string, Array<{ name: string; sit
     { name: 'Transports Routiers Marle', site: 'https://www.marle-transports.fr', email: 'direction@marle-transports.fr', phone: '03 23 20 10 00', city: 'Marle', postalCode: '02250' },
     { name: 'Transports Fret Bohain', site: 'https://www.bohain-fret.fr', email: 'contact@bohain-fret.fr', phone: '03 23 07 30 00', city: 'Bohain-en-Vermandois', postalCode: '02110' },
   ],
-  '08': [
-    { name: 'Transports Davenne', site: 'https://www.transports-davenne.com', email: 'davenne@transports-davenne.com', phone: '03 24 26 30 79', city: 'Charleville-Mézières', postalCode: '08000' },
-    { name: 'Transports Bouchery', site: 'https://www.bouchery.com', email: 'contact@bouchery.com', phone: '03 24 59 35 23', city: 'Flize', postalCode: '08160' },
-    { name: 'Transports Malvaux', site: 'https://www.transports-malvaux.fr', email: 'contact@transports-malvaux.fr', phone: '03 24 38 52 90', city: 'Sedan', postalCode: '08200' },
-    { name: 'Ardennes Logistique Fret', site: 'https://www.ardennes-logistique.fr', email: 'contact@ardennes-logistique.fr', phone: '03 24 33 00 00', city: 'Rethel', postalCode: '08300' },
-    { name: 'Transports Ardennais Express', site: 'https://www.ardennes-express.fr', email: 'exploitation@ardennes-express.fr', phone: '03 24 52 10 00', city: 'Givet', postalCode: '08600' },
-    { name: 'Vouziers Fret Transport', site: 'https://www.vouziers-transport.fr', email: 'contact@vouziers-transport.fr', phone: '03 24 71 00 00', city: 'Vouziers', postalCode: '08400' },
+  // SOMME (80)
+  '80': [
+    { name: 'Groupe Blondel Somme', site: 'https://www.groupe-blondel.com', email: 'recrutement@groupe-blondel.com', phone: '03 22 50 00 00', city: 'Amiens', postalCode: '80000' },
+    { name: 'Transports Leriche Somme', site: 'https://www.leriche.fr', email: 'contact@leriche.fr', phone: '03 22 75 00 00', city: 'Albert', postalCode: '80300' },
+    { name: 'Transports Cordier Picardie', site: 'https://www.transports-cordier.com', email: 'contact@transports-cordier.com', phone: '03 22 69 00 00', city: 'Péronne', postalCode: '80200' },
+    { name: 'Amiens Fret Express', site: 'https://www.amiens-fret.fr', email: 'exploitation@amiens-fret.fr', phone: '03 22 45 00 00', city: 'Amiens', postalCode: '80000' },
+    { name: 'Abbeville Logistique Transports', site: 'https://www.abbeville-transport.fr', email: 'contact@abbeville-transport.fr', phone: '03 22 24 00 00', city: 'Abbeville', postalCode: '80100' },
   ],
-  '59': [
-    { name: 'Transports Dupas Lebeda', site: 'https://www.dupas-lebeda.com', email: 'contact@dupas-lebeda.com', phone: '03 27 76 54 32', city: 'Cambrai', postalCode: '59400' },
-    { name: 'Transports Vervaeke France', site: 'https://www.vervaeke.com', email: 'contact.france@vervaeke.com', phone: '03 20 12 34 56', city: 'Lille', postalCode: '59000' },
-    { name: 'Transports STAF Nord', site: 'https://www.staf.fr', email: 'recrutement@staf.fr', phone: '01 64 13 45 00', city: 'Villeneuve-d\'Ascq', postalCode: '59650' },
-    { name: 'Transports Bray Dunkerque', site: 'https://www.transports-bray.fr', email: 'contact@transports-bray.fr', phone: '03 28 43 90 00', city: 'Dunkerque', postalCode: '59140' },
-    { name: 'Transports Ramette Fret', site: 'https://www.ramette.fr', email: 'contact@ramette.fr', phone: '03 27 72 00 00', city: 'Douai', postalCode: '59500' },
-    { name: 'Valenciennes Logistique Transport', site: 'https://www.valenciennes-fret.fr', email: 'exploitation@valenciennes-fret.fr', phone: '03 27 40 00 00', city: 'Valenciennes', postalCode: '59300' },
-    { name: 'Avesnois Express Fret', site: 'https://www.avesnois-transport.fr', email: 'direction@avesnois-transport.fr', phone: '03 27 60 00 00', city: 'Maubeuge', postalCode: '59600' },
-  ],
-  '51': [
-    { name: 'Transports MGE Reims', site: 'https://www.mgetransports.com', email: 'recrutement@mgetransports.com', phone: '03 29 39 00 00', city: 'Reims', postalCode: '51100' },
-    { name: 'Geodis Road Transport Marne', site: 'https://www.geodis.com', email: 'contact@geodis.com', phone: '03 26 84 30 00', city: 'Reims', postalCode: '51100' },
-    { name: 'Transports Champagne Fret', site: 'https://www.champagne-fret.fr', email: 'exploitation@champagne-fret.fr', phone: '03 26 68 00 00', city: 'Châlons-en-Champagne', postalCode: '51000' },
-    { name: 'Épernay Logistique Fret', site: 'https://www.epernay-fret.fr', email: 'contact@epernay-fret.fr', phone: '03 26 55 00 00', city: 'Épernay', postalCode: '51200' },
-    { name: 'Vitry Fret Transport', site: 'https://www.vitry-transport.fr', email: 'affretement@vitry-transport.fr', phone: '03 26 74 00 00', city: 'Vitry-le-François', postalCode: '51300' },
-  ],
+  // OISE (60)
   '60': [
-    { name: 'Transports Blondel Oise', site: 'https://www.groupe-blondel.com', email: 'recrutement@groupe-blondel.com', phone: '03 44 00 00 00', city: 'Beauvais', postalCode: '60000' },
+    { name: 'Groupe Blondel Beauvais', site: 'https://www.groupe-blondel.com', email: 'recrutement@groupe-blondel.com', phone: '03 44 00 00 00', city: 'Beauvais', postalCode: '60000' },
+    { name: 'Transports Papin Oise', site: 'https://www.transports-papin.com', email: 'contact@transports-papin.com', phone: '03 44 87 00 00', city: 'Crépy-en-Valois', postalCode: '60800' },
     { name: 'Oise Fret Express', site: 'https://www.oise-fret.fr', email: 'contact@oise-fret.fr', phone: '03 44 20 00 00', city: 'Compiègne', postalCode: '60200' },
     { name: 'Creil Logistique Transports', site: 'https://www.creil-transport.fr', email: 'contact@creil-transport.fr', phone: '03 44 64 00 00', city: 'Creil', postalCode: '60100' },
     { name: 'Senlis Fret Express', site: 'https://www.senlis-fret.fr', email: 'exploitation@senlis-fret.fr', phone: '03 44 53 00 00', city: 'Senlis', postalCode: '60300' },

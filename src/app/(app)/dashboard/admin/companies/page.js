@@ -18,6 +18,8 @@ import {
   ExternalLink,
   ChevronRight,
   Filter,
+  MapPin,
+  Star,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 

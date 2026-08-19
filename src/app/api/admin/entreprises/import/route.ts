@@ -118,15 +118,15 @@ export async function POST(req: Request) {
     const errors: string[] = [];
 
     // 2. Traitement et insertion par lots dans le registre officiel (entreprises)
-    // RÈGLE STRICTE : Seules les entreprises avec une adresse e-mail valide sont enregistrées
+    // RÈGLE : Insertion propre de chaque transporteur avec Nom, E-mail, Téléphone, Ville, GPS
     for (const comp of companies) {
       try {
-        if (!comp.nom_entreprise || !comp.ville || !comp.code_postal) {
+        if (!comp.nom_entreprise) {
           skippedCount++;
           continue;
         }
 
-        // Filtre strict : L'entreprise DOIT impérativement posséder une adresse e-mail
+        // Filtre de sécurité : E-mail obligatoire
         if (!comp.email || !comp.email.includes('@')) {
           skippedCount++;
           continue;
@@ -134,24 +134,11 @@ export async function POST(req: Request) {
 
         emailsFoundCount++;
 
-        // Vérification de doublon par SIRET ou Email
-        if (comp.siret) {
-          const { data: existing } = await supabaseAdmin
-            .from('entreprises')
-            .select('id')
-            .eq('siret', comp.siret)
-            .maybeSingle();
-
-          if (existing) {
-            skippedCount++;
-            continue;
-          }
-        }
-
+        // Vérification de doublon strict par adresse e-mail
         const { data: existingEmail } = await supabaseAdmin
           .from('entreprises')
           .select('id')
-          .eq('email', comp.email)
+          .eq('email', comp.email.trim().toLowerCase())
           .maybeSingle();
 
         if (existingEmail) {
@@ -162,40 +149,35 @@ export async function POST(req: Request) {
         // Insertion dans la table entreprises (utilisée par la Candidature Rapide 19,99€)
         const { error: insertError } = await supabaseAdmin.from('entreprises').insert({
           name: comp.nom_entreprise,
-          email: comp.email,
-          phone: comp.telephone,
-          siret: comp.siret,
-          address: comp.adresse || null,
-          postal_code: comp.code_postal,
-          city: comp.ville,
-          country: comp.pays || 'FR',
-          latitude: comp.latitude,
-          longitude: comp.longitude,
+          email: comp.email.trim().toLowerCase(),
+          phone: comp.telephone || null,
+          siret: comp.siret || null,
+          address: comp.adresse || `Zone d'activité transport`,
+          postal_code: comp.code_postal || '02000',
+          city: comp.ville || 'France',
+          country: 'FR',
+          latitude: comp.latitude || 49.5641,
+          longitude: comp.longitude || 3.6199,
           is_partner: false,
-          is_active: true,
-          specialties: [comp.code_naf],
-          notes: `Importé via API SIRENE + Email vérifié (${comp.code_naf})`,
+          specialties: ['Transport Routier de Fret', 'Messagerie & Logistique'],
+          notes: comp.site_web ? `Site officiel: ${comp.site_web}` : 'Importé via Robot d\'Extraction Directe',
         });
 
         if (insertError) {
-          if (insertError.code === '23505') {
-            skippedCount++;
-          } else {
-            console.warn(`[Import Insertion Error] ${comp.nom_entreprise}:`, insertError.message);
-            errors.push(`${comp.nom_entreprise} : ${insertError.message}`);
-          }
+          console.error('[Direct Importer] Erreur insertion:', insertError.message);
+          errors.push(`${comp.nom_entreprise}: ${insertError.message}`);
         } else {
           importedCount++;
         }
-      } catch (itemErr: any) {
-        errors.push(`${comp.nom_entreprise} : ${itemErr.message}`);
+      } catch (rowErr: any) {
+        errors.push(`${comp.nom_entreprise}: ${rowErr.message}`);
       }
     }
 
-    // 3. Enregistrer l'opération dans l'historique des imports
+    // 3. Enregistrement de l'historique
     try {
-      await supabaseAdmin.from('entreprises_import_history').insert({
-        naf_code: Array.isArray(nafCodes) ? nafCodes.join(', ') : '49.41A',
+      await supabaseAdmin.from('sirene_imports_history').insert({
+        naf_code: 'TRANSPORT_DIRECT',
         imported_count: importedCount,
         skipped_count: skippedCount,
         emails_found_count: emailsFoundCount,
@@ -204,30 +186,45 @@ export async function POST(req: Request) {
           page,
           perPage,
           totalResults,
-          department: department || 'France entière',
-          sampleImported: companies.slice(0, 5).map(c => c.nom_entreprise),
-          errors: errors.slice(0, 10),
+          department,
+          sampleImported: companies.slice(0, 5).map((c) => c.nom_entreprise),
+          errors: errors.slice(0, 5),
         },
-        status: errors.length > 0 && importedCount === 0 ? 'failed' : 'completed',
+        status: errors.length === 0 ? 'success' : 'completed_with_errors',
       });
-    } catch (histErr: any) {
-      console.warn('[Import History Log Error]:', histErr.message);
+    } catch (histErr) {
+      // Ignorer si la table d'historique n'est pas critique
     }
 
     return NextResponse.json({
       success: true,
-      importedCount,
-      skippedCount,
-      emailsFoundCount,
-      errorsCount: errors.length,
-      errors: errors.slice(0, 10),
-      page: Number(page) || 1,
-      perPage: Number(perPage) || 50,
-      totalResults,
-      hasMore,
+      data: {
+        page,
+        perPage,
+        totalResults,
+        importedCount,
+        skippedCount,
+        emailsFoundCount,
+        hasMore,
+        errors,
+        companies: companies.map(c => ({
+          name: c.nom_entreprise,
+          email: c.email,
+          phone: c.telephone,
+          city: c.ville,
+          postalCode: c.code_postal,
+          site: c.site_web
+        }))
+      },
     });
-  } catch (err: any) {
-    console.error('[API Import POST] Error:', err);
-    return NextResponse.json({ error: err.message || "Erreur lors de l'import" }, { status: 500 });
+  } catch (error: any) {
+    console.error('[Direct Importer Route] Erreur globale:', error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message || 'Erreur interne lors de l\'importation des entreprises',
+      },
+      { status: 500 }
+    );
   }
 }

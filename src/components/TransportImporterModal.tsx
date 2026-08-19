@@ -163,7 +163,17 @@ export default function TransportImporterModal({
           }),
         });
 
-        const data = await res.json();
+        const rawText = await res.text();
+        let data: any = {};
+        try {
+          data = JSON.parse(rawText);
+        } catch (parseErr) {
+          throw new Error(
+            res.status === 504 || rawText.includes('timeout')
+              ? 'Le traitement du lot a pris trop de temps (timeout serveur). Réduisez la taille du lot.'
+              : `Erreur serveur (${res.status}): ${rawText.substring(0, 80)}`
+          );
+        }
 
         if (!res.ok || !data.success) {
           throw new Error(data.error || 'Erreur lors du traitement du lot');

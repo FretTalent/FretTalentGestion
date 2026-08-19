@@ -215,73 +215,66 @@ async function scrapeOfficialWebsiteAndFacebook(
     `${clean}.eu`,
   ];
 
-  for (const domain of domainCandidates) {
+  for (const domain of domainCandidates.slice(0, 5)) {
     const isLive = await isDomainMailActive(domain);
     if (isLive) {
       try {
-        // Tenter d'inspecter les pages web réelles du domaine pour trouver les vrais emails (Recrutement, Contact, Mentions Légales)
+        // Tenter d'inspecter rapidement les pages de contact et d'accueil en parallèle avec un timeout court de 1500ms
         const pagesToTest = [
           `https://www.${domain}`,
-          `https://${domain}`,
           `https://www.${domain}/contact`,
-          `https://www.${domain}/nous-rejoindre`,
           `https://www.${domain}/recrutement`,
-          `https://www.${domain}/mentions-legales`,
         ];
 
-        for (const pageUrl of pagesToTest) {
-          try {
-            const pageRes = await fetch(pageUrl, {
-              headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                Accept: 'text/html,application/xhtml+xml',
-              },
-              signal: AbortSignal.timeout(3000),
-            });
+        const fetchPromises = pagesToTest.map(url =>
+          fetch(url, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              Accept: 'text/html',
+            },
+            signal: AbortSignal.timeout(1500),
+          })
+            .then(res => (res.ok ? res.text() : ''))
+            .catch(() => '')
+        );
 
-            if (pageRes.ok) {
-              const html = await pageRes.text();
-              const emails = html.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) || [];
-              const validEmails = emails.filter(em => {
-                const emLower = em.toLowerCase();
-                const emDomain = emLower.split('@')[1];
-                return (
-                  emDomain === domain ||
-                  emDomain === `www.${domain}` ||
-                  emDomain.includes(clean)
-                ) &&
-                !emLower.includes('.png') &&
-                !emLower.includes('.jpg') &&
-                !emLower.includes('.webp') &&
-                !emLower.includes('wix') &&
-                !emLower.includes('wordpress') &&
-                !emLower.includes('sentry') &&
-                !emLower.includes('example');
-              });
+        const htmlResults = await Promise.all(fetchPromises);
+        const combinedHtml = htmlResults.join(' ');
 
-              if (validEmails.length > 0) {
-                // Priorité aux emails de recrutement ou contact
-                const priorityEmail = validEmails.find(em => 
-                  em.toLowerCase().includes('recrut') ||
-                  em.toLowerCase().includes('rh') ||
-                  em.toLowerCase().includes('job') ||
-                  em.toLowerCase().includes('exploitation') ||
-                  em.toLowerCase().includes('direction') ||
-                  em.toLowerCase().includes('contact')
-                ) || validEmails[0];
+        if (combinedHtml) {
+          const emails = combinedHtml.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) || [];
+          const validEmails = emails.filter(em => {
+            const emLower = em.toLowerCase();
+            const emDomain = emLower.split('@')[1];
+            return (
+              (emDomain === domain || emDomain === `www.${domain}` || emDomain.includes(clean)) &&
+              !emLower.includes('.png') &&
+              !emLower.includes('.jpg') &&
+              !emLower.includes('.webp') &&
+              !emLower.includes('wix') &&
+              !emLower.includes('wordpress') &&
+              !emLower.includes('sentry') &&
+              !emLower.includes('example')
+            );
+          });
 
-                return {
-                  email: priorityEmail.toLowerCase(),
-                  source: 'official_website_scraped',
-                };
-              }
-            }
-          } catch (pageErr) {
-            // Ignorer les timeouts sur certaines sous-pages
+          if (validEmails.length > 0) {
+            const priorityEmail = validEmails.find(em =>
+              em.toLowerCase().includes('recrut') ||
+              em.toLowerCase().includes('rh') ||
+              em.toLowerCase().includes('job') ||
+              em.toLowerCase().includes('exploitation') ||
+              em.toLowerCase().includes('contact')
+            ) || validEmails[0];
+
+            return {
+              email: priorityEmail.toLowerCase(),
+              source: 'official_website_scraped',
+            };
           }
         }
 
-        // Si aucune sous-page ne liste d'email explicite mais que le serveur MX est 100% actif
+        // Si le nom de domaine possède des serveurs MX 100% actifs
         return {
           email: `contact@${domain}`,
           source: 'dns_mx_verified',

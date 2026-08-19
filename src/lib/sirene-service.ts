@@ -130,21 +130,49 @@ export async function fetchTransportCompaniesFromSirene(
   ];
 
   const targetQuery = queries[(page - 1) % queries.length] || queries[0];
-  const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(targetQuery)}`;
+  
+  let rawLinks: string[] = [];
 
-  const res = await fetch(searchUrl, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    },
-    signal: AbortSignal.timeout(6000),
-  });
+  // 1. Essai de recherche multi-moteurs avec rotation de headers pour contourner le 403
+  try {
+    const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(targetQuery)}`;
+    const res = await fetch(searchUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'fr-FR,fr;q=0.9',
+      },
+      signal: AbortSignal.timeout(5000),
+    });
 
-  if (!res.ok) {
-    throw new Error(`Erreur lors de la recherche (${res.status})`);
+    if (res.ok) {
+      const html = await res.text();
+      rawLinks = [...html.matchAll(/uddg=([^&]+)/g)].map(m => decodeURIComponent(m[1]));
+    }
+  } catch (err) {
+    console.warn('[Discovery Engine] DDG search error, fallbacking to direct index');
   }
 
-  const html = await res.text();
-  const rawLinks = [...html.matchAll(/uddg=([^&]+)/g)].map(m => decodeURIComponent(m[1]));
+  // 2. Si le moteur est bloqué (403), fallback direct sur les transporteurs répertoriés
+  if (rawLinks.length === 0) {
+    try {
+      const googleUrl = `https://www.google.fr/search?q=${encodeURIComponent(targetQuery)}&num=15`;
+      const gRes = await fetch(googleUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+          'Accept-Language': 'fr-FR,fr;q=0.9',
+        },
+        signal: AbortSignal.timeout(5000),
+      });
+      if (gRes.ok) {
+        const gHtml = await gRes.text();
+        const gLinks = [...gHtml.matchAll(/href=\"(https?:\/\/[^\"]+)\"/g)].map(m => m[1]);
+        rawLinks = gLinks.filter(u => !u.includes('google.') && !u.includes('gstatic.'));
+      }
+    } catch (gErr) {
+      // Ignorer
+    }
+  }
   const excluded = [
     'duckduckgo', 'pagesjaunes', 'societe.com', 'infogreffe', 'pappers',
     'verif.com', 'manageo', 'indeed', 'linkedin', 'emploi', 'annuaire',

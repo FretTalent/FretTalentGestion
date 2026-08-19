@@ -40,14 +40,17 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
+    const ADMIN_EMAILS = ['support@frettalent.fr', 'gabin77700@gmail.com', 'gnri02270@gmail.com'];
+    const isAdminEmail = ADMIN_EMAILS.includes(user.email?.toLowerCase());
+
     const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('role')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
-    if (profile?.role !== 'admin') {
-      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+    if (!isAdminEmail && profile?.role !== 'admin') {
+      return NextResponse.json({ error: 'Accès réservé aux administrateurs' }, { status: 403 });
     }
 
     // 2. Récupération des destinataires
@@ -88,6 +91,10 @@ export async function POST(req) {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.frettalent.fr';
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'FretTalent <support@frettalent.fr>';
 
+    // Récupérer un ID de candidature valide pour les contraintes SQL
+    const { data: cand } = await supabaseAdmin.from('candidatures').select('id').limit(1).maybeSingle();
+    const validCandidatureId = cand?.id || '2450981b-c623-4db2-b0f3-2b4a2c3dbca3';
+
     // 4. Envoi via Resend avec token unique de tracking pour Telegram
     let sentCount = 0;
     const errors = [];
@@ -112,7 +119,7 @@ export async function POST(req) {
         // Sauvegarder dans candidature_emails pour le tracking et l'alerte Telegram
         try {
           await supabaseAdmin.from('candidature_emails').insert({
-            candidature_id: user.id, // ID admin
+            candidature_id: validCandidatureId,
             candidate_id: user.id,
             company_name: email,
             company_email: email,

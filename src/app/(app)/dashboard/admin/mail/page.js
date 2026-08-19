@@ -271,12 +271,12 @@ export default function AdminMail() {
       const { data: candidates } = await supabase
         .from('candidates')
         .select('id, full_name, email, country, city, documents, validated')
-        .limit(200);
+        .limit(300);
 
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, email, company_name, role')
-        .limit(200);
+      const { data: companies } = await supabase
+        .from('companies')
+        .select('id, name, email, country, city')
+        .limit(300);
 
       const incomplete = (candidates || []).filter(c => {
         const docs = c.documents || {};
@@ -294,13 +294,13 @@ export default function AdminMail() {
         country: c.country || 'FR',
       }));
 
-      const recruiterProfiles = (profiles || []).filter(p => p.role === 'recruiter' && p.email).map(p => ({
+      const recruiterProfiles = (companies || []).filter(p => p.email).map(p => ({
         id: p.id,
-        name: p.company_name || 'Entreprise',
+        name: p.name || 'Entreprise',
         email: p.email,
         role: 'recruiter',
-        city: '',
-        country: 'FR',
+        city: p.city || '',
+        country: p.country || 'FR',
       }));
 
       setTotalCandidateCount(candidateList.length);

@@ -19,7 +19,7 @@ export async function POST(req) {
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.frettalent.fr';
+    const siteUrl = 'https://www.frettalent.fr';
     const redirectTo = `${siteUrl}/login?confirmed=true`;
 
     // Générer le lien de confirmation Supabase sécurisé
@@ -36,9 +36,18 @@ export async function POST(req) {
       return NextResponse.json({ error: linkError.message }, { status: 400 });
     }
 
-    const confirmationUrl = linkData?.properties?.action_link;
+    let confirmationUrl = linkData?.properties?.action_link;
     if (!confirmationUrl) {
       return NextResponse.json({ error: 'Impossible de générer le lien de confirmation' }, { status: 500 });
+    }
+
+    // Sécurité absolue : s'assurer que redirect_to pointe toujours vers le domaine de production frettalent.fr
+    try {
+      const parsedUrl = new URL(confirmationUrl);
+      parsedUrl.searchParams.set('redirect_to', redirectTo);
+      confirmationUrl = parsedUrl.toString();
+    } catch (e) {
+      console.warn('URL parsing fallback:', e);
     }
 
     // Envoyer via Resend pour une délivrabilité maximale (support@frettalent.fr)

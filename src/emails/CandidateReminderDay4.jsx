@@ -2,7 +2,7 @@ import { Button, Text, Section, Hr } from '@react-email/components';
 import * as React from 'react';
 import BaseLayout from './BaseLayout';
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.frettalent.com';
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL || 'https://www.frettalent.fr';
 
 export default function CandidateReminderDay4({ candidateName = 'Chauffeur', trackingUrl }) {
   return (

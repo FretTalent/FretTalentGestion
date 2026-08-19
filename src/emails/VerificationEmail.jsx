@@ -97,15 +97,15 @@ export default function VerificationEmail({ confirmationUrl }) {
               © {new Date().getFullYear()} FretTalent. Tous droits réservés.
             </Text>
             <Text style={footerLinks}>
-              <Link href="https://www.frettalent.com/legal/confidentialite" style={footerLink}>
+              <Link href="https://www.frettalent.fr/legal/confidentialite" style={footerLink}>
                 Confidentialité
               </Link>
               {' • '}
-              <Link href="https://www.frettalent.com/legal/mentions-legales" style={footerLink}>
+              <Link href="https://www.frettalent.fr/legal/mentions-legales" style={footerLink}>
                 Mentions légales
               </Link>
               {' • '}
-              <Link href="https://www.frettalent.com/faq" style={footerLink}>
+              <Link href="https://www.frettalent.fr/faq" style={footerLink}>
                 Centre d'aide
               </Link>
             </Text>

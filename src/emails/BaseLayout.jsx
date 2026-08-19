@@ -14,7 +14,9 @@ import {
 import * as React from 'react';
 
 const baseUrl =
-  process.env.NEXT_PUBLIC_BASE_URL || 'https://www.frettalent.com';
+  process.env.NEXT_PUBLIC_APP_URL ||
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  'https://www.frettalent.fr';
 
 export default function BaseLayout({ previewText, heading, children, trackingUrl }) {
   return (

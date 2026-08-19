@@ -356,13 +356,29 @@ export default function AdminMail() {
     setStatus(null);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      let token = null;
+      const { data: sessionData } = await supabase.auth.getSession();
+      token = sessionData?.session?.access_token;
+
+      if (!token) {
+        const { data: userData } = await supabase.auth.getUser();
+        if (!userData?.user) {
+          throw new Error('Votre session a expiré. Veuillez vous reconnecter.');
+        }
+        // Force refresh session
+        const { data: refreshData } = await supabase.auth.refreshSession();
+        token = refreshData?.session?.access_token;
+      }
+
+      if (!token) {
+        throw new Error('Impossible de récupérer le jeton de sécurité. Veuillez actualiser la page.');
+      }
 
       const res = await fetch('/api/admin/mail', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.access_token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ target, specificEmails, type, subject, title, message, ctaText, ctaLink }),
       });

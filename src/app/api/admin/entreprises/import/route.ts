@@ -138,14 +138,40 @@ export async function POST(req: Request) {
 
         emailsFoundCount++;
 
-        // Vérification de doublon strict par adresse e-mail
-        const { data: existingEmail } = await supabaseAdmin
-          .from('entreprises')
-          .select('id')
-          .eq('email', comp.email.trim().toLowerCase())
-          .maybeSingle();
+        const emailClean = comp.email.trim().toLowerCase();
 
-        if (existingEmail) {
+        // Triple vérification anti-doublon (SIRET, E-mail, Nom + Code Postal)
+        let existing: { id: string } | null = null;
+
+        if (comp.siret) {
+          const { data: bySiret } = await supabaseAdmin
+            .from('entreprises')
+            .select('id')
+            .eq('siret', comp.siret.trim())
+            .maybeSingle();
+          existing = bySiret;
+        }
+
+        if (!existing) {
+          const { data: byEmail } = await supabaseAdmin
+            .from('entreprises')
+            .select('id')
+            .eq('email', emailClean)
+            .maybeSingle();
+          existing = byEmail;
+        }
+
+        if (!existing && comp.nom_entreprise) {
+          const { data: byName } = await supabaseAdmin
+            .from('entreprises')
+            .select('id')
+            .ilike('name', comp.nom_entreprise.trim())
+            .eq('postal_code', comp.code_postal)
+            .maybeSingle();
+          existing = byName;
+        }
+
+        if (existing) {
           skippedCount++;
           continue;
         }

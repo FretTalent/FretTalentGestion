@@ -360,13 +360,20 @@ export default function Home() {
                       </p>
                     </div>
 
-                    {/* Visuel chauffeur */}
-                    <div className="rounded-2xl overflow-hidden border border-slate-800 bg-slate-900 flex justify-center pt-3">
+                    {/* Visuel chauffeur & statut app */}
+                    <div className="rounded-2xl overflow-hidden border border-slate-800/80 bg-gradient-to-b from-slate-900 to-slate-950 flex flex-col items-center justify-center p-3">
                       <img
-                        src="/images/driver-victory.png"
+                        src="/driver-victory.png"
                         alt="Application Chauffeur Routier FretTalent"
-                        className="w-full h-auto max-h-[260px] object-contain drop-shadow-md"
+                        className="w-full h-auto max-h-[220px] object-contain drop-shadow-xl"
                       />
+                      <div className="w-full bg-slate-900/90 border border-slate-800 rounded-xl p-2.5 mt-2 flex items-center justify-between text-[11px] text-slate-300">
+                        <span className="flex items-center gap-1.5 text-emerald-400 font-bold">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                          Profil 100% Actif
+                        </span>
+                        <span className="text-slate-400 font-medium">SPL • Permis CE</span>
+                      </div>
                     </div>
                   </div>
                 </div>

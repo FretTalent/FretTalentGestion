@@ -19,7 +19,7 @@ try {
 
 export async function POST(req) {
   try {
-    const { title, body, url, target, department, candidateId, notifyTelegram } = await req.json();
+    const { title, body, url, target, candidateId, candidateIds, candidateEmails, notifyTelegram } = await req.json();
 
     if (!title || !body) {
       return NextResponse.json({ error: 'Titre et message requis.' }, { status: 400 });
@@ -31,7 +31,9 @@ export async function POST(req) {
     // 1. Récupérer les abonnements push selon la cible
     let query = supabase.from('push_subscriptions').select('*');
 
-    if (candidateId) {
+    if (candidateIds && Array.isArray(candidateIds) && candidateIds.length > 0) {
+      query = query.in('user_id', candidateIds);
+    } else if (candidateId) {
       query = query.eq('user_id', candidateId);
     } else {
       query = query.eq('role', 'candidate');

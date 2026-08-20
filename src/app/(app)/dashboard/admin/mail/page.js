@@ -218,6 +218,40 @@ L'équipe FretTalent`,
     ctaLink: 'https://www.frettalent.fr/login',
   },
 
+  canal_telegram: {
+    name: '📢 Invitation Canal Telegram Officiel',
+    emoji: '📲',
+    badge: 'Communauté',
+    badgeColor: 'bg-sky-100 text-sky-800',
+    category: 'general',
+    description: 'Invitez chauffeurs et recruteurs à rejoindre le canal Telegram FretTalent',
+    icon: Bell,
+    iconColor: 'text-sky-600',
+    iconBg: 'bg-sky-50',
+    type: 'update',
+    subject: '📲 Rejoignez le Canal Telegram Officiel FretTalent ! — Offres & Actus en Direct',
+    title: 'Ne manquez plus aucune opportunité d\'emploi ou de recrutement !',
+    message: `Bonjour,
+
+Nous avons le plaisir de vous inviter à rejoindre le Canal Telegram Officiel de FretTalent !
+
+⚡ Pourquoi rejoindre notre Canal Telegram ?
+• 💼 Les nouvelles offres d'emploi SPL & PL publiées en temps réel
+• 🏢 Les nouveaux transporteurs et recruteurs qui recherchent des chauffeurs dans votre secteur
+• 🎁 Les bons plans, conseils et actualités du monde du transport routier
+• 🚀 Les recrutements urgents à pourvoir immédiatement
+
+Que vous soyez Conducteur Routier ou Transporteur Recruteur, recevez toutes les opportunités directement sur votre téléphone !
+
+Cliquez sur le bouton ci-dessous pour rejoindre la communauté FretTalent sur Telegram dès maintenant :
+
+Cordialement,
+L'équipe FretTalent
+www.frettalent.fr | support@frettalent.fr`,
+    ctaText: '📢 Rejoindre le Canal Telegram Officiel',
+    ctaLink: 'https://t.me/FretTalentOfficiel',
+  },
+
   custom: {
     name: '📝 Message Libre Personnalisé',
     emoji: '📝',

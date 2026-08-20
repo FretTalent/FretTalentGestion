@@ -20,6 +20,59 @@ import {
 } from 'lucide-react';
 import { calculateAge } from '@/lib/country';
 
+const JOB_PRESETS = [
+  {
+    title: '🚚 Chauffeur Routier SPL (Permis CE)',
+    badge: '🚚 SPL Régional',
+    contract: 'CDI',
+    license: 'CE',
+    cert: 'FIMO/FCO',
+    exp: '1-3 ans',
+    salary: '2 200 € - 2 600 € / mois',
+    desc: `Nous recherchons un Chauffeur Routier Super Poids Lourd (SPL - Permis CE) pour assurer des liaisons régionales en toute sécurité.\n\nPrise de poste immédiate. Matériel récent et entretenu.\n\nProfil recherché :\n- Permis CE à jour\n- FIMO / FCO et Carte Conducteur Chronotachygraphe valides\n- Ponctualité, autonomie et respect de la RSE.`,
+  },
+  {
+    title: '❄️ Conducteur Routier Frigo Nuit (SPL / CE)',
+    badge: '❄️ Frigo Nuit',
+    contract: 'CDI',
+    license: 'CE',
+    cert: 'FIMO/FCO',
+    exp: '2-5 ans',
+    salary: '2 500 € - 2 900 € / mois',
+    desc: `Poste de Chauffeur SPL Frigorifique de Nuit.\n\nMission : Distribution de denrées alimentaires fraîches sous température dirigée.\n\nHeures de nuit majorées + primes de panier.\n\nRequis : Permis CE, Carte Chrono et carte FCO à jour.`,
+  },
+  {
+    title: '🏗️ Conducteur Poids Lourd Benne TP (Permis C)',
+    badge: '🏗️ Benne TP',
+    contract: 'CDI',
+    license: 'C',
+    cert: 'FIMO/FCO',
+    exp: '1-3 ans',
+    salary: '2 100 € - 2 400 € / mois',
+    desc: `Recherche Chauffeur PL / SPL Benne TP pour approvisionnement de chantiers Travaux Publics et carrières.\n\nHoraires de jour en local (retour tous les soirs au dépôt).\n\nProfil : Permis C ou CE, expérience en benne TP appréciée.`,
+  },
+  {
+    title: '⚠️ Chauffeur Routier Citerne ADR (Permis CE)',
+    badge: '⚠️ Citerne ADR',
+    contract: 'CDI',
+    license: 'CE',
+    cert: 'ADR',
+    exp: '3-5 ans',
+    salary: '2 700 € - 3 200 € / mois',
+    desc: `Recrutement Chauffeur SPL Citerne Chimie / Hydrocarbures avec habilitation ADR Citerne à jour.\n\nLiaisons régionales & nationales avec primes sécurité.\n\nCertifications requises : Permis CE, ADR Citerne, Carte Chrono.`,
+  },
+  {
+    title: '📦 Chauffeur Livreur Messagerie PL (Permis C)',
+    badge: '📦 Messagerie PL',
+    contract: 'CDI',
+    license: 'C',
+    cert: 'FIMO/FCO',
+    exp: 'Débutant accepté',
+    salary: '2 000 € - 2 300 € / mois',
+    desc: `Nous recrutons des Chauffeurs Porteurs (Permis C) pour des tournées de livraison messagerie et fret palettisé.\n\nLiaison régionale quotidienne (pas de découché).\n\nRequis : Permis C et FIMO/FCO en cours de validité.`,
+  },
+];
+
 export default function RecruiterDashboard() {
   const router = useRouter();
   const activeTab = 'jobs';
@@ -801,6 +854,36 @@ export default function RecruiterDashboard() {
                 </h2>
 
                 <form onSubmit={handleCreateJob} className="space-y-4">
+                  {/* MODÈLES PRÉRÉDIGÉS 1-CLIC */}
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-black text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-orange-500" />
+                        <span>Modèles d&apos;annonces prérédigés (1-Clic)</span>
+                      </span>
+                      <span className="text-[10px] text-slate-400">Cliquez pour pré-remplir</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {JOB_PRESETS.map((preset, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => {
+                            setNewJobTitle(preset.title);
+                            setNewJobContract(preset.contract);
+                            if (preset.license) setNewJobLicense(preset.license);
+                            if (preset.cert) setNewJobCert(preset.cert);
+                            if (preset.exp) setNewJobExp(preset.exp);
+                            if (preset.salary) setNewJobSalary(preset.salary);
+                            if (preset.desc) setNewJobDesc(preset.desc);
+                          }}
+                          className="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-orange-500 hover:bg-orange-50 text-slate-800 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1 shrink-0"
+                        >
+                          <span>{preset.badge}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-700 uppercase">
                       Intitulé du poste *

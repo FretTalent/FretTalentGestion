@@ -18,6 +18,8 @@ import {
   Clock,
   Truck,
   X,
+  Bell,
+  Printer,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { calculateAge } from '@/lib/country';
@@ -54,12 +56,54 @@ export default function RecruiterDashboard() {
   const [unlocking, setUnlocking] = useState(false);
   const [message, setMessage] = useState(null);
 
+  // État Alerte Chauffeurs Automatique
+  const [jobAlertActive, setJobAlertActive] = useState(false);
+
+  // Fonction d'exportation Excel / CSV des déblocages effectués
+  const exportUnlockedToCSV = () => {
+    if (!candidates || candidates.length === 0) return;
+    const isSubscribed = company?.subscription_plan === 'premium_monthly' || company?.subscription_plan === 'premium_plus_monthly';
+    const unlockedList = candidates.filter(cand => isSubscribed || myUnlocks.includes(cand.id));
+
+    if (unlockedList.length === 0) {
+      toast.error('Aucun chauffeur débloqué à exporter.');
+      return;
+    }
+
+    const headers = ['Nom & Prénom', 'E-mail', 'Téléphone', 'Ville', 'Code Postal', 'Pays', 'Permis', 'Expérience (ans)', 'Disponibilité', 'Statut Vérification'];
+    const rows = unlockedList.map(c => [
+      `"${(c.full_name || '').replace(/"/g, '""')}"`,
+      `"${(c.email || '').replace(/"/g, '""')}"`,
+      `"${(c.phone || '').replace(/"/g, '""')}"`,
+      `"${(c.city || '').replace(/"/g, '""')}"`,
+      `"${(c.postal_code || '').replace(/"/g, '""')}"`,
+      `"${(c.country || 'FR').replace(/"/g, '""')}"`,
+      `"${(c.licenses || []).join(', ')}"`,
+      `"${c.experience_years || 0}"`,
+      `"${c.availability || 'Immédiate'}"`,
+      `"${c.validated ? '100% Vérifié' : 'Déclaratif'}"`,
+    ]);
+
+    const csvContent = '\uFEFF' + [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `FretTalent_Chauffeurs_Debloques_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success(`📊 ${unlockedList.length} chauffeur(s) débloqué(s) exporté(s) avec succès !`);
+  };
+
   useEffect(() => {
     fetchRecruiterData();
     // Charger les favoris depuis localStorage
     try {
       const saved = localStorage.getItem('frettalent_favorites');
       if (saved) setFavorites(JSON.parse(saved));
+      const alertSaved = localStorage.getItem('frettalent_job_alert');
+      if (alertSaved) setJobAlertActive(JSON.parse(alertSaved));
     } catch {}
   }, []);
 
@@ -327,18 +371,49 @@ export default function RecruiterDashboard() {
             )}
           </p>
         </div>
-        {!company?.has_payment_method ? (
+        <div className="flex items-center gap-3 flex-wrap">
           <button
-            onClick={handleGoToStripe}
-            className="px-4 py-2 rounded-xl text-sm font-bold bg-orange-100 hover:bg-orange-200 text-orange-600 border border-orange-200 transition-colors flex items-center gap-2"
+            onClick={() => {
+              const nextState = !jobAlertActive;
+              setJobAlertActive(nextState);
+              localStorage.setItem('frettalent_job_alert', JSON.stringify(nextState));
+              if (nextState) {
+                toast.success('🔔 Alerte Nouveaux Chauffeurs activée ! Vous serez prévenu dès qu\'un profil s\'inscrit.');
+              } else {
+                toast.success('Alerte désactivée.');
+              }
+            }}
+            className={`px-3.5 py-2.5 rounded-2xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer border ${
+              jobAlertActive
+                ? 'bg-amber-500 text-white border-amber-600 shadow-sm'
+                : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
+            }`}
           >
-            <CreditCard className="h-4 w-4" /> Activer mon accès
+            <Bell className="w-3.5 h-3.5" />
+            <span>{jobAlertActive ? '🔔 Alerte Chauffeurs Active' : '🔔 Activer Alerte Chauffeurs'}</span>
           </button>
-        ) : (
-          <span className="px-4 py-2 rounded-xl text-sm font-bold bg-green-50 text-green-700 border border-green-200 flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4" /> Accès actif
-          </span>
-        )}
+
+          <button
+            onClick={exportUnlockedToCSV}
+            className="px-4 py-2.5 rounded-2xl text-xs font-black bg-slate-900 hover:bg-slate-800 text-white shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>📊 Exporter mes Déblocages (CSV)</span>
+          </button>
+
+          {!company?.has_payment_method ? (
+            <button
+              onClick={handleGoToStripe}
+              className="px-4 py-2.5 rounded-2xl text-xs font-black bg-orange-500 hover:bg-orange-600 text-white transition-all flex items-center gap-2 cursor-pointer shadow-xs"
+            >
+              <CreditCard className="h-4 w-4" /> Activer mon accès
+            </button>
+          ) : (
+            <span className="px-3.5 py-2.5 rounded-2xl text-xs font-black bg-green-50 text-green-700 border border-green-200 flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4" /> Accès actif
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Message Banner */}
@@ -702,6 +777,15 @@ export default function RecruiterDashboard() {
                           {selectedCandidate.postal_code} {selectedCandidate.city}
                         </div>
                       )}
+                      
+                      <button
+                        type="button"
+                        onClick={() => window.print()}
+                        className="w-full mt-3 py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+                      >
+                        <Printer className="w-4 h-4 text-orange-400" />
+                        <span>📄 Imprimer / Imprimer Fiche PDF</span>
+                      </button>
                     </div>
                   ) : (
                     <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl space-y-3">

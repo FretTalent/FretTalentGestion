@@ -836,6 +836,46 @@ ${escapeHtml(message)}
   return sendTelegramMessage(telegramMsg, { reply_markup });
 }
 
+/**
+ * Message de bienvenue automatique lorsqu'un nouveau membre rejoint le groupe/canal Telegram FretTalent
+ */
+export async function sendTelegramWelcomeNewMember({ chatId, userId, firstName, username }) {
+  const name = firstName || (username ? `@${username}` : 'Chauffeur');
+
+  const welcomeText = `🎉 <b>BIENVENUE DANS LE GROUPE OFFICIEL FRETTALENT !</b> 🚛
+━━━━━━━━━━━━━━━━━━━━
+Bienvenue <b>${escapeHtml(name)}</b> ! 🤝
+
+Ravi de vous compter parmi la communauté des chauffeurs routiers et transporteurs FretTalent.
+
+💡 <b>Sur ce groupe, vous recevrez en temps réel :</b>
+• 💼 Les meilleures offres d'emploi SPL / PL / ADR
+• 🏢 Les nouveaux transporteurs partenaires qui recrutent
+• 🎁 Les bons plans et conseils pour les conducteurs routiers
+
+👇 <b>VOUS ÊTES CHAUFFEUR ROUTIER ?</b>
+Créez votre profil gratuit en 2 minutes et obtenez le badge <b>Vérifié ✓</b> :
+https://www.frettalent.fr/register
+
+👇 <b>VOUS ÊTES TRANSPORTEUR / ENTREPRISE ?</b>
+Consultez les chauffeurs qualifiés disponibles dans votre région :
+https://www.frettalent.fr/entreprises`.trim();
+
+  const reply_markup = {
+    inline_keyboard: [
+      [
+        { text: '📝 Créer mon Profil Gratuit (Chauffeur)', url: 'https://www.frettalent.fr/register' },
+      ],
+      [
+        { text: '🏢 Espace Transporteurs', url: 'https://www.frettalent.fr/entreprises' },
+        { text: '🌐 Visiter le Site Web', url: 'https://www.frettalent.fr' },
+      ],
+    ],
+  };
+
+  return sendTelegramMessage(welcomeText, { chatId, reply_markup });
+}
+
 function escapeHtml(text) {
   if (!text) return '';
   return String(text)

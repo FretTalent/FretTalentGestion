@@ -5,6 +5,7 @@ import {
   answerTelegramCallbackQuery,
   editTelegramMessageText,
   sendDailyMorningBriefing,
+  sendTelegramWelcomeNewMember,
 } from '@/lib/telegram';
 import { sendAccountVerifiedEmail, sendMissingDocumentsEmail } from '@/lib/email-service';
 
@@ -19,6 +20,38 @@ export async function POST(req) {
   try {
     const update = await req.json();
     const adminChatId = String(process.env.TELEGRAM_ADMIN_CHAT_ID || '8376439336');
+
+    // 0. GESTION DU MESSAGE DE BIENVENUE AUX NOUVEAUX MEMBRES QUI REJOIGNENT LE GROUPE TELEGRAM
+    if (update.message?.new_chat_members && Array.isArray(update.message.new_chat_members)) {
+      const chatId = update.message.chat.id;
+      for (const member of update.message.new_chat_members) {
+        if (!member.is_bot) {
+          await sendTelegramWelcomeNewMember({
+            chatId,
+            userId: member.id,
+            firstName: member.first_name,
+            username: member.username,
+          });
+        }
+      }
+      return NextResponse.json({ ok: true });
+    }
+
+    if (update.chat_member && update.chat_member.new_chat_member) {
+      const newMember = update.chat_member.new_chat_member;
+      const oldMember = update.chat_member.old_chat_member;
+
+      if (newMember.status === 'member' && oldMember?.status !== 'member' && !newMember.user?.is_bot) {
+        const chatId = update.chat_member.chat.id;
+        await sendTelegramWelcomeNewMember({
+          chatId,
+          userId: newMember.user.id,
+          firstName: newMember.user.first_name,
+          username: newMember.user.username,
+        });
+      }
+      return NextResponse.json({ ok: true });
+    }
 
     // 1. GESTION DES CALLBACK QUERIES (Clics sur boutons Inline)
     if (update.callback_query) {

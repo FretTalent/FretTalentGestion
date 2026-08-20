@@ -7,22 +7,20 @@ export async function POST(req) {
   const signature = req.headers.get('stripe-signature');
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-  let event;
+  if (!webhookSecret || !signature) {
+    console.error('⚠️ Webhook secret or stripe-signature header is missing');
+    return NextResponse.json(
+      { error: 'Missing signature or webhook secret' },
+      { status: 400 }
+    );
+  }
 
-  if (webhookSecret && signature) {
-    try {
-      event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-    } catch (err) {
-      console.error(`⚠️ Webhook signature verification failed:`, err.message);
-      return NextResponse.json({ error: 'Webhook Error' }, { status: 400 });
-    }
-  } else {
-    // Mode fallback si pas de signature (ex: tests ou proxy interne)
-    try {
-      event = JSON.parse(body);
-    } catch (e) {
-      return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
-    }
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+  } catch (err) {
+    console.error(`⚠️ Webhook signature verification failed:`, err.message);
+    return NextResponse.json({ error: 'Invalid webhook signature' }, { status: 400 });
   }
 
   const supabaseAdmin = createDirectClient(

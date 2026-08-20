@@ -16,7 +16,7 @@ const projectRef = env['NEXT_PUBLIC_SUPABASE_URL'].replace('https://', '').split
 
 async function fix() {
   const client = new Client({
-    connectionString: `postgresql://postgres:${env['DB_PASSWORD'] || 'Gabin.02350'}@db.${projectRef}.supabase.co:5432/postgres`,
+    connectionString: process.env.DATABASE_URL || env['DATABASE_URL'] || `postgresql://postgres:${env['DB_PASSWORD']}@db.${projectRef}.supabase.co:5432/postgres`,
     ssl: { rejectUnauthorized: false }
   });
 

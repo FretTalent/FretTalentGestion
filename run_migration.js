@@ -49,9 +49,9 @@ async function runMigration() {
 
   // Essai connexion directe PostgreSQL
   const connectionStrings = [
-    `postgresql://postgres:${env['DB_PASSWORD'] || 'Gabin.02350'}@db.${projectRef}.supabase.co:5432/postgres`,
-    `postgresql://postgres.${projectRef}:${env['DB_PASSWORD'] || 'Gabin.02350'}@aws-0-eu-west-3.pooler.supabase.com:5432/postgres`,
-  ];
+    process.env.DATABASE_URL || env['DATABASE_URL'],
+    `postgresql://postgres:${env['DB_PASSWORD']}@db.${projectRef}.supabase.co:5432/postgres`,
+  ].filter(Boolean);
 
   let connected = false;
   for (const connStr of connectionStrings) {

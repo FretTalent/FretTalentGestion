@@ -96,15 +96,21 @@ export default function RecruiterDashboard() {
         .single();
       setCompany(companyData);
 
-      // Charger tous les chauffeurs actifs
-      const { data: candidatesData } = await supabase
-        .from('candidates')
-        .select('*')
-        .eq('is_active', true);
-
-      if (candidatesData) {
-        setCandidates(candidatesData);
-        setFilteredCandidates(candidatesData);
+      // Charger tous les chauffeurs actifs via l'API sécurisée
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const headers = {};
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+      const searchRes = await fetch('/api/candidates/search', { headers });
+      if (searchRes.ok) {
+        const { candidates: candidatesData } = await searchRes.json();
+        if (candidatesData) {
+          setCandidates(candidatesData);
+          setFilteredCandidates(candidatesData);
+        }
       }
 
       // Charger l'historique de mes déblocages
@@ -240,15 +246,8 @@ export default function RecruiterDashboard() {
         throw new Error(errData.error || 'Erreur de déblocage');
       }
 
-      setMyUnlocks([...myUnlocks, candidateId]);
-
-      const { data: updatedCand } = await supabase
-        .from('candidates')
-        .select('*')
-        .eq('id', candidateId)
-        .single();
-
-      setSelectedCandidate(updatedCand);
+      setMyUnlocks(prev => [...prev, candidateId]);
+      await fetchRecruiterData();
       setMessage({ type: 'success', text: 'Coordonnées débloquées avec succès !' });
     } catch (err) {
       setMessage({ type: 'error', text: err.message || 'Erreur de déblocage.' });

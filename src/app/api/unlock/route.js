@@ -104,7 +104,7 @@ export async function POST(req) {
     }
 
     // 6. Intégration Stripe (Post-payé) :
-    // On ajoute un Invoice Item pour ce client sur sa facture mensuelle en attente (seulement si pas d'abonnement).
+    // On ajoute un Invoice Item pour ce client sur sa facture mensuelle en attente.
     if (company.stripe_customer_id && company.subscription_plan === 'pay_per_unlock') {
       try {
         await stripe.invoiceItems.create({
@@ -118,7 +118,17 @@ export async function POST(req) {
           'Erreur de création de ligne de facturation Stripe :',
           stripeErr,
         );
-        // Note : On ne bloque pas le retour car le déblocage est validé en base locale.
+        // Annuler le déblocage en BDD pour éviter un déblocage gratuit sans paiement Stripe
+        await supabaseAdmin
+          .from('unlocks')
+          .delete()
+          .eq('company_id', company.id)
+          .eq('candidate_id', candidateId);
+
+        return NextResponse.json(
+          { error: 'Échec de la facturation Stripe. Veuillez vérifier votre moyen de paiement.' },
+          { status: 402 },
+        );
       }
     }
 
@@ -134,7 +144,7 @@ export async function POST(req) {
         companyName: company.name,
         candidateName: cand?.full_name || 'Chauffeur',
         candidateCity: cand?.city || '',
-        amount: 2.0,
+        amount: 4.99,
       });
     } catch (notifErr) {
       console.error('Erreur notification telegram unlock:', notifErr);

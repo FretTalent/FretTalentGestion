@@ -101,12 +101,13 @@ export default function CandidatsDisponiblesPage() {
     const fetchCandidates = async () => {
       try {
         setLoading(true);
-        const { data, error } = await supabase
-          .from('candidates')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (error || !data) {
+        const res = await fetch('/api/candidates/search');
+        if (!res.ok) {
+          setCandidates([]);
+          return;
+        }
+        const { candidates: data } = await res.json();
+        if (!data) {
           setCandidates([]);
           return;
         }

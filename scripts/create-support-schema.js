@@ -1,8 +1,9 @@
+require('dotenv').config({ path: '.env.local' });
 const { Client } = require('pg');
 
 async function migrate() {
   const client = new Client({
-    connectionString: "postgresql://postgres:Gabin.02350@db.udqirxeqtloauvcoitka.supabase.co:5432/postgres",
+    connectionString: process.env.DATABASE_URL,
   });
   
   await client.connect();

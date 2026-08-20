@@ -13,11 +13,11 @@ export default function Footer() {
           
           {/* Col 1 : Logo & Brand (4 cols on lg) */}
           <div className="lg:col-span-4 space-y-5">
-            <Link href="/" className="inline-block group">
+            <Link href="/" className="inline-block bg-white px-3 py-2 rounded-2xl shadow-md group hover:scale-105 transition-transform">
               <img
                 src="/logo.png"
                 alt="FretTalent - Recrutement Chauffeurs Routiers France & Europe"
-                className="h-14 md:h-16 w-auto object-contain brightness-0 invert group-hover:opacity-90 transition-opacity"
+                className="h-10 md:h-12 w-auto object-contain"
               />
             </Link>
             

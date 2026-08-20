@@ -229,7 +229,7 @@ export default function Header() {
               {/* PANNEAU MEGA MENU RECRUTEURS */}
               {activeDropdown === 'recruiter' && (
                 <div className="absolute top-full -left-10 pt-3 z-50 w-[880px] max-w-[92vw] animate-in fade-in zoom-in-95 duration-150">
-                  <div className="bg-white/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 shadow-[0_25px_70px_-15px_rgba(15,23,42,0.18)] p-7 relative">
+                  <div className="bg-white rounded-3xl border border-slate-200 shadow-[0_25px_70px_-15px_rgba(15,23,42,0.22)] p-7 relative">
                     <div className="absolute -top-2 left-16 w-4 h-4 bg-white border-t border-l border-slate-200/90 rotate-45" />
 
                     <div className="grid grid-cols-12 gap-6 relative z-10">
@@ -295,7 +295,7 @@ export default function Header() {
                     </div>
 
                     {/* Footer Banner */}
-                    <div className="mt-6 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs xl:text-sm bg-slate-50/90 -mx-7 -mb-7 px-7 py-3.5 rounded-b-3xl">
+                    <div className="mt-6 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs xl:text-sm bg-slate-50 -mx-7 -mb-7 px-7 py-3.5 rounded-b-3xl">
                       <span className="text-slate-700 font-bold flex items-center gap-2">
                         <Zap className="w-4.5 h-4.5 text-orange-500" />
                         Déblocage unitaire à 4,99 € ou abonnement mensuel illimité sans engagement.
@@ -340,7 +340,7 @@ export default function Header() {
               {/* PANNEAU MEGA MENU MÉTIERS */}
               {activeDropdown === 'drivers' && (
                 <div className="absolute top-full -left-28 pt-3 z-50 w-[880px] max-w-[92vw] animate-in fade-in zoom-in-95 duration-150">
-                  <div className="bg-white/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 shadow-[0_25px_70px_-15px_rgba(15,23,42,0.18)] p-7 relative">
+                  <div className="bg-white rounded-3xl border border-slate-200 shadow-[0_25px_70px_-15px_rgba(15,23,42,0.22)] p-7 relative">
                     <div className="absolute -top-2 left-36 w-4 h-4 bg-white border-t border-l border-slate-200/90 rotate-45" />
 
                     <div className="grid grid-cols-12 gap-6 relative z-10">
@@ -401,7 +401,7 @@ export default function Header() {
                     </div>
 
                     {/* Footer Banner */}
-                    <div className="mt-6 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs xl:text-sm bg-slate-50/90 -mx-7 -mb-7 px-7 py-3.5 rounded-b-3xl">
+                    <div className="mt-6 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs xl:text-sm bg-slate-50 -mx-7 -mb-7 px-7 py-3.5 rounded-b-3xl">
                       <span className="text-slate-700 font-bold flex items-center gap-2">
                         <Sparkles className="w-4.5 h-4.5 text-orange-500" />
                         Vous cherchez un poste ? Consultez toutes les offres de recrutement transport.
@@ -446,7 +446,7 @@ export default function Header() {
               {/* PANNEAU MEGA MENU RÉGIONS */}
               {activeDropdown === 'regions' && (
                 <div className="absolute top-full -left-52 pt-3 z-50 w-[880px] max-w-[92vw] animate-in fade-in zoom-in-95 duration-150">
-                  <div className="bg-white/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 shadow-[0_25px_70px_-15px_rgba(15,23,42,0.18)] p-7 relative">
+                  <div className="bg-white rounded-3xl border border-slate-200 shadow-[0_25px_70px_-15px_rgba(15,23,42,0.22)] p-7 relative">
                     <div className="absolute -top-2 left-60 w-4 h-4 bg-white border-t border-l border-slate-200/90 rotate-45" />
 
                     <div className="grid grid-cols-12 gap-6 relative z-10">
@@ -507,7 +507,7 @@ export default function Header() {
                     </div>
 
                     {/* Footer Banner */}
-                    <div className="mt-6 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs xl:text-sm bg-slate-50/90 -mx-7 -mb-7 px-7 py-3.5 rounded-b-3xl">
+                    <div className="mt-6 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs xl:text-sm bg-slate-50 -mx-7 -mb-7 px-7 py-3.5 rounded-b-3xl">
                       <span className="text-slate-700 font-bold flex items-center gap-2">
                         <Globe className="w-4.5 h-4.5 text-orange-500" />
                         Recherche géolocalisée interactive disponible sur toute la France et le Benelux.

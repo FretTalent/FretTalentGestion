@@ -664,8 +664,154 @@ ${detailsBlock}
   return sendTelegramMessage(telegramMsg);
 }
 
+/**
+ * Alerte Telegram Admin : Publication d'une Nouvelle Offre d'Emploi (avec approbation 1-clic)
+ */
+export async function notifyTelegramNewJob({
+  jobId,
+  jobTitle,
+  companyName,
+  city,
+  contractType = 'CDI',
+  salary,
+  licenseRequired,
+}) {
+  const telegramMsg = `💼 <b>NOUVELLE OFFRE D'EMPLOI DÉPOSÉE !</b>
+━━━━━━━━━━━━━━━━━━━━
+🏢 <b>Entreprise :</b> ${escapeHtml(companyName || 'Transporteur')}
+📌 <b>Poste :</b> ${escapeHtml(jobTitle || 'Chauffeur Routier')}
+📍 <b>Ville :</b> ${escapeHtml(city || 'France')}
+📄 <b>Contrat :</b> ${escapeHtml(contractType)} ${salary ? `• 💰 ${escapeHtml(salary)}` : ''}
+🪪 <b>Permis exigé :</b> ${escapeHtml(licenseRequired || 'Permis C/CE')}
+⏱ <b>Date :</b> ${new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}
+━━━━━━━━━━━━━━━━━━━━
+👉 <i>Modérez et validez l'offre immédiatement en 1-clic ci-dessous :</i>`.trim();
 
+  const inlineKeyboard = [];
 
+  if (jobId) {
+    inlineKeyboard.push([
+      { text: '✅ Approuver l\'Offre (1 Clic)', callback_data: `approve_job:${jobId}` },
+    ]);
+    inlineKeyboard.push([
+      { text: '🔍 Voir les Offres Admin', url: 'https://www.frettalent.fr/dashboard/admin/jobs' },
+    ]);
+  }
+
+  return sendTelegramMessage(telegramMsg, {
+    reply_markup: inlineKeyboard.length > 0 ? { inline_keyboard: inlineKeyboard } : undefined,
+  });
+}
+
+/**
+ * Alerte Telegram Admin : Annulation d'Abonnement Stripe
+ */
+export async function notifyTelegramSubscriptionCancelled({
+  companyName,
+  email,
+  planName = 'Pro Illimité',
+  reason,
+}) {
+  const telegramMsg = `⚠️ <b>RÉSILUATION D'ABONNEMENT STRIPE</b>
+━━━━━━━━━━━━━━━━━━━━
+🏢 <b>Entreprise :</b> ${escapeHtml(companyName || 'Société')}
+📧 <b>E-mail :</b> <code>${escapeHtml(email || '—')}</code>
+📦 <b>Formule résiliée :</b> ${escapeHtml(planName)}
+${reason ? `💬 <b>Motif :</b> <i>"${escapeHtml(reason)}"</i>\n` : ''}
+⏱ <b>Date :</b> ${new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}`.trim();
+
+  const reply_markup = {
+    inline_keyboard: [
+      [
+        { text: '📊 Dashboard Finance', url: 'https://www.frettalent.fr/dashboard/admin/finance' },
+      ],
+    ],
+  };
+
+  return sendTelegramMessage(telegramMsg, { reply_markup });
+}
+
+/**
+ * Alerte Telegram Admin : Échec de Paiement Stripe
+ */
+export async function notifyTelegramPaymentFailed({
+  companyName,
+  email,
+  amount = '39,99 €',
+  reason = 'Carte rejetée / Fonds insuffisants',
+}) {
+  const telegramMsg = `❌ <b>ÉCHEC DE PAIEMENT STRIPE !</b>
+━━━━━━━━━━━━━━━━━━━━
+🏢 <b>Entreprise :</b> ${escapeHtml(companyName || 'Société')}
+📧 <b>E-mail :</b> <code>${escapeHtml(email || '—')}</code>
+💰 <b>Montant échoué :</b> ${escapeHtml(amount)}
+⚠️ <b>Raison :</b> ${escapeHtml(reason)}
+⏱ <b>Date :</b> ${new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}`.trim();
+
+  const reply_markup = {
+    inline_keyboard: [
+      [
+        { text: '📊 Revoir la Transaction', url: 'https://www.frettalent.fr/dashboard/admin/finance' },
+      ],
+    ],
+  };
+
+  return sendTelegramMessage(telegramMsg, { reply_markup });
+}
+
+/**
+ * Alerte Telegram Admin : Inscription d'un Candidat "Super Chauffeur" (Haute qualification)
+ */
+export async function notifyTelegramSuperCandidate({
+  candidateName,
+  candidateId,
+  city,
+  licenses = [],
+  experienceYears,
+}) {
+  const licensesStr = licenses.join(', ') || 'Permis CE + ADR';
+
+  const telegramMsg = `⭐ <b>PROFIL CHAUFFEUR PREMIUM INSCRIT !</b>
+━━━━━━━━━━━━━━━━━━━━
+👤 <b>Candidat :</b> ${escapeHtml(candidateName)}
+📍 <b>Ville :</b> ${escapeHtml(city || 'France')}
+🪪 <b>Permis & Habilitations :</b> ${escapeHtml(licensesStr)}
+💼 <b>Expérience :</b> ${experienceYears ? `${experienceYears} ans` : 'Confirmée'}
+⏱ <b>Date :</b> ${new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}
+━━━━━━━━━━━━━━━━━━━━
+💡 <i>Profil hautement qualifié à proposer en priorité aux transporteurs !</i>`.trim();
+
+  const reply_markup = {
+    inline_keyboard: [
+      [
+        { text: '🔍 Consulter la Fiche', url: `https://www.frettalent.fr/dashboard/admin/candidates/${candidateId}` },
+      ],
+    ],
+  };
+
+  return sendTelegramMessage(telegramMsg, { reply_markup });
+}
+
+/**
+ * Alerte Telegram Admin : Demande de suppression de compte (RGPD)
+ */
+export async function notifyTelegramAccountDeleted({
+  userName,
+  email,
+  role = 'candidate',
+  reason,
+}) {
+  const roleLabel = role === 'recruiter' ? '🏢 Entreprise' : '🚛 Chauffeur';
+
+  const telegramMsg = `🗑️ <b>SUPPRESSION DE COMPTE (${roleLabel})</b>
+━━━━━━━━━━━━━━━━━━━━
+👤 <b>Utilisateur :</b> ${escapeHtml(userName)}
+📧 <b>E-mail :</b> <code>${escapeHtml(email)}</code>
+${reason ? `💬 <b>Raison :</b> <i>"${escapeHtml(reason)}"</i>\n` : ''}
+⏱ <b>Date :</b> ${new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}`.trim();
+
+  return sendTelegramMessage(telegramMsg);
+}
 
 function escapeHtml(text) {
   if (!text) return '';

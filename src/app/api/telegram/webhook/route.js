@@ -192,6 +192,41 @@ export async function POST(req) {
         return NextResponse.json({ ok: true });
       }
 
+      // Action 4: Approuver une offre d'emploi en 1 clic
+      if (data.startsWith('approve_job:')) {
+        const jobId = data.replace('approve_job:', '').trim();
+        const { data: job, error: jobErr } = await supabaseAdmin
+          .from('jobs')
+          .select('id, title, company_name')
+          .eq('id', jobId)
+          .single();
+
+        if (jobErr || !job) {
+          await answerTelegramCallbackQuery(cb.id, 'Offre introuvable.', true);
+          return NextResponse.json({ ok: true });
+        }
+
+        await supabaseAdmin
+          .from('jobs')
+          .update({ is_approved: true })
+          .eq('id', jobId);
+
+        await answerTelegramCallbackQuery(cb.id, `✅ L'offre "${job.title}" est maintenant approuvée et en ligne ! 🚀`, true);
+
+        if (cb.message) {
+          const currentText = cb.message.text || '';
+          const updatedText = `${currentText}\n\n✅ <b>APPROUVÉE ET EN LIGNE LE ${new Date().toLocaleDateString('fr-FR')} !</b>`;
+          await editTelegramMessageText(cb.message.chat.id, cb.message.message_id, updatedText, {
+            inline_keyboard: [
+              [
+                { text: '💼 Voir les Offres en Ligne', url: 'https://www.frettalent.fr/offres' },
+              ],
+            ],
+          });
+        }
+        return NextResponse.json({ ok: true });
+      }
+
       // Bouton rapide : Stats
       if (data === 'cmd_stats') {
         await answerTelegramCallbackQuery(cb.id);
@@ -347,6 +382,18 @@ export async function POST(req) {
 
         case '/briefing':
           await sendDailyMorningBriefing();
+          break;
+
+        case '/offres':
+        case '/jobs':
+          await handleOffresCommand(chatId);
+          break;
+
+        case '/recherche':
+        case '/search':
+        case '/find':
+          const queryText = text.replace(/^\/(recherche|search|find)/i, '').trim();
+          await handleRechercheCommand(chatId, queryText);
           break;
 
         default:
@@ -616,7 +663,96 @@ async function handleVentesCommand(chatId) {
   await sendTelegramMessage(message.trim(), { chatId, reply_markup });
 }
 
-// 7. MENU D'ACCUEIL PUBLIC ROBOT QUALIFICATION
+// 7. COMMANDE /OFFRES (Offres d'emploi en attente & récentes)
+async function handleOffresCommand(chatId) {
+  const supabaseAdmin = getAdminClient();
+  const { data: jobs } = await supabaseAdmin
+    .from('jobs')
+    .select('id, title, company_name, location, contract_type, is_approved, created_at')
+    .order('created_at', { ascending: false })
+    .limit(5);
+
+  if (!jobs || jobs.length === 0) {
+    await sendTelegramMessage(`Aucune offre d'emploi enregistrée pour le moment.`, { chatId });
+    return;
+  }
+
+  let message = `💼 <b>5 DERNIÈRES OFFRES D'EMPLOI DÉPOSÉES :</b>\n━━━━━━━━━━━━━━━━━━━━\n\n`;
+  const inline_keyboard = [];
+
+  jobs.forEach((j, idx) => {
+    const statusStr = j.is_approved ? '✅ En ligne' : '⏳ En attente de modération';
+    message += `<b>${idx + 1}. ${j.title || 'Chauffeur Routier'}</b>\n`;
+    message += `🏢 ${j.company_name || 'Transporteur'} | 📍 ${j.location || 'France'}\n`;
+    message += `Statut : ${statusStr}\n\n`;
+
+    if (!j.is_approved) {
+      inline_keyboard.push([
+        { text: `✅ Approuver ${j.title ? j.title.slice(0, 15) : `#${idx+1}`}`, callback_data: `approve_job:${j.id}` },
+      ]);
+    }
+  });
+
+  inline_keyboard.push([
+    { text: '💼 Gérer toutes les offres admin', url: 'https://www.frettalent.fr/dashboard/admin/jobs' },
+  ]);
+
+  await sendTelegramMessage(message.trim(), {
+    chatId,
+    reply_markup: { inline_keyboard },
+  });
+}
+
+// 8. COMMANDE /RECHERCHE <VILLE / PERMIS / CP>
+async function handleRechercheCommand(chatId, queryText) {
+  if (!queryText) {
+    await sendTelegramMessage(
+      `🔍 <b>RECHERCHE RAPIDE CHAUFFEURS</b>\n━━━━━━━━━━━━━━━━━━━━\nExemple d'utilisation :\n• <code>/recherche Lille</code>\n• <code>/recherche 02</code>\n• <code>/recherche SPL</code>`,
+      { chatId }
+    );
+    return;
+  }
+
+  const supabaseAdmin = getAdminClient();
+  const searchPattern = `%${queryText}%`;
+
+  const { data: candidates, count } = await supabaseAdmin
+    .from('candidates')
+    .select('id, full_name, city, postal_code, country, validated, licenses', { count: 'exact' })
+    .or(`city.ilike.${searchPattern},postal_code.ilike.${searchPattern},full_name.ilike.${searchPattern}`)
+    .limit(5);
+
+  if (!candidates || candidates.length === 0) {
+    await sendTelegramMessage(
+      `🔍 Aucun chauffeur trouvé pour la recherche <b>"${queryText}"</b>.`,
+      { chatId }
+    );
+    return;
+  }
+
+  let message = `🔍 <b>RÉSULTATS DE RECHERCHE ("${queryText}") — ${count} profil(s) :</b>\n━━━━━━━━━━━━━━━━━━━━\n\n`;
+  const inline_keyboard = [];
+
+  candidates.forEach((c, idx) => {
+    const flag = c.country === 'BE' ? '🇧🇪' : c.country === 'LU' ? '🇱🇺' : c.country === 'CH' ? '🇨🇭' : '🇫🇷';
+    const statusStr = c.validated ? '🛡️ Certifié' : '⏳ Non validé';
+    const licensesStr = Array.isArray(c.licenses) && c.licenses.length > 0 ? c.licenses.join(', ') : 'Permis C/CE';
+
+    message += `<b>${idx + 1}. ${c.full_name || 'Chauffeur'}</b> (${c.city || '—'}) ${flag}\n`;
+    message += `🪪 ${licensesStr} | ${statusStr}\n\n`;
+
+    inline_keyboard.push([
+      { text: `📂 Fiche de ${c.full_name ? c.full_name.split(' ')[0] : `#${idx+1}`}`, url: `https://www.frettalent.fr/dashboard/admin/candidates/${c.id}` },
+    ]);
+  });
+
+  await sendTelegramMessage(message.trim(), {
+    chatId,
+    reply_markup: { inline_keyboard },
+  });
+}
+
+// 9. MENU D'ACCUEIL PUBLIC ROBOT QUALIFICATION
 async function sendPublicWelcomeMenu(chatId, userName = 'Visiteur') {
   const welcomeText = `🚛 <b>BIENVENUE SUR L'ASSISTANCE OFFICIELLE FRETTALENT !</b>
 ━━━━━━━━━━━━━━━━━━━━

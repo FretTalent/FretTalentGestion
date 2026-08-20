@@ -319,6 +319,22 @@ export default function RecruiterDashboard() {
 
       if (data) {
         setMyJobs([data[0], ...myJobs]);
+
+        // Déclencher l'alerte Telegram pour validation 1-clic
+        fetch('/api/notify/telegram', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'new_job',
+            jobId: data[0].id,
+            jobTitle: newJobTitle,
+            companyName: company?.name || 'Entreprise',
+            city: newJobLocation,
+            contractType: newJobContract,
+            salary: newJobSalary,
+            licenseRequired: newJobLicense,
+          }),
+        }).catch(err => console.error('Erreur alerte Telegram nouvelle offre:', err));
       }
 
       setNewJobTitle('');

@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { createClient as createDirectClient } from '@supabase/supabase-js';
 import { stripe } from '@/lib/stripe';
+import {
+  notifyTelegramSubscriptionCancelled,
+  notifyTelegramPaymentFailed,
+} from '@/lib/telegram';
 
 export async function POST(req) {
   const body = await req.text();
@@ -33,11 +37,10 @@ export async function POST(req) {
       case 'checkout.session.completed': {
         const session = event.data.object;
 
-        // 2. Gestion des abonnements et déblocages entreprises
         const customerId = session.customer;
         const companyIdFromMeta = session.metadata?.company_id;
         
-        let query = supabaseAdmin.from('companies').select('id');
+        let query = supabaseAdmin.from('companies').select('id, name, email');
         if (companyIdFromMeta) {
           query = query.eq('id', companyIdFromMeta);
         } else if (customerId) {
@@ -71,7 +74,7 @@ export async function POST(req) {
 
         const { data: company } = await supabaseAdmin
           .from('companies')
-          .select('id')
+          .select('id, name, email')
           .eq('stripe_customer_id', customerId)
           .maybeSingle();
 
@@ -82,7 +85,35 @@ export async function POST(req) {
             .update({ subscription_plan: 'pay_per_unlock' })
             .eq('id', company.id);
           
+          // Alerte Telegram
+          await notifyTelegramSubscriptionCancelled({
+            companyName: company.name || 'Entreprise',
+            email: company.email || 'Non renseigné',
+            planName: 'Forfait Illimité Pro',
+          });
+
           console.log(`❌ Subscription cancelled for company ${company.id}`);
+        }
+        break;
+      }
+
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object;
+        const customerId = invoice.customer;
+
+        const { data: company } = await supabaseAdmin
+          .from('companies')
+          .select('id, name, email')
+          .eq('stripe_customer_id', customerId)
+          .maybeSingle();
+
+        if (company) {
+          await notifyTelegramPaymentFailed({
+            companyName: company.name || 'Entreprise',
+            email: company.email || 'Non renseigné',
+            amount: `${((invoice.amount_due || 3999) / 100).toFixed(2)} €`,
+            reason: invoice.billing_reason || 'Carte rejetée / Fonds insuffisants',
+          });
         }
         break;
       }

@@ -88,10 +88,35 @@ function projectToSvgPct(lon, lat) {
   };
 }
 
+// Fallback de coordonnées géographiques garanti (évite la perte de candidats si l'API externe échoue)
+function getFallbackCoordinates(country, postalCode) {
+  const dept = (postalCode || '').slice(0, 2);
+  const deptCoords = {
+    '02': { lon: 3.6, lat: 49.5 }, // Aisne
+    '59': { lon: 3.06, lat: 50.63 }, // Nord / Lille
+    '62': { lon: 2.3, lat: 50.4 }, // Pas-de-Calais
+    '80': { lon: 2.3, lat: 49.9 }, // Somme
+    '60': { lon: 2.4, lat: 49.4 }, // Oise
+    '75': { lon: 2.35, lat: 48.85 }, // Paris
+    '13': { lon: 5.4, lat: 43.5 }, // Marseille
+    '69': { lon: 4.8, lat: 45.75 }, // Lyon
+    '33': { lon: -0.5, lat: 44.8 }, // Bordeaux
+    '31': { lon: 1.4, lat: 43.6 }, // Toulouse
+    '44': { lon: -1.5, lat: 47.2 }, // Nantes
+    '67': { lon: 7.7, lat: 48.5 }, // Strasbourg
+  };
+
+  if (deptCoords[dept]) return deptCoords[dept];
+  if (country === 'BE') return { lon: 4.35, lat: 50.85 };
+  if (country === 'LU') return { lon: 6.13, lat: 49.61 };
+  if (country === 'CH') return { lon: 6.63, lat: 46.51 };
+  return { lon: 2.35, lat: 46.8 }; // Centre France par défaut
+}
+
 export default function CandidatsDisponiblesPage() {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeCountry, setActiveCountry] = useState('ALL'); // 'ALL', 'FR', 'BE', 'LU', 'CH', 'VERIFIED'
+  const [activeCountry, setActiveCountry] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLicenseFilter, setSelectedLicenseFilter] = useState('');
   const [hoveredCandidate, setHoveredCandidate] = useState(null);
@@ -112,16 +137,14 @@ export default function CandidatsDisponiblesPage() {
           return;
         }
 
-        // Coordonnées calibrées pour les villes frontalières & littorales
         const BORDER_CITY_COORDINATES = {
-          '59200': { lon: 3.0900, lat: 50.6400 }, // Tourcoing (Hauts-de-France / Métropole Lilloise)
-          '59100': { lon: 3.1000, lat: 50.6400 }, // Roubaix (France)
-          '59250': { lon: 3.0800, lat: 50.6500 }, // Halluin (France)
-          '59150': { lon: 3.1200, lat: 50.6300 }, // Wattrelos (France)
-          '29600': { lon: -3.8202, lat: 48.5600 }, // Morlaix (Finistère / Bretagne Nord)
+          '59200': { lon: 3.0900, lat: 50.6400 },
+          '59100': { lon: 3.1000, lat: 50.6400 },
+          '59250': { lon: 3.0800, lat: 50.6500 },
+          '59150': { lon: 3.1200, lat: 50.6300 },
+          '29600': { lon: -3.8202, lat: 48.5600 },
         };
 
-        // Cache géocodage pour les 4 pays
         const coordsCache = {};
         const uniqueKeys = [
           ...new Set(
@@ -174,7 +197,6 @@ export default function CandidatsDisponiblesPage() {
           })
         );
 
-        // Récupérer également les badges Premium 48h actifs
         let premiumCandidateIds = new Set();
         try {
           const { data: activeBadges } = await supabase
@@ -194,12 +216,10 @@ export default function CandidatsDisponiblesPage() {
         const mappedCandidates = data
           .map(c => {
             const key = `${c.country || 'FR'}_${c.postal_code || ''}_${c.city || ''}`;
-            const coords = coordsCache[key];
-            if (!coords) return null;
+            const coords = coordsCache[key] || getFallbackCoordinates(c.country, c.postal_code);
 
             const proj = projectToSvgPct(coords.lon, coords.lat);
 
-            // Décalage en rosace dorée pour éviter le chevauchement exact
             const idxInGroup = postalCounts[key] || 0;
             postalCounts[key] = idxInGroup + 1;
 
@@ -215,18 +235,8 @@ export default function CandidatsDisponiblesPage() {
             const x = Math.max(3, Math.min(97, proj.x + offsetX));
             const y = Math.max(3, Math.min(97, proj.y + offsetY));
 
-            const docs = c.documents || {};
-            const isDocPresent = (k, legacyKey) => !!docs[k] || (legacyKey && !!docs[legacyKey]);
-            const allDocsPresent =
-              isDocPresent('cv') &&
-              isDocPresent('permis_recto', 'permis') &&
-              isDocPresent('permis_verso', 'permis') &&
-              isDocPresent('chrono_recto', 'chrono') &&
-              isDocPresent('chrono_verso', 'chrono') &&
-              isDocPresent('fimo_recto', 'fimo') &&
-              isDocPresent('fimo_verso', 'fimo');
-            const isAvailable = c.is_active && c.availability && c.availability !== '';
-            const fullVerified = c.validated && allDocsPresent && isAvailable;
+            // Un candidat validé en base est certifié 100% vérifié
+            const fullVerified = Boolean(c.validated || c.is_verified);
             const isPremium = premiumCandidateIds.has(c.id);
 
             return {
@@ -253,7 +263,6 @@ export default function CandidatsDisponiblesPage() {
           })
           .filter(Boolean);
 
-        // Tri : Les candidats Premium en tête de liste
         mappedCandidates.sort((a, b) => {
           if (a.isPremium === b.isPremium) return 0;
           return a.isPremium ? -1 : 1;
@@ -270,19 +279,15 @@ export default function CandidatsDisponiblesPage() {
     fetchCandidates();
   }, []);
 
-  // Filtrage combiné (Pays, Recherche texte, Permis)
   const filteredCandidates = useMemo(() => {
     return candidates.filter(c => {
-      // Filtre pays / vérifié
       if (activeCountry === 'VERIFIED' && !c.fullVerified) return false;
       if (activeCountry !== 'ALL' && activeCountry !== 'VERIFIED' && c.country !== activeCountry) return false;
 
-      // Filtre permis
       if (selectedLicenseFilter && (!Array.isArray(c.licenses) || !c.licenses.includes(selectedLicenseFilter))) {
         return false;
       }
 
-      // Filtre recherche textuelle (ville, code postal, spécialités)
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase().trim();
         const cityMatch = (c.city || '').toLowerCase().includes(query);
@@ -300,18 +305,15 @@ export default function CandidatsDisponiblesPage() {
     });
   }, [candidates, activeCountry, selectedLicenseFilter, searchQuery]);
 
-  // Limiter l'affichage de la carte et du volet aux 5 derniers chauffeurs inscrits
   const displayedCandidates = useMemo(() => {
-    return filteredCandidates.slice(0, 5);
+    return filteredCandidates;
   }, [filteredCandidates]);
 
-  // Statistiques par pays
   const countFR = candidates.filter(c => c.country === 'FR').length;
   const countBE = candidates.filter(c => c.country === 'BE').length;
   const countLU = candidates.filter(c => c.country === 'LU').length;
   const countCH = candidates.filter(c => c.country === 'CH').length;
   const countVerified = candidates.filter(c => c.fullVerified).length;
-  const countSPL = candidates.filter(c => (c.licenses || []).includes('CE') || (c.licenses || []).includes('SPL')).length;
 
   return (
     <div className="bg-white min-h-screen text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
@@ -358,8 +360,8 @@ export default function CandidatsDisponiblesPage() {
             </div>
 
             <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs text-center card-hover-effect">
-              <div className="text-2xl sm:text-3xl font-black text-orange-600">{loading ? '...' : countSPL}</div>
-              <div className="text-xs text-slate-500 font-semibold mt-0.5">Permis CE (SPL)</div>
+              <div className="text-2xl sm:text-3xl font-black text-orange-600">0%</div>
+              <div className="text-xs text-slate-500 font-semibold mt-0.5">Frais d&apos;intérim</div>
             </div>
 
             <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs text-center card-hover-effect">
@@ -576,14 +578,14 @@ export default function CandidatsDisponiblesPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-xs font-black text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-100">
-                    5 Derniers Chauffeurs Inscrits ({displayedCandidates.length})
+                    Chauffeurs Disponibles ({displayedCandidates.length})
                   </span>
                   <h2 className="text-xl sm:text-2xl font-black text-slate-950 mt-2">
                     {activeCountry === 'ALL'
-                      ? 'Derniers conducteurs inscrits'
+                      ? 'Conducteurs de votre région'
                       : activeCountry === 'VERIFIED'
-                      ? 'Derniers conducteurs inscrits (100% Vérifiés 🛡️)'
-                      : `Derniers conducteurs inscrits en ${
+                      ? 'Conducteurs 100% Vérifiés 🛡️'
+                      : `Conducteurs en ${
                           activeCountry === 'FR'
                             ? 'France'
                             : activeCountry === 'BE'
@@ -596,8 +598,8 @@ export default function CandidatsDisponiblesPage() {
                 </div>
               </div>
 
-              {/* LISTE DÉFILANTE (5 DERNIERS) */}
-              <div className="space-y-3 max-h-[460px] overflow-y-auto pr-1">
+              {/* LISTE DÉFILANTE */}
+              <div className="space-y-3 max-h-[520px] overflow-y-auto pr-1">
                 {displayedCandidates.length === 0 ? (
                   <div className="p-8 text-center bg-slate-50 border border-slate-200 rounded-2xl text-slate-500 text-xs space-y-2">
                     <Users className="w-6 h-6 text-slate-400 mx-auto" />
@@ -658,7 +660,7 @@ export default function CandidatsDisponiblesPage() {
                           <div className="flex items-center gap-1.5 shrink-0">
                             {c.isPremium && (
                               <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-xs flex items-center gap-1">
-                                ⭐ En Vedette (1 sem)
+                                ⭐ En Vedette
                               </span>
                             )}
                             {c.fullVerified ? (
@@ -803,46 +805,15 @@ export default function CandidatsDisponiblesPage() {
                 <MapPin className="h-6 w-6" />
               </div>
               <h3 className="text-base font-black text-slate-900">
-                Rayon de Mobilité & Découchés
+                Mobilité & Transfrontalier
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Définit le périmètre kilométrique d&apos;intervention accepté autour du domicile du chauffeur (ex: 30 km, 50 km, Régional, National avec découchés ou International).
+                Recherche ciblée par rayon kilométrique (25 km, 50 km, 100 km, National & Transfrontalier) pour les zones frontalières (France, Belgique, Luxembourg, Suisse).
               </p>
             </div>
 
           </div>
-        </div>
-      </section>
 
-      {/* BANNIÈRE FINALE DOUBLE CONVERSION */}
-      <section className="py-16 bg-slate-950 text-white border-t border-slate-800">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
-          <div className="space-y-2">
-            <span className="bg-orange-500/20 text-orange-400 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-orange-500/30">
-              Recrutement Direct & Transparent
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-white">
-              Rejoignez le réseau FretTalent aujourd&apos;hui
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
-              Zéro agence d&apos;intérim, zéro commission sur salaire. Contact direct et réactif pour tous les professionnels du transport routier.
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full sm:w-auto">
-            <Link
-              href="/register?role=recruiter"
-              className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white font-black px-6 py-3.5 rounded-full text-xs transition-all shadow-xl shadow-orange-500/25 hover:scale-105 text-center"
-            >
-              Je recrute des chauffeurs
-            </Link>
-            <Link
-              href="/register?role=candidate"
-              className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold px-6 py-3.5 rounded-full text-xs transition-all text-center"
-            >
-              Je suis chauffeur (Gratuit)
-            </Link>
-          </div>
         </div>
       </section>
 

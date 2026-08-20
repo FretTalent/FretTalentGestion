@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { validatePhoneNumber, validateAddress, COUNTRIES, calculateAge } from '@/lib/country';
 import PwaInstallPrompt from '@/components/PwaInstallPrompt';
+import { registerPushSubscription } from '@/lib/push-client';
 
 function CandidateDashboardContent() {
   const router = useRouter();
@@ -164,6 +165,8 @@ function CandidateDashboardContent() {
 
       if (candidateData) {
         setCandidate(candidateData);
+        // Enregistrer automatiquement le téléphone pour les notifications Push PWA
+        registerPushSubscription(user.id, 'candidate').catch(() => {});
         setFullName(candidateData.full_name || '');
         setPhone(candidateData.phone || '');
         setBirthDate(candidateData.birth_date || '');

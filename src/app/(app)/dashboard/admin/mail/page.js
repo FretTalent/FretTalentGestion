@@ -26,6 +26,8 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { calculateAge } from '@/lib/country';
+import { registerPushSubscription } from '@/lib/push-client';
 import ConfirmModal from '@/components/ConfirmModal';
 
 const TEMPLATES = {
@@ -541,9 +543,26 @@ export default function AdminMail() {
               </p>
             </div>
 
-            <div className="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl text-center shrink-0">
-              <span className="text-[10px] text-slate-400 block font-medium">Chauffeurs Enregistrés</span>
-              <span className="text-lg font-black text-orange-400 font-mono">{totalCandidateCount}</span>
+            <div className="flex flex-col items-end gap-2 shrink-0">
+              <div className="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl text-center w-full">
+                <span className="text-[10px] text-slate-400 block font-medium">Chauffeurs Enregistrés</span>
+                <span className="text-lg font-black text-orange-400 font-mono">{totalCandidateCount}</span>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  const { data: { user } } = await supabase.auth.getUser();
+                  const res = await registerPushSubscription(user?.id || 'admin-device', 'candidate');
+                  if (res.success) {
+                    toast.success('📲 Cet appareil est abonné aux Push Notifications ! Envoyez un test.');
+                  } else {
+                    toast.error('Veuillez autoriser les notifications dans votre navigateur/téléphone.');
+                  }
+                }}
+                className="px-3 py-1.5 rounded-xl bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 text-[11px] font-bold border border-orange-500/30 transition-all cursor-pointer"
+              >
+                📲 Activer Push sur cet appareil (Test)
+              </button>
             </div>
           </div>
 

@@ -12,6 +12,7 @@ import {
   notifyTelegramPaymentFailed,
   notifyTelegramSuperCandidate,
   notifyTelegramAccountDeleted,
+  sendTelegramAdminPushBroadcast,
 } from '@/lib/telegram';
 
 export async function POST(req) {
@@ -71,6 +72,10 @@ export async function POST(req) {
 
       case 'super_candidate':
         result = await notifyTelegramSuperCandidate(payload);
+        break;
+
+      case 'admin_push_broadcast':
+        result = await sendTelegramAdminPushBroadcast(payload);
         break;
 
       case 'account_deleted':

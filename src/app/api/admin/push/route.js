@@ -69,11 +69,11 @@ export async function POST(req) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            type: 'super_candidate',
+            type: 'admin_push_broadcast',
             data: {
               title: title,
               message: body,
-              link: url || 'https://www.frettalent.fr',
+              link: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.frettalent.fr'}${url || '/dashboard/candidate'}`,
             },
           }),
         });

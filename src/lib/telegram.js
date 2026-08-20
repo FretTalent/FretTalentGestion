@@ -813,6 +813,29 @@ ${reason ? `💬 <b>Raison :</b> <i>"${escapeHtml(reason)}"</i>\n` : ''}
   return sendTelegramMessage(telegramMsg);
 }
 
+/**
+ * Alerte / Notification Broadcast envoyée depuis l'Admin Push Center vers Telegram
+ */
+export async function sendTelegramAdminPushBroadcast({ title, message, link }) {
+  const telegramMsg = `📢 <b>ANNONCE FRETTALENT</b>
+━━━━━━━━━━━━━━━━━━━━
+<b>${escapeHtml(title)}</b>
+
+${escapeHtml(message)}
+━━━━━━━━━━━━━━━━━━━━
+📅 <i>${new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}</i>`.trim();
+
+  const reply_markup = {
+    inline_keyboard: [
+      [
+        { text: '🌐 Ouvrir l\'annonce / FretTalent', url: link || 'https://www.frettalent.fr/dashboard/candidate' },
+      ],
+    ],
+  };
+
+  return sendTelegramMessage(telegramMsg, { reply_markup });
+}
+
 function escapeHtml(text) {
   if (!text) return '';
   return String(text)

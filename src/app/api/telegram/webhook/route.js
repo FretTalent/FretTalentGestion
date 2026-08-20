@@ -285,9 +285,22 @@ export async function POST(req) {
       const chatId = msg.chat?.id;
       const text = (msg.text || '').trim();
       const fromName = `${msg.from?.first_name || ''} ${msg.from?.last_name || ''}`.trim() || 'Visiteur';
-      const fromUsername = msg.from?.username;
+      const isGroup = msg.chat?.type === 'group' || msg.chat?.type === 'supergroup';
 
-      // SI C'EST UN VISITEUR PUBLIC (Non-Admin)
+      // SI MESSAGE PROVENANT D'UN GROUPE TELEGRAM
+      if (isGroup) {
+        if (text.startsWith('/test') || text.startsWith('/bienvenue') || text.startsWith('/welcome') || text.startsWith('/start')) {
+          await sendTelegramWelcomeNewMember({
+            chatId,
+            userId: msg.from?.id,
+            firstName: msg.from?.first_name,
+            username: msg.from?.username,
+          });
+        }
+        return NextResponse.json({ ok: true });
+      }
+
+      // SI C'EST UN VISITEUR PUBLIC EN PRIVE (Non-Admin)
       if (adminChatId && fromId !== adminChatId) {
         if (text === '/start' || text === '/help' || !text) {
           await sendPublicWelcomeMenu(chatId, fromName);

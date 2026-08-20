@@ -50,24 +50,24 @@ export default function PourLesEntreprises() {
   return (
     <div className="bg-white text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 bg-white border-b border-slate-100">
-        <div className="absolute inset-0 bg-[radial-gradient(#f97316_1px,transparent_1px)] [background-size:24px_24px] opacity-5"></div>
+      <section className="hero-section">
+        <div className="hero-pattern" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Texte de présentation */}
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 text-xs font-semibold">
+              <div className="hero-badge">
                 <Sparkles className="h-4 w-4" /> Recrutement Direct & Sans
                 Intermédiaire
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-955 tracking-tight leading-none">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-950 tracking-tight leading-none">
                 Recrutez vos chauffeurs routiers{' '}
                 <span className="text-orange-500 relative">
                   au meilleur coût
                   <span className="absolute bottom-1 left-0 w-full h-2 bg-orange-200/50 -z-10 rounded"></span>
                 </span>
               </h1>
-              <p className="text-lg text-slate-650 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+              <p className="text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
                 Accédez à notre base de conducteurs qualifiés et disponibles à
                 proximité. Filtrez selon vos besoins réels et débloquez
                 instantanément leurs coordonnées et justificatifs de conduite.
@@ -76,14 +76,14 @@ export default function PourLesEntreprises() {
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                 <Link
                   href="/register?role=recruiter"
-                  className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-bold text-white bg-orange-500 hover:bg-orange-600 shadow-xl shadow-orange-500/25 transition-all duration-300 hover:-translate-y-0.5"
+                  className="btn-primary w-full sm:w-auto"
                 >
                   Créer mon compte entreprise
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
                 <Link
                   href="/tarifs"
-                  className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-bold text-slate-900 border-2 border-slate-200 hover:border-slate-950 transition-all duration-300"
+                  className="btn-secondary w-full sm:w-auto"
                 >
                   Consulter nos tarifs
                 </Link>
@@ -152,9 +152,9 @@ export default function PourLesEntreprises() {
       </section>
 
       {/* Les Avantages Recruteurs */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="section-block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-955 tracking-tight">
+          <h2 className="section-title">
             Pourquoi recruter sur FretTalent ?
           </h2>
           <p className="text-slate-600 text-base">
@@ -169,7 +169,7 @@ export default function PourLesEntreprises() {
             return (
               <div
                 key={idx}
-                className="bg-white border border-slate-200 p-8 rounded-3xl space-y-4 hover:-translate-y-1.5 transition-all duration-300 shadow-sm hover:shadow-md group"
+                className="feature-card space-y-4 group"
               >
                 <div className="bg-orange-50 text-orange-500 p-4 rounded-2xl w-14 h-14 flex items-center justify-center group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300">
                   <Icon className="h-6 w-6" />
@@ -187,18 +187,18 @@ export default function PourLesEntreprises() {
       </section>
 
       {/* SECTION COMPARATIVE: FRETTALENT VS INTERIM */}
-      <section className="bg-slate-50 border-t border-b border-slate-100 py-20">
+      <section className="section-block-alt">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <span className="text-xs font-bold text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-100">
+              <span className="hero-badge">
                 Comparatif & Analyse
               </span>
-              <h2 className="text-3xl font-extrabold text-slate-955 tracking-tight leading-snug">
+              <h2 className="section-title">
                 Pourquoi FretTalent est l'alternative idéale à l'intérim
                 traditionnel ?
               </h2>
-              <p className="text-base text-slate-650 leading-relaxed">
+              <p className="text-base text-slate-600 leading-relaxed">
                 Dans le secteur du transport routier, le recours systématique
                 aux agences d'intérim pèse lourdement sur la rentabilité des
                 entreprises. FretTalent réinvente le recrutement en proposant un
@@ -279,12 +279,12 @@ export default function PourLesEntreprises() {
       </section>
 
       {/* CTA Final */}
-      <section className="py-20 text-center">
+      <section className="section-block text-center">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-955 tracking-tight">
+          <h2 className="section-title">
             Prêt à optimiser vos recrutements de conducteurs ?
           </h2>
-          <p className="text-slate-655 text-lg max-w-2xl mx-auto leading-relaxed">
+          <p className="section-subtitle mx-auto">
             Rejoignez FretTalent aujourd'hui. Créez votre compte recruteur et
             commencez à chercher des chauffeurs disponibles immédiatement près
             de vos dépôts.
@@ -293,7 +293,7 @@ export default function PourLesEntreprises() {
           <div className="pt-2">
             <Link
               href="/register?role=recruiter"
-              className="inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-bold text-white bg-orange-500 hover:bg-orange-600 shadow-xl shadow-orange-500/25 transition-all duration-300 hover:-translate-y-0.5"
+              className="btn-primary"
             >
               Créer un compte entreprise gratuitement
               <ArrowRight className="ml-2 h-5 w-5" />

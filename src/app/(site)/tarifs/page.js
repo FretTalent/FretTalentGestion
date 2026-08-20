@@ -106,12 +106,12 @@ export default function TarifsPage() {
     <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
       
       {/* HERO SECTION DYNAMIQUE */}
-      <section className="relative overflow-hidden py-16 md:py-24 bg-gradient-to-b from-orange-50/40 via-white to-white border-b border-slate-100">
-        <div className="absolute inset-0 bg-[radial-gradient(#f97316_1px,transparent_1px)] [background-size:32px_32px] opacity-5 pointer-events-none" />
+      <section className="hero-section">
+        <div className="hero-pattern" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6 relative z-10">
           
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-50 border border-orange-200 text-orange-600 text-xs font-bold uppercase tracking-wider shadow-2xs animate-float">
+          <div className="hero-badge">
             <Sparkles className="h-4 w-4 text-orange-500" />
             <span>Tarifs Transparents • Sans Engagement • 0% de Commission</span>
           </div>

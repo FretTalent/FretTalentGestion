@@ -30,20 +30,20 @@ export default function Home() {
     <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-orange-500 selection:text-white">
       <main className="flex-grow flex flex-col">
         {/* HERO SECTION UNIQUE */}
-        <section className="w-full relative overflow-hidden py-16 md:py-24 bg-white">
-          {/* Pattern dots moderne en arrière-plan */}
-          <div className="absolute inset-0 bg-dots opacity-[0.4] pointer-events-none" />
+        <section className="hero-section">
+          {/* Pattern orange unifié */}
+          <div className="hero-pattern" />
           {/* Halo orange subtil derrière le texte */}
           <div className="absolute -top-32 -left-32 w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
               {/* Text side */}
               <div className="lg:col-span-7 space-y-8 text-center lg:text-left">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 text-xs font-semibold">
+                <div className="hero-badge">
                   <ShieldCheck className="h-4 w-4 text-orange-500" />
                   <span>Réseau N°1 du Recrutement Transport • France, Belgique, Luxembourg & Suisse</span>
                 </div>
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-950 tracking-tight leading-none">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-950 tracking-tight leading-none">
                   Trouvez vos chauffeurs ou votre prochain job{' '}
                   <span className="text-orange-500 relative">
                     en France, Belgique, Luxembourg & Suisse
@@ -58,14 +58,14 @@ export default function Home() {
                 <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                   <Link
                     href="/register?role=recruiter"
-                    className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-bold text-white bg-orange-500 hover:bg-orange-600 shadow-xl shadow-orange-500/25 transition-all duration-300 hover:-translate-y-0.5"
+                    className="btn-primary w-full sm:w-auto"
                   >
                     Je cherche un chauffeur
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                   <Link
                     href="/register?role=candidate"
-                    className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-bold text-slate-900 border-2 border-slate-200 hover:border-slate-900 hover:bg-slate-50 transition-all duration-300 hover:-translate-y-0.5"
+                    className="btn-secondary w-full sm:w-auto"
                   >
                     Je suis chauffeur
                   </Link>
@@ -267,7 +267,7 @@ export default function Home() {
         {/* Section Facebook supprimée — liens sociaux disponibles dans le footer */}
 
         {/* Section Vitrine SEO & Valeur Ajoutée */}
-        <section className="py-20 bg-white relative overflow-hidden border-t border-slate-100">
+        <section className="section-block relative overflow-hidden">
           {/* Glow subtil */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-orange-500/4 rounded-full blur-3xl pointer-events-none" />
 
@@ -282,7 +282,7 @@ export default function Home() {
                 
                 {/* Texte gauche */}
                 <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-50 text-orange-600 text-xs font-bold uppercase tracking-wider border border-orange-100">
+                  <div className="hero-badge">
                     <Sparkles className="h-3.5 w-3.5 text-orange-500" />
                     <span>L&apos;Excellence du Recrutement Transport</span>
                   </div>
@@ -457,11 +457,11 @@ export default function Home() {
         </section>
 
         {/* SECTION SEO AVANCÉE : RECRUTEMENT CHAUFFEUR SPL & QUESTIONS FRÉQUENTES */}
-        <section className="py-20 bg-white border-t border-slate-100">
+        <section className="section-block-alt">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
             
             <div className="text-center space-y-3">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-50 text-orange-600 text-xs font-bold uppercase tracking-wider border border-orange-100">
+              <div className="hero-badge">
                 <Sparkles className="h-3.5 w-3.5" />
                 <span>Guide Recrutement & FAQ Transport</span>
               </div>

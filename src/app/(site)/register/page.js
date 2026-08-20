@@ -732,8 +732,9 @@ function RegisterContent() {
 
 export default function Register() {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <main className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50/70 relative overflow-hidden flex flex-col font-sans">
+      <div className="hero-pattern" />
+      <main className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative z-10">
         <Suspense
           fallback={
             <div className="text-center p-8 text-slate-500">Chargement du formulaire...</div>

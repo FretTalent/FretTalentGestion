@@ -65,9 +65,9 @@ export default function APropos() {
     <div className="bg-white text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-16 pb-20 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(#f97316_1px,transparent_1px)] [background-size:24px_24px] opacity-10"></div>
+        <div className="hero-pattern" style={{opacity: 0.08}} />
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs sm:text-sm font-semibold">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs sm:text-sm font-bold uppercase tracking-wider">
             <Sparkles className="h-4 w-4" /> Notre Histoire
           </div>
           <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight max-w-4xl mx-auto">
@@ -80,7 +80,7 @@ export default function APropos() {
       </section>
 
       {/* Le Mot du Fondateur - Storytelling */}
-      <section className="py-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="section-block max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 space-y-8 shadow-sm">
           <div className="flex flex-col sm:flex-row items-center gap-5 border-b border-slate-200 pb-6">
             <div className="bg-orange-500 text-white p-4 rounded-2xl flex-shrink-0 shadow-lg shadow-orange-500/20">
@@ -111,13 +111,13 @@ export default function APropos() {
       </section>
 
       {/* Le Constat du Terrain (Pain points) */}
-      <section className="py-16 bg-white border-y border-slate-100">
+      <section className="section-block-alt">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           <div className="text-center max-w-3xl mx-auto space-y-4">
-            <span className="text-xs font-bold text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-100">
+            <span className="hero-badge">
               Pourquoi changer les choses ?
             </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-950">
+            <h2 className="section-title">
               Les problèmes que nous résolvons
             </h2>
           </div>
@@ -128,7 +128,7 @@ export default function APropos() {
               return (
                 <div
                   key={idx}
-                  className="bg-slate-50 border border-slate-200 p-8 rounded-3xl space-y-4 hover:-translate-y-1 transition-transform"
+                  className="feature-card space-y-4"
                 >
                   <div className="bg-red-50 text-red-500 p-3.5 rounded-2xl w-12 h-12 flex items-center justify-center">
                     <Icon className="h-6 w-6" />
@@ -143,12 +143,12 @@ export default function APropos() {
       </section>
 
       {/* Les Nouveautés à Venir (Roadmap) */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      <section className="section-block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <span className="text-xs font-bold text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-100">
+          <span className="hero-badge">
             Roadmap & Projets futurs
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-950">
+          <h2 className="section-title">
             L'avenir de FretTalent
           </h2>
           <p className="text-slate-600 text-base">
@@ -162,7 +162,7 @@ export default function APropos() {
             return (
               <div
                 key={idx}
-                className="bg-white border border-slate-200 p-8 rounded-3xl space-y-4 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between"
+                className="feature-card space-y-4 flex flex-col justify-between"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -195,14 +195,14 @@ export default function APropos() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
             <Link
               href="/register?role=candidate"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-bold text-white bg-orange-500 hover:bg-orange-600 shadow-xl shadow-orange-500/25 transition-all duration-300 hover:-translate-y-0.5"
+              className="btn-primary w-full sm:w-auto"
             >
               Je suis Chauffeur (100% Gratuit)
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
             <Link
               href="/register?role=recruiter"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-bold text-slate-900 bg-white hover:bg-slate-100 border border-slate-200 transition-all duration-300"
+              className="btn-secondary w-full sm:w-auto bg-white"
             >
               Je suis Recruteur
             </Link>

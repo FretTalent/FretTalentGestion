@@ -322,3 +322,142 @@ button, input, select, textarea {
   font-weight: 500;
   text-align: center;
 }
+
+/* ============================
+   DESIGN SYSTEM UNIFIÉ
+   Toutes les pages publiques du site
+   utilisent ces classes pour garantir
+   une cohérence visuelle à 100%.
+   ============================ */
+
+/* Hero Section — Fond standardisé pour toutes les pages */
+.hero-section {
+  position: relative;
+  overflow: hidden;
+  padding-top: 4rem;
+  padding-bottom: 5rem;
+  background: linear-gradient(to bottom, rgba(255,247,237,0.3), #ffffff, #ffffff);
+  border-bottom: 1px solid #f1f5f9;
+}
+
+@media (min-width: 768px) {
+  .hero-section {
+    padding-top: 5rem;
+    padding-bottom: 6rem;
+  }
+}
+
+/* Pattern de fond unifié pour les heros */
+.hero-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, #f97316 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0.04;
+  pointer-events: none;
+}
+
+/* Badge en haut du Hero */
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 1rem;
+  border-radius: 9999px;
+  background-color: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #ea580c;
+  font-size: 0.6875rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Feature Card — Carte de contenu standardisée */
+.feature-card {
+  background: #ffffff;
+  padding: 1.75rem;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.08);
+}
+
+/* Icône dans une Feature Card */
+.feature-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Section Block — Conteneur de section standard */
+.section-block {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+@media (min-width: 768px) {
+  .section-block {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+}
+
+/* Section Block Alterné — Fond gris pour alternance visuelle */
+.section-block-alt {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+  background-color: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+@media (min-width: 768px) {
+  .section-block-alt {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+}
+
+/* CTA Banner — Bannière d'appel à l'action en bas de page */
+.cta-banner {
+  position: relative;
+  overflow: hidden;
+  padding: 4rem 2rem;
+  border-radius: 2rem;
+  background: linear-gradient(135deg, #0f172a, #1e293b, #0f172a);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .cta-banner {
+    padding: 5rem 3rem;
+    border-radius: 2.5rem;
+  }
+}
+
+/* Step Number — Numéro d'étape stylisé */
+.step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.875rem;
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 900;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px -2px rgba(249, 115, 22, 0.3);
+}

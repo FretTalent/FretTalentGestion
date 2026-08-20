@@ -413,11 +413,10 @@ export default function PublicJobsList() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans">
-      <main className="flex-grow max-w-6xl mx-auto px-4 py-12 sm:px-6 lg:px-8 w-full space-y-8">
-        
-        {/* Header de Page */}
-        <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-50 border border-orange-200/80 text-orange-600 text-xs font-bold uppercase tracking-wider">
+      <section className="hero-section text-center">
+        <div className="hero-pattern" />
+        <div className="max-w-3xl mx-auto space-y-3 relative z-10 px-4">
+          <div className="hero-badge">
             <Briefcase className="h-4 w-4 text-orange-500" />
             <span>Offres de Recrutement Direct Transport</span>
           </div>
@@ -430,6 +429,9 @@ export default function PublicJobsList() {
             Trouvez les meilleures opportunités en CDI, CDD et missions en <strong>France</strong>, <strong>Belgique</strong>, <strong>Luxembourg</strong> et <strong>Suisse</strong>. Filtrez précisément par département et postulez en direct.
           </p>
         </div>
+      </section>
+
+      <main className="flex-grow max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8 w-full space-y-8">
 
         {/* PANNEAU DE RECHERCHE & FILTRES MULTI-CRITÈRES */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">

@@ -151,11 +151,13 @@ export default function FAQPage() {
   }).filter(cat => cat.questions.length > 0);
 
   return (
-    <div className="min-h-screen bg-white py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-12">
+    <div className="min-h-screen bg-white">
+      <section className="hero-section">
+        <div className="hero-pattern" />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
         {/* Header */}
         <div className="text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-100 text-orange-600 text-xs font-bold uppercase tracking-wider">
+          <div className="hero-badge">
             <HelpCircle className="w-4 h-4" /> Centre d&apos;aide & FAQ
           </div>
           <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
@@ -165,6 +167,10 @@ export default function FAQPage() {
             Retrouvez toutes les réponses à vos questions concernant l&apos;utilisation de FretTalent, le recrutement et la recherche d&apos;emploi transport.
           </p>
         </div>
+        </div>
+      </section>
+
+      <div className="section-block max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
 
         {/* Search Bar */}
         <div className="relative max-w-2xl mx-auto">

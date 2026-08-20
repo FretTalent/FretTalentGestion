@@ -60,13 +60,13 @@ export default function CommentCaMarche() {
   return (
     <div className="bg-white text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-16 pb-24 md:pb-32 bg-white border-b border-slate-100">
-        {/* Pattern dots moderne */}
-        <div className="absolute inset-0 bg-dots opacity-[0.35] pointer-events-none" />
+      <section className="hero-section">
+        {/* Pattern orange unifié */}
+        <div className="hero-pattern" />
         {/* Halo orange subtil */}
         <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-orange-500/5 rounded-full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/2" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-5">
-          <span className="text-xs font-bold text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-100">
+          <span className="hero-badge">
             Mise en relation directe
           </span>
           <h1 className="text-4xl sm:text-5xl font-black text-slate-950 tracking-tight">
@@ -80,13 +80,13 @@ export default function CommentCaMarche() {
       </section>
 
       {/* PARCOURS ENTREPRISES */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-slate-100">
+      <section className="section-block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-slate-100">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center mb-16">
           <div className="lg:col-span-7 space-y-4">
-            <span className="text-xs font-bold text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-100">
+            <span className="hero-badge">
               Pour les recruteurs
             </span>
-            <h2 className="text-3xl font-extrabold text-slate-950 tracking-tight">
+            <h2 className="section-title">
               Recrutez vos chauffeurs en quelques clics
             </h2>
             <p className="text-slate-600 text-base leading-relaxed">
@@ -98,7 +98,7 @@ export default function CommentCaMarche() {
           <div className="lg:col-span-5 flex lg:justify-end">
             <Link
               href="/register?role=recruiter"
-              className="inline-flex items-center justify-center px-6 py-3.5 rounded-full text-xs font-bold text-white bg-orange-500 hover:bg-orange-600 shadow-lg shadow-orange-500/20 transition-all duration-300 hover:-translate-y-0.5"
+              className="btn-primary"
             >
               Je crée un compte entreprise
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -112,7 +112,7 @@ export default function CommentCaMarche() {
             return (
               <div
                 key={idx}
-                className="bg-white border border-slate-200 p-8 rounded-3xl space-y-4 hover:-translate-y-1.5 transition-all duration-300 shadow-sm hover:shadow-md group"
+                className="feature-card space-y-4 group"
               >
                 <div className="bg-orange-50 text-orange-500 p-4 rounded-2xl w-14 h-14 flex items-center justify-center group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300">
                   <Icon className="h-6 w-6" />
@@ -130,14 +130,14 @@ export default function CommentCaMarche() {
       </section>
 
       {/* PARCOURS CHAUFFEURS */}
-      <section className="py-20 bg-slate-50 border-b border-slate-100">
+      <section className="section-block-alt">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center mb-16">
             <div className="lg:col-span-7 space-y-4">
-              <span className="text-xs font-bold text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-100">
+              <span className="hero-badge">
                 Pour les conducteurs
               </span>
-              <h2 className="text-3xl font-extrabold text-slate-950 tracking-tight">
+              <h2 className="section-title">
                 Valorisez votre profil en toute sécurité
               </h2>
               <p className="text-slate-600 text-base leading-relaxed">
@@ -149,7 +149,7 @@ export default function CommentCaMarche() {
             <div className="lg:col-span-5 flex lg:justify-end">
               <Link
                 href="/register?role=candidate"
-                className="inline-flex items-center justify-center px-6 py-3.5 rounded-full text-xs font-bold text-white bg-slate-900 hover:bg-slate-950 shadow-lg transition-all duration-300 hover:-translate-y-0.5"
+                className="btn-secondary"
               >
                 Je m'inscris gratuitement
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -163,7 +163,7 @@ export default function CommentCaMarche() {
               return (
                 <div
                   key={idx}
-                  className="bg-white border border-slate-200 p-8 rounded-3xl space-y-4 hover:-translate-y-1.5 transition-all duration-300 shadow-sm hover:shadow-md group"
+                  className="feature-card space-y-4 group"
                 >
                   <div className="bg-orange-50 text-orange-500 p-4 rounded-2xl w-14 h-14 flex items-center justify-center group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300">
                     <Icon className="h-6 w-6" />
@@ -182,7 +182,7 @@ export default function CommentCaMarche() {
       </section>
 
       {/* RÉSULTAT DU DOSSIER COMPLET */}
-      <section className="py-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
+      <section className="section-block max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
         <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-10 rounded-3xl space-y-5 shadow-xl shadow-orange-500/25 relative overflow-hidden">
           <div className="absolute -right-16 -bottom-16 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
           <div className="absolute -left-16 -top-16 w-48 h-48 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>

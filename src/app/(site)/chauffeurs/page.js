@@ -58,13 +58,13 @@ export default function PourLesChauffeurs() {
   return (
     <div className="bg-white text-slate-900 font-sans selection:bg-orange-500 selection:text-white">
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 bg-white border-b border-slate-100">
-        <div className="absolute inset-0 bg-[radial-gradient(#f97316_1px,transparent_1px)] [background-size:24px_24px] opacity-5"></div>
+      <section className="hero-section">
+        <div className="hero-pattern" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Texte Hero */}
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 text-xs font-semibold">
+              <div className="hero-badge">
                 <Sparkles className="h-4 w-4" /> 100% Gratuit • France, Belgique, Luxembourg & Suisse
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-950 tracking-tight leading-none">
@@ -81,14 +81,14 @@ export default function PourLesChauffeurs() {
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                 <Link
                   href="/register?role=candidate"
-                  className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-bold text-white bg-orange-500 hover:bg-orange-600 shadow-xl shadow-orange-500/25 transition-all duration-300 hover:-translate-y-0.5"
+                  className="btn-primary w-full sm:w-auto"
                 >
                   Créer mon profil gratuitement
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
                 <Link
                   href="/candidats-disponibles"
-                  className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-bold text-slate-900 border-2 border-slate-200 hover:border-slate-950 transition-all duration-300"
+                  className="btn-secondary w-full sm:w-auto"
                 >
                   Voir les candidats en direct
                 </Link>
@@ -146,9 +146,9 @@ export default function PourLesChauffeurs() {
       </section>
 
       {/* Le Parcours en 3 étapes */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="section-block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
+          <h2 className="section-title">
             Comment ça fonctionne pour vous ?
           </h2>
           <p className="text-slate-600 text-base">
@@ -163,7 +163,7 @@ export default function PourLesChauffeurs() {
             return (
               <div
                 key={idx}
-                className="bg-white border border-slate-200 p-8 rounded-3xl space-y-4 hover:-translate-y-1.5 transition-all duration-300 shadow-sm hover:shadow-md group"
+                className="feature-card space-y-4 group"
               >
                 <div className="bg-orange-50 text-orange-500 p-4 rounded-2xl w-14 h-14 flex items-center justify-center group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300">
                   <Icon className="h-6 w-6" />
@@ -259,7 +259,7 @@ export default function PourLesChauffeurs() {
       </section>
 
       {/* Communauté Facebook Chauffeurs */}
-      <section className="py-14 bg-blue-50/60 border-y border-blue-100">
+      <section className="section-block-alt">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 text-[#1877F2] text-xs font-bold uppercase tracking-wider">
             <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -290,12 +290,12 @@ export default function PourLesChauffeurs() {
       </section>
 
       {/* CTA Final */}
-      <section className="py-20 bg-white border-t border-slate-100 text-center">
+      <section className="section-block text-center">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-955 tracking-tight">
+          <h2 className="section-title">
             Prêt à trouver votre prochain contrat de route ?
           </h2>
-          <p className="text-slate-600 text-lg max-w-2xl mx-auto leading-relaxed">
+          <p className="section-subtitle mx-auto">
             Rejoignez gratuitement la communauté FretTalent. Créez votre profil
             en 2 minutes et laissez les meilleures entreprises de transport vous
             proposer des postes adaptés.
@@ -304,7 +304,7 @@ export default function PourLesChauffeurs() {
           <div className="pt-2">
             <Link
               href="/register?role=candidate"
-              className="inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-bold text-white bg-orange-500 hover:bg-orange-600 shadow-xl shadow-orange-500/25 transition-all duration-300 hover:-translate-y-0.5"
+              className="btn-primary"
             >
               Je m'inscris gratuitement
               <ArrowRight className="ml-2 h-5 w-5" />

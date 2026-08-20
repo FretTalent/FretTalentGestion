@@ -71,12 +71,12 @@ export default function SeoLandingTemplate({
       ))}
 
       {/* HERO SECTION HIGH-END */}
-      <section className="relative overflow-hidden py-16 md:py-24 bg-gradient-to-b from-orange-50/50 via-white to-white border-b border-slate-100">
-        <div className="absolute inset-0 bg-[radial-gradient(#f97316_1px,transparent_1px)] [background-size:32px_32px] opacity-5 pointer-events-none" />
+      <section className="hero-section">
+        <div className="hero-pattern" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6 relative z-10">
           
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-50 border border-orange-200 text-orange-600 text-xs font-bold uppercase tracking-wider shadow-2xs">
+          <div className="hero-badge">
             <Sparkles className="h-4 w-4 text-orange-500" />
             <span>{badgeText}</span>
           </div>
@@ -93,7 +93,7 @@ export default function SeoLandingTemplate({
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/offres"
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-black text-sm shadow-xl shadow-orange-500/25 transition-all hover:scale-105 flex items-center justify-center gap-2"
+              className="btn-primary w-full sm:w-auto"
             >
               <Briefcase className="w-5 h-5" />
               <span>Consulter les offres d'emploi</span>
@@ -101,9 +101,9 @@ export default function SeoLandingTemplate({
 
             <Link
               href="/candidats-disponibles"
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-black text-sm shadow-lg transition-all hover:scale-105 flex items-center justify-center gap-2"
+              className="btn-secondary w-full sm:w-auto"
             >
-              <Users className="w-5 h-5 text-orange-400" />
+              <Users className="w-5 h-5 text-orange-500" />
               <span>Voir les chauffeurs disponibles</span>
             </Link>
           </div>
@@ -216,13 +216,13 @@ export default function SeoLandingTemplate({
 
       {/* TABLEAU COMPARATIF DÉTAILLÉ (COMPARISON TABLE) */}
       {comparisonTable && (
-        <section className="py-12 bg-slate-50 border-y border-slate-200">
+        <section className="section-block-alt">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             <div className="text-center space-y-2">
-              <span className="text-xs font-black text-orange-600 uppercase tracking-widest bg-orange-100 px-3 py-1 rounded-full">
+              <span className="hero-badge">
                 Analyse Comparative
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-slate-950">
+              <h2 className="section-title text-center">
                 {comparisonTable.title}
               </h2>
             </div>
@@ -256,10 +256,10 @@ export default function SeoLandingTemplate({
       )}
 
       {/* SECTION MAILLAGE INTERNE INTELLIGENT (SEO LINKS MESH) */}
-      <section className="py-16 bg-slate-50 border-t border-slate-200">
+      <section className="section-block-alt">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="text-center space-y-2">
-            <h2 className="text-2xl font-black text-slate-950">
+            <h2 className="section-title text-center">
               Explorez nos métiers et opportunités de recrutement transport
             </h2>
             <p className="text-xs sm:text-sm text-slate-600">
@@ -284,12 +284,12 @@ export default function SeoLandingTemplate({
 
       {/* SECTION FAQ (ACCORDION + SCHEMA JSON-LD) */}
       {faqs && faqs.length > 0 && (
-        <section className="py-16 md:py-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        <section className="section-block max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="text-center space-y-2">
-            <span className="text-xs font-black text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full">
+            <span className="hero-badge">
               Foire Aux Questions
             </span>
-            <h2 className="text-3xl font-black text-slate-950">Questions Fréquentes</h2>
+            <h2 className="section-title text-center">Questions Fréquentes</h2>
           </div>
 
           <div className="space-y-4">
@@ -321,19 +321,19 @@ export default function SeoLandingTemplate({
       )}
 
       {/* CALL TO ACTION FINAL */}
-      <section className="py-16 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white text-center border-t border-slate-800">
+      <section className="section-block-alt text-center">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
+          <h2 className="section-title text-center">
             Prêt à recruter ou à trouver votre prochain poste ?
           </h2>
-          <p className="text-sm sm:text-base text-slate-400 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto">
             Rejoignez la 1ère plateforme spécialisée dans le transport routier en France. Inscrivez-vous gratuitement en moins de 2 minutes.
           </p>
 
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/register?role=candidate"
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-black text-sm shadow-xl shadow-orange-500/25 transition-all hover:scale-105 flex items-center justify-center gap-2"
+              className="btn-primary w-full sm:w-auto"
             >
               <Truck className="w-5 h-5" />
               <span>Chauffeur : Déposer mon CV</span>
@@ -341,7 +341,7 @@ export default function SeoLandingTemplate({
 
             <Link
               href="/register?role=recruiter"
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white text-slate-950 hover:bg-slate-100 font-black text-sm shadow-lg transition-all hover:scale-105 flex items-center justify-center gap-2"
+              className="btn-secondary w-full sm:w-auto bg-white"
             >
               <Building2 className="w-5 h-5 text-orange-500" />
               <span>Transporteur : Espace Recruteur</span>

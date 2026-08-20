@@ -233,9 +233,10 @@ function LoginForm() {
 
 export default function Login() {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <main className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full bg-white p-8 rounded-3xl border border-slate-200 shadow-xl space-y-6">
+    <div className="min-h-screen bg-slate-50/70 relative overflow-hidden flex flex-col font-sans">
+      <div className="hero-pattern" />
+      <main className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="max-w-md w-full bg-white p-8 rounded-3xl border border-slate-200/80 shadow-xl space-y-6">
           <Suspense
             fallback={
               <div className="flex justify-center py-12">

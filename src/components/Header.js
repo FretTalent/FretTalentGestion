@@ -201,7 +201,7 @@ export default function Header() {
           </Link>
 
           {/* DESKTOP NAVIGATION BAR (MODERNE, STRUCTURÉE ET ÉPURÉE) */}
-          <nav className="hidden lg:flex items-center gap-1 p-1.5 bg-slate-100/80 rounded-full border border-slate-200/60 backdrop-blur-md relative">
+          <nav className="hidden lg:flex items-center gap-1.5 p-1.5 bg-slate-100/80 rounded-full border border-slate-200/60 backdrop-blur-md relative">
             
             {/* MEGA MENU 1 : Solutions Recruteurs */}
             <div
@@ -211,16 +211,16 @@ export default function Header() {
             >
               <button
                 onClick={() => setActiveDropdown(activeDropdown === 'recruiter' ? null : 'recruiter')}
-                className={`whitespace-nowrap px-4 py-2 text-xs xl:text-sm font-bold rounded-full transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
+                className={`whitespace-nowrap px-4.5 py-2.5 text-sm xl:text-[15px] font-extrabold rounded-full transition-all duration-200 flex items-center gap-2 cursor-pointer ${
                   activeDropdown === 'recruiter' || isActive('/candidats-disponibles') || isActive('/entreprises')
                     ? 'bg-white text-orange-600 shadow-sm ring-1 ring-slate-200/80 font-black'
-                    : 'text-slate-700 hover:text-slate-950 hover:bg-white/60'
+                    : 'text-slate-700 hover:text-slate-950 hover:bg-white/70'
                 }`}
               >
-                <Briefcase className="w-3.5 h-3.5 text-orange-500" />
+                <Briefcase className="w-4 h-4 text-orange-500" />
                 <span>Solutions Recruteurs</span>
                 <ChevronDown
-                  className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+                  className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
                     activeDropdown === 'recruiter' ? 'rotate-180 text-orange-500' : ''
                   }`}
                 />
@@ -228,8 +228,8 @@ export default function Header() {
 
               {/* PANNEAU MEGA MENU RECRUTEURS */}
               {activeDropdown === 'recruiter' && (
-                <div className="absolute top-full -left-10 pt-3 z-50 w-[840px] max-w-[90vw] animate-in fade-in zoom-in-95 duration-150">
-                  <div className="bg-white/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 shadow-[0_25px_70px_-15px_rgba(15,23,42,0.18)] p-6 relative">
+                <div className="absolute top-full -left-10 pt-3 z-50 w-[880px] max-w-[92vw] animate-in fade-in zoom-in-95 duration-150">
+                  <div className="bg-white/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 shadow-[0_25px_70px_-15px_rgba(15,23,42,0.18)] p-7 relative">
                     <div className="absolute -top-2 left-16 w-4 h-4 bg-white border-t border-l border-slate-200/90 rotate-45" />
 
                     <div className="grid grid-cols-12 gap-6 relative z-10">
@@ -237,10 +237,10 @@ export default function Header() {
                       <div className="col-span-8 grid grid-cols-2 gap-6">
                         {recruiterMegaMenu.columns.map((col, idx) => (
                           <div key={idx} className="space-y-3">
-                            <h4 className="text-xs font-black text-slate-900 tracking-wide uppercase pb-2 border-b border-slate-100">
+                            <h4 className="text-[13px] xl:text-sm font-black text-slate-900 tracking-wide uppercase pb-2.5 border-b border-slate-100">
                               {col.title}
                             </h4>
-                            <div className="space-y-1.5">
+                            <div className="space-y-2">
                               {col.links.map(link => (
                                 <Link
                                   key={link.path + link.name}
@@ -249,16 +249,16 @@ export default function Header() {
                                   className="group flex flex-col p-2.5 rounded-2xl hover:bg-orange-50/80 transition-all duration-150"
                                 >
                                   <div className="flex items-center justify-between">
-                                    <span className="text-xs font-bold text-slate-800 group-hover:text-orange-600 transition-colors">
+                                    <span className="text-xs xl:text-sm font-black text-slate-800 group-hover:text-orange-600 transition-colors">
                                       {link.name}
                                     </span>
                                     {link.badge && (
-                                      <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md border ${link.badgeColor}`}>
+                                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-md border ${link.badgeColor}`}>
                                         {link.badge}
                                       </span>
                                     )}
                                   </div>
-                                  <span className="text-[11px] text-slate-400 group-hover:text-slate-600 transition-colors mt-0.5 line-clamp-1">
+                                  <span className="text-xs text-slate-500 group-hover:text-slate-700 transition-colors mt-0.5 font-medium line-clamp-1">
                                     {link.desc}
                                   </span>
                                 </Link>
@@ -269,15 +269,15 @@ export default function Header() {
                       </div>
 
                       {/* Carte Promo Droit (4 cols) */}
-                      <div className={`col-span-4 bg-gradient-to-br ${recruiterMegaMenu.card.gradient} text-white rounded-2xl p-5 border border-slate-800 shadow-xl flex flex-col justify-between relative overflow-hidden group`}>
+                      <div className={`col-span-4 bg-gradient-to-br ${recruiterMegaMenu.card.gradient} text-white rounded-2xl p-5.5 border border-slate-800 shadow-xl flex flex-col justify-between relative overflow-hidden group`}>
                         <div className="space-y-3 relative z-10">
-                          <span className="inline-block text-[10px] font-black uppercase tracking-wider bg-orange-500/20 text-orange-400 border border-orange-500/30 px-2.5 py-1 rounded-full">
+                          <span className="inline-block text-[11px] font-black uppercase tracking-wider bg-orange-500/20 text-orange-400 border border-orange-500/30 px-2.5 py-1 rounded-full">
                             {recruiterMegaMenu.card.badge}
                           </span>
-                          <h4 className="text-sm font-black leading-snug text-white">
+                          <h4 className="text-base font-black leading-snug text-white">
                             {recruiterMegaMenu.card.title}
                           </h4>
-                          <p className="text-[11px] text-slate-300 leading-relaxed">
+                          <p className="text-xs text-slate-300 leading-relaxed font-medium">
                             {recruiterMegaMenu.card.desc}
                           </p>
                         </div>
@@ -285,28 +285,28 @@ export default function Header() {
                           <Link
                             href={recruiterMegaMenu.card.ctaPath}
                             onClick={() => setActiveDropdown(null)}
-                            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 text-white text-xs font-black py-2.5 px-3 rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5"
+                            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 text-white text-xs xl:text-sm font-black py-2.5 px-3 rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5"
                           >
                             <span>{recruiterMegaMenu.card.ctaText}</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
+                            <ArrowRight className="w-4 h-4" />
                           </Link>
                         </div>
                       </div>
                     </div>
 
                     {/* Footer Banner */}
-                    <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs bg-slate-50/90 -mx-6 -mb-6 px-6 py-3 rounded-b-3xl">
-                      <span className="text-slate-600 font-semibold flex items-center gap-1.5">
-                        <Zap className="w-4 h-4 text-orange-500" />
+                    <div className="mt-6 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs xl:text-sm bg-slate-50/90 -mx-7 -mb-7 px-7 py-3.5 rounded-b-3xl">
+                      <span className="text-slate-700 font-bold flex items-center gap-2">
+                        <Zap className="w-4.5 h-4.5 text-orange-500" />
                         Déblocage unitaire à 4,99 € ou abonnement mensuel illimité sans engagement.
                       </span>
                       <Link
                         href="/tarifs"
                         onClick={() => setActiveDropdown(null)}
-                        className="font-black text-orange-600 hover:text-orange-700 hover:underline flex items-center gap-1"
+                        className="font-black text-orange-600 hover:text-orange-700 hover:underline flex items-center gap-1 shrink-0 ml-2"
                       >
                         <span>Voir les formules</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
+                        <ArrowRight className="w-4 h-4" />
                       </Link>
                     </div>
                   </div>
@@ -322,16 +322,16 @@ export default function Header() {
             >
               <button
                 onClick={() => setActiveDropdown(activeDropdown === 'drivers' ? null : 'drivers')}
-                className={`whitespace-nowrap px-4 py-2 text-xs xl:text-sm font-bold rounded-full transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
+                className={`whitespace-nowrap px-4.5 py-2.5 text-sm xl:text-[15px] font-extrabold rounded-full transition-all duration-200 flex items-center gap-2 cursor-pointer ${
                   activeDropdown === 'drivers' || isActive('/chauffeur-spl') || isActive('/chauffeur-pl')
                     ? 'bg-white text-orange-600 shadow-sm ring-1 ring-slate-200/80 font-black'
-                    : 'text-slate-700 hover:text-slate-950 hover:bg-white/60'
+                    : 'text-slate-700 hover:text-slate-950 hover:bg-white/70'
                 }`}
               >
-                <Truck className="w-3.5 h-3.5 text-orange-500" />
+                <Truck className="w-4 h-4 text-orange-500" />
                 <span>Métiers & Permis</span>
                 <ChevronDown
-                  className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+                  className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
                     activeDropdown === 'drivers' ? 'rotate-180 text-orange-500' : ''
                   }`}
                 />
@@ -339,8 +339,8 @@ export default function Header() {
 
               {/* PANNEAU MEGA MENU MÉTIERS */}
               {activeDropdown === 'drivers' && (
-                <div className="absolute top-full -left-28 pt-3 z-50 w-[840px] max-w-[90vw] animate-in fade-in zoom-in-95 duration-150">
-                  <div className="bg-white/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 shadow-[0_25px_70px_-15px_rgba(15,23,42,0.18)] p-6 relative">
+                <div className="absolute top-full -left-28 pt-3 z-50 w-[880px] max-w-[92vw] animate-in fade-in zoom-in-95 duration-150">
+                  <div className="bg-white/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 shadow-[0_25px_70px_-15px_rgba(15,23,42,0.18)] p-7 relative">
                     <div className="absolute -top-2 left-36 w-4 h-4 bg-white border-t border-l border-slate-200/90 rotate-45" />
 
                     <div className="grid grid-cols-12 gap-6 relative z-10">
@@ -348,22 +348,22 @@ export default function Header() {
                       <div className="col-span-8 grid grid-cols-2 gap-6">
                         {driversMegaMenu.columns.map((col, idx) => (
                           <div key={idx} className="space-y-3">
-                            <h4 className="text-xs font-black text-slate-900 tracking-wide uppercase pb-2 border-b border-slate-100">
+                            <h4 className="text-[13px] xl:text-sm font-black text-slate-900 tracking-wide uppercase pb-2.5 border-b border-slate-100">
                               {col.title}
                             </h4>
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                               {col.links.map(link => (
                                 <Link
                                   key={link.path + link.name}
                                   href={link.path}
                                   onClick={() => setActiveDropdown(null)}
-                                  className="group flex items-center justify-between p-2 rounded-xl text-xs font-bold text-slate-700 hover:text-orange-600 hover:bg-orange-50/80 transition-all duration-150"
+                                  className="group flex items-center justify-between p-2.5 rounded-xl text-xs xl:text-sm font-black text-slate-800 hover:text-orange-600 hover:bg-orange-50/80 transition-all duration-150"
                                 >
                                   <span className="truncate pr-1 group-hover:translate-x-0.5 transition-transform">
                                     {link.name}
                                   </span>
                                   {link.badge && (
-                                    <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md border shrink-0 ${link.badgeColor}`}>
+                                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-md border shrink-0 ${link.badgeColor}`}>
                                       {link.badge}
                                     </span>
                                   )}
@@ -375,15 +375,15 @@ export default function Header() {
                       </div>
 
                       {/* Carte Promo Droit (4 cols) */}
-                      <div className={`col-span-4 bg-gradient-to-br ${driversMegaMenu.card.gradient} text-white rounded-2xl p-5 border border-slate-800 shadow-xl flex flex-col justify-between relative overflow-hidden group`}>
+                      <div className={`col-span-4 bg-gradient-to-br ${driversMegaMenu.card.gradient} text-white rounded-2xl p-5.5 border border-slate-800 shadow-xl flex flex-col justify-between relative overflow-hidden group`}>
                         <div className="space-y-3 relative z-10">
-                          <span className="inline-block text-[10px] font-black uppercase tracking-wider bg-orange-500/20 text-orange-400 border border-orange-500/30 px-2.5 py-1 rounded-full">
+                          <span className="inline-block text-[11px] font-black uppercase tracking-wider bg-orange-500/20 text-orange-400 border border-orange-500/30 px-2.5 py-1 rounded-full">
                             {driversMegaMenu.card.badge}
                           </span>
-                          <h4 className="text-sm font-black leading-snug text-white">
+                          <h4 className="text-base font-black leading-snug text-white">
                             {driversMegaMenu.card.title}
                           </h4>
-                          <p className="text-[11px] text-slate-300 leading-relaxed">
+                          <p className="text-xs text-slate-300 leading-relaxed font-medium">
                             {driversMegaMenu.card.desc}
                           </p>
                         </div>
@@ -391,28 +391,28 @@ export default function Header() {
                           <Link
                             href={driversMegaMenu.card.ctaPath}
                             onClick={() => setActiveDropdown(null)}
-                            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 text-white text-xs font-black py-2.5 px-3 rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5"
+                            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 text-white text-xs xl:text-sm font-black py-2.5 px-3 rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5"
                           >
                             <span>{driversMegaMenu.card.ctaText}</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
+                            <ArrowRight className="w-4 h-4" />
                           </Link>
                         </div>
                       </div>
                     </div>
 
                     {/* Footer Banner */}
-                    <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs bg-slate-50/90 -mx-6 -mb-6 px-6 py-3 rounded-b-3xl">
-                      <span className="text-slate-600 font-semibold flex items-center gap-1.5">
-                        <Sparkles className="w-4 h-4 text-orange-500" />
+                    <div className="mt-6 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs xl:text-sm bg-slate-50/90 -mx-7 -mb-7 px-7 py-3.5 rounded-b-3xl">
+                      <span className="text-slate-700 font-bold flex items-center gap-2">
+                        <Sparkles className="w-4.5 h-4.5 text-orange-500" />
                         Vous cherchez un poste ? Consultez toutes les offres de recrutement transport.
                       </span>
                       <Link
                         href="/offres"
                         onClick={() => setActiveDropdown(null)}
-                        className="font-black text-orange-600 hover:text-orange-700 hover:underline flex items-center gap-1"
+                        className="font-black text-orange-600 hover:text-orange-700 hover:underline flex items-center gap-1 shrink-0 ml-2"
                       >
                         <span>Voir les offres</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
+                        <ArrowRight className="w-4 h-4" />
                       </Link>
                     </div>
                   </div>
@@ -428,16 +428,16 @@ export default function Header() {
             >
               <button
                 onClick={() => setActiveDropdown(activeDropdown === 'regions' ? null : 'regions')}
-                className={`whitespace-nowrap px-4 py-2 text-xs xl:text-sm font-bold rounded-full transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
+                className={`whitespace-nowrap px-4.5 py-2.5 text-sm xl:text-[15px] font-extrabold rounded-full transition-all duration-200 flex items-center gap-2 cursor-pointer ${
                   activeDropdown === 'regions' || isActive('/chauffeur-spl-hauts-de-france')
                     ? 'bg-white text-orange-600 shadow-sm ring-1 ring-slate-200/80 font-black'
-                    : 'text-slate-700 hover:text-slate-950 hover:bg-white/60'
+                    : 'text-slate-700 hover:text-slate-950 hover:bg-white/70'
                 }`}
               >
-                <MapPin className="w-3.5 h-3.5 text-orange-500" />
+                <MapPin className="w-4 h-4 text-orange-500" />
                 <span>Zones & Régions</span>
                 <ChevronDown
-                  className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+                  className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
                     activeDropdown === 'regions' ? 'rotate-180 text-orange-500' : ''
                   }`}
                 />
@@ -445,8 +445,8 @@ export default function Header() {
 
               {/* PANNEAU MEGA MENU RÉGIONS */}
               {activeDropdown === 'regions' && (
-                <div className="absolute top-full -left-52 pt-3 z-50 w-[840px] max-w-[90vw] animate-in fade-in zoom-in-95 duration-150">
-                  <div className="bg-white/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 shadow-[0_25px_70px_-15px_rgba(15,23,42,0.18)] p-6 relative">
+                <div className="absolute top-full -left-52 pt-3 z-50 w-[880px] max-w-[92vw] animate-in fade-in zoom-in-95 duration-150">
+                  <div className="bg-white/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 shadow-[0_25px_70px_-15px_rgba(15,23,42,0.18)] p-7 relative">
                     <div className="absolute -top-2 left-60 w-4 h-4 bg-white border-t border-l border-slate-200/90 rotate-45" />
 
                     <div className="grid grid-cols-12 gap-6 relative z-10">
@@ -454,22 +454,22 @@ export default function Header() {
                       <div className="col-span-8 grid grid-cols-2 gap-6">
                         {regionsMegaMenu.columns.map((col, idx) => (
                           <div key={idx} className="space-y-3">
-                            <h4 className="text-xs font-black text-slate-900 tracking-wide uppercase pb-2 border-b border-slate-100">
+                            <h4 className="text-[13px] xl:text-sm font-black text-slate-900 tracking-wide uppercase pb-2.5 border-b border-slate-100">
                               {col.title}
                             </h4>
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                               {col.links.map(link => (
                                 <Link
                                   key={link.path + link.name}
                                   href={link.path}
                                   onClick={() => setActiveDropdown(null)}
-                                  className="group flex items-center justify-between p-2 rounded-xl text-xs font-bold text-slate-700 hover:text-orange-600 hover:bg-orange-50/80 transition-all duration-150"
+                                  className="group flex items-center justify-between p-2.5 rounded-xl text-xs xl:text-sm font-black text-slate-800 hover:text-orange-600 hover:bg-orange-50/80 transition-all duration-150"
                                 >
                                   <span className="truncate pr-1 group-hover:translate-x-0.5 transition-transform">
                                     {link.name}
                                   </span>
                                   {link.badge && (
-                                    <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md border shrink-0 ${link.badgeColor}`}>
+                                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-md border shrink-0 ${link.badgeColor}`}>
                                       {link.badge}
                                     </span>
                                   )}
@@ -481,15 +481,15 @@ export default function Header() {
                       </div>
 
                       {/* Carte Promo Droit (4 cols) */}
-                      <div className={`col-span-4 bg-gradient-to-br ${regionsMegaMenu.card.gradient} text-white rounded-2xl p-5 border border-slate-800 shadow-xl flex flex-col justify-between relative overflow-hidden group`}>
+                      <div className={`col-span-4 bg-gradient-to-br ${regionsMegaMenu.card.gradient} text-white rounded-2xl p-5.5 border border-slate-800 shadow-xl flex flex-col justify-between relative overflow-hidden group`}>
                         <div className="space-y-3 relative z-10">
-                          <span className="inline-block text-[10px] font-black uppercase tracking-wider bg-orange-500/20 text-orange-400 border border-orange-500/30 px-2.5 py-1 rounded-full">
+                          <span className="inline-block text-[11px] font-black uppercase tracking-wider bg-orange-500/20 text-orange-400 border border-orange-500/30 px-2.5 py-1 rounded-full">
                             {regionsMegaMenu.card.badge}
                           </span>
-                          <h4 className="text-sm font-black leading-snug text-white">
+                          <h4 className="text-base font-black leading-snug text-white">
                             {regionsMegaMenu.card.title}
                           </h4>
-                          <p className="text-[11px] text-slate-300 leading-relaxed">
+                          <p className="text-xs text-slate-300 leading-relaxed font-medium">
                             {regionsMegaMenu.card.desc}
                           </p>
                         </div>
@@ -497,28 +497,28 @@ export default function Header() {
                           <Link
                             href={regionsMegaMenu.card.ctaPath}
                             onClick={() => setActiveDropdown(null)}
-                            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 text-white text-xs font-black py-2.5 px-3 rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5"
+                            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 text-white text-xs xl:text-sm font-black py-2.5 px-3 rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5"
                           >
                             <span>{regionsMegaMenu.card.ctaText}</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
+                            <ArrowRight className="w-4 h-4" />
                           </Link>
                         </div>
                       </div>
                     </div>
 
                     {/* Footer Banner */}
-                    <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs bg-slate-50/90 -mx-6 -mb-6 px-6 py-3 rounded-b-3xl">
-                      <span className="text-slate-600 font-semibold flex items-center gap-1.5">
-                        <Globe className="w-4 h-4 text-orange-500" />
+                    <div className="mt-6 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs xl:text-sm bg-slate-50/90 -mx-7 -mb-7 px-7 py-3.5 rounded-b-3xl">
+                      <span className="text-slate-700 font-bold flex items-center gap-2">
+                        <Globe className="w-4.5 h-4.5 text-orange-500" />
                         Recherche géolocalisée interactive disponible sur toute la France et le Benelux.
                       </span>
                       <Link
                         href="/candidats-disponibles"
                         onClick={() => setActiveDropdown(null)}
-                        className="font-black text-orange-600 hover:text-orange-700 hover:underline flex items-center gap-1"
+                        className="font-black text-orange-600 hover:text-orange-700 hover:underline flex items-center gap-1 shrink-0 ml-2"
                       >
                         <span>Voir la carte</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
+                        <ArrowRight className="w-4 h-4" />
                       </Link>
                     </div>
                   </div>
@@ -529,7 +529,7 @@ export default function Header() {
             {/* OFFRES D'EMPLOI (Bouton badge mis en valeur) */}
             <Link
               href="/offres"
-              className={`whitespace-nowrap relative px-4 py-2 text-xs xl:text-sm font-black rounded-full transition-all duration-200 flex items-center gap-2 ${
+              className={`whitespace-nowrap relative px-4.5 py-2.5 text-sm xl:text-[15px] font-black rounded-full transition-all duration-200 flex items-center gap-2 ${
                 isActive('/offres')
                   ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md shadow-orange-500/25'
                   : 'text-orange-600 bg-orange-500/10 hover:bg-orange-500 hover:text-white transition-all'
@@ -545,10 +545,10 @@ export default function Header() {
             {/* TARIFS (Lien direct) */}
             <Link
               href="/tarifs"
-              className={`whitespace-nowrap px-4 py-2 text-xs xl:text-sm font-bold rounded-full transition-all duration-200 ${
+              className={`whitespace-nowrap px-4.5 py-2.5 text-sm xl:text-[15px] font-extrabold rounded-full transition-all duration-200 ${
                 isActive('/tarifs')
                   ? 'text-orange-600 bg-white shadow-sm ring-1 ring-slate-200/80 font-black'
-                  : 'text-slate-600 hover:text-slate-950 hover:bg-white/60'
+                  : 'text-slate-700 hover:text-slate-950 hover:bg-white/70'
               }`}
             >
               <span>Tarifs</span>
@@ -560,9 +560,9 @@ export default function Header() {
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <Link
               href="/login"
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-xs xl:text-sm font-bold text-slate-700 hover:text-slate-950 hover:bg-slate-100 rounded-full transition-all duration-200"
+              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 text-xs xl:text-sm font-extrabold text-slate-700 hover:text-slate-950 hover:bg-slate-100 rounded-full transition-all duration-200"
             >
-              <LogIn className="w-3.5 h-3.5 text-slate-400" />
+              <LogIn className="w-4 h-4 text-slate-400" />
               <span>Connexion</span>
             </Link>
 
@@ -571,7 +571,7 @@ export default function Header() {
               className="inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full text-xs xl:text-sm font-black text-white bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 hover:from-orange-600 hover:to-orange-500 shadow-[0_4px_14px_rgba(249,115,22,0.32)] hover:shadow-[0_6px_20px_rgba(249,115,22,0.45)] hover:scale-105 transition-all duration-200"
             >
               <span>Je m&apos;inscris</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-4 h-4" />
             </Link>
 
             {/* Mobile menu trigger */}
@@ -627,7 +627,7 @@ export default function Header() {
                     onClick={() =>
                       setActiveMobileCategory(isExpanded ? null : menu.id)
                     }
-                    className="w-full flex items-center justify-between p-3.5 text-xs font-extrabold text-slate-800 hover:bg-slate-100/80 transition-colors"
+                    className="w-full flex items-center justify-between p-3.5 text-sm font-black text-slate-900 hover:bg-slate-100/80 transition-colors"
                   >
                     <div className="flex items-center gap-2.5">
                       <div className="p-1.5 rounded-xl bg-orange-50 text-orange-500">
@@ -646,19 +646,19 @@ export default function Header() {
                     <div className="px-3 pb-3 pt-1 space-y-3 border-t border-slate-200/60 bg-white">
                       {menu.columns.map((col, cIdx) => (
                         <div key={cIdx} className="space-y-1">
-                          <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-wider px-2 pt-1">
+                          <h5 className="text-xs font-black text-slate-400 uppercase tracking-wider px-2 pt-1">
                             {col.title}
                           </h5>
                           {col.links.map(item => (
                             <Link
                               key={item.path + item.name}
                               href={item.path}
-                              className="flex items-center justify-between p-2 rounded-xl text-xs font-bold text-slate-700 hover:text-orange-600 hover:bg-orange-50 transition-all"
+                              className="flex items-center justify-between p-2.5 rounded-xl text-xs sm:text-sm font-black text-slate-800 hover:text-orange-600 hover:bg-orange-50 transition-all"
                             >
                               <span>{item.name}</span>
                               {item.badge && (
                                 <span
-                                  className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md border ${item.badgeColor}`}
+                                  className={`text-[10px] font-black px-2 py-0.5 rounded-md border ${item.badgeColor}`}
                                 >
                                   {item.badge}
                                 </span>

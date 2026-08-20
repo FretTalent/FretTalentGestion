@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import webpush from 'web-push';
-import { notifyTelegramNewJob } from '@/lib/telegram';
+import { resend } from '@/lib/resend';
 
 // Clés VAPID par défaut pour Web Push (générées ou configurées)
 const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMe5H-lJ0x8UqV5J_q-oVzM47yT2N90jK5k_x9p3z9P9Z';
@@ -19,29 +19,41 @@ try {
 
 export async function POST(req) {
   try {
-    const { title, body, url, target, candidateId, candidateIds, candidateEmails, notifyTelegram } = await req.json();
+    const { title, body, url, target, candidateId, candidateIds, notifyTelegram } = await req.json();
 
     if (!title || !body) {
       return NextResponse.json({ error: 'Titre et message requis.' }, { status: 400 });
     }
 
-    let sentCount = 0;
+    let sentPushCount = 0;
+    let sentEmailCount = 0;
     let failedCount = 0;
 
-    // 1. Récupérer les abonnements push selon la cible
-    let query = supabase.from('push_subscriptions').select('*');
+    // 1. Récupérer les candidats ciblés dans la base Supabase
+    let candidateQuery = supabase.from('candidates').select('id, full_name, email');
 
     if (candidateIds && Array.isArray(candidateIds) && candidateIds.length > 0) {
-      query = query.in('user_id', candidateIds);
+      candidateQuery = candidateQuery.in('id', candidateIds);
     } else if (candidateId) {
-      query = query.eq('user_id', candidateId);
-    } else {
-      query = query.eq('role', 'candidate');
+      candidateQuery = candidateQuery.eq('id', candidateId);
     }
 
-    const { data: subscriptions, error: subError } = await query;
+    const { data: targetedCandidates } = await candidateQuery;
+    const targetEmails = (targetedCandidates || []).map((c) => c.email).filter(Boolean);
 
-    if (!subError && subscriptions && subscriptions.length > 0) {
+    // 2. Tenter l'envoi Web Push Mobile
+    let subQuery = supabase.from('push_subscriptions').select('*');
+    if (candidateIds && Array.isArray(candidateIds) && candidateIds.length > 0) {
+      subQuery = subQuery.in('user_id', candidateIds);
+    } else if (candidateId) {
+      subQuery = subQuery.eq('user_id', candidateId);
+    } else {
+      subQuery = subQuery.eq('role', 'candidate');
+    }
+
+    const { data: subscriptions } = await subQuery;
+
+    if (subscriptions && subscriptions.length > 0) {
       const payload = JSON.stringify({
         title: title,
         body: body,
@@ -53,11 +65,10 @@ export async function POST(req) {
         try {
           if (subItem.subscription) {
             await webpush.sendNotification(subItem.subscription, payload);
-            sentCount++;
+            sentPushCount++;
           }
         } catch (pushErr) {
           failedCount++;
-          // Si l'abonnement a expiré ou été révoqué (410 / 404), on peut nettoyer Supabase
           if (pushErr.statusCode === 410 || pushErr.statusCode === 404) {
             await supabase.from('push_subscriptions').delete().eq('id', subItem.id);
           }
@@ -65,7 +76,37 @@ export async function POST(req) {
       }
     }
 
-    // 2. Notification Telegram en option
+    // 3. Envoi complémentaire / secours par E-MAIL direct aux chauffeurs ciblés
+    if (targetEmails.length > 0) {
+      for (const email of targetEmails) {
+        try {
+          await resend.emails.send({
+            from: 'FretTalent <support@frettalent.fr>',
+            to: [email],
+            subject: title,
+            html: `
+              <div font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                  <img src="https://www.frettalent.fr/logo.png" alt="FretTalent" style="height: 40px;" />
+                </div>
+                <h2 style="color: #0f172a; font-size: 20px; font-weight: 800; margin-bottom: 12px;">${title}</h2>
+                <p style="color: #334155; font-size: 15px; line-height: 1.6; margin-bottom: 24px; white-space: pre-wrap;">${body}</p>
+                <div style="text-align: center; margin-top: 24px;">
+                  <a href="https://www.frettalent.fr${url || '/dashboard/candidate'}" style="background-color: #ff7a00; color: #ffffff; padding: 12px 28px; border-radius: 12px; text-decoration: none; font-weight: 800; font-size: 14px; display: inline-block;">Accéder à mon Espace FretTalent</a>
+                </div>
+                <hr style="border: none; border-top: 1px solid #f1f5f9; margin-top: 30px; margin-bottom: 16px;" />
+                <p style="color: #94a3b8; font-size: 11px; text-align: center;">© ${new Date().getFullYear()} FretTalent. Plateforme de recrutement transport routier.</p>
+              </div>
+            `,
+          });
+          sentEmailCount++;
+        } catch (mailErr) {
+          console.error('Erreur envoi email fallback:', mailErr);
+        }
+      }
+    }
+
+    // 4. Relai Telegram si coché
     if (notifyTelegram) {
       try {
         await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.frettalent.fr'}/api/notify/telegram`, {
@@ -87,8 +128,9 @@ export async function POST(req) {
 
     return NextResponse.json({
       success: true,
-      message: `Notification envoyée avec succès ! (${sentCount} appareil(s) notifié(s))`,
-      sentCount,
+      message: `Message transmis avec succès ! (✉️ ${sentEmailCount} e-mail(s) délivré(s), 📲 ${sentPushCount} téléphone(s) notifié(s))`,
+      sentPushCount,
+      sentEmailCount,
       failedCount,
     });
   } catch (err) {

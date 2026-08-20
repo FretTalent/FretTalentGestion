@@ -306,8 +306,8 @@ export default function AdminMail() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Erreur envoi notification push');
 
-      toast.success(`📲 Notification envoyée ! (${data.sentCount || 0} téléphone(s) notifié(s))`);
-      setStatus({ type: 'success', message: `📲 Notification Push envoyée avec succès sur les mobiles ! (${data.sentCount || 0} appareil(s))` });
+      toast.success(data.message || 'Notification et E-mail transmis avec succès !');
+      setStatus({ type: 'success', message: data.message || 'Notification transmise aux chauffeurs !' });
     } catch (err) {
       console.error(err);
       toast.error(err.message || 'Erreur lors de l\'envoi de la notification push');

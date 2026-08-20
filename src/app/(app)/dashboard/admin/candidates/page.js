@@ -23,6 +23,7 @@ import {
   Phone,
   CheckCircle2,
   ShieldAlert,
+  Bell,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { calculateAge } from '@/lib/country';
@@ -278,6 +279,14 @@ function AdminCandidatesContent() {
             <RefreshCw className="w-4 h-4" />
             <span>Actualiser</span>
           </button>
+
+          <Link
+            href="/dashboard/admin/mail"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-black bg-[#FF7A00] hover:bg-orange-600 text-white shadow-xs transition-all cursor-pointer"
+          >
+            <Bell className="w-4 h-4" />
+            <span>📱 Envoyer Notification Push</span>
+          </Link>
 
           <button
             onClick={exportToCSV}

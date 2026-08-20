@@ -252,7 +252,7 @@ export default function AdminMail() {
   const [pushTarget, setPushTarget] = useState('ALL'); // 'ALL' | 'SPL' | 'PL' | 'ADR' | 'SPECIFIC'
   const [selectedPushCandidateIds, setSelectedPushCandidateIds] = useState([]);
   const [pushCandidateSearch, setPushCandidateSearch] = useState('');
-  const [notifyTelegram, setNotifyTelegram] = useState(true);
+  const [notifyTelegram, setNotifyTelegram] = useState(false);
   const [sendingPush, setSendingPush] = useState(false);
 
   // Annuaire chauffeurs & entreprises pour sélection 1-clic

@@ -67,22 +67,14 @@ export const metadata = {
   verification: {
     google: 'HaOFAtVy2hTWaEMQwIe99GOYa82kYu0inM7cgWsnIp4',
   },
-  manifest: '/manifest.json',
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'black-translucent',
-    title: 'FretTalent',
-  },
   icons: {
     icon: [
       { url: '/favicon.png?v=2', type: 'image/png' },
       { url: '/favicon.ico?v=2' },
-      { url: '/icon.png?v=2', type: 'image/png' },
     ],
     shortcut: ['/favicon.png?v=2', '/favicon.ico?v=2'],
     apple: [
       { url: '/apple-touch-icon.png?v=2', sizes: '180x180', type: 'image/png' },
-      { url: '/apple-icon.png?v=2', sizes: '180x180', type: 'image/png' },
     ],
   },
   openGraph: {
@@ -183,23 +175,6 @@ export default function RootLayout({ children }) {
             gtag('js', new Date());
 
             gtag('config', 'G-FM3KS33QN1');
-          `}
-        </Script>
-        {/* Script d'enregistrement du Service Worker PWA & Notifications */}
-        <Script id="register-sw" strategy="afterInteractive">
-          {`
-            if ('serviceWorker' in navigator) {
-              window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js').then(
-                  function(registration) {
-                    console.log('FretTalent SW enregistré avec succès:', registration.scope);
-                  },
-                  function(err) {
-                    console.log('Échec enregistrement SW:', err);
-                  }
-                );
-              });
-            }
           `}
         </Script>
       </head>

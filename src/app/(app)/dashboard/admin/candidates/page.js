@@ -280,14 +280,6 @@ function AdminCandidatesContent() {
             <span>Actualiser</span>
           </button>
 
-          <Link
-            href="/dashboard/admin/mail"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-black bg-[#FF7A00] hover:bg-orange-600 text-white shadow-xs transition-all cursor-pointer"
-          >
-            <Bell className="w-4 h-4" />
-            <span>📱 Envoyer Notification Push</span>
-          </Link>
-
           <button
             onClick={exportToCSV}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-black bg-slate-900 hover:bg-slate-800 text-white shadow-xs transition-all cursor-pointer"

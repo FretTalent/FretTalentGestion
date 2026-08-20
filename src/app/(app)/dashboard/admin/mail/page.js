@@ -26,8 +26,6 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { calculateAge } from '@/lib/country';
-import { registerPushSubscription } from '@/lib/push-client';
 import ConfirmModal from '@/components/ConfirmModal';
 
 const TEMPLATES = {
@@ -240,20 +238,9 @@ L'équipe FretTalent`,
 };
 
 export default function AdminMail() {
-  const [activeTab, setActiveTab] = useState('push'); // 'push' | 'email'
   const [target, setTarget] = useState('specific'); // 'all_candidates' | 'all_companies' | 'specific'
   const [specificEmails, setSpecificEmails] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
-
-  // État Formulaire Notification Push Mobile
-  const [pushTitle, setPushTitle] = useState('🚚 Nouvelle opportunité de recrutement SPL !');
-  const [pushBody, setPushBody] = useState('Des transporteurs partenaires recherchent des chauffeurs Permis CE disponibles immédiatement dans votre secteur.');
-  const [pushUrl, setPushUrl] = useState('/dashboard/candidate');
-  const [pushTarget, setPushTarget] = useState('ALL'); // 'ALL' | 'SPL' | 'PL' | 'ADR' | 'SPECIFIC'
-  const [selectedPushCandidateIds, setSelectedPushCandidateIds] = useState([]);
-  const [pushCandidateSearch, setPushCandidateSearch] = useState('');
-  const [notifyTelegram, setNotifyTelegram] = useState(false);
-  const [sendingPush, setSendingPush] = useState(false);
 
   // Annuaire chauffeurs & entreprises pour sélection 1-clic
   const [usersList, setUsersList] = useState([]);
@@ -276,47 +263,6 @@ export default function AdminMail() {
   const [confirmModal, setConfirmModal] = useState({ isOpen: false });
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState(null);
-
-  // Handler envoi Notification Push App Mobile
-  const handleSendPushNotification = async (e) => {
-    e.preventDefault();
-    if (!pushTitle.trim() || !pushBody.trim()) {
-      toast.error('Veuillez remplir le titre et le message de la notification.');
-      return;
-    }
-
-    if (pushTarget === 'SPECIFIC' && selectedPushCandidateIds.length === 0) {
-      toast.error('Veuillez sélectionner au moins 1 chauffeur dans la liste.');
-      return;
-    }
-
-    setSendingPush(true);
-    try {
-      const res = await fetch('/api/admin/push', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: pushTitle,
-          body: pushBody,
-          url: pushUrl,
-          target: pushTarget,
-          candidateIds: pushTarget === 'SPECIFIC' ? selectedPushCandidateIds : null,
-          notifyTelegram,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Erreur envoi notification push');
-
-      toast.success(data.message || 'Notification et E-mail transmis avec succès !');
-      setStatus({ type: 'success', message: data.message || 'Notification transmise aux chauffeurs !' });
-    } catch (err) {
-      console.error(err);
-      toast.error(err.message || 'Erreur lors de l\'envoi de la notification push');
-    } finally {
-      setSendingPush(false);
-    }
-  };
 
   // Charger les statistiques et utilisateurs pour la sélection
   const fetchDirectoryUsers = async () => {
@@ -484,362 +430,35 @@ export default function AdminMail() {
   return (
     <div className="space-y-8 font-sans pb-12">
       
-      {/* SELECTEUR D'ONGLETS : NOTIFICATIONS PUSH MOBILE VS CAMPAIGNES EMAILS */}
-      <div className="flex bg-slate-100 p-1.5 rounded-2xl max-w-md gap-1">
-        <button
-          onClick={() => setActiveTab('push')}
-          className={`flex-1 py-3 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
-            activeTab === 'push'
-              ? 'bg-[#FF7A00] text-white shadow-md'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          <Bell className="w-4 h-4" />
-          <span>📱 Notifications Push App</span>
-        </button>
-        <button
-          onClick={() => setActiveTab('email')}
-          className={`flex-1 py-3 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
-            activeTab === 'email'
-              ? 'bg-slate-900 text-white shadow-md'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          <Mail className="w-4 h-4" />
-          <span>✉️ Campagnes E-mail</span>
-        </button>
-      </div>
+      {/* 1. EN-TÊTE HERO MAILS */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="space-y-2 z-10">
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1 rounded-full bg-orange-50 text-[#FF7A00] text-[11px] font-black uppercase tracking-wider border border-orange-200/60 flex items-center gap-1.5">
+              <Mail className="w-3.5 h-3.5" />
+              Centre de Messagerie & Campagnes E-mails
+            </span>
+            <span className="text-xs font-bold text-slate-600">• Expéditeur support@frettalent.fr</span>
+          </div>
 
-      {/* MESSAGE STATUS */}
-      {status && (
-        <div
-          className={`p-4 rounded-2xl border text-sm font-bold flex items-center justify-between ${
-            status.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'
-          }`}
-        >
-          <span>{status.message}</span>
-          <button onClick={() => setStatus(null)} className="text-xs text-slate-400 hover:text-slate-600 p-1">
-            <X className="w-4 h-4" />
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Campagnes d'Emails & Relances Ciblées
+          </h1>
+          <p className="text-sm text-slate-600 max-w-2xl leading-relaxed">
+            Diffusion de modèles officiels, prospection transporteurs et relance de complétion de dossiers chauffeurs.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 z-10">
+          <button
+            onClick={fetchDirectoryUsers}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer"
+          >
+            <RefreshCw className={`w-4 h-4 ${loadingUsers ? 'animate-spin' : ''}`} />
+            <span>Actualiser les Contacts</span>
           </button>
         </div>
-      )}
-
-      {/* SECTION 1: ENVOI NOTIFICATIONS PUSH APP MOBILE */}
-      {activeTab === 'push' && (
-        <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 rounded-3xl p-6 sm:p-10 text-white border border-slate-800 shadow-2xl space-y-8 relative overflow-hidden">
-          <div className="absolute top-0 right-0 -mt-16 -mr-16 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
-
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
-            <div className="space-y-1">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/20 text-orange-400 text-xs font-bold uppercase tracking-wider border border-orange-500/30">
-                <Bell className="w-3.5 h-3.5" />
-                <span>Centre d&apos;Envoi Notifications Push Mobile</span>
-              </div>
-              <h2 className="text-2xl font-black text-white">
-                Faites sonner et vibrer les téléphones des chauffeurs
-              </h2>
-              <p className="text-xs text-slate-400">
-                Envoyez des alertes instantanées sur l&apos;application mobile FretTalent installée sur leurs téléphones.
-              </p>
-            </div>
-
-            <div className="flex flex-col items-end gap-2 shrink-0">
-              <div className="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl text-center w-full">
-                <span className="text-[10px] text-slate-400 block font-medium">Chauffeurs Enregistrés</span>
-                <span className="text-lg font-black text-orange-400 font-mono">{totalCandidateCount}</span>
-              </div>
-              <button
-                type="button"
-                onClick={async () => {
-                  const { data: { user } } = await supabase.auth.getUser();
-                  const res = await registerPushSubscription(user?.id || 'admin-device', 'candidate');
-                  if (res.success) {
-                    toast.success('📲 Cet appareil est abonné aux Push Notifications ! Envoyez un test.');
-                  } else {
-                    toast.error('Veuillez autoriser les notifications dans votre navigateur/téléphone.');
-                  }
-                }}
-                className="px-3 py-1.5 rounded-xl bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 text-[11px] font-bold border border-orange-500/30 transition-all cursor-pointer"
-              >
-                📲 Activer Push sur cet appareil (Test)
-              </button>
-            </div>
-          </div>
-
-          <form onSubmit={handleSendPushNotification} className="space-y-6">
-            
-            {/* Cible de la notification */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
-                Cible des chauffeurs notifiés
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                {[
-                  { id: 'ALL', label: 'Tous les Chauffeurs', icon: Users, desc: 'Toutes catégories' },
-                  { id: 'SPL', label: 'Chauffeurs SPL (CE)', icon: Truck, desc: 'Permis CE / Super Lourd' },
-                  { id: 'PL', label: 'Chauffeurs PL (C)', icon: Truck, desc: 'Permis C / Porteur' },
-                  { id: 'ADR', label: 'Spécialisation ADR', icon: ShieldCheck, desc: 'Matières Dangereuses' },
-                  { id: 'SPECIFIC', label: 'Chauffeur(s) Précis', icon: Sparkles, desc: 'Sélectionner 1, 2 ou +' },
-                ].map((c) => {
-                  const Icon = c.icon;
-                  const isSel = pushTarget === c.id;
-                  return (
-                    <div
-                      key={c.id}
-                      onClick={() => setPushTarget(c.id)}
-                      className={`p-3 rounded-2xl border cursor-pointer transition-all ${
-                        isSel
-                          ? 'bg-orange-500 text-white border-orange-400 shadow-lg shadow-orange-500/20'
-                          : 'bg-slate-900/90 text-slate-300 border-slate-800 hover:border-slate-700'
-                      }`}
-                    >
-                      <Icon className="w-4 h-4 mb-1 opacity-90" />
-                      <div className="text-xs font-black">{c.label}</div>
-                      <div className={`text-[10px] ${isSel ? 'text-orange-100' : 'text-slate-500'}`}>{c.desc}</div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* SI SELECTION SPÉCIFIQUE : SELECTION 1, 2 OU PLUSIEURS CHAUFFEURS */}
-            {pushTarget === 'SPECIFIC' && (
-              <div className="bg-slate-950 p-5 rounded-3xl border border-orange-500/30 space-y-4 animate-in fade-in duration-200">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
-                    <h4 className="text-sm font-black text-white flex items-center gap-2">
-                      <Users className="w-4 h-4 text-orange-400" />
-                      <span>Sélectionner les chauffeurs (1 ou plusieurs)</span>
-                    </h4>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Cochez 1 chauffeur, 2 chauffeurs ou une sélection pour leur envoyer directement sur leur mobile.
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full border border-orange-500/30">
-                      {selectedPushCandidateIds.length} chauffeur{selectedPushCandidateIds.length > 1 ? 's' : ''} sélectionné{selectedPushCandidateIds.length > 1 ? 's' : ''}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Recherche chauffeur */}
-                <div className="relative">
-                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="text"
-                    value={pushCandidateSearch}
-                    onChange={(e) => setPushCandidateSearch(e.target.value)}
-                    placeholder="Rechercher un chauffeur par nom, ville, e-mail..."
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none focus:border-orange-500"
-                  />
-                </div>
-
-                {/* Liste des chauffeurs à cocher */}
-                <div className="max-h-56 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
-                  {usersList
-                    .filter((u) => u.role === 'candidate')
-                    .filter((u) => {
-                      if (!pushCandidateSearch.trim()) return true;
-                      const q = pushCandidateSearch.toLowerCase();
-                      return (
-                        (u.name || '').toLowerCase().includes(q) ||
-                        (u.email || '').toLowerCase().includes(q) ||
-                        (u.city || '').toLowerCase().includes(q)
-                      );
-                    })
-                    .map((c) => {
-                      const isChecked = selectedPushCandidateIds.includes(c.id);
-                      return (
-                        <label
-                          key={c.id}
-                          className={`flex items-center justify-between p-3 rounded-2xl border cursor-pointer transition-all ${
-                            isChecked
-                              ? 'bg-orange-500/20 border-orange-500/50 text-white'
-                              : 'bg-slate-900/60 border-slate-850 text-slate-300 hover:bg-slate-900'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={() => {
-                                if (isChecked) {
-                                  setSelectedPushCandidateIds(selectedPushCandidateIds.filter((id) => id !== c.id));
-                                } else {
-                                  setSelectedPushCandidateIds([...selectedPushCandidateIds, c.id]);
-                                }
-                              }}
-                              className="w-4 h-4 rounded text-orange-500 focus:ring-orange-500 accent-orange-500"
-                            />
-                            <div>
-                              <div className="text-xs font-bold text-white flex items-center gap-2">
-                                <span>{c.name}</span>
-                                {c.validated && (
-                                  <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.2 rounded font-bold">
-                                    Vérifié ✓
-                                  </span>
-                                )}
-                              </div>
-                              <div className="text-[10px] text-slate-400">
-                                {c.email} • {c.city || 'France'}
-                              </div>
-                            </div>
-                          </div>
-                        </label>
-                      );
-                    })}
-                </div>
-              </div>
-            )}
-
-            {/* GRILLE : FORMULAIRE & APERÇU ECRAN TELEPHONE */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              
-              {/* Formulaire */}
-              <div className="lg:col-span-7 space-y-4">
-                {/* Titre de la notification */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
-                    Titre de la notification (Apparaît sur l&apos;écran de verrouillage)
-                  </label>
-                  <input
-                    type="text"
-                    value={pushTitle}
-                    onChange={(e) => setPushTitle(e.target.value)}
-                    placeholder="ex: 🚚 3 nouvelles offres d'emploi SPL dans votre secteur !"
-                    className="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 text-sm text-white focus:outline-none focus:border-orange-500 transition-all font-medium"
-                  />
-                </div>
-
-                {/* Message de la notification */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
-                    Message de la notification (Texte affiché au chauffeur)
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={pushBody}
-                    onChange={(e) => setPushBody(e.target.value)}
-                    placeholder="ex: Des transporteurs partenaires recherchent des chauffeurs Permis CE disponibles immédiatement. Consultez et postulez !"
-                    className="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 text-sm text-white focus:outline-none focus:border-orange-500 transition-all font-medium leading-relaxed"
-                  />
-                </div>
-
-                {/* Redirection au clic */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
-                      Lien au clic sur la notification
-                    </label>
-                    <select
-                      value={pushUrl}
-                      onChange={(e) => setPushUrl(e.target.value)}
-                      className="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-orange-500 transition-all"
-                    >
-                      <option value="/dashboard/candidate">Espace Candidat (/dashboard/candidate)</option>
-                      <option value="/offres">Consulter les Offres (/offres)</option>
-                      <option value="/register">Rejoindre / S&apos;inscrire (/register)</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1.5 flex items-end">
-                    <label className="flex items-center gap-3 p-3.5 rounded-2xl bg-slate-950 border border-slate-800 text-xs font-bold text-slate-300 cursor-pointer w-full">
-                      <input
-                        type="checkbox"
-                        checked={notifyTelegram}
-                        onChange={(e) => setNotifyTelegram(e.target.checked)}
-                        className="w-4 h-4 rounded text-orange-500 focus:ring-orange-500 accent-orange-500"
-                      />
-                      <span>Transmettre aussi sur Telegram @Frettalent</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              {/* Aperçu en direct sur Écran de Téléphone Smartphone */}
-              <div className="lg:col-span-5 bg-slate-950 p-5 rounded-3xl border border-slate-800 space-y-3">
-                <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 border-b border-slate-850 pb-2">
-                  <span>Aperçu sur l&apos;écran du chauffeur</span>
-                  <span className="text-orange-400">Écran de verrouillage</span>
-                </div>
-
-                <div className="bg-white/95 backdrop-blur-md p-4 rounded-2xl border border-orange-200 shadow-xl space-y-2 text-slate-900 animate-pulse">
-                  <div className="flex items-center justify-between text-[10px] text-slate-500 font-bold">
-                    <div className="flex items-center gap-1.5 text-orange-600">
-                      <img src="/favicon.png" alt="App Logo" className="w-4 h-4 rounded" />
-                      <span className="font-extrabold">FretTalent</span>
-                    </div>
-                    <span>À l&apos;instant</span>
-                  </div>
-                  <p className="text-xs font-black text-slate-950 leading-tight">
-                    {pushTitle || 'Titre de la notification...'}
-                  </p>
-                  <p className="text-[11px] text-slate-600 leading-snug">
-                    {pushBody || 'Message de la notification...'}
-                  </p>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Bouton d'envoi Push */}
-            <div className="pt-4 border-t border-slate-800">
-              <button
-                type="submit"
-                disabled={sendingPush}
-                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-orange-500 hover:bg-orange-600 disabled:bg-slate-700 text-white font-black text-sm shadow-xl shadow-orange-500/25 transition-all flex items-center justify-center gap-2.5 cursor-pointer"
-              >
-                {sendingPush ? (
-                  <RefreshCw className="w-5 h-5 animate-spin" />
-                ) : (
-                  <Bell className="w-5 h-5" />
-                )}
-                <span>
-                  {sendingPush
-                    ? 'Envoi en cours sur les mobiles...'
-                    : pushTarget === 'SPECIFIC'
-                    ? `🚀 Envoyer la Push aux ${selectedPushCandidateIds.length} chauffeur(s) sélectionné(s)`
-                    : '🚀 Envoyer la notification Push sur les téléphones'}
-                </span>
-              </button>
-            </div>
-
-          </form>
-        </div>
-      )}
-
-      {activeTab === 'email' && (
-        <>
-          {/* 1. EN-TÊTE HERO MAILS */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative overflow-hidden">
-            <div className="space-y-2 z-10">
-              <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full bg-orange-50 text-[#FF7A00] text-[11px] font-black uppercase tracking-wider border border-orange-200/60 flex items-center gap-1.5">
-                  <Mail className="w-3.5 h-3.5" />
-                  Centre de Messagerie & Campagnes E-mails
-                </span>
-                <span className="text-xs font-bold text-slate-600">• Expéditeur support@frettalent.fr</span>
-              </div>
-
-              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                Campagnes d'Emails & Relances Ciblées
-              </h1>
-              <p className="text-sm text-slate-600 max-w-2xl leading-relaxed">
-                Diffusion de modèles officiels, prospection transporteurs et relance de complétion de dossiers chauffeurs.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3 z-10">
-              <button
-                onClick={fetchDirectoryUsers}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer"
-              >
-                <RefreshCw className={`w-4 h-4 ${loadingUsers ? 'animate-spin' : ''}`} />
-                <span>Actualiser les Contacts</span>
-              </button>
-            </div>
-          </div>
+      </div>
 
       {/* 2. KPI CARDS CIBLAGE */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -1451,8 +1070,6 @@ export default function AdminMail() {
         </div>
 
       </form>
-        </>
-      )}
 
       {/* Modal de Confirmation d'envoi */}
       <ConfirmModal

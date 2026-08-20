@@ -30,8 +30,6 @@ import {
   Bell,
 } from 'lucide-react';
 import { validatePhoneNumber, validateAddress, COUNTRIES, calculateAge } from '@/lib/country';
-import PwaInstallPrompt from '@/components/PwaInstallPrompt';
-import { registerPushSubscription } from '@/lib/push-client';
 
 function CandidateDashboardContent() {
   const router = useRouter();
@@ -58,26 +56,7 @@ function CandidateDashboardContent() {
   const [updatingPassword, setUpdatingPassword] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState(null);
 
-  // État Notifications Push Mobile
-  const [pushEnabled, setPushEnabled] = useState(false);
-  const [enablingPush, setEnablingPush] = useState(false);
 
-  const handleEnablePush = async () => {
-    setEnablingPush(true);
-    try {
-      const res = await registerPushSubscription(profile?.id || candidate?.id, 'candidate');
-      if (res.success) {
-        setPushEnabled(true);
-        toast.success('📲 Notifications Push activées avec succès sur ce téléphone !');
-      } else {
-        toast.error(res.message || 'Veuillez autoriser les notifications dans la fenêtre de votre téléphone.', { duration: 6000 });
-      }
-    } catch (err) {
-      toast.error('Erreur lors de l\'activation des notifications.');
-    } finally {
-      setEnablingPush(false);
-    }
-  };
 
   // Listes multi-sélection
   const [selectedLicenses, setSelectedLicenses] = useState([]);
@@ -187,8 +166,6 @@ function CandidateDashboardContent() {
 
       if (candidateData) {
         setCandidate(candidateData);
-        // Enregistrer automatiquement le téléphone pour les notifications Push PWA
-        registerPushSubscription(user.id, 'candidate').catch(() => {});
         setFullName(candidateData.full_name || '');
         setPhone(candidateData.phone || '');
         setBirthDate(candidateData.birth_date || '');
@@ -412,41 +389,7 @@ function CandidateDashboardContent() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
-      {/* BANNIÈRE D'INSTALLATION PWA MOBILE */}
-      <PwaInstallPrompt inline={true} />
-
-      {/* CARTE D'ACTIVATION PUSH MOBILE DES NOTIFICATIONS */}
-      {!pushEnabled && (
-        <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 rounded-3xl p-6 border border-orange-500/30 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
-          <div className="flex items-center gap-4 z-10">
-            <div className="w-14 h-14 rounded-2xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0 shadow-inner">
-              <Bell className="w-7 h-7 animate-bounce" />
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-base font-black text-white flex items-center gap-2">
-                <span>📲 Activer les notifications directes sur mon téléphone</span>
-                <span className="bg-orange-500/20 text-orange-400 text-[10px] uppercase font-black px-2 py-0.5 rounded-full border border-orange-500/30">Recommandé</span>
-              </h3>
-              <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
-                Soyez averti à la seconde où un recruteur consulte votre profil ou lorsqu&apos;une nouvelle offre correspondant à vos permis est publiée.
-              </p>
-            </div>
-          </div>
-
-          <button
-            onClick={handleEnablePush}
-            disabled={enablingPush}
-            className="z-10 px-6 py-3.5 rounded-2xl bg-orange-500 hover:bg-orange-600 disabled:bg-slate-700 text-white font-black text-xs shadow-lg shadow-orange-500/25 transition-all flex items-center gap-2 shrink-0 cursor-pointer"
-          >
-            {enablingPush ? (
-              <RefreshCw className="w-4 h-4 animate-spin" />
-            ) : (
-              <Bell className="w-4 h-4" />
-            )}
-            <span>{enablingPush ? 'Activation...' : '📲 Activer les notifications Push'}</span>
-          </button>
-        </div>
-      )}
+      {/* Message Status */}
 
       {/* Message Status */}
       {message && (

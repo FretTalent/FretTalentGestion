@@ -55,14 +55,206 @@ h2 {
 h3 {
   font-weight: 700;
   letter-spacing: -0.015em;
-  line-height: 1.3;
+  line-height: 1.35;
 }
 
-/* Subtles Animations */
-@keyframes fadeIn {
+/* Éléments interactifs harmonisés */
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: 0.875rem; /* 14px */
+}
+
+/* ============================
+   ANIMATION LOGOS PARTENAIRES
+   ============================ */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 25s linear infinite;
+  gap: 5rem;
+  padding-right: 5rem;
+}
+
+/* Logos partenaires : grayscale professionnel avec transition vers couleur au hover */
+.partner-logo {
+  height: 3rem;
+  width: 10rem;
+  object-fit: contain;
+  flex-shrink: 0;
+  opacity: 0.35;
+  filter: grayscale(100%);
+  transition: all 0.4s ease;
+}
+
+.partner-logo:hover {
+  opacity: 0.75;
+  filter: grayscale(0%);
+}
+
+/* ============================
+   BOUTONS STANDARDISÉS
+   ============================ */
+
+/* CTA Principal — Orange solid */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: #ffffff;
+  background-color: #f97316;
+  box-shadow: 0 8px 24px -4px rgba(249, 115, 22, 0.30);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-primary:hover {
+  background-color: #ea6a0a;
+  box-shadow: 0 12px 32px -4px rgba(249, 115, 22, 0.45);
+  transform: translateY(-2px);
+}
+
+/* CTA Secondaire — Outline sobre */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #1e293b;
+  border: 2px solid #e2e8f0;
+  background-color: transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-secondary:hover {
+  border-color: #1e293b;
+  background-color: #f8fafc;
+  transform: translateY(-2px);
+}
+
+/* ============================
+   BADGES / PILLS
+   ============================ */
+.badge-orange {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  background-color: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #ea580c;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.badge-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  background-color: rgba(249, 115, 22, 0.12);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  color: #f97316;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ============================
+   SECTION TYPOGRAPHY
+   ============================ */
+.section-title {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  color: #020617;
+}
+
+.section-subtitle {
+  font-size: 1rem;
+  color: #64748b;
+  line-height: 1.7;
+  max-width: 40rem;
+}
+
+/* ============================
+   BACKGROUND PATTERNS SUBTILS
+   ============================ */
+
+/* Pattern points — hero moderne */
+.bg-dots {
+  background-image: radial-gradient(circle, #e2e8f0 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Pattern grille légère */
+.bg-grid-light {
+  background-image: 
+    linear-gradient(to right, #f1f5f9 1px, transparent 1px),
+    linear-gradient(to bottom, #f1f5f9 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* ============================
+   ANIMATIONS AVANCÉES
+   ============================ */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes float-reverse {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(249, 115, 22, 0.5);
+  }
+}
+
+@keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -70,27 +262,204 @@ h3 {
   }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.animate-float {
+  animation: float 4s ease-in-out infinite;
 }
 
-/* Scrollbar personnalisée moderne */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+.animate-float-reverse {
+  animation: float-reverse 5s ease-in-out infinite;
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f5f9;
+.animate-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
+.animate-fade-up {
+  animation: fadeInUp 0.5s ease forwards;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+/* Cartes interactives avec effet d'élévation moderne */
+.card-hover-effect {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-hover-effect:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.08);
+}
+
+/* ============================
+   STAT CARDS — Hero stats
+   ============================ */
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.875rem 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #020617;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.6875rem;
+  color: #64748b;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* ============================
+   DESIGN SYSTEM UNIFIÉ
+   Toutes les pages publiques du site
+   utilisent ces classes pour garantir
+   une cohérence visuelle à 100%.
+   ============================ */
+
+/* Hero Section — Fond standardisé pour toutes les pages */
+.hero-section {
+  position: relative;
+  overflow: hidden;
+  padding-top: 4rem;
+  padding-bottom: 5rem;
+  background: linear-gradient(to bottom, rgba(255,247,237,0.3), #ffffff, #ffffff);
+  border-bottom: 1px solid #f1f5f9;
+}
+
+@media (min-width: 768px) {
+  .hero-section {
+    padding-top: 5rem;
+    padding-bottom: 6rem;
+  }
+}
+
+/* Pattern de fond unifié pour les heros */
+.hero-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, #f97316 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0.04;
+  pointer-events: none;
+}
+
+/* Badge en haut du Hero */
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 1rem;
+  border-radius: 9999px;
+  background-color: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #ea580c;
+  font-size: 0.6875rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Feature Card — Carte de contenu standardisée */
+.feature-card {
+  background: #ffffff;
+  padding: 1.75rem;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.08);
+}
+
+/* Icône dans une Feature Card */
+.feature-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Section Block — Conteneur de section standard */
+.section-block {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+@media (min-width: 768px) {
+  .section-block {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+}
+
+/* Section Block Alterné — Fond gris pour alternance visuelle */
+.section-block-alt {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+  background-color: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+@media (min-width: 768px) {
+  .section-block-alt {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+}
+
+/* CTA Banner — Bannière d'appel à l'action en bas de page */
+.cta-banner {
+  position: relative;
+  overflow: hidden;
+  padding: 4rem 2rem;
+  border-radius: 2rem;
+  background: linear-gradient(135deg, #0f172a, #1e293b, #0f172a);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .cta-banner {
+    padding: 5rem 3rem;
+    border-radius: 2.5rem;
+  }
+}
+
+/* Step Number — Numéro d'étape stylisé */
+.step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.875rem;
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 900;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px -2px rgba(249, 115, 22, 0.3);
 }
 
 /* IMPRESSION PDF EXÉCUTIVE FICHE RECRUTEMENT CHAUFFEUR */

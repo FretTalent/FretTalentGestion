@@ -4,14 +4,26 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  Menu, X, ArrowRight, LogIn, ChevronRight, ChevronDown,
-  Truck, Briefcase, MapPin, Sparkles
+  Menu,
+  X,
+  ArrowRight,
+  LogIn,
+  ChevronRight,
+  ChevronDown,
+  Truck,
+  Briefcase,
+  MapPin,
+  Sparkles,
+  ShieldCheck,
+  Zap,
+  Users,
+  Search,
 } from 'lucide-react';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [seoDropdownOpen, setSeoDropdownOpen] = useState(false);
+  const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [activeMobileCategory, setActiveMobileCategory] = useState(null);
   const pathname = usePathname();
 
@@ -23,13 +35,13 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Fermer le menu mobile lors d'un changement de route
+  // Fermer les menus lors d'un changement de route
   useEffect(() => {
     setMobileMenuOpen(false);
-    setSeoDropdownOpen(false);
+    setMegaMenuOpen(false);
   }, [pathname]);
 
-  const isActive = (path) => pathname === path;
+  const isActive = path => pathname === path;
 
   const navLinks = [
     { name: 'Candidats disponibles', path: '/candidats-disponibles', isLive: true },
@@ -39,47 +51,49 @@ export default function Header() {
     { name: 'Contact', path: '/contact' },
   ];
 
-  const seoCategories = [
+  const megaMenuCategories = [
     {
       id: 'specialites',
-      title: 'Métiers & Spécialités',
+      title: 'Chauffeurs & Permis',
       icon: Truck,
-      badgeColor: 'bg-orange-50 text-orange-600 border-orange-200/60',
+      badgeColor: 'bg-orange-50 text-orange-600 border-orange-200/70',
       iconColor: 'text-orange-500 bg-orange-50',
       links: [
         { name: 'Chauffeur SPL (Permis CE)', path: '/chauffeur-spl', badge: 'Permis CE' },
         { name: 'Chauffeur PL (Permis C)', path: '/chauffeur-pl', badge: 'Permis C' },
-        { name: 'Chauffeur ADR (Matières Dangereuses)', path: '/chauffeur-adr', badge: 'ADR' },
+        { name: 'Chauffeur ADR (Dangereux)', path: '/chauffeur-adr', badge: 'ADR' },
         { name: 'Chauffeur Frigo (Frais)', path: '/chauffeur-frigo', badge: 'Frigo' },
         { name: 'Chauffeur Benne (TP & Vrac)', path: '/chauffeur-benne', badge: 'TP' },
-        { name: 'Messagerie & Distribution', path: '/messagerie', badge: 'Livreur' },
-        { name: 'Fret Express & Navettes', path: '/fret-express', badge: 'Urgent' },
+        { name: 'Messagerie & Delivery', path: '/messagerie', badge: 'Livreur' },
+        { name: 'Fret Express & Urgence', path: '/fret-express', badge: 'Urgent' },
       ],
     },
     {
-      id: 'emploi',
-      title: 'Emploi & Réseau',
+      id: 'recrutement',
+      title: 'Recruteurs & Services',
       icon: Briefcase,
-      badgeColor: 'bg-amber-50 text-amber-600 border-amber-200/60',
+      badgeColor: 'bg-amber-50 text-amber-600 border-amber-200/70',
       iconColor: 'text-amber-500 bg-amber-50',
       links: [
-        { name: 'Offres d’Emploi Chauffeur', path: '/emploi-chauffeur', badge: 'CDI/CDD' },
-        { name: 'Recrutement Transport Direct', path: '/recrutement-transport', badge: '0% Intérim' },
+        { name: 'CVthèque Chauffeurs', path: '/candidats-disponibles', badge: 'Vérifiés' },
+        { name: 'Offres d’Emploi Transport', path: '/emploi-chauffeur', badge: 'CDI/CDD' },
+        { name: 'Recrutement 0% Intérim', path: '/recrutement-transport', badge: 'Direct' },
         { name: 'Transporteurs de France', path: '/transporteurs-france', badge: 'Réseau' },
-        { name: 'Secteur Transport (TRM)', path: '/transport-routier', badge: 'Guide' },
+        { name: 'Formules & Déblocage 4,99€', path: '/tarifs', badge: 'Sans engagement' },
+        { name: 'Guide Transport Routier', path: '/transport-routier', badge: 'Guide' },
       ],
     },
     {
       id: 'regions',
       title: 'Zones & Régions',
       icon: MapPin,
-      badgeColor: 'bg-slate-100 text-slate-700 border-slate-200/60',
+      badgeColor: 'bg-slate-100 text-slate-700 border-slate-200/70',
       iconColor: 'text-slate-700 bg-slate-100',
       links: [
-        { name: 'Chauffeur SPL Hauts-de-France', path: '/chauffeur-spl-hauts-de-france', badge: '59/62/02' },
-        { name: 'Chauffeur SPL Aisne (02)', path: '/chauffeur-spl-aisne', badge: '02 Aisne' },
-        { name: 'Transporteurs Hauts-de-France', path: '/transporteurs-hauts-de-france', badge: 'HDF' },
-        { name: 'Transporteurs Aisne (02)', path: '/transporteurs-aisne', badge: 'Aisne' },
+        { name: 'Chauffeur SPL Hauts-de-France', path: '/chauffeur-spl-hauts-de-france', badge: '🇫🇷 59/62/02' },
+        { name: 'Chauffeur SPL Aisne (02)', path: '/chauffeur-spl-aisne', badge: '🇫🇷 02' },
+        { name: 'Transporteurs Hauts-de-France', path: '/transporteurs-hauts-de-france', badge: '🇫🇷 HDF' },
+        { name: 'Transporteurs Aisne (02)', path: '/transporteurs-aisne', badge: '🇫🇷 Aisne' },
       ],
     },
   ];
@@ -100,7 +114,7 @@ export default function Header() {
 
           {/* Desktop Navigation Menu (Floating Pill Center) */}
           <nav className="hidden lg:flex items-center gap-1.5 p-1 bg-slate-100/80 rounded-full border border-slate-200/60 backdrop-blur-md relative">
-            {navLinks.map((link) => {
+            {navLinks.map(link => {
               const active = isActive(link.path);
               return (
                 <Link
@@ -123,95 +137,140 @@ export default function Header() {
               );
             })}
 
-            {/* DROPDOWN MEGA MENU SEO METIERS & REGIONS */}
+            {/* BOUTON DÉCLENCHEUR MEGA MENU */}
             <div
               className="relative"
-              onMouseEnter={() => setSeoDropdownOpen(true)}
-              onMouseLeave={() => setSeoDropdownOpen(false)}
+              onMouseEnter={() => setMegaMenuOpen(true)}
+              onMouseLeave={() => setMegaMenuOpen(false)}
             >
               <button
-                onClick={() => setSeoDropdownOpen(!seoDropdownOpen)}
+                onClick={() => setMegaMenuOpen(!megaMenuOpen)}
                 className={`whitespace-nowrap px-4 py-2 text-xs xl:text-sm font-bold rounded-full transition-all flex items-center gap-1.5 cursor-pointer ${
-                  seoDropdownOpen
+                  megaMenuOpen
                     ? 'bg-white text-orange-600 shadow-sm ring-1 ring-slate-200/80 font-black'
                     : 'text-slate-700 hover:text-slate-950 hover:bg-white/60'
                 }`}
               >
-                <Truck className="w-3.5 h-3.5 text-orange-500" />
-                <span>Métiers & Régions</span>
-                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${seoDropdownOpen ? 'rotate-180 text-orange-500' : ''}`} />
+                <Sparkles className="w-3.5 h-3.5 text-orange-500" />
+                <span>Explorer le Réseau</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+                    megaMenuOpen ? 'rotate-180 text-orange-500' : ''
+                  }`}
+                />
               </button>
 
-              {seoDropdownOpen && (
-                <div className="absolute top-full -left-20 xl:-left-10 pt-2 z-50 w-[720px] animate-in fade-in slide-in-from-top-2 duration-150">
-                  <div className="bg-white/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 shadow-[0_20px_60px_-15px_rgba(15,23,42,0.15)] p-6 relative">
+              {/* PANNEAU MEGA MENU FULL-WIDTH INTERACTIF */}
+              {megaMenuOpen && (
+                <div className="absolute top-full -left-[280px] xl:-left-[240px] pt-3 z-50 w-[940px] max-w-[95vw] animate-in fade-in zoom-in-95 duration-200">
+                  <div className="bg-white/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 shadow-[0_25px_70px_-15px_rgba(15,23,42,0.18)] p-7 relative">
                     
-                    {/* Subtle top indicator arrow */}
-                    <div className="absolute -top-2 left-28 w-4 h-4 bg-white border-t border-l border-slate-200/90 rotate-45" />
+                    {/* Flèche d'indication supérieure */}
+                    <div className="absolute -top-2 left-[340px] xl:left-[300px] w-4 h-4 bg-white border-t border-l border-slate-200/90 rotate-45" />
 
-                    {/* Mega Menu Grid - 3 Columns */}
-                    <div className="grid grid-cols-3 gap-6 relative z-10">
-                    {seoCategories.map((category) => {
-                      const CategoryIcon = category.icon;
-                      return (
-                        <div key={category.id} className="space-y-3">
-                          {/* Column Header */}
-                          <div className="flex items-center gap-2 pb-2.5 border-b border-slate-100">
-                            <div className={`p-1.5 rounded-xl ${category.iconColor}`}>
-                              <CategoryIcon className="w-4 h-4" />
+                    {/* Grille Mega Menu 4 Colonnes */}
+                    <div className="grid grid-cols-4 gap-6 relative z-10">
+                      {megaMenuCategories.map(category => {
+                        const CategoryIcon = category.icon;
+                        return (
+                          <div key={category.id} className="space-y-3">
+                            {/* Titre de Colonne */}
+                            <div className="flex items-center gap-2 pb-2.5 border-b border-slate-100">
+                              <div className={`p-1.5 rounded-xl ${category.iconColor}`}>
+                                <CategoryIcon className="w-4 h-4" />
+                              </div>
+                              <h4 className="text-xs font-black text-slate-900 tracking-wide uppercase">
+                                {category.title}
+                              </h4>
                             </div>
-                            <h4 className="text-xs font-black text-slate-900 tracking-wide">
-                              {category.title}
-                            </h4>
-                          </div>
 
-                          {/* Column Links */}
-                          <div className="space-y-1">
-                            {category.links.map((item) => (
-                              <Link
-                                key={item.path}
-                                href={item.path}
-                                onClick={() => setSeoDropdownOpen(false)}
-                                className="group flex items-center justify-between p-2 rounded-xl text-xs font-bold text-slate-700 hover:text-orange-600 hover:bg-orange-50/80 transition-all duration-150"
-                              >
-                                <span className="truncate pr-1 group-hover:translate-x-0.5 transition-transform">
-                                  {item.name}
-                                </span>
-                                {item.badge && (
-                                  <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md border shrink-0 ${category.badgeColor}`}>
-                                    {item.badge}
+                            {/* Liens de la Colonne */}
+                            <div className="space-y-1">
+                              {category.links.map(item => (
+                                <Link
+                                  key={item.path}
+                                  href={item.path}
+                                  onClick={() => setMegaMenuOpen(false)}
+                                  className="group flex items-center justify-between p-2 rounded-xl text-xs font-bold text-slate-700 hover:text-orange-600 hover:bg-orange-50/80 transition-all duration-150"
+                                >
+                                  <span className="truncate pr-1 group-hover:translate-x-0.5 transition-transform">
+                                    {item.name}
                                   </span>
-                                )}
-                              </Link>
-                            ))}
+                                  {item.badge && (
+                                    <span
+                                      className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md border shrink-0 ${category.badgeColor}`}
+                                    >
+                                      {item.badge}
+                                    </span>
+                                  )}
+                                </Link>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                        );
+                      })}
 
-                  {/* Mega Menu Footer Banner */}
-                  <div className="mt-5 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs bg-slate-50/80 -mx-6 -mb-6 px-6 py-3 rounded-b-3xl">
-                    <div className="flex items-center gap-2 text-slate-500 font-medium">
-                      <Sparkles className="w-3.5 h-3.5 text-orange-500" />
-                      <span>Trouvez votre opportunité transport direct sans agence d’intérim</span>
+                      {/* COLONNE 4 : CARTE PROMOTIONNELLE DYNAMIQUE */}
+                      <div className="bg-gradient-to-br from-slate-950 via-slate-900 to-orange-950 text-white rounded-2xl p-5 border border-slate-800 shadow-xl flex flex-col justify-between relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-orange-500/20 rounded-full blur-2xl pointer-events-none group-hover:scale-150 transition-transform" />
+
+                        <div className="space-y-3 relative z-10">
+                          <div className="flex items-center gap-2">
+                            <span className="relative flex h-2 w-2">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            <span className="text-[10px] font-black tracking-wider uppercase text-emerald-400">
+                              En Direct • 100% Vérifié 🛡️
+                            </span>
+                          </div>
+
+                          <h4 className="text-sm font-black leading-snug text-white">
+                            Sourcing Chauffeurs sans agence d’intérim
+                          </h4>
+
+                          <p className="text-[11px] text-slate-300 leading-relaxed">
+                            Accédez directement aux coordonnées complètes et documents vérifiés (FIMO, Chrono, Permis CE).
+                          </p>
+                        </div>
+
+                        <div className="pt-3 relative z-10">
+                          <Link
+                            href="/candidats-disponibles"
+                            onClick={() => setMegaMenuOpen(false)}
+                            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-500 text-white text-xs font-black py-2.5 px-3.5 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 group-hover:scale-[1.02]"
+                          >
+                            <span>CVthèque Temps Réel</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </Link>
+                        </div>
+                      </div>
                     </div>
-                    <Link
-                      href="/offres"
-                      onClick={() => setSeoDropdownOpen(false)}
-                      className="inline-flex items-center gap-1 font-black text-orange-600 hover:text-orange-700 hover:underline"
-                    >
-                      <span>Voir toutes les offres</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
+
+                    {/* BANDEAU DE PIED DE MEGA MENU */}
+                    <div className="mt-6 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs bg-slate-50/90 -mx-7 -mb-7 px-7 py-3.5 rounded-b-3xl">
+                      <div className="flex items-center gap-2 text-slate-600 font-semibold">
+                        <Zap className="w-4 h-4 text-orange-500" />
+                        <span>
+                          Vous êtes recruteur ? Débloquez les profils à l&apos;unité (4,99€) ou optez pour l&apos;accès illimité.
+                        </span>
+                      </div>
+                      <Link
+                        href="/tarifs"
+                        onClick={() => setMegaMenuOpen(false)}
+                        className="inline-flex items-center gap-1.5 font-black text-orange-600 hover:text-orange-700 hover:underline bg-orange-100/60 px-3 py-1.5 rounded-xl border border-orange-200/60 transition-colors"
+                      >
+                        <span>Découvrir les Tarifs</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
 
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Offres d'emploi (Highlight en orange) */}
+            {/* Offres d'emploi (Highlight) */}
             <Link
               href="/offres"
               className={`whitespace-nowrap relative px-4 py-2 text-xs xl:text-sm font-black rounded-full transition-all duration-200 flex items-center gap-2 ${
@@ -286,7 +345,7 @@ export default function Header() {
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {/* Main Navigation Links */}
           <div className="space-y-1">
-            {navLinks.map((link) => (
+            {navLinks.map(link => (
               <Link
                 key={link.path}
                 href={link.path}
@@ -305,19 +364,24 @@ export default function Header() {
           {/* ACCORDEON METIERS & REGIONS MOBILE */}
           <div className="pt-4 border-t border-slate-100 space-y-2">
             <div className="flex items-center gap-2 px-2 pb-1">
-              <Truck className="w-4 h-4 text-orange-500" />
+              <Sparkles className="w-4 h-4 text-orange-500" />
               <h3 className="text-xs font-black uppercase text-slate-900 tracking-wider">
-                Métiers & Régions
+                Explorer le Réseau
               </h3>
             </div>
 
-            {seoCategories.map((category) => {
+            {megaMenuCategories.map(category => {
               const CategoryIcon = category.icon;
               const isExpanded = activeMobileCategory === category.id;
               return (
-                <div key={category.id} className="rounded-2xl border border-slate-200/80 overflow-hidden bg-slate-50/50">
+                <div
+                  key={category.id}
+                  className="rounded-2xl border border-slate-200/80 overflow-hidden bg-slate-50/50"
+                >
                   <button
-                    onClick={() => setActiveMobileCategory(isExpanded ? null : category.id)}
+                    onClick={() =>
+                      setActiveMobileCategory(isExpanded ? null : category.id)
+                    }
                     className="w-full flex items-center justify-between p-3 text-[13px] font-extrabold text-slate-800 hover:bg-slate-100/80 transition-colors"
                   >
                     <div className="flex items-center gap-2.5">
@@ -326,12 +390,16 @@ export default function Header() {
                       </div>
                       <span>{category.title}</span>
                     </div>
-                    <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isExpanded ? 'rotate-180 text-orange-500' : ''}`} />
+                    <ChevronDown
+                      className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                        isExpanded ? 'rotate-180 text-orange-500' : ''
+                      }`}
+                    />
                   </button>
 
                   {isExpanded && (
                     <div className="px-3 pb-3 pt-1 space-y-1 border-t border-slate-200/60 bg-white">
-                      {category.links.map((item) => (
+                      {category.links.map(item => (
                         <Link
                           key={item.path}
                           href={item.path}
@@ -339,7 +407,9 @@ export default function Header() {
                         >
                           <span>{item.name}</span>
                           {item.badge && (
-                            <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md border ${category.badgeColor}`}>
+                            <span
+                              className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md border ${category.badgeColor}`}
+                            >
                               {item.badge}
                             </span>
                           )}

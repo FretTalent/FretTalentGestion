@@ -17,7 +17,11 @@ import {
   FileCheck,
   Lock,
   Zap,
+  Smartphone,
+  Download,
+  Bell,
 } from 'lucide-react';
+import PwaInstallPrompt from '@/components/PwaInstallPrompt';
 
 export default function Home() {
   const stats = [
@@ -264,7 +268,113 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Section Facebook supprimée — liens sociaux disponibles dans le footer */}
+        {/* SECTION PUBLICATION : APPLICATION MOBILE CANDIDATS & NOTIFICATIONS EN DIRECT */}
+        <section className="section-block-alt relative overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              
+              {/* Texte & Arguments */}
+              <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+                <div className="hero-badge">
+                  <Smartphone className="h-4 w-4 text-orange-500" />
+                  <span>Application Mobile Candidat • iOS & Android</span>
+                </div>
+
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 tracking-tight leading-tight">
+                  Installez l&apos;App FretTalent{' '}
+                  <span className="text-orange-500 relative">
+                    directement sur votre téléphone
+                    <span className="absolute bottom-1 left-0 w-full h-2 bg-orange-200/60 -z-10 rounded-full" />
+                  </span>
+                </h2>
+
+                <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                  Ne manquez plus aucune opportunité ! Téléchargez l&apos;application FretTalent en 2 secondes sans passer par un magasin d&apos;applications lourd. Recevez des <strong>notifications push sonores</strong> directement sur votre mobile dès qu&apos;un transporteur s&apos;intéresse à vous.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left pt-2">
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
+                    <div className="flex items-center gap-2 text-xs font-black text-orange-600 uppercase tracking-wider">
+                      <Bell className="w-4 h-4 text-orange-500" />
+                      <span>Alertes Push en Direct</span>
+                    </div>
+                    <p className="text-xs text-slate-600">
+                      Soyez prévenu immédiatement quand une entreprise débloque vos coordonnées.
+                    </p>
+                  </div>
+
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
+                    <div className="flex items-center gap-2 text-xs font-black text-emerald-600 uppercase tracking-wider">
+                      <Zap className="w-4 h-4 text-emerald-500" />
+                      <span>Accès 1 Clic Écran d&apos;Accueil</span>
+                    </div>
+                    <p className="text-xs text-slate-600">
+                      Lancement instantané sur votre Dashboard Candidat ou votre inscription.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Composant interactif d'installation PWA */}
+                <div className="pt-4">
+                  <PwaInstallPrompt inline={true} />
+                </div>
+              </div>
+
+              {/* Visuel Smartphone Mockup & Simulation de Notification */}
+              <div className="lg:col-span-5 flex justify-center relative">
+                <div className="relative w-full max-w-[360px] sm:max-w-[400px]">
+                  {/* Glowing halo */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[340px] bg-orange-500/15 rounded-full blur-3xl pointer-events-none" />
+
+                  {/* Frame Smartphone */}
+                  <div className="bg-slate-950 p-4 rounded-[40px] border-4 border-slate-800 shadow-2xl space-y-4 relative z-10">
+                    
+                    {/* Top Notch */}
+                    <div className="w-28 h-4 bg-slate-900 rounded-full mx-auto" />
+
+                    {/* App Header Simulation */}
+                    <div className="bg-slate-900 p-3.5 rounded-2xl flex items-center justify-between border border-slate-800 text-white">
+                      <div className="flex items-center gap-2">
+                        <img src="/favicon.png" alt="FretTalent App" className="w-6 h-6 rounded-lg" />
+                        <span className="text-xs font-black">FretTalent App</span>
+                      </div>
+                      <span className="text-[10px] bg-orange-500 text-white font-extrabold px-2 py-0.5 rounded-full">
+                        En direct
+                      </span>
+                    </div>
+
+                    {/* Simulation Notification Push Flottante */}
+                    <div className="bg-white/95 backdrop-blur-md p-4 rounded-2xl border border-orange-200 shadow-xl space-y-2 animate-float text-slate-900">
+                      <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold">
+                        <div className="flex items-center gap-1 text-orange-600">
+                          <Bell className="w-3 h-3" />
+                          <span>Notification FretTalent</span>
+                        </div>
+                        <span>À l&apos;instant</span>
+                      </div>
+                      <p className="text-xs font-black text-slate-950">
+                        🚚 Transports XPO vient de débloquer votre profil SPL !
+                      </p>
+                      <p className="text-[11px] text-slate-500">
+                        Poste CDI à pourvoir immédiatement (02 - Aisne).
+                      </p>
+                    </div>
+
+                    {/* Visuel chauffeur */}
+                    <div className="rounded-2xl overflow-hidden border border-slate-800 bg-slate-900 flex justify-center pt-3">
+                      <img
+                        src="/images/driver-victory.png"
+                        alt="Application Chauffeur Routier FretTalent"
+                        className="w-full h-auto max-h-[260px] object-contain drop-shadow-md"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
 
         {/* Section Vitrine SEO & Valeur Ajoutée */}
         <section className="section-block relative overflow-hidden">

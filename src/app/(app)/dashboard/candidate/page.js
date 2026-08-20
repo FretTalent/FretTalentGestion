@@ -29,6 +29,7 @@ import {
   MailCheck,
 } from 'lucide-react';
 import { validatePhoneNumber, validateAddress, COUNTRIES, calculateAge } from '@/lib/country';
+import PwaInstallPrompt from '@/components/PwaInstallPrompt';
 
 function CandidateDashboardContent() {
   const router = useRouter();
@@ -386,6 +387,9 @@ function CandidateDashboardContent() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
+      {/* BANNIÈRE D'INSTALLATION PWA MOBILE */}
+      <PwaInstallPrompt inline={true} />
+
       {/* Message Status */}
       {message && (
         <div

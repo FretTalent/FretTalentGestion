@@ -1,0 +1,30 @@
+{
+  "name": "FretTalent - Recrutement Chauffeurs Routiers",
+  "short_name": "FretTalent",
+  "description": "Application N°1 de recrutement direct pour chauffeurs routiers (PL, SPL) et transporteurs.",
+  "start_url": "/register?role=candidate",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#f97316",
+  "categories": ["business", "productivity", "social"],
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

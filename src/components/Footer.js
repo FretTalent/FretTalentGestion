@@ -123,8 +123,19 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/contact"
+                  href="/partenariat"
                   className="inline-flex items-center gap-1.5 text-orange-400 hover:text-orange-300 font-bold transition-colors"
+                >
+                  <span>🤝 Demande de Partenariat</span>
+                  <span className="bg-orange-500/20 text-orange-400 text-[10px] font-extrabold px-1.5 py-0.2 rounded-full border border-orange-500/30">
+                    Pro
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center gap-1.5 text-slate-300 hover:text-white font-medium transition-colors"
                 >
                   <span>Contact & Support</span>
                   <span className="bg-orange-500/20 text-orange-400 text-[10px] font-extrabold px-1.5 py-0.2 rounded-full border border-orange-500/30">

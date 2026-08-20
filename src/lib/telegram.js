@@ -874,6 +874,23 @@ https://www.frettalent.fr/entreprises`.trim();
   return sendTelegramMessage(welcomeText, { chatId, reply_markup });
 }
 
+export async function sendTelegramPartnershipNotification({ name, company, email, phone, partnerType, message }) {
+  const text = `🤝 <b>NOUVELLE DEMANDE DE PARTENARIAT !</b> 🌟\n` +
+    `━━━━━━━━━━━━━━━━━━━━\n` +
+    `👤 <b>Contact :</b> ${escapeHtml(name)}\n` +
+    `🏢 <b>Entreprise / Organisme :</b> ${escapeHtml(company || 'Non renseigné')}\n` +
+    `📧 <b>E-mail :</b> ${escapeHtml(email)}\n` +
+    `📞 <b>Téléphone :</b> ${escapeHtml(phone || 'Non renseigné')}\n` +
+    `🏷️ <b>Type de Partenariat :</b> ${escapeHtml(partnerType || 'Général')}\n` +
+    `━━━━━━━━━━━━━━━━━━━━\n` +
+    `💬 <b>Proposition / Message :</b>\n` +
+    `<i>"${escapeHtml(message)}"</i>\n` +
+    `━━━━━━━━━━━━━━━━━━━━\n` +
+    `⏱ <b>Horodatage :</b> ${new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}`;
+
+  return sendTelegramMessage(text);
+}
+
 function escapeHtml(text) {
   if (!text) return '';
   return String(text)

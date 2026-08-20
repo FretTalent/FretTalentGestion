@@ -977,6 +977,140 @@ export default function RecruiterDashboard() {
           </div>
         </div>
       </div>
+
+      {/* FICHE SYNTHÈSE CANDIDAT PDF EXÉCUTIVE (Visible uniquement à l'impression window.print) */}
+      {selectedCandidate && (
+        <div id="printable-candidate-sheet" className="hidden print:block">
+          {/* Header Officiel FretTalent */}
+          <div className="flex items-center justify-between border-b-2 border-orange-500 pb-4 mb-6">
+            <div className="flex items-center gap-3">
+              <div className="bg-orange-500 text-white font-black px-3 py-1.5 rounded-xl text-lg tracking-wider">
+                FRET TALENT
+              </div>
+              <div>
+                <h1 className="text-xl font-black text-slate-900 uppercase tracking-tight">Fiche Synthèse Chauffeur</h1>
+                <p className="text-xs text-orange-600 font-bold">Dossier Candidature & Recrutement Transport</p>
+              </div>
+            </div>
+            <div className="text-right text-xs">
+              <div className="font-bold text-slate-900">Édité le : {new Date().toLocaleDateString('fr-FR')}</div>
+              <div className="text-slate-500 font-mono">Réf. Chauffeur : #{selectedCandidate.id?.slice(0, 8)}</div>
+            </div>
+          </div>
+
+          {/* Bloc Identité Chauffeur */}
+          <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 mb-6 flex justify-between items-start">
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-black text-slate-950">
+                  {(company?.subscription_plan === 'premium_monthly' || company?.subscription_plan === 'premium_plus_monthly' || myUnlocks.includes(selectedCandidate.id))
+                    ? (selectedCandidate.full_name || 'Chauffeur Routier')
+                    : 'Chauffeur Routier (Anonyme)'}
+                </h2>
+                {selectedCandidate.validated && (
+                  <span className="bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-black px-3 py-1 rounded-full">
+                    ✓ PROFIL 100% VÉRIFIÉ & CERTIFIÉ
+                  </span>
+                )}
+              </div>
+              <p className="text-sm font-bold text-slate-700">
+                📍 Localisation : {selectedCandidate.city} ({selectedCandidate.postal_code || ''}) — {selectedCandidate.country === 'BE' ? 'Belgique 🇧🇪' : 'France 🇫🇷'}
+              </p>
+              <div className="flex gap-4 text-xs text-slate-600 pt-1">
+                <span><strong>Âge :</strong> {selectedCandidate.birth_date && calculateAge(selectedCandidate.birth_date) ? `${calculateAge(selectedCandidate.birth_date)} ans` : 'Non renseigné'}</span>
+                <span><strong>Expérience :</strong> {selectedCandidate.experience_years || 0} ans</span>
+                <span><strong>Disponibilité :</strong> {selectedCandidate.availability || 'Immédiate'}</span>
+                <span><strong>Mobilité :</strong> {selectedCandidate.mobility_radius || 50} km</span>
+              </div>
+            </div>
+
+            {(company?.subscription_plan === 'premium_monthly' || company?.subscription_plan === 'premium_plus_monthly' || myUnlocks.includes(selectedCandidate.id)) && (
+              <div className="bg-white p-4 rounded-xl border border-slate-300 text-xs space-y-1.5 shrink-0 min-w-[240px]">
+                <div className="font-black text-orange-600 uppercase border-b border-slate-100 pb-1 mb-1">
+                  📞 Coordonnées Directes
+                </div>
+                <div><strong>Téléphone :</strong> {selectedCandidate.phone || '—'}</div>
+                <div><strong>E-mail :</strong> {selectedCandidate.email || '—'}</div>
+                {selectedCandidate.address && (
+                  <div><strong>Adresse :</strong> {selectedCandidate.address}, {selectedCandidate.postal_code} {selectedCandidate.city}</div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Grille Qualifications & Habilitations */}
+          <div className="grid grid-cols-2 gap-6 mb-6">
+            <div className="border border-slate-200 rounded-2xl p-5 space-y-3 bg-white">
+              <h3 className="text-xs font-black text-slate-900 uppercase border-b border-slate-100 pb-2">
+                🪪 Permis de conduire validés
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {Array.isArray(selectedCandidate.licenses) && selectedCandidate.licenses.length > 0 ? (
+                  selectedCandidate.licenses.map(lic => (
+                    <span key={lic} className="bg-orange-500 text-white font-black text-sm px-3.5 py-1.5 rounded-xl shadow-xs">
+                      Permis {lic}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-xs text-slate-500">Non renseigné</span>
+                )}
+              </div>
+            </div>
+
+            <div className="border border-slate-200 rounded-2xl p-5 space-y-3 bg-white">
+              <h3 className="text-xs font-black text-slate-900 uppercase border-b border-slate-100 pb-2">
+                📜 Cartes Pro & Habilitations
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {Array.isArray(selectedCandidate.certifications) && selectedCandidate.certifications.length > 0 ? (
+                  selectedCandidate.certifications.map(cert => (
+                    <span key={cert} className="bg-slate-900 text-white font-black text-xs px-3 py-1.5 rounded-xl">
+                      {cert}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-xs text-slate-500">Non renseigné</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Spécialités & Présentation */}
+          <div className="grid grid-cols-1 gap-4 mb-6">
+            {Array.isArray(selectedCandidate.job_preferences) && selectedCandidate.job_preferences.length > 0 && (
+              <div className="border border-slate-200 rounded-2xl p-4 bg-white space-y-2">
+                <h3 className="text-xs font-black text-slate-900 uppercase border-b border-slate-100 pb-2">
+                  🚚 Spécialités Transport & Matériel Maîtrisé
+                </h3>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {selectedCandidate.job_preferences.map(pref => (
+                    <span key={pref} className="bg-slate-100 text-slate-800 font-bold text-xs px-3 py-1 rounded-lg border border-slate-200">
+                      {pref}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedCandidate.bio && (
+              <div className="border border-slate-200 rounded-2xl p-4 bg-white space-y-2">
+                <h3 className="text-xs font-black text-slate-900 uppercase border-b border-slate-100 pb-2">
+                  💬 Présentation du Chauffeur
+                </h3>
+                <p className="text-xs text-slate-700 italic pt-1 leading-relaxed">
+                  &ldquo;{selectedCandidate.bio}&rdquo;
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Footer Confidentiel */}
+          <div className="border-t-2 border-slate-200 pt-4 mt-12 flex justify-between items-center text-[10px] text-slate-500 font-medium">
+            <div>🔒 FretTalent — Document confidentiel RH destiné exclusivement à l&apos;entreprise recruteuse.</div>
+            <div>www.frettalent.fr • Contact : support@frettalent.fr</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

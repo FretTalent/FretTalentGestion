@@ -840,35 +840,33 @@ ${escapeHtml(message)}
  * Message de bienvenue automatique lorsqu'un nouveau membre rejoint le groupe/canal Telegram FretTalent
  */
 export async function sendTelegramWelcomeNewMember({ chatId, userId, firstName, username }) {
-  const name = firstName || (username ? `@${username}` : 'Chauffeur');
+  const welcomeText = `📢 <b>BIENVENUE SUR LE CANAL OFFICIEL FRETTALENT !</b> 🚛💨
+━━━━━━━━━━━━━━━━━━━━━
+FretTalent est la plateforme N°1 de mise en relation directe entre <b>Chauffeurs Routiers</b> (Permis C, CE, SPL, ADR, Frigo, TP) et <b>Transporteurs & Recruteurs</b> en France, Suisse, Belgique et Luxembourg.
 
-  const welcomeText = `🎉 <b>BIENVENUE DANS LE GROUPE OFFICIEL FRETTALENT !</b> 🚛
-━━━━━━━━━━━━━━━━━━━━
-Bienvenue <b>${escapeHtml(name)}</b> ! 🤝
+💡 <b>CE QUE VOUS RETROUVEREZ SUR CE CANAL :</b>
+• 💼 <b>Les nouvelles offres d'emploi SPL & PL</b> déposées par nos transporteurs partenaires
+• 🏢 <b>Les nouvelles entreprises</b> qui recrutent dans votre secteur
+• ⚡ <b>Les recrutements urgents</b> et opportunités à pourvoir immédiatement
+• 🎁 <b>Les conseils, actualités & bons plans</b> pour les conducteurs routiers
 
-Ravi de vous compter parmi la communauté des chauffeurs routiers et transporteurs FretTalent.
-
-💡 <b>Sur ce groupe, vous recevrez en temps réel :</b>
-• 💼 Les meilleures offres d'emploi SPL / PL / ADR
-• 🏢 Les nouveaux transporteurs partenaires qui recrutent
-• 🎁 Les bons plans et conseils pour les conducteurs routiers
-
+━━━━━━━━━━━━━━━━━━━━━
 👇 <b>VOUS ÊTES CHAUFFEUR ROUTIER ?</b>
-Créez votre profil gratuit en 2 minutes et obtenez le badge <b>Vérifié ✓</b> :
+Créez votre profil gratuit en 2 min et obtenez le badge <b>100% Vérifié ✓</b> pour être contacté en direct sans intermédiaire :
 https://www.frettalent.fr/register
 
-👇 <b>VOUS ÊTES TRANSPORTEUR / ENTREPRISE ?</b>
-Consultez les chauffeurs qualifiés disponibles dans votre région :
+👇 <b>VOUS ÊTES TRANSPORTEUR / RECRUTEUR ?</b>
+Consultez nos profils de chauffeurs qualifiés disponibles dans votre région :
 https://www.frettalent.fr/entreprises`.trim();
 
   const reply_markup = {
     inline_keyboard: [
       [
-        { text: '📝 Créer mon Profil Gratuit (Chauffeur)', url: 'https://www.frettalent.fr/register' },
+        { text: '📝 Inscription Chauffeur Gratuit', url: 'https://www.frettalent.fr/register' },
       ],
       [
-        { text: '🏢 Espace Transporteurs', url: 'https://www.frettalent.fr/entreprises' },
-        { text: '🌐 Visiter le Site Web', url: 'https://www.frettalent.fr' },
+        { text: '🏢 Espace Recruteurs & Offres', url: 'https://www.frettalent.fr/entreprises' },
+        { text: '🌐 Découvrir FretTalent.fr', url: 'https://www.frettalent.fr' },
       ],
     ],
   };

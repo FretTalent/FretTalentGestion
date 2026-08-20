@@ -78,25 +78,40 @@ export async function POST(req) {
           })
           .map(c => c.email.trim());
       }
-    } else if (target === 'all_candidates' || target === 'all_companies') {
-      const roleFilter =
-        target === 'all_candidates' ? 'candidate' : 'recruiter';
-      const { data: profilesList } = await supabaseAdmin
+    } else if (target === 'all_candidates') {
+      // Récupérer 100% des e-mails depuis la table candidates + profiles
+      const { data: cands } = await supabaseAdmin
+        .from('candidates')
+        .select('email');
+
+      const candSet = new Set((cands || []).map(c => c.email?.trim()).filter(Boolean));
+
+      const { data: profs } = await supabaseAdmin
         .from('profiles')
-        .select('id')
-        .eq('role', roleFilter);
+        .select('email')
+        .eq('role', 'candidate');
+      (profs || []).forEach(p => { if (p.email) candSet.add(p.email.trim()); });
 
-      if (profilesList && profilesList.length > 0) {
-        const {
-          data: { users },
-        } = await supabaseAdmin.auth.admin.listUsers();
-        const profileIds = new Set(profilesList.map(p => p.id));
+      recipientEmails = Array.from(candSet);
+    } else if (target === 'all_companies') {
+      // Récupérer 100% des e-mails depuis la table companies + profiles
+      const { data: comps } = await supabaseAdmin
+        .from('companies')
+        .select('email');
 
-        recipientEmails = users
-          .filter(u => profileIds.has(u.id) && u.email)
-          .map(u => u.email);
-      }
+      const compSet = new Set((comps || []).map(c => c.email?.trim()).filter(Boolean));
+
+      const { data: profs } = await supabaseAdmin
+        .from('profiles')
+        .select('email')
+        .eq('role', 'recruiter');
+      (profs || []).forEach(p => { if (p.email) compSet.add(p.email.trim()); });
+
+      recipientEmails = Array.from(compSet);
     }
+
+    // Dédupliquer et nettoyer la liste des destinataires
+    recipientEmails = Array.from(new Set(recipientEmails.map(e => e.toLowerCase().trim()).filter(Boolean)));
 
     if (recipientEmails.length === 0) {
       return NextResponse.json(

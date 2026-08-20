@@ -70,7 +70,7 @@ function CandidateDashboardContent() {
         setPushEnabled(true);
         toast.success('📲 Notifications Push activées avec succès sur ce téléphone !');
       } else {
-        toast.error('Veuillez autoriser les notifications dans la fenêtre qui apparaît sur votre téléphone.');
+        toast.error(res.message || 'Veuillez autoriser les notifications dans la fenêtre de votre téléphone.', { duration: 6000 });
       }
     } catch (err) {
       toast.error('Erreur lors de l\'activation des notifications.');

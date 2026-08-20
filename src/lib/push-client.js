@@ -14,24 +14,54 @@ function urlBase64ToUint8Array(base64String) {
 }
 
 export async function registerPushSubscription(userId, role = 'candidate') {
-  if (typeof window === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window)) {
-    console.warn('Push Notifications non supportées par ce navigateur.');
-    return { success: false, reason: 'unsupported' };
+  if (typeof window === 'undefined') {
+    return { success: false, reason: 'server_side' };
+  }
+
+  // Détection iPhone / iOS
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+  if (isIOS && !isStandalone) {
+    return {
+      success: false,
+      reason: 'ios_not_standalone',
+      message: 'Sur iPhone (iOS), Apple exige que l\'application soit ajoutée à votre Écran d\'accueil. Appuyez sur le bouton Partager ⎋ puis "Sur l\'écran d\'accueil", et ouvrez l\'application depuis son icône.',
+    };
+  }
+
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    return {
+      success: false,
+      reason: 'unsupported',
+      message: 'Votre navigateur mobile ne supporte pas les notifications Push web.',
+    };
   }
 
   try {
+    // Si la permission est déjà refusée/bloquée au niveau du navigateur
+    if (Notification.permission === 'denied') {
+      return {
+        success: false,
+        reason: 'permission_denied',
+        message: 'Les notifications sont actuellement bloquées dans votre navigateur. Cliquez sur l\'icône de cadenas 🔒 à côté de l\'adresse web pour les autoriser.',
+      };
+    }
+
     // 1. Demander la permission de notification au navigateur / smartphone
     const permission = await Notification.requestPermission();
     if (permission !== 'granted') {
-      console.log('Permission notification refusée par l\'utilisateur.');
-      return { success: false, reason: 'permission_denied' };
+      return {
+        success: false,
+        reason: 'permission_denied',
+        message: 'Permission refusée. Veuillez autoriser les notifications dans votre navigateur.',
+      };
     }
 
     // 2. Récupérer l'enregistrement du Service Worker
     const registration = await navigator.serviceWorker.ready;
     if (!registration) {
-      console.warn('Service Worker non prêt.');
-      return { success: false, reason: 'sw_not_ready' };
+      return { success: false, reason: 'sw_not_ready', message: 'Service Worker non prêt.' };
     }
 
     // 3. Obtenir ou créer l'abonnement Push VAPID
@@ -66,6 +96,6 @@ export async function registerPushSubscription(userId, role = 'candidate') {
     return { success: true };
   } catch (err) {
     console.error('Erreur registerPushSubscription:', err);
-    return { success: false, error: err.message };
+    return { success: false, error: err.message, message: err.message };
   }
 }

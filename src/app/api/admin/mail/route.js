@@ -53,69 +53,125 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Accès réservé aux administrateurs' }, { status: 403 });
     }
 
-    // 2. Récupération des destinataires
-    let recipientEmails = [];
+    // 2. Récupération des destinataires selon la cible choisie
+    let recipientEntries = []; // Array of { email, name, role, entrepriseId, companyId, candidateId }
 
     if (target === 'specific' && specificEmails) {
-      recipientEmails = specificEmails
+      const emailList = specificEmails
         .split(',')
-        .map(e => e.trim())
-        .filter(e => e);
+        .map(e => e.trim().toLowerCase())
+        .filter(Boolean);
+
+      for (const email of emailList) {
+        recipientEntries.push({ email, name: email, role: 'contact' });
+      }
+    } else if (target === 'registre_entreprises' || target === 'all_registre_entreprises') {
+      // 🎯 Cibler 100% des entreprises du Registre (Prospects - Carnet 19,99€)
+      const { data: registreList } = await supabaseAdmin
+        .from('entreprises')
+        .select('id, name, nom_entreprise, email')
+        .not('email', 'is', null);
+
+      if (registreList && registreList.length > 0) {
+        for (const ent of registreList) {
+          if (ent.email && ent.email.includes('@')) {
+            recipientEntries.push({
+              email: ent.email.trim().toLowerCase(),
+              name: ent.nom_entreprise || ent.name || ent.email,
+              role: 'recruiter',
+              entrepriseId: ent.id,
+            });
+          }
+        }
+      }
     } else if (target === 'candidates_incomplete_docs') {
       // Cibler UNIQUEMENT les chauffeurs non validés avec documents incomplets
       const { data: candidates } = await supabaseAdmin
         .from('candidates')
-        .select('email, documents, validated')
-        .eq('validated', false); // Exclut strictement TOUS les candidats déjà validés
+        .select('id, full_name, email, documents, validated')
+        .eq('validated', false);
 
       if (candidates && candidates.length > 0) {
-        recipientEmails = candidates
-          .filter(c => {
-            if (!c.email) return false;
+        candidates.forEach(c => {
+          if (c.email) {
             const docs = c.documents || {};
             const count = ['cv', 'permis_recto', 'permis_verso', 'chrono_recto', 'chrono_verso', 'fimo_recto', 'fimo_verso'].filter(k => !!docs[k]).length;
-            return count < 7;
-          })
-          .map(c => c.email.trim());
+            if (count < 7) {
+              recipientEntries.push({
+                email: c.email.trim().toLowerCase(),
+                name: c.full_name || c.email,
+                role: 'candidate',
+                candidateId: c.id,
+              });
+            }
+          }
+        });
       }
     } else if (target === 'all_candidates') {
-      // Récupérer 100% des e-mails depuis la table candidates + profiles
+      // Récupérer 100% des e-mails chauffeurs
       const { data: cands } = await supabaseAdmin
         .from('candidates')
-        .select('email');
+        .select('id, full_name, email');
 
-      const candSet = new Set((cands || []).map(c => c.email?.trim()).filter(Boolean));
-
-      const { data: profs } = await supabaseAdmin
-        .from('profiles')
-        .select('email')
-        .eq('role', 'candidate');
-      (profs || []).forEach(p => { if (p.email) candSet.add(p.email.trim()); });
-
-      recipientEmails = Array.from(candSet);
+      (cands || []).forEach(c => {
+        if (c.email && c.email.includes('@')) {
+          recipientEntries.push({
+            email: c.email.trim().toLowerCase(),
+            name: c.full_name || c.email,
+            role: 'candidate',
+            candidateId: c.id,
+          });
+        }
+      });
     } else if (target === 'all_companies') {
-      // Récupérer 100% des e-mails depuis la table companies + profiles
+      // Récupérer 100% des e-mails recruteurs inscrits
       const { data: comps } = await supabaseAdmin
         .from('companies')
-        .select('email');
+        .select('id, name, email');
 
-      const compSet = new Set((comps || []).map(c => c.email?.trim()).filter(Boolean));
+      (comps || []).forEach(c => {
+        if (c.email && c.email.includes('@')) {
+          recipientEntries.push({
+            email: c.email.trim().toLowerCase(),
+            name: c.name || c.email,
+            role: 'recruiter',
+            companyId: c.id,
+          });
+        }
+      });
+    } else if (target === 'all_targets') {
+      // 🌐 TOUT LE MONDE (Chauffeurs + Recruteurs + Registre Entreprises)
+      const [candsRes, compsRes, registreRes] = await Promise.all([
+        supabaseAdmin.from('candidates').select('id, full_name, email'),
+        supabaseAdmin.from('companies').select('id, name, email'),
+        supabaseAdmin.from('entreprises').select('id, name, nom_entreprise, email').not('email', 'is', null),
+      ]);
 
-      const { data: profs } = await supabaseAdmin
-        .from('profiles')
-        .select('email')
-        .eq('role', 'recruiter');
-      (profs || []).forEach(p => { if (p.email) compSet.add(p.email.trim()); });
-
-      recipientEmails = Array.from(compSet);
+      (candsRes.data || []).forEach(c => {
+        if (c.email) recipientEntries.push({ email: c.email.trim().toLowerCase(), name: c.full_name || c.email, role: 'candidate', candidateId: c.id });
+      });
+      (compsRes.data || []).forEach(c => {
+        if (c.email) recipientEntries.push({ email: c.email.trim().toLowerCase(), name: c.name || c.email, role: 'recruiter', companyId: c.id });
+      });
+      (registreRes.data || []).forEach(e => {
+        if (e.email) recipientEntries.push({ email: e.email.trim().toLowerCase(), name: e.nom_entreprise || e.name || e.email, role: 'recruiter', entrepriseId: e.id });
+      });
     }
 
-    // Dédupliquer et nettoyer la liste des destinataires
-    recipientEmails = Array.from(new Set(recipientEmails.map(e => e.toLowerCase().trim()).filter(Boolean)));
+    // 3. Dédupliquer les destinataires par adresse e-mail
+    const seenEmails = new Set();
+    const uniqueRecipients = [];
 
-    if (recipientEmails.length === 0) {
+    for (const entry of recipientEntries) {
+      if (entry.email && !seenEmails.has(entry.email)) {
+        seenEmails.add(entry.email);
+        uniqueRecipients.push(entry);
+      }
+    }
+
+    if (uniqueRecipients.length === 0) {
       return NextResponse.json(
-        { error: 'Aucun destinataire trouvé' },
+        { error: 'Aucun destinataire valide trouvé pour cette cible.' },
         { status: 400 },
       );
     }
@@ -123,47 +179,21 @@ export async function POST(req) {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.frettalent.fr';
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'FretTalent <support@frettalent.fr>';
 
-    // Récupérer un ID de candidature valide pour les contraintes SQL
+    // Récupérer un ID de candidature valide pour les contraintes SQL de la table candidature_emails
     const { data: cand } = await supabaseAdmin.from('candidatures').select('id').limit(1).maybeSingle();
     const validCandidatureId = cand?.id || '2450981b-c623-4db2-b0f3-2b4a2c3dbca3';
 
-    // 4. Envoi via Resend avec token unique de tracking pour Telegram
+    // 4. Envoi individuel via Resend avec pixel de tracking et alerte Telegram
     let sentCount = 0;
     const errors = [];
 
-    for (const email of recipientEmails) {
+    for (const recipient of uniqueRecipients) {
       try {
-        const emailB64 = Buffer.from(email).toString('base64').replace(/=/g, '');
+        const emailB64 = Buffer.from(recipient.email).toString('base64').replace(/=/g, '');
         const trackingToken = `mail-c-${emailB64}-${Math.random().toString(36).substring(2, 8)}`;
         const trackingUrl = `${baseUrl}/api/premium/open-tracking?t=${trackingToken}`;
 
-        // Identifier le nom et prénom ou raison sociale du destinataire
-        let recipientDisplayName = email;
-        let matchedCandidateId = null;
-        let matchedCompanyId = null;
-
-        const { data: candInfo } = await supabaseAdmin
-          .from('candidates')
-          .select('id, full_name, email')
-          .eq('email', email)
-          .maybeSingle();
-
-        if (candInfo) {
-          recipientDisplayName = candInfo.full_name || email;
-          matchedCandidateId = candInfo.id;
-        } else {
-          const { data: compInfo } = await supabaseAdmin
-            .from('companies')
-            .select('id, name, email')
-            .eq('email', email)
-            .maybeSingle();
-          if (compInfo) {
-            recipientDisplayName = compInfo.name || email;
-            matchedCompanyId = compInfo.id;
-          }
-        }
-
-        // Rendu personnalisé avec le pixel de tracking pour chaque destinataire
+        // Générer le HTML de l'e-mail avec le pixel de tracking dynamique
         const htmlBody = await render(
           <MarketingEmail
             type={type}
@@ -175,25 +205,39 @@ export async function POST(req) {
           />,
         );
 
-        // Sauvegarder dans candidature_emails avec le nom et prénom pour le tracking et l'alerte Telegram
+        // Enregistrer l'envoi dans candidature_emails pour activer le tracking d'ouverture et l'alerte Telegram
         try {
           await supabaseAdmin.from('candidature_emails').insert({
             candidature_id: validCandidatureId,
-            candidate_id: matchedCandidateId,
-            entreprise_id: matchedCompanyId,
-            company_name: recipientDisplayName,
-            company_email: email,
+            candidate_id: recipient.candidateId || null,
+            entreprise_id: recipient.entrepriseId || recipient.companyId || null,
+            company_name: recipient.name || recipient.email,
+            company_email: recipient.email,
             tracking_token: trackingToken,
             status: 'sent',
+            open_count: 0,
             sent_at: new Date().toISOString(),
           });
+
+          // Si c'est une entreprise du Registre, mettre à jour son statut de contact
+          if (recipient.entrepriseId) {
+            await supabaseAdmin
+              .from('entreprises')
+              .update({
+                statut_contact: 'contacté',
+                notes: `Email commercial envoyé le ${new Date().toLocaleDateString('fr-FR')}`,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', recipient.entrepriseId);
+          }
         } catch (dbErr) {
           console.warn('[Admin Mail] Warning enregistrement token tracking:', dbErr.message);
         }
 
+        // Envoi via Resend API
         const { error: resendError } = await resend.emails.send({
           from: fromEmail,
-          to: email,
+          to: recipient.email,
           subject: subject || title,
           html: htmlBody,
           headers: {
@@ -202,26 +246,28 @@ export async function POST(req) {
         });
 
         if (resendError) {
-          console.error(`Erreur Resend pour ${email}:`, resendError);
-          errors.push(email);
+          console.error(`Erreur Resend pour ${recipient.email}:`, resendError);
+          errors.push(recipient.email);
         } else {
           sentCount++;
         }
       } catch (err) {
-        console.error(`Exception envoi Resend à ${email}:`, err.message);
-        errors.push(email);
+        console.error(`Exception envoi Resend à ${recipient.email}:`, err.message);
+        errors.push(recipient.email);
       }
     }
 
     return NextResponse.json({
       success: true,
       count: sentCount,
+      total_targeted: uniqueRecipients.length,
+      errors_count: errors.length,
       message: `${sentCount} e-mail(s) envoyé(s) avec succès${errors.length > 0 ? `, ${errors.length} échec(s)` : ''}`,
     });
   } catch (err) {
     console.error('Erreur API Mail:', err);
     return NextResponse.json(
-      { error: "Erreur lors de l'envoi de l'e-mail" },
+      { error: "Erreur lors de l'envoi de l'e-mail: " + err.message },
       { status: 500 },
     );
   }

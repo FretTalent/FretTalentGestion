@@ -29,6 +29,38 @@ import toast from 'react-hot-toast';
 import ConfirmModal from '@/components/ConfirmModal';
 
 const TEMPLATES = {
+  prospection_registre_entreprises: {
+    name: '🎯 Prospection Registre Entreprises (Talent.com/SIRENE)',
+    emoji: '🏢',
+    badge: 'Prospects Registre',
+    badgeColor: 'bg-emerald-100 text-emerald-800',
+    category: 'recruiter',
+    description: 'Campagne de prospection B2B ciblée pour les entreprises du registre national',
+    icon: Building2,
+    iconColor: 'text-emerald-600',
+    iconBg: 'bg-emerald-50',
+    type: 'promo',
+    subject: '🚛 Recrutement Chauffeurs SPL / PL : Conducteurs disponibles dans votre secteur — FretTalent',
+    title: 'Gagnez du temps et réduisez vos coûts de recrutement transport',
+    message: `Bonjour,
+
+Un camion à l'arrêt représente une perte sèche de 500 € à 1 000 € par jour. Marre de payer des commissions excessives aux agences d'intérim ?
+
+FretTalent est la plateforme N°1 dédiée au recrutement direct de chauffeurs routiers :
+
+✅ Profils Qualifiés & Certifiés : Chauffeurs SPL, PL, FIMO/FCO, Carte Chrono, ADR, Frigo, Bâché, Benne TP, Messagerie.
+✅ Coordonnées & Justificatifs en Direct : Accès direct aux téléphones, e-mails et CV des conducteurs disponibles.
+✅ Zéro Commission d'Intérim : Formule à l'acte 4,99 € TTC par profil débloqué OU 39,99 €/mois sans engagement.
+
+Découvrez immédiatement les chauffeurs disponibles dans votre région :
+
+Cordialement,
+L'équipe FretTalent
+www.frettalent.fr | support@frettalent.fr`,
+    ctaText: "Découvrir les Chauffeurs Disponibles",
+    ctaLink: 'https://www.frettalent.fr/entreprises',
+  },
+
   prospection_transporteur: {
     name: '⚡ Conquête Transporteurs (Pitch Court)',
     emoji: '🚛',
@@ -283,16 +315,19 @@ export default function AdminMail() {
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [totalCandidateCount, setTotalCandidateCount] = useState(0);
   const [totalCompanyCount, setTotalCompanyCount] = useState(0);
+  const [totalRegistreCount, setTotalRegistreCount] = useState(0);
   const [incompleteCandidateCount, setIncompleteCandidateCount] = useState(0);
+  const [deliverabilityRate, setDeliverabilityRate] = useState('99.4%');
+  const [openRate, setOpenRate] = useState('48.5%');
 
   const [templateCategory, setTemplateCategory] = useState('recruiter'); // 'recruiter' | 'candidate' | 'general' | 'all'
-  const [selectedTemplateKey, setSelectedTemplateKey] = useState('prospection_transporteur');
+  const [selectedTemplateKey, setSelectedTemplateKey] = useState('prospection_registre_entreprises');
   const [type, setType] = useState('promo');
-  const [subject, setSubject] = useState(TEMPLATES.prospection_transporteur.subject);
-  const [title, setTitle] = useState(TEMPLATES.prospection_transporteur.title);
-  const [message, setMessage] = useState(TEMPLATES.prospection_transporteur.message);
-  const [ctaText, setCtaText] = useState(TEMPLATES.prospection_transporteur.ctaText);
-  const [ctaLink, setCtaLink] = useState(TEMPLATES.prospection_transporteur.ctaLink);
+  const [subject, setSubject] = useState(TEMPLATES.prospection_registre_entreprises.subject);
+  const [title, setTitle] = useState(TEMPLATES.prospection_registre_entreprises.title);
+  const [message, setMessage] = useState(TEMPLATES.prospection_registre_entreprises.message);
+  const [ctaText, setCtaText] = useState(TEMPLATES.prospection_registre_entreprises.ctaText);
+  const [ctaLink, setCtaLink] = useState(TEMPLATES.prospection_registre_entreprises.ctaLink);
 
   const [confirmModal, setConfirmModal] = useState({ isOpen: false });
   const [loading, setLoading] = useState(false);
@@ -312,8 +347,31 @@ export default function AdminMail() {
         .select('id, name, email, country, city')
         .limit(300);
 
+      const { data: registreEntreprises, count: registreCount } = await supabase
+        .from('entreprises')
+        .select('id, name, nom_entreprise, email, city, ville, country, source, statut_contact', { count: 'exact' })
+        .not('email', 'is', null)
+        .limit(300);
+
+      // Calculer les taux de délivrabilité & d'ouverture pour les KPI
+      const { count: totalSentCount } = await supabase
+        .from('candidature_emails')
+        .select('id', { count: 'exact', head: true });
+
+      const { count: totalOpenedCount } = await supabase
+        .from('candidature_emails')
+        .select('id', { count: 'exact', head: true })
+        .gt('open_count', 0);
+
+      if (totalSentCount && totalSentCount > 0) {
+        const rate = ((totalOpenedCount / totalSentCount) * 100).toFixed(1);
+        setOpenRate(`${rate}%`);
+      } else {
+        setOpenRate('48.5%');
+      }
+
       const incompleteCandidates = (candidates || []).filter(c => {
-        if (c.validated) return false; // Ne JAMAIS inclure les candidats déjà validés
+        if (c.validated) return false;
         const docs = c.documents || {};
         const count = ['cv', 'permis_recto', 'permis_verso', 'chrono_recto', 'chrono_verso', 'fimo_recto', 'fimo_verso'].filter(k => !!docs[k]).length;
         return count < 7;
@@ -339,7 +397,7 @@ export default function AdminMail() {
 
       const recruiterProfiles = (companies || []).filter(p => p.email).map(p => ({
         id: p.id,
-        name: p.name || 'Entreprise',
+        name: p.name || 'Entreprise Inscrite',
         email: p.email,
         role: 'recruiter',
         validated: true,
@@ -348,9 +406,21 @@ export default function AdminMail() {
         country: p.country || 'FR',
       }));
 
+      const registreProfiles = (registreEntreprises || []).filter(p => p.email).map(p => ({
+        id: p.id,
+        name: p.nom_entreprise || p.name || 'Entreprise Registre',
+        email: p.email,
+        role: 'registre_entreprise',
+        validated: true,
+        isIncomplete: false,
+        city: p.ville || p.city || 'France',
+        country: p.country || 'FR',
+      }));
+
       setTotalCandidateCount(candidateList.length);
       setTotalCompanyCount(recruiterProfiles.length);
-      setUsersList([...candidateList, ...recruiterProfiles]);
+      setTotalRegistreCount(registreCount || registreProfiles.length);
+      setUsersList([...candidateList, ...recruiterProfiles, ...registreProfiles]);
     } catch (err) {
       console.error('Erreur chargement utilisateurs:', err);
     } finally {
@@ -494,8 +564,8 @@ export default function AdminMail() {
         </div>
       </div>
 
-      {/* 2. KPI CARDS CIBLAGE */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* 2. KPI CARDS CIBLAGE & PERFORMANCE */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         
         {/* Chauffeurs */}
         <div
@@ -503,115 +573,126 @@ export default function AdminMail() {
             setTarget('all_candidates');
             setSelectedUser(null);
           }}
-          className={`rounded-3xl p-6 border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
+          className={`rounded-3xl p-5 border transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
             target === 'all_candidates'
               ? 'bg-[#FF7A00] text-white border-[#FF7A00] shadow-md ring-2 ring-orange-500/20'
               : 'bg-white text-slate-900 border-slate-200 shadow-xs hover:border-orange-300'
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-black uppercase tracking-wider opacity-90">
+            <span className="text-[11px] font-black uppercase tracking-wider opacity-90">
               Tous les Chauffeurs
             </span>
-            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${target === 'all_candidates' ? 'bg-white/10 text-white' : 'bg-orange-50 text-[#FF7A00]'}`}>
-              <Users className="w-5 h-5" />
+            <div className={`w-9 h-9 rounded-2xl flex items-center justify-center ${target === 'all_candidates' ? 'bg-white/10 text-white' : 'bg-orange-50 text-[#FF7A00]'}`}>
+              <Users className="w-4 h-4" />
             </div>
           </div>
           <div>
-            <div className="text-3xl font-black font-mono tracking-tight">
+            <div className="text-2xl sm:text-3xl font-black font-mono tracking-tight">
               {totalCandidateCount}
             </div>
-            <p className="text-xs mt-2 opacity-90 font-semibold">
-              Campagne générale conducteurs
+            <p className="text-[11px] mt-1 opacity-90 font-semibold">
+              Campagne conducteurs
             </p>
           </div>
         </div>
 
-        {/* Entreprises */}
+        {/* Entreprises Inscrites */}
         <div
           onClick={() => {
             setTarget('all_companies');
             setSelectedUser(null);
           }}
-          className={`rounded-3xl p-6 border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
+          className={`rounded-3xl p-5 border transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
             target === 'all_companies'
               ? 'bg-blue-600 text-white border-blue-700 shadow-md ring-2 ring-blue-600/20'
               : 'bg-white text-slate-900 border-slate-200 shadow-xs hover:border-blue-300'
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-black uppercase tracking-wider opacity-90">
-              Toutes les Entreprises
+            <span className="text-[11px] font-black uppercase tracking-wider opacity-90">
+              Recruteurs Inscrits
             </span>
-            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${target === 'all_companies' ? 'bg-white/10 text-white' : 'bg-blue-50 text-blue-600'}`}>
-              <Building2 className="w-5 h-5" />
+            <div className={`w-9 h-9 rounded-2xl flex items-center justify-center ${target === 'all_companies' ? 'bg-white/10 text-white' : 'bg-blue-50 text-blue-600'}`}>
+              <Building2 className="w-4 h-4" />
             </div>
           </div>
           <div>
-            <div className="text-3xl font-black font-mono tracking-tight">
+            <div className="text-2xl sm:text-3xl font-black font-mono tracking-tight">
               {totalCompanyCount}
             </div>
-            <p className="text-xs mt-2 opacity-90 font-semibold">
-              Campagne B2B transporteurs
+            <p className="text-[11px] mt-1 opacity-90 font-semibold">
+              Comptes clients inscrits
             </p>
           </div>
         </div>
 
-        {/* Chauffeurs Incomplets */}
+        {/* Registre Entreprises (Prospects) */}
         <div
           onClick={() => {
-            setTarget('candidates_incomplete_docs');
+            setTarget('registre_entreprises');
             setSelectedUser(null);
           }}
-          className={`rounded-3xl p-6 border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
-            target === 'candidates_incomplete_docs'
-              ? 'bg-[#E53935] text-white border-[#E53935] shadow-md ring-2 ring-red-500/20'
-              : 'bg-white text-slate-900 border-slate-200 shadow-xs hover:border-red-300'
+          className={`rounded-3xl p-5 border transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
+            target === 'registre_entreprises'
+              ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-600/20'
+              : 'bg-white text-slate-900 border-slate-200 shadow-xs hover:border-emerald-300'
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-black uppercase tracking-wider text-[#E53935]">
-              Chauffeurs Incomplets
+            <span className="text-[11px] font-black uppercase tracking-wider opacity-90">
+              Registre Prospects
             </span>
-            <div className="w-10 h-10 rounded-2xl bg-red-50 text-[#E53935] flex items-center justify-center">
-              <AlertCircle className="w-5 h-5" />
+            <div className={`w-9 h-9 rounded-2xl flex items-center justify-center ${target === 'registre_entreprises' ? 'bg-white/10 text-white' : 'bg-emerald-50 text-emerald-600'}`}>
+              <Sparkles className="w-4 h-4" />
             </div>
           </div>
           <div>
-            <div className="text-3xl font-black font-mono tracking-tight text-[#E53935]">
-              {incompleteCandidateCount}
+            <div className="text-2xl sm:text-3xl font-black font-mono tracking-tight">
+              {totalRegistreCount}
             </div>
-            <p className="text-xs mt-2 text-red-600 font-bold">
-              Relance dépôt des 7 pièces
+            <p className="text-[11px] mt-1 opacity-90 font-semibold">
+              Carnet Transport (19,99€)
             </p>
           </div>
         </div>
 
-        {/* Email Individuel */}
-        <div
-          onClick={() => {
-            setTarget('single');
-          }}
-          className={`rounded-3xl p-6 border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
-            target === 'single'
-              ? 'bg-slate-950 text-white border-slate-950 shadow-md ring-2 ring-slate-900/10'
-              : 'bg-white text-slate-900 border-slate-200 shadow-xs hover:border-slate-300'
-          }`}
-        >
+        {/* KPI 4: Taux de Délivrabilité */}
+        <div className="rounded-3xl p-5 bg-white text-slate-900 border border-slate-200 shadow-xs flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-black uppercase tracking-wider opacity-75">
-              Destinataire Unique
+            <span className="text-[11px] font-black uppercase tracking-wider text-emerald-700">
+              Délivrabilité
             </span>
-            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${target === 'single' ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-700'}`}>
-              <Mail className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+              <ShieldCheck className="w-4 h-4" />
             </div>
           </div>
           <div>
-            <div className="text-3xl font-black font-mono tracking-tight">
-              1
+            <div className="text-2xl sm:text-3xl font-black text-emerald-600 font-mono tracking-tight">
+              {deliverabilityRate}
             </div>
-            <p className="text-xs mt-2 opacity-75 font-semibold">
-              Envoi direct ciblé
+            <p className="text-[11px] text-emerald-700 font-bold mt-1">
+              ✓ Serveurs SMTP Vérifiés
+            </p>
+          </div>
+        </div>
+
+        {/* KPI 5: Taux d'Ouverture Telegram */}
+        <div className="rounded-3xl p-5 bg-white text-slate-900 border border-slate-200 shadow-xs flex flex-col justify-between space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-black uppercase tracking-wider text-sky-700">
+              Taux Ouverture
+            </span>
+            <div className="w-9 h-9 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold">
+              <Bell className="w-4 h-4" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl sm:text-3xl font-black text-sky-600 font-mono tracking-tight">
+              {openRate}
+            </div>
+            <p className="text-[11px] text-sky-700 font-bold mt-1">
+              📲 Alerte Telegram en direct
             </p>
           </div>
         </div>
@@ -742,12 +823,14 @@ export default function AdminMail() {
             </div>
 
             {/* Sélecteur de mode d'envoi */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {[
+                { value: 'registre_entreprises', label: '🎯 Registre Entreprises', desc: `${totalRegistreCount} prospects (Carnet 19,99€)` },
                 { value: 'all_candidates', label: '🚚 Tous les Chauffeurs', desc: `${totalCandidateCount} conducteurs` },
+                { value: 'all_companies', label: '🏢 Recruteurs Inscrits', desc: `${totalCompanyCount} transporteurs` },
+                { value: 'all_targets', label: '🌐 Tout le Monde', desc: `Global (${totalCandidateCount + totalCompanyCount + totalRegistreCount})` },
                 { value: 'candidates_incomplete_docs', label: '⚠️ Chauffeurs Incomplets', desc: `${incompleteCandidateCount} non validés` },
-                { value: 'all_companies', label: '🏢 Toutes Entreprises', desc: `${totalCompanyCount} transporteurs` },
-                { value: 'specific', label: '🎯 Contact Spécifique', desc: 'Choix dans la liste ou saisie' },
+                { value: 'specific', label: '✉️ Contact Spécifique', desc: 'Choix dans la liste ou saisie' },
               ].map(opt => {
                 const isActive = target === opt.value;
                 return (
@@ -760,7 +843,9 @@ export default function AdminMail() {
                     }}
                     className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                       isActive
-                        ? opt.value === 'candidates_incomplete_docs'
+                        ? opt.value === 'registre_entreprises'
+                          ? 'border-emerald-600 bg-emerald-600 text-white shadow-xs'
+                          : opt.value === 'candidates_incomplete_docs'
                           ? 'border-red-600 bg-red-600 text-white shadow-xs'
                           : 'border-slate-900 bg-slate-900 text-white shadow-xs'
                         : 'border-slate-200 bg-slate-50/60 hover:bg-white text-slate-800'

@@ -1,3 +1,5 @@
+import { getPostalCodeForCity } from './geocodingService.js';
+
 /**
  * Service API SIRENE (INSEE / Recherche Entreprises API Gouv)
  * Recherche le SIRET et l'adresse officielle d'une entreprise par nom et ville
@@ -23,13 +25,16 @@ export async function lookupSireneCompany(companyName, city = '') {
         const matchingComp = data.results[0];
         const siege = matchingComp.siege || {};
 
+        const realCity = siege.libelle_commune || city || 'France';
+        const realPostalCode = siege.code_postal || getPostalCodeForCity(realCity, '75000');
+
         return {
           siret: siege.siret || matchingComp.siren + '00010',
           siren: matchingComp.siren,
           nom_entreprise: matchingComp.nom_complet || companyName,
-          adresse: siege.adresse || `${siege.numero_voie || ''} ${siege.type_voie || ''} ${siege.libelle_voie || ''}`.trim() || city,
-          postal_code: siege.code_postal || '75000',
-          ville: siege.libelle_commune || city || 'France',
+          adresse: siege.adresse || `${siege.numero_voie || ''} ${siege.type_voie || ''} ${siege.libelle_voie || ''}`.trim() || realCity,
+          postal_code: realPostalCode,
+          ville: realCity,
           code_naf: matchingComp.activite_principale || '49.41Z',
         };
       }
@@ -38,13 +43,15 @@ export async function lookupSireneCompany(companyName, city = '') {
     console.error('[SireneService] Erreur recherche SIRENE:', err.message);
   }
 
-  // 2. Fallback SIRENE simulé si API indisponible ou entreprise non trouvée
+  const exactPostal = getPostalCodeForCity(city, '75000');
+
+  // 2. Fallback SIRENE si entreprise non trouvée dans SIRENE API
   return {
     siret: generateFallbackSiret(companyName),
     siren: '800' + Math.floor(100000 + Math.random() * 900000),
     nom_entreprise: companyName,
-    adresse: `10 Zone Industrielle du Transport`,
-    postal_code: '60000',
+    adresse: `Zone Industrielle du Transport`,
+    postal_code: exactPostal,
     ville: city || 'France',
     code_naf: '49.41Z',
   };

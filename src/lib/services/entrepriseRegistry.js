@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { getPostalCodeForCity } from './geocodingService.js';
 
 function getAdminClient() {
   return createClient(
@@ -19,6 +20,8 @@ export async function processAndRegisterEntreprise({
   ville,
   adresse,
   postal_code,
+  latitude,
+  longitude,
   source,
 }) {
   // 1. RÈGLE ABSOLUE : Email obligatoire
@@ -36,6 +39,7 @@ export async function processAndRegisterEntreprise({
   const cleanCity = (ville || 'France').trim();
   const cleanAddress = (adresse || cleanCity).trim();
   const cleanSiret = siret ? siret.trim() : null;
+  const cleanPostalCode = postal_code || getPostalCodeForCity(cleanCity, '75000');
 
   try {
     // 2. Vérification des doublons dans le registre `entreprises`
@@ -82,7 +86,9 @@ export async function processAndRegisterEntreprise({
       city: cleanCity,
       adresse: cleanAddress,
       address: cleanAddress,
-      postal_code: postal_code || '60000',
+      postal_code: cleanPostalCode,
+      latitude: latitude || null,
+      longitude: longitude || null,
       country: 'FR',
       source: source || 'talent.com-direct',
       statut_contact: 'non_contacté',

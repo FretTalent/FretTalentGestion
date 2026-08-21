@@ -97,8 +97,45 @@ export default function AppLayout({ children }) {
     pendingJobs: 0,
     openSupport: 0,
   });
+  const [unreadSupportCount, setUnreadSupportCount] = useState(0);
+
+  const fetchUserUnreadSupport = async (user) => {
+    if (!user) return;
+    try {
+      let convQuery = supabase
+        .from('support_conversations')
+        .select('id');
+
+      if (user.id && user.email) {
+        convQuery = convQuery.or(`user_id.eq.${user.id},user_email.ilike.${user.email}`);
+      } else if (user.id) {
+        convQuery = convQuery.eq('user_id', user.id);
+      } else if (user.email) {
+        convQuery = convQuery.ilike('user_email', user.email);
+      }
+
+      const { data: userConvs } = await convQuery;
+
+      if (userConvs && userConvs.length > 0) {
+        const convIds = userConvs.map(c => c.id);
+        const { count } = await supabase
+          .from('support_messages')
+          .select('id', { count: 'exact', head: true })
+          .in('conversation_id', convIds)
+          .eq('sender_role', 'admin')
+          .eq('is_read', false);
+
+        setUnreadSupportCount(count || 0);
+      } else {
+        setUnreadSupportCount(0);
+      }
+    } catch (err) {
+      console.error('Erreur unread support count:', err);
+    }
+  };
 
   useEffect(() => {
+    let supportInterval;
     const fetchUser = async () => {
       const {
         data: { user },
@@ -125,6 +162,11 @@ export default function AppLayout({ children }) {
             .eq('id', user.id)
             .maybeSingle();
           if (company) setCompanyName(company.name);
+          fetchUserUnreadSupport(user);
+          supportInterval = setInterval(() => fetchUserUnreadSupport(user), 6000);
+        } else if (profile.role === 'candidate') {
+          fetchUserUnreadSupport(user);
+          supportInterval = setInterval(() => fetchUserUnreadSupport(user), 6000);
         } else if (profile.role === 'admin') {
           try {
             const [candRes, jobsRes, convsRes] = await Promise.all([
@@ -143,9 +185,15 @@ export default function AppLayout({ children }) {
         }
       } else {
         setRole('candidate');
+        fetchUserUnreadSupport(user);
+        supportInterval = setInterval(() => fetchUserUnreadSupport(user), 6000);
       }
     };
     fetchUser();
+
+    return () => {
+      if (supportInterval) clearInterval(supportInterval);
+    };
   }, [router, pathname]);
 
   const handleSignOut = async () => {
@@ -332,6 +380,7 @@ export default function AppLayout({ children }) {
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
+          const isSupportItem = item.href.endsWith('/support');
 
           return (
             <Link
@@ -346,6 +395,11 @@ export default function AppLayout({ children }) {
             >
               <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-[#FF7A00]' : 'text-slate-400'}`} />
               <span className="truncate flex-1 min-w-0">{item.label}</span>
+              {isSupportItem && unreadSupportCount > 0 && (
+                <span className="px-2 py-0.5 rounded-full text-[11px] font-black bg-red-500 text-white animate-pulse shadow-xs">
+                  {unreadSupportCount}
+                </span>
+              )}
             </Link>
           );
         })}
@@ -392,8 +446,11 @@ export default function AppLayout({ children }) {
 
       <div className="flex-1 lg:ml-64 flex flex-col min-h-screen min-w-0 max-w-full overflow-x-hidden">
         <header className="lg:hidden sticky top-0 z-20 bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-xs">
-          <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-xl hover:bg-slate-100">
+          <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-xl hover:bg-slate-100 relative">
             <Menu className="h-5 w-5 text-slate-700" />
+            {unreadSupportCount > 0 && (
+              <span className="w-2.5 h-2.5 rounded-full bg-red-500 absolute top-1 right-1 border-2 border-white animate-pulse" />
+            )}
           </button>
           <span className="text-lg font-extrabold text-slate-900 tracking-tight">
             Fret<span className="text-[#FF7A00]">Talent</span>

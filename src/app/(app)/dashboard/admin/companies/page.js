@@ -33,6 +33,39 @@ export default function AdminCompanies() {
   const [filterCountry, setFilterCountry] = useState('all'); // 'all' | 'FR' | 'BE' | 'LU' | 'CH'
   const [filterPlan, setFilterPlan] = useState('all'); // 'all' | 'premium_monthly' | 'pay_per_unlock'
 
+  // Robot d'importation automatique
+  const [importing, setImporting] = useState(false);
+  const [importSummary, setImportSummary] = useState(null);
+  const [showLogsModal, setShowLogsModal] = useState(false);
+
+  const handleRunAutoImport = async () => {
+    setImporting(true);
+    toast.loading('🤖 Robot en cours d\'exécution : Scan Talent.com + SIRENE + Dropcontact...', { id: 'auto-import' });
+    try {
+      const res = await fetch('/api/cron/auto-import-entreprises', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erreur exécution robot');
+
+      toast.success(
+        `✅ Robot terminé ! ${data.summary.imported_direct_count} direct(s), ${data.summary.imported_enriched_count} enrichi(s), ${data.summary.ignored_no_email_count} ignoré(s).`,
+        { id: 'auto-import', duration: 6000 }
+      );
+
+      setImportSummary(data);
+      setShowLogsModal(true);
+      fetchData(); // Rafraîchir le registre
+    } catch (err) {
+      console.error('Erreur lancement robot:', err);
+      toast.error('Erreur robot: ' + err.message, { id: 'auto-import' });
+    } finally {
+      setImporting(false);
+    }
+  };
+
   const exportToCSV = () => {
     if (activeTab === 'entreprises') {
       if (filteredEntreprises.length === 0) return;
@@ -210,6 +243,15 @@ export default function AdminCompanies() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 z-10">
+          <button
+            onClick={handleRunAutoImport}
+            disabled={importing}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-black bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white shadow-md shadow-orange-500/20 transition-all cursor-pointer disabled:opacity-50"
+          >
+            <Zap className={`w-4 h-4 ${importing ? 'animate-spin' : ''}`} />
+            <span>{importing ? 'Scan en cours...' : '🚀 Lancer Robot Talent.com (Import Auto)'}</span>
+          </button>
+
           <button
             onClick={fetchData}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer"
@@ -531,6 +573,96 @@ export default function AdminCompanies() {
           </div>
         )}
       </div>
+
+      {/* MODAL RAPPORT & LOGS ROBOT D'IMPORTATION */}
+      {showLogsModal && importSummary && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-3xl w-full p-6 sm:p-8 space-y-6 max-h-[85vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150">
+            
+            {/* Header Modal */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-orange-50 text-[#FF7A00] flex items-center justify-center font-black">
+                  <Zap className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-black text-slate-900 text-lg">
+                    Rapport de l'Importation Automatique
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Exécution terminée en {importSummary.execution_time_seconds}s
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowLogsModal(false)}
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors font-bold text-sm"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* KPI Summary Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900">
+                <div className="text-2xl font-black">{importSummary.summary?.imported_direct_count || 0}</div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mt-1">Directs Talent.com</div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-blue-50 border border-blue-200 text-blue-900">
+                <div className="text-2xl font-black">{importSummary.summary?.imported_enriched_count || 0}</div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-blue-700 mt-1">Enrichis Dropcontact</div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900">
+                <div className="text-2xl font-black">{importSummary.summary?.ignored_no_email_count || 0}</div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mt-1">Ignorées (Sans email)</div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-100 border border-slate-200 text-slate-800">
+                <div className="text-2xl font-black">{importSummary.summary?.duplicates_skipped_count || 0}</div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-600 mt-1">Doublons Ignorés</div>
+              </div>
+            </div>
+
+            {/* Log list of ignored entries */}
+            {importSummary.logs?.ignored_no_email?.length > 0 && (
+              <div className="space-y-3 pt-2 border-t border-slate-100">
+                <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-amber-500" />
+                  Historique des entreprises ignorées (Sans E-mail) :
+                </h4>
+
+                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                  {importSummary.logs.ignored_no_email.map((item, idx) => (
+                    <div key={idx} className="p-2.5 rounded-xl bg-amber-50/60 border border-amber-200/60 flex items-center justify-between text-xs">
+                      <div>
+                        <span className="font-bold text-slate-900">{item.company_name}</span>
+                        <span className="text-[11px] text-slate-500 ml-2">({item.city || 'Ville non spécifiée'})</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-md">
+                        {item.reason}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Actions Footer */}
+            <div className="flex justify-end pt-3 border-t border-slate-100">
+              <button
+                onClick={() => setShowLogsModal(false)}
+                className="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+              >
+                Fermer le rapport
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
     </div>
   );

@@ -1195,9 +1195,21 @@ export default function AdminMail() {
         isOpen={confirmModal.isOpen}
         title="Confirmer l'envoi de l'e-mail ?"
         message={`Êtes-vous sûr de vouloir envoyer cet e-mail à : ${
-          target === 'all_candidates' ? `tous les candidats chauffeurs (${totalCandidateCount})` :
-          target === 'all_companies' ? `toutes les entreprises transporteurs (${totalCompanyCount})` :
-          `« ${specificEmails} »`
+          target === 'registre_entreprises'
+            ? `les entreprises du Registre Prospects (${totalRegistreCount} entreprise${totalRegistreCount > 1 ? 's' : ''})`
+            : target === 'all_candidates'
+            ? `tous les chauffeurs conducteurs (${totalCandidateCount} candidat${totalCandidateCount > 1 ? 's' : ''})`
+            : target === 'all_companies'
+            ? `toutes les entreprises recruteurs inscrites (${totalCompanyCount} entreprise${totalCompanyCount > 1 ? 's' : ''})`
+            : target === 'all_targets'
+            ? `TOUS les destinataires de la plateforme (${totalCandidateCount + totalCompanyCount + totalRegistreCount} contacts)`
+            : target === 'candidates_incomplete_docs'
+            ? `les chauffeurs aux dossiers incomplets (${incompleteCandidateCount} personne${incompleteCandidateCount > 1 ? 's' : ''})`
+            : selectedUser?.name
+            ? `${selectedUser.name} (${selectedUser.email})`
+            : specificEmails
+            ? `« ${specificEmails} »`
+            : `1 destinataire spécifique`
         } ?`}
         confirmText="Envoyer immédiatement"
         cancelText="Annuler"

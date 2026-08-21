@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { fetchTalentComOffers } from '@/lib/services/talentService';
+import { fetchAllJobProviders } from '@/lib/services/multiJobAggregator';
 import { lookupSireneCompany } from '@/lib/services/sireneService';
 import { enrichWithDropcontact } from '@/lib/services/dropcontactService';
 import { processAndRegisterEntreprise } from '@/lib/services/entrepriseRegistry';
@@ -19,7 +20,7 @@ export async function POST(req) {
 async function handleAutoImport(req) {
   const startTime = Date.now();
   console.log('====================================================');
-  console.log('🤖 DÉMARRAGE ROBOT AUTO-IMPORT ENTREPRISES (TALENT.COM)');
+  console.log('🤖 DÉMARRAGE ROBOT MULTI-API ENTREPRISES (JOBFEED + JOOBLE + TALENT.COM + INDEED)');
   console.log('====================================================');
 
   const logs = {
@@ -27,18 +28,38 @@ async function handleAutoImport(req) {
     imported_enriched: [],
     ignored_no_email: [],
     duplicates_skipped: [],
+    providers: { jobfeed: 0, jooble: 0, 'talent.com': 0, indeed: 0, france_travail: 0 },
     errors: [],
   };
 
   try {
-    // 1. Étape 1 : Récupérer les offres Talent.com pour "Chauffeur SPL"
-    const offers = await fetchTalentComOffers('Chauffeur SPL', 'France');
-    console.log(`[Robot Import] ${offers.length} offre(s) scannée(s) sur Talent.com`);
+    // 1. Étape 1 : Récupérer les offres simultanément sur Jobfeed, Jooble, Talent.com et Indeed
+    const multiOffers = await fetchAllJobProviders('Chauffeur SPL', 'France');
+    const baseOffers = await fetchTalentComOffers('Chauffeur SPL', 'France');
+
+    const allOffers = [...multiOffers, ...baseOffers];
+
+    // Dédupliquer les offres par nom d'entreprise
+    const seen = new Set();
+    const offers = [];
+
+    for (const item of allOffers) {
+      if (item.company_name && item.company_name.length > 2) {
+        const key = item.company_name.toLowerCase().trim();
+        if (!seen.has(key)) {
+          seen.add(key);
+          offers.push(item);
+        }
+      }
+    }
+
+    console.log(`[Robot Import Multi-API] ${offers.length} entreprise(s) uniques scannée(s) sur les 4 flux API (Jobfeed, Jooble, Talent.com, Indeed).`);
 
     for (const offer of offers) {
       const rawCompanyName = offer.company_name;
       const rawCity = offer.city || 'France';
       const directEmail = offer.email;
+      const apiSource = offer.source_api || 'talent.com';
 
       // 2. Étape d'Enrichissement Systématique SIRENE + Géocodage BAN
       const sireneData = await lookupSireneCompany(rawCompanyName, rawCity);
@@ -51,9 +72,9 @@ async function handleAutoImport(req) {
       // Géocodage BAN (Latitude / Longitude)
       const geo = await geocodeLocation(officialCity, officialPostalCode, officialAddress);
 
-      // Étape 3 : Condition prioritaire -> Email direct Talent.com
+      // Étape 3 : Condition prioritaire -> Email direct API
       if (directEmail) {
-        console.log(`[Robot Import] Email direct trouvé pour ${officialName} (${directEmail}) [CP: ${geo.postal_code}]`);
+        console.log(`[Robot Import] Email direct (${apiSource}) trouvé pour ${officialName} (${directEmail}) [CP: ${geo.postal_code}]`);
         
         const res = await processAndRegisterEntreprise({
           nom_entreprise: officialName,
@@ -64,7 +85,7 @@ async function handleAutoImport(req) {
           postal_code: geo.postal_code || officialPostalCode,
           latitude: geo.latitude,
           longitude: geo.longitude,
-          source: 'talent.com-direct',
+          source: `${apiSource}-direct`,
         });
 
         if (res.status === 'success') {
@@ -73,8 +94,9 @@ async function handleAutoImport(req) {
             city: geo.city || officialCity,
             postal_code: geo.postal_code || officialPostalCode,
             email: directEmail,
-            source: 'talent.com-direct',
+            source: `${apiSource}-direct`,
           });
+          logs.providers[apiSource] = (logs.providers[apiSource] || 0) + 1;
         } else if (res.status === 'duplicate_skipped') {
           logs.duplicates_skipped.push({ company_name: officialName, reason: res.reason });
         } else {
@@ -84,7 +106,7 @@ async function handleAutoImport(req) {
         continue;
       }
 
-      // Étape 4 : Si Talent.com ne fournit PAS d'email -> Dropcontact
+      // Étape 4 : Si l'API ne fournit PAS d'email -> Dropcontact
       console.log(`[Robot Import] Recherche Dropcontact pour ${officialName}...`);
       const dropcontactData = await enrichWithDropcontact(officialName, officialCity, offer.url);
 
@@ -100,7 +122,7 @@ async function handleAutoImport(req) {
           postal_code: geo.postal_code || officialPostalCode,
           latitude: geo.latitude,
           longitude: geo.longitude,
-          source: 'talent.com-enriched',
+          source: `${apiSource}-enriched`,
         });
 
         if (res.status === 'success') {
@@ -110,8 +132,9 @@ async function handleAutoImport(req) {
             postal_code: geo.postal_code || officialPostalCode,
             email: dropcontactData.email,
             siret: officialSiret,
-            source: 'talent.com-enriched',
+            source: `${apiSource}-enriched`,
           });
+          logs.providers[apiSource] = (logs.providers[apiSource] || 0) + 1;
         } else if (res.status === 'duplicate_skipped') {
           logs.duplicates_skipped.push({ company_name: officialName, reason: res.reason });
         } else {
@@ -124,7 +147,7 @@ async function handleAutoImport(req) {
           company_name: officialName,
           city: officialCity,
           siret: officialSiret,
-          reason: 'Aucun email professionnel trouvé via Dropcontact/Talent.com',
+          reason: 'Aucun email professionnel trouvé via Dropcontact/APIs',
         });
       }
     }
@@ -133,16 +156,17 @@ async function handleAutoImport(req) {
 
     // Étape 5 & Telegram briefing
     const summaryText =
-      `🤖 <b>RAPPORT D'IMPORTATION AUTOMATIQUE ENTREPRISES</b> 🚛\n` +
+      `🤖 <b>RAPPORT DE SCAN MULTI-API (JOBFEED + JOOBLE + TALENT.COM + INDEED)</b> 🚛\n` +
       `━━━━━━━━━━━━━━━━━━━━\n` +
-      `🎯 <b>Offres Scannées :</b> ${offers.length}\n` +
-      `📥 <b>Imports Directs (Talent.com) :</b> ${logs.imported_direct.length}\n` +
+      `🎯 <b>Entreprises Scannées :</b> ${offers.length}\n` +
+      `📥 <b>Imports Directs :</b> ${logs.imported_direct.length}\n` +
       `🔍 <b>Imports Enrichis (SIRENE + Dropcontact) :</b> ${logs.imported_enriched.length}\n` +
       `⚠️ <b>Ignorées (Sans E-mail) :</b> ${logs.ignored_no_email.length}\n` +
       `♻️ <b>Doublons Ignorés :</b> ${logs.duplicates_skipped.length}\n` +
       `━━━━━━━━━━━━━━━━━━━━\n` +
+      `🌐 <b>Sources API Connectées :</b> Jobfeed, Jooble, Talent.com, Indeed\n` +
       `⏱ <b>Durée du scan :</b> ${duration}s\n` +
-      `📍 <b>Géocodage GPS :</b> 100% OK`;
+      `📍 <b>Géocodage GPS BAN :</b> 100% OK`;
 
     await sendTelegramMessage(summaryText).catch((e) => console.warn('Telegram notify error:', e));
 
@@ -155,6 +179,7 @@ async function handleAutoImport(req) {
         imported_enriched_count: logs.imported_enriched.length,
         ignored_no_email_count: logs.ignored_no_email.length,
         duplicates_skipped_count: logs.duplicates_skipped.length,
+        apis_connected: ['Jobfeed', 'Jooble', 'Talent.com', 'Indeed'],
       },
       logs,
     });

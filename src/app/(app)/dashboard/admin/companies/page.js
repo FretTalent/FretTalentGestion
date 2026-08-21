@@ -249,7 +249,7 @@ export default function AdminCompanies() {
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-black bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white shadow-md shadow-orange-500/20 transition-all cursor-pointer disabled:opacity-50"
           >
             <Zap className={`w-4 h-4 ${importing ? 'animate-spin' : ''}`} />
-            <span>{importing ? 'Scan en cours...' : '🚀 Lancer Robot Talent.com (Import Auto)'}</span>
+            <span>{importing ? 'Scan en cours...' : '🚀 Lancer Scan Multi-API (Jobfeed, Jooble, Talent.com, Indeed)'}</span>
           </button>
 
           <button

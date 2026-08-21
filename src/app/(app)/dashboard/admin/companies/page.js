@@ -8,9 +8,7 @@ import {
   Search,
   Download,
   Building2,
-  CreditCard,
   Sparkles,
-  Zap,
   ShieldCheck,
   Mail,
   Phone,
@@ -25,76 +23,13 @@ import toast from 'react-hot-toast';
 
 export default function AdminCompanies() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('entreprises'); // 'entreprises' (Carnet 19,99€) | 'recruteurs' (Inscrits)
   const [companies, setCompanies] = useState([]);
-  const [entreprises, setEntreprises] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCountry, setFilterCountry] = useState('all'); // 'all' | 'FR' | 'BE' | 'LU' | 'CH'
   const [filterPlan, setFilterPlan] = useState('all'); // 'all' | 'premium_monthly' | 'pay_per_unlock'
 
-  // Robot d'importation automatique
-  const [importing, setImporting] = useState(false);
-  const [importSummary, setImportSummary] = useState(null);
-  const [showLogsModal, setShowLogsModal] = useState(false);
-
-  const handleRunAutoImport = async () => {
-    setImporting(true);
-    toast.loading('🤖 Robot en cours d\'exécution : Scan Talent.com + SIRENE + Dropcontact...', { id: 'auto-import' });
-    try {
-      const res = await fetch('/api/cron/auto-import-entreprises', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Erreur exécution robot');
-
-      toast.success(
-        `✅ Robot terminé ! ${data.summary.imported_direct_count} direct(s), ${data.summary.imported_enriched_count} enrichi(s), ${data.summary.ignored_no_email_count} ignoré(s).`,
-        { id: 'auto-import', duration: 6000 }
-      );
-
-      setImportSummary(data);
-      setShowLogsModal(true);
-      fetchData(); // Rafraîchir le registre
-    } catch (err) {
-      console.error('Erreur lancement robot:', err);
-      toast.error('Erreur robot: ' + err.message, { id: 'auto-import' });
-    } finally {
-      setImporting(false);
-    }
-  };
-
   const exportToCSV = () => {
-    if (activeTab === 'entreprises') {
-      if (filteredEntreprises.length === 0) return;
-      const headers = ['ID', 'Nom Entreprise', 'Email', 'Téléphone', 'SIRET', 'Code Postal', 'Ville', 'Pays', 'Partenaire Prioritaire', 'Date Import'];
-      const rows = filteredEntreprises.map(e => [
-        e.id,
-        `"${e.name || ''}"`,
-        `"${e.email || ''}"`,
-        `"${e.phone || ''}"`,
-        `"${e.siret || ''}"`,
-        `"${e.postal_code || ''}"`,
-        `"${e.city || ''}"`,
-        e.country || 'FR',
-        e.is_partner ? 'OUI' : 'NON',
-        e.created_at ? new Date(e.created_at).toLocaleDateString('fr-FR') : ''
-      ]);
-
-      const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement('a');
-      link.setAttribute('href', encodedUri);
-      link.setAttribute('download', `registre-transporteurs-${new Date().toISOString().split('T')[0]}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      toast.success('Export du carnet transporteurs téléchargé !');
-      return;
-    }
-
     if (filteredCompanies.length === 0) return;
     const headers = ['ID', 'Nom Entreprise', 'Email', 'Téléphone', 'Identifiant Entreprise', 'Pays', 'Formule Abonnement', 'Date Inscription'];
     const rows = filteredCompanies.map(c => [
@@ -105,8 +40,8 @@ export default function AdminCompanies() {
       `"${c.siret || c.bce || c.rcs_lux || c.ide_ch || c.registration_number || ''}"`,
       c.country || (c.bce ? 'BE' : 'FR'),
       c.subscription_plan === 'premium_monthly' || c.subscription_plan === 'premium_plus_monthly'
-        ? 'Pro Illimite (39.99 EUR)'
-        : 'Paiement a l acte (4.99 EUR)',
+        ? 'Pro Illimité (39.99 EUR)'
+        : 'Paiement à l\'acte (4.99 EUR)',
       c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : ''
     ]);
 
@@ -147,7 +82,7 @@ export default function AdminCompanies() {
         return;
       }
 
-      // 1. Recruteurs inscrits (companies)
+      // Recruteurs inscrits (companies)
       const { data: compData, error: compErr } = await supabase
         .from('companies')
         .select('*')
@@ -155,15 +90,6 @@ export default function AdminCompanies() {
 
       if (compErr) console.error(compErr);
       setCompanies(compData || []);
-
-      // 2. Registre transporteurs importés (entreprises)
-      const { data: entData, error: entErr } = await supabase
-        .from('entreprises')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (entErr) console.error(entErr);
-      setEntreprises(entData || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -193,18 +119,6 @@ export default function AdminCompanies() {
     return matchesSearch && matchesCountry && matchesPlan;
   });
 
-  const filteredEntreprises = entreprises.filter(e => {
-    const matchesSearch =
-      e.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      e.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      e.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      e.postal_code?.includes(searchTerm) ||
-      e.siret?.includes(searchTerm);
-    const entCountry = e.country || 'FR';
-    const matchesCountry = filterCountry === 'all' || entCountry === filterCountry;
-    return matchesSearch && matchesCountry;
-  });
-
   const vipCount = companies.filter(c => c.subscription_plan === 'premium_monthly' || c.subscription_plan === 'premium_plus_monthly').length;
 
   if (loading) {
@@ -229,29 +143,20 @@ export default function AdminCompanies() {
           <div className="flex items-center gap-2">
             <span className="px-3 py-1 rounded-full bg-orange-50 text-[#FF7A00] text-[11px] font-black uppercase tracking-wider border border-orange-200/60 flex items-center gap-1.5">
               <Building2 className="w-3.5 h-3.5" />
-              Répertoire National Transport
+              Répertoire Entreprises Recruteurs
             </span>
-            <span className="text-xs font-bold text-slate-600">• Entreprises & Recruteurs</span>
+            <span className="text-xs font-bold text-slate-600">• Comptes Inscrits ({companies.length})</span>
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            Comptes & Registre Entreprises
+            Comptes Entreprises & Transporteurs
           </h1>
           <p className="text-sm text-slate-600 max-w-2xl leading-relaxed">
-            Consultez la liste des entreprises de transport ainsi que les comptes recruteurs inscrits.
+            Consultez la liste des comptes recruteurs inscrits et gérez leurs formules d'abonnement.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3 z-10">
-          <button
-            onClick={handleRunAutoImport}
-            disabled={importing}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-black bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white shadow-md shadow-orange-500/20 transition-all cursor-pointer disabled:opacity-50"
-          >
-            <Zap className={`w-4 h-4 ${importing ? 'animate-spin' : ''}`} />
-            <span>{importing ? 'Scan en cours...' : '🚀 Lancer Scan Multi-API (Jobfeed, Jooble, Talent.com, Indeed)'}</span>
-          </button>
-
           <button
             onClick={fetchData}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer"
@@ -270,70 +175,23 @@ export default function AdminCompanies() {
         </div>
       </div>
 
-      {/* TABS SELECTOR */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
-        <button
-          onClick={() => setActiveTab('entreprises')}
-          className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
-            activeTab === 'entreprises'
-              ? 'bg-[#FF7A00] text-white shadow-sm'
-              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-          }`}
-        >
-          <Building2 className="w-4 h-4" />
-          <span>Registre Transporteurs ({entreprises.length})</span>
-          <span className="px-2 py-0.5 rounded-full bg-white/20 text-[10px]">19,99 €</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('recruteurs')}
-          className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
-            activeTab === 'recruteurs'
-              ? 'bg-slate-900 text-white shadow-sm'
-              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-          }`}
-        >
-          <Sparkles className="w-4 h-4" />
-          <span>Recruteurs Inscrits ({companies.length})</span>
-        </button>
-      </div>
-
       {/* 2. KPI CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black uppercase tracking-wider text-[#FF7A00]">
-              Registre Transporteurs
-            </span>
-            <div className="w-10 h-10 rounded-2xl bg-orange-50 text-[#FF7A00] flex items-center justify-center">
-              <Building2 className="w-5 h-5" />
-            </div>
-          </div>
-          <div>
-            <div className="text-3xl font-black text-slate-900 font-mono tracking-tight">
-              {entreprises.length}
-            </div>
-            <p className="text-xs text-slate-600 font-semibold mt-2">
-              Entreprises ciblées (19,99€)
-            </p>
-          </div>
-        </div>
-
         <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-all">
           <div className="flex items-center justify-between">
             <span className="text-xs font-black uppercase tracking-wider text-blue-600">
               Recruteurs Inscrits
             </span>
             <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
-              <Sparkles className="w-5 h-5" />
+              <Building2 className="w-5 h-5" />
             </div>
           </div>
           <div>
-            <div className="text-3xl font-black text-blue-600 font-mono tracking-tight">
+            <div className="text-3xl font-black text-slate-900 font-mono tracking-tight">
               {companies.length}
             </div>
-            <p className="text-xs text-blue-700 font-bold mt-2">
-              {vipCount} abonnés Pro Illimité
+            <p className="text-xs text-slate-600 font-semibold mt-2">
+              Comptes transporteurs actifs
             </p>
           </div>
         </div>
@@ -341,43 +199,62 @@ export default function AdminCompanies() {
         <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-all">
           <div className="flex items-center justify-between">
             <span className="text-xs font-black uppercase tracking-wider text-emerald-600">
-              Avec Coordonnées GPS
+              Abonnés Pro Illimité
             </span>
             <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <MapPin className="w-5 h-5" />
+              <Sparkles className="w-5 h-5" />
             </div>
           </div>
           <div>
-            <div className="text-3xl font-black text-slate-900 font-mono tracking-tight">
-              {entreprises.filter(e => e.latitude && e.longitude).length}
+            <div className="text-3xl font-black text-emerald-600 font-mono tracking-tight">
+              {vipCount}
             </div>
-            <p className="text-xs text-slate-600 font-semibold mt-2">
-              Prêtes pour ciblage 50 km
+            <p className="text-xs text-emerald-700 font-bold mt-2">
+              Formule Pro 39,99 € / mois
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-wider text-orange-600">
+              Paiement à l'acte
+            </span>
+            <div className="w-10 h-10 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-3xl font-black text-orange-600 font-mono tracking-tight">
+              {companies.length - vipCount}
+            </div>
+            <p className="text-xs text-orange-700 font-bold mt-2">
+              Déblocage 4,99 € / candidat
             </p>
           </div>
         </div>
       </div>
 
-      {/* 3. TABLEAU */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
-        
-        <div className="flex flex-col sm:flex-row gap-4 justify-between">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
+      {/* 3. FILTRES & RECHERCHE */}
+      <div className="bg-white rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-xs space-y-4">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="relative flex-1 w-full">
+            <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder={activeTab === 'entreprises' ? "Rechercher par nom, email, ville, CP, SIRET..." : "Rechercher par nom, email, SIRET, BCE..."}
+              placeholder="Rechercher par nom, e-mail, SIRET, BCE, RCS..."
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className="w-full pl-11 pr-4 py-2.5 border border-slate-200 rounded-2xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/20 bg-slate-50/50"
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-[#FF7A00] transition-all"
             />
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            {/* Filtre Pays */}
             <select
               value={filterCountry}
-              onChange={e => setFilterCountry(e.target.value)}
-              className="px-3.5 py-2.5 border border-slate-200 rounded-2xl text-xs font-bold text-slate-700 bg-slate-50/50 focus:outline-none cursor-pointer"
+              onChange={(e) => setFilterCountry(e.target.value)}
+              className="px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#FF7A00]"
             >
               <option value="all">🌍 Tous les Pays</option>
               <option value="FR">🇫🇷 France</option>
@@ -386,283 +263,99 @@ export default function AdminCompanies() {
               <option value="CH">🇨🇭 Suisse</option>
             </select>
 
-            {activeTab === 'recruteurs' && (
-              <select
-                value={filterPlan}
-                onChange={e => setFilterPlan(e.target.value)}
-                className="px-3.5 py-2.5 border border-slate-200 rounded-2xl text-xs font-bold text-slate-700 bg-slate-50/50 focus:outline-none cursor-pointer"
-              >
-                <option value="all">Toutes Formules</option>
-                <option value="premium_monthly">Pro Illimité (39,99€)</option>
-                <option value="pay_per_unlock">À l'acte (4,99€)</option>
-              </select>
-            )}
+            {/* Filtre Formule */}
+            <select
+              value={filterPlan}
+              onChange={(e) => setFilterPlan(e.target.value)}
+              className="px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#FF7A00]"
+            >
+              <option value="all">📋 Toutes les Formules</option>
+              <option value="premium_monthly">⭐ Pro Illimité (39,99€)</option>
+              <option value="pay_per_unlock">💳 Paiement à l'acte (4,99€)</option>
+            </select>
           </div>
         </div>
 
-        {/* TAB 1: REGISTRE TRANSPORTEURS IMPORTES (19,99€) */}
-        {activeTab === 'entreprises' && (
-          <div>
-            {filteredEntreprises.length === 0 ? (
-              <div className="py-12 text-center text-xs text-slate-600">
-                Aucune entreprise trouvée dans le registre.
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-100 text-slate-600 font-bold uppercase tracking-wider text-[10px]">
-                      <th className="py-3 px-3">Entreprise</th>
-                      <th className="py-3 px-3">Email & Téléphone</th>
-                      <th className="py-3 px-3">Localisation & GPS</th>
-                      <th className="py-3 px-3 text-center">SIRET</th>
-                      <th className="py-3 px-3 text-center">Partenaire</th>
-                      <th className="py-3 px-3 text-right">Fiche Détaillée</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 text-slate-700">
-                    {filteredEntreprises.map(e => (
-                      <tr key={e.id} className="hover:bg-slate-50/60 transition-colors">
-                        <td className="py-3 px-3">
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-xl bg-orange-50 text-[#FF7A00] flex items-center justify-center font-black text-xs shrink-0">
-                              <Building2 className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <p className="font-black text-slate-900">{e.name || 'Sans nom'}</p>
-                              {e.address && <p className="text-[10px] text-slate-400 truncate max-w-[200px]">{e.address}</p>}
-                            </div>
+        {/* LISTE RECRUTEURS INSCRITS */}
+        <div className="overflow-x-auto rounded-2xl border border-slate-200">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50 text-[11px] font-black text-slate-600 uppercase tracking-wider border-b border-slate-200">
+                <th className="py-4 px-6">Entreprise</th>
+                <th className="py-4 px-6">Contact & Identifiant</th>
+                <th className="py-4 px-6">Pays</th>
+                <th className="py-4 px-6">Formule</th>
+                <th className="py-4 px-6">Date Inscription</th>
+                <th className="py-4 px-6 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-700">
+              {filteredCompanies.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="py-8 text-center text-slate-600 font-bold">
+                    Aucune entreprise recruteur trouvée.
+                  </td>
+                </tr>
+              ) : (
+                filteredCompanies.map((c) => {
+                  const countryFlag = c.country === 'BE' || c.bce ? '🇧🇪' : c.country === 'LU' ? '🇱🇺' : c.country === 'CH' ? '🇨🇭' : '🇫🇷';
+                  const isPro = c.subscription_plan === 'premium_monthly' || c.subscription_plan === 'premium_plus_monthly';
+
+                  return (
+                    <tr key={c.id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-black">
+                            <Building2 className="w-4 h-4" />
                           </div>
-                        </td>
-
-                        <td className="py-3 px-3">
-                          <p className="font-bold text-slate-800 font-mono text-[11px]">{e.email || '—'}</p>
-                          {e.phone && <p className="text-slate-500 text-[10px] font-mono">{e.phone}</p>}
-                        </td>
-
-                        <td className="py-3 px-3">
-                          <div className="font-semibold text-slate-800 flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-slate-400" />
-                            <span>{e.postal_code} {e.city} ({e.country || 'FR'})</span>
+                          <div>
+                            <p className="font-bold text-slate-900">{c.name || 'Entreprise'}</p>
+                            <p className="text-[11px] text-slate-400 font-normal">{c.email}</p>
                           </div>
-                          {e.latitude && e.longitude ? (
-                            <span className="text-[10px] text-emerald-600 font-mono font-bold">
-                              📍 {Number(e.latitude).toFixed(3)}, {Number(e.longitude).toFixed(3)}
-                            </span>
-                          ) : (
-                            <span className="text-[10px] text-amber-600 font-medium">⚠️ Pas de GPS</span>
-                          )}
-                        </td>
+                        </div>
+                      </td>
 
-                        <td className="py-3 px-3 text-center font-mono text-slate-600 text-[11px]">
-                          {e.siret || '—'}
-                        </td>
+                      <td className="py-4 px-6">
+                        <p className="font-mono text-slate-800">{c.siret || c.bce || c.rcs_lux || c.ide_ch || c.registration_number || 'Non renseigné'}</p>
+                        <p className="text-[11px] text-slate-400 font-normal">{c.phone || 'Pas de tél'}</p>
+                      </td>
 
-                        <td className="py-3 px-3 text-center">
-                          {e.is_partner ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-50 text-amber-800 border border-amber-200">
-                              <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
-                              Oui
-                            </span>
-                          ) : (
-                            <span className="text-slate-400 text-xs">—</span>
-                          )}
-                        </td>
+                      <td className="py-4 px-6">
+                        <span className="text-sm">{countryFlag}</span>
+                      </td>
 
-                        <td className="py-3 px-3 text-right">
-                          <a
-                            href={`/dashboard/admin/companies/${e.id}`}
-                            className="px-3 py-1.5 rounded-xl text-xs font-bold text-[#FF7A00] hover:text-white bg-orange-50 hover:bg-[#FF7A00] transition-colors inline-flex items-center gap-1"
-                          >
-                            <span>Détails & Modifier</span>
-                            <ChevronRight className="w-3.5 h-3.5" />
-                          </a>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
+                      <td className="py-4 px-6">
+                        {isPro ? (
+                          <span className="px-3 py-1 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1">
+                            <Star className="w-3 h-3 fill-emerald-600" /> Pro Illimité (39,99€)
+                          </span>
+                        ) : (
+                          <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                            Paiement à l'acte (4,99€)
+                          </span>
+                        )}
+                      </td>
 
-        {/* TAB 2: RECRUTEURS INSCRITS */}
-        {activeTab === 'recruteurs' && (
-          <div>
-            {filteredCompanies.length === 0 ? (
-              <div className="py-12 text-center text-xs text-slate-600">
-                Aucun recruteur inscrit trouvé.
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-100 text-slate-600 font-bold uppercase tracking-wider text-[10px]">
-                      <th className="py-3 px-3">Entreprise</th>
-                      <th className="py-3 px-3">Contact</th>
-                      <th className="py-3 px-3">Identifiant Légal</th>
-                      <th className="py-3 px-3 text-center">Pays</th>
-                      <th className="py-3 px-3 text-center">Formule</th>
-                      <th className="py-3 px-3 text-right">Inscription</th>
-                      <th className="py-3 px-3 text-right">Fiche</th>
+                      <td className="py-4 px-6 text-slate-500 font-normal">
+                        {c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '—'}
+                      </td>
+
+                      <td className="py-4 px-6 text-right">
+                        <button
+                          onClick={() => router.push(`/dashboard/admin/companies/${c.id}`)}
+                          className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer"
+                        >
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 text-slate-700">
-                    {filteredCompanies.map(c => {
-                      const isVip = c.subscription_plan === 'premium_monthly' || c.subscription_plan === 'premium_plus_monthly';
-                      const country = c.country || (c.bce ? 'BE' : 'FR');
-                      const flag = country === 'BE' ? '🇧🇪' : country === 'LU' ? '🇱🇺' : country === 'CH' ? '🇨🇭' : '🇫🇷';
-
-                      return (
-                        <tr key={c.id} className="hover:bg-slate-50/60 transition-colors">
-                          <td className="py-3 px-3">
-                            <div className="flex items-center gap-2.5">
-                              <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-black text-xs shrink-0">
-                                <Building2 className="w-4 h-4" />
-                              </div>
-                              <span className="font-black text-slate-900">{c.name || 'Sans nom'}</span>
-                            </div>
-                          </td>
-
-                          <td className="py-3 px-3">
-                            <p className="font-medium text-slate-800">{c.email || '—'}</p>
-                            <p className="text-slate-600 text-[10px] font-mono">{c.phone || '—'}</p>
-                          </td>
-
-                          <td className="py-3 px-3 font-mono text-slate-600">
-                            {c.siret || c.bce || c.rcs_lux || c.ide_ch || c.registration_number || '—'}
-                          </td>
-
-                          <td className="py-3 px-3 text-center">
-                            <span className="text-base">{flag}</span>
-                          </td>
-
-                          <td className="py-3 px-3 text-center">
-                            {isVip ? (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-50 text-blue-700 border border-blue-200">
-                                Pro Illimité (39,99€)
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-orange-50 text-[#FF7A00] border border-orange-200">
-                                À l'acte (4,99€)
-                              </span>
-                            )}
-                          </td>
-
-                          <td className="py-3 px-3 text-right font-mono text-slate-600">
-                            {c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '—'}
-                          </td>
-
-                          <td className="py-3 px-3 text-right">
-                            <a
-                              href={`/dashboard/admin/companies/${c.id}`}
-                              className="px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 transition-colors inline-flex items-center gap-1"
-                            >
-                              <span>Voir</span>
-                              <ChevronRight className="w-3.5 h-3.5" />
-                            </a>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
-
-      {/* MODAL RAPPORT & LOGS ROBOT D'IMPORTATION */}
-      {showLogsModal && importSummary && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-3xl w-full p-6 sm:p-8 space-y-6 max-h-[85vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150">
-            
-            {/* Header Modal */}
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-orange-50 text-[#FF7A00] flex items-center justify-center font-black">
-                  <Zap className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-black text-slate-900 text-lg">
-                    Rapport de l'Importation Automatique
-                  </h3>
-                  <p className="text-xs text-slate-500 font-medium">
-                    Exécution terminée en {importSummary.execution_time_seconds}s
-                  </p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setShowLogsModal(false)}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors font-bold text-sm"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* KPI Summary Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900">
-                <div className="text-2xl font-black">{importSummary.summary?.imported_direct_count || 0}</div>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mt-1">Directs Talent.com</div>
-              </div>
-
-              <div className="p-3.5 rounded-2xl bg-blue-50 border border-blue-200 text-blue-900">
-                <div className="text-2xl font-black">{importSummary.summary?.imported_enriched_count || 0}</div>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-blue-700 mt-1">Enrichis Dropcontact</div>
-              </div>
-
-              <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900">
-                <div className="text-2xl font-black">{importSummary.summary?.ignored_no_email_count || 0}</div>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mt-1">Ignorées (Sans email)</div>
-              </div>
-
-              <div className="p-3.5 rounded-2xl bg-slate-100 border border-slate-200 text-slate-800">
-                <div className="text-2xl font-black">{importSummary.summary?.duplicates_skipped_count || 0}</div>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-600 mt-1">Doublons Ignorés</div>
-              </div>
-            </div>
-
-            {/* Log list of ignored entries */}
-            {importSummary.logs?.ignored_no_email?.length > 0 && (
-              <div className="space-y-3 pt-2 border-t border-slate-100">
-                <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-amber-500" />
-                  Historique des entreprises ignorées (Sans E-mail) :
-                </h4>
-
-                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                  {importSummary.logs.ignored_no_email.map((item, idx) => (
-                    <div key={idx} className="p-2.5 rounded-xl bg-amber-50/60 border border-amber-200/60 flex items-center justify-between text-xs">
-                      <div>
-                        <span className="font-bold text-slate-900">{item.company_name}</span>
-                        <span className="text-[11px] text-slate-500 ml-2">({item.city || 'Ville non spécifiée'})</span>
-                      </div>
-                      <span className="text-[10px] font-bold text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-md">
-                        {item.reason}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Actions Footer */}
-            <div className="flex justify-end pt-3 border-t border-slate-100">
-              <button
-                onClick={() => setShowLogsModal(false)}
-                className="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
-              >
-                Fermer le rapport
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
 
     </div>
   );

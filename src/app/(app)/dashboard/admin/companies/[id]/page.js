@@ -225,7 +225,7 @@ export default function CompanyProfile() {
                   ? 'bg-orange-50 text-[#FF7A00] border border-orange-200'
                   : 'bg-blue-50 text-blue-700 border border-blue-200'
               }`}>
-                {isCarnet ? 'Registre Transporteur (19,99€)' : 'Recruteur Inscrit'}
+                {isCarnet ? 'Entreprise Transporteur' : 'Recruteur Inscrit'}
               </span>
               {company.is_partner && (
                 <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-black flex items-center gap-1">

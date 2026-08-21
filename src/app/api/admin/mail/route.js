@@ -65,25 +65,6 @@ export async function POST(req) {
       for (const email of emailList) {
         recipientEntries.push({ email, name: email, role: 'contact' });
       }
-    } else if (target === 'registre_entreprises' || target === 'all_registre_entreprises') {
-      // 🎯 Cibler 100% des entreprises du Registre (Prospects - Carnet 19,99€)
-      const { data: registreList } = await supabaseAdmin
-        .from('entreprises')
-        .select('id, name, nom_entreprise, email')
-        .not('email', 'is', null);
-
-      if (registreList && registreList.length > 0) {
-        for (const ent of registreList) {
-          if (ent.email && ent.email.includes('@')) {
-            recipientEntries.push({
-              email: ent.email.trim().toLowerCase(),
-              name: ent.nom_entreprise || ent.name || ent.email,
-              role: 'recruiter',
-              entrepriseId: ent.id,
-            });
-          }
-        }
-      }
     } else if (target === 'candidates_incomplete_docs') {
       // Cibler UNIQUEMENT les chauffeurs non validés avec documents incomplets
       const { data: candidates } = await supabaseAdmin
@@ -138,23 +119,6 @@ export async function POST(req) {
             companyId: c.id,
           });
         }
-      });
-    } else if (target === 'all_targets') {
-      // 🌐 TOUT LE MONDE (Chauffeurs + Recruteurs + Registre Entreprises)
-      const [candsRes, compsRes, registreRes] = await Promise.all([
-        supabaseAdmin.from('candidates').select('id, full_name, email'),
-        supabaseAdmin.from('companies').select('id, name, email'),
-        supabaseAdmin.from('entreprises').select('id, name, nom_entreprise, email').not('email', 'is', null),
-      ]);
-
-      (candsRes.data || []).forEach(c => {
-        if (c.email) recipientEntries.push({ email: c.email.trim().toLowerCase(), name: c.full_name || c.email, role: 'candidate', candidateId: c.id });
-      });
-      (compsRes.data || []).forEach(c => {
-        if (c.email) recipientEntries.push({ email: c.email.trim().toLowerCase(), name: c.name || c.email, role: 'recruiter', companyId: c.id });
-      });
-      (registreRes.data || []).forEach(e => {
-        if (e.email) recipientEntries.push({ email: e.email.trim().toLowerCase(), name: e.nom_entreprise || e.name || e.email, role: 'recruiter', entrepriseId: e.id });
       });
     }
 
